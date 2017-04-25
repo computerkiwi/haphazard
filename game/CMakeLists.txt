@@ -4,6 +4,8 @@
 
 project(Game)
 
+SET ( CMAKE_CXX_FLAGS "-std=c++0x" )
+
 # GLOB all the files for now, but I've been told that this may cause issues sometimes. Need to ask some people. -K
 file(GLOB SOURCES "src/*.cpp")
 
