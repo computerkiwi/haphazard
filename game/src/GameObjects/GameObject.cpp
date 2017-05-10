@@ -10,6 +10,13 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "GameObject.h"
 
+
+GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(space->AssignID())
+{
+}
+
+
+
 // ----------------------------------------------------
 // 
 // --------
@@ -19,13 +26,13 @@ GameObjectID_t GameObject::id() const
 }
 
 
-void GameObject::SetSpace(GameObject_Space * space)
+void GameObject::SetSpace(GameObject_Space & space)
 {
 	mContainingSpace = space;
 }
 
 
-GameObject_Space * GameObject::GetSpace() const
+GameObject_Space & GameObject::GetSpace() const
 {
 	return mContainingSpace;
 }

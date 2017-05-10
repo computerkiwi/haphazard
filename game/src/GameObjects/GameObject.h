@@ -15,11 +15,12 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <map>
 #include "Components/Component.h"
 
-typedef uint64_t GameObjectID_t;
+// size_t for GameObjectID
+typedef size_t GameObjectID_t;
 
+// Defining void * so it is actually something when read
 typedef void * Component_Index;
 typedef void * Component_Maps;
-
 
 
 template <typename T>
@@ -50,11 +51,13 @@ public:
 		mSpace.emplace({ COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>});
 	}
 
+
 	template <typename T>
 	void Add(GameObjectID_t id, T && component)
 	{
 		static_cast<std::map<GameObjectID_t, T>>(mSpace.find(COMPONENT_GEN<T>::Func)).emplace({ id, component });
 	}
+
 
 	template <typename T>
 	T & Find(GameObjectID_t id)
@@ -62,8 +65,31 @@ public:
 		return *static_cast<std::map<GameObjectID_t, T>>(mSpace.find(COMPONENT_GEN<T>::Func)).at(id);
 	}
 
+
+	GameObjectID_t AssignID()
+	{
+		return mCurrentID++;
+	}
+
+
+	// WIP function
+	~GameObject_Space()
+	{
+		for (auto & iter : mSpace)
+		{
+			delete reinterpret_cast<std::map<GameObjectID_t, decltype(iter.second)> *>(iter.second);
+		}
+	}
+
+
 private:
+	// Component_Index is static func pointer
+	// Component_Maps is the map of the component
 	std::unordered_map<Component_Index, Component_Maps> mSpace;
+
+	// The id to assign to the next gameobject
+	GameObjectID_t mCurrentID = 0;
+
 };
 
 
@@ -72,26 +98,55 @@ class GameObject
 {
 public:
 
+	explicit GameObject(GameObject_Space & space);
+
+
+	// Gets the ID of the object
 	GameObjectID_t id() const;
 
-	void SetSpace(GameObject_Space * space);
-	GameObject_Space * GetSpace() const;
+	void SetSpace(GameObject_Space & space);
+	GameObject_Space & GetSpace() const;
 
 
 	template <typename T>
 	void SetComponent(T && component)
 	{
-		mContainingSpace->Add(mID, component);
+		mContainingSpace.Add(mID, component);
 	}
 
 
+	// Adds custom components to an object
+	template <typename ...Args>
+	void SetComponent(Args && ...args)
+	{
+		using expand = int[];
+		expand
+		{
+			0, (SetComponent(args), 0)...
+		};
+	}
+
+
+	// Adds default components to an object.
+	template <typename ...Args>
+	void SetComponent()
+	{
+		using expand = int[];
+		expand
+		{
+			0, (SetComponent(Args()), 0)...
+		};
+	}
+
+
+	// GetComponent, will throw NoComponent in Debug if no component was found on an object
 	template <typename T>
 	T & GetComponent()
 	{
 		#ifdef _DEBUG
 			try
 			{
-				return mContainingSpace->Find<T>(mID);
+				return mContainingSpace.Find<T>(mID);
 			}
 			catch(std::out_of_range)
 			{
@@ -104,10 +159,14 @@ public:
 
 
 private:
-	GameObject_Space * mContainingSpace = nullptr;
 
+	// The parent of the game object
+	GameObject_Space & mContainingSpace;
+
+	// Class to throw if no object was found
 	class NoComponent { public: const char * error = "No Component was found"; };
 
+	// ID of the game object
 	GameObjectID_t mID = 0;
 };
 

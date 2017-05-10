@@ -16,21 +16,13 @@ class Component
 {
 public:
 	Component() {}
-	explicit Component(GameObject * parent);
+	explicit Component(GameObject * parent) : mParent(parent) {}
 
-	GameObject * GetParent() const;
+	inline void SetParent(GameObject * parent) { mParent = parent; }
+	inline GameObject * GetParent() const { return mParent; }
 
 protected:
 	GameObject * mParent = nullptr;
 };
-
-
-class Sprite : public Component
-{
-public:
-	float mAlpha = 10;
-};
-
-
 
 
