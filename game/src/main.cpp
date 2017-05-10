@@ -23,7 +23,7 @@ int main()
 
 
 	GameObject_Space space;
-	GameObject object(&space);
+	GameObject object(space);
 
 	Sprite sprite;
 	object.SetComponent(sprite);

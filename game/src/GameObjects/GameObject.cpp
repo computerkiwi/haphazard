@@ -11,7 +11,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObject.h"
 
 
-GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(space->AssignID())
+GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(space.AssignID())
 {
 }
 
