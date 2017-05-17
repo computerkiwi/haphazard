@@ -23,13 +23,7 @@ GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(
 GameObjectID_t GameObject::id() const
 {
 	return mID;
-}
-
-
-void GameObject::SetSpace(GameObject_Space & space)
-{
-	mContainingSpace = space;
-}
+} 
 
 
 GameObject_Space & GameObject::GetSpace() const

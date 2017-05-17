@@ -22,13 +22,12 @@ typedef size_t GameObjectID_t;
 typedef void * Component_Index;
 typedef void * Component_Maps;
 
-
 template <typename T>
 struct COMPONENT_GEN
 {
 	constexpr static Component_Index Func()
 	{
-		return static_cast<Component_Index>(Func);
+		return Func;
 	}
 };
 
@@ -48,14 +47,14 @@ public:
 	template <typename T>
 	void RegisterComponentMap()
 	{
-		mSpace.emplace({ COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>});
+		mSpace.emplace(COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>);
 	}
 
 
 	template <typename T>
 	void Add(GameObjectID_t id, T && component)
 	{
-		static_cast<std::map<GameObjectID_t, T>>(mSpace.find(COMPONENT_GEN<T>::Func)).emplace({ id, component });
+		reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.find(COMPONENT_GEN<T>::Func)->second)->emplace(id, component);
 	}
 
 
@@ -104,7 +103,6 @@ public:
 	// Gets the ID of the object
 	GameObjectID_t id() const;
 
-	void SetSpace(GameObject_Space & space);
 	GameObject_Space & GetSpace() const;
 
 
