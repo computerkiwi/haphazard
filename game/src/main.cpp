@@ -9,15 +9,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 
 #include <iostream>
-
+#include "meta\tests.h"
 
 int main()
 {
-
-	for (auto i = 0; i < 100; ++i)
-	{
-		std::cout << "Hello, world!" << std::endl;
-	}
+	meta::TestAll();
 
 	// Keep the console from closing.
 	std::cin.ignore();
