@@ -10,6 +10,9 @@ Copyright 2017 DigiPen (USA) Corporation.
 
 #pragma once
 
+#include <map>
+#include <assert.h>
+
 //
 // INTERFACE
 //
@@ -32,9 +35,11 @@ namespace meta
 	class Type
 	{
 	public:
+		Type(std::string name) : _name(name) {}
+		const std::string& Name() const { return _name; };
 
 	private:
-		
+		std::string _name;
 	};
 
 }
@@ -50,22 +55,24 @@ namespace meta
 		// Type Identifier 
 		//
 
+		typedef unsigned int TypeID;
+
 		// Identifier
 		class TypeIdentifier
 		{
 		public:
-			template <typename T> static unsigned int Get();
+			template <typename T> static TypeID Get();
 		private:
-			static unsigned int CountId();
-			static unsigned int _idCounter;
-			unsigned int _id;
+			static TypeID CountId();
+			static TypeID _idCounter;
+			TypeID _id;
 		};
 
 		template <typename T>
 		unsigned int TypeIdentifier::Get()
 		{
 			static bool hasRun = false;
-			static int identifier = 0;
+			static TypeID identifier = 0;
 
 			// Generate a new id if we haven't gotten one for this type before.
 			if (!hasRun)
@@ -78,8 +85,54 @@ namespace meta
 		}
 
 		//
+		// 
+		//
+
+		extern std::map<TypeID, Type> typeMap;
+
+		//
 		// Registration
 		//
+
 		template <typename T>
+		Type *RegisterType(std::string name)
+		{
+			TypeID id = TypeIdentifier::Get<T>();
+
+			assert(typeMap.find(id) == typeMap.end() && "Registering an already registered type.");
+
+			// Add a new type object and store the pointer to it.
+			Type *typePointer = &(typeMap.insert(std::pair<TypeID, Type>(id, Type(name))).first->second);
+
+			return typePointer;
+		}
+
+		#define META_REGISTER(TYPENAME) const ::meta::Type *tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
+
+		//
+		// Get Registered Type
+		//
+
+		template <typename T>
+		const Type *GetType()
+		{
+			TypeID id = TypeIdentifier::Get<T>();
+			auto typeIt = typeMap.find(id);
+
+			// Return a null pointer if we couldn't find the type.
+			if (typeIt == typeMap.end())
+			{
+				return nullptr;
+			}
+
+			return &(typeIt->second);
+		}
+
+		// Convenience wrapper so we can just pass in an object.
+		template <typename T>
+		const Type *GetType(T obj)
+		{
+			return GetType<T>();
+		}
 	}
 }

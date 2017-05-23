@@ -16,3 +16,9 @@ unsigned int meta::internal::TypeIdentifier::CountId()
 }
 
 unsigned int meta::internal::TypeIdentifier::_idCounter = 0;
+
+std::map<meta::internal::TypeID, meta::Type> meta::internal::typeMap;
+
+// Register some default types.
+META_REGISTER(int);
+META_REGISTER(float);
