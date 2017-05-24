@@ -11,6 +11,7 @@ Copyright 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include <map>
+#include <vector>
 #include <assert.h>
 
 //
@@ -22,13 +23,54 @@ namespace meta
 	class Type;
 
 	// Represents a pointer to a variable of a certain type.
-	class Pointer
+	class AnyPointer
 	{
 	public:
+		template <typename T> AnyPointer(T *pointer) : _pointer(pointer), _typeInfo(internal::GetType<T>()) {}
+		
+		template <typename T> T *GetPointer() { assert(_typeInfo == internal::GetType<T>()); return reinterpret_cast<T *>(_pointer); }
+
+		AnyPointer GetProperty(const char *propertyName);
+		void SetProperty(const char *propertyName, AnyPointer& value);
 
 	private:
 		void *_pointer;
-		const Type *_typeInfo;
+		Type *_typeInfo;
+	};
+
+	class MemberProperty
+	{
+	public:
+		MemberProperty(const char *name) : _name(name) {}
+
+		virtual AnyPointer Get(AnyPointer& obj) = 0;
+		virtual void Set(AnyPointer& obj, AnyPointer& value) = 0;
+		const char *Name() { return _name; }
+
+	private:
+		const char *_name;
+	};
+
+	template <typename BaseType, typename MemberType>
+	class TemplatedMember : public MemberProperty
+	{
+	public:
+		TemplatedMember(const char *name, MemberType BaseType::*member) : MemberProperty(name), _member(member) {}
+
+		virtual AnyPointer Get(AnyPointer& obj)
+		{
+			BaseType *pObj = obj.GetPointer<BaseType>();
+			return AnyPointer(&(pObj->*_member));
+		}
+
+		virtual void Set(AnyPointer& obj, AnyPointer& value)
+		{
+			BaseType *pObj = obj.GetPointer<BaseType>();
+			(pObj->*_member) = *value.GetPointer<MemberType>();
+		}
+
+	private:
+		MemberType BaseType::*_member;
 	};
 
 	// Represents a type or struct.
@@ -36,10 +78,17 @@ namespace meta
 	{
 	public:
 		Type(std::string name) : _name(name) {}
+
 		const std::string& Name() const { return _name; };
+
+		template <typename BaseType, typename MemberType> Type *RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return this; }
+
+		AnyPointer GetProperty(AnyPointer& obj, const char *propName) const;
+		void SetProperty(AnyPointer& obj, const char *propName, AnyPointer& value);
 
 	private:
 		std::string _name;
+		std::vector<MemberProperty *> _properties;
 	};
 
 }
@@ -114,7 +163,7 @@ namespace meta
 		//
 
 		template <typename T>
-		const Type *GetType()
+		Type *GetType()
 		{
 			TypeID id = TypeIdentifier::Get<T>();
 			auto typeIt = typeMap.find(id);
@@ -130,7 +179,7 @@ namespace meta
 
 		// Convenience wrapper so we can just pass in an object.
 		template <typename T>
-		const Type *GetType(T obj)
+		Type *GetType(T obj)
 		{
 			return GetType<T>();
 		}
