@@ -16,11 +16,38 @@ namespace meta
 	class ExampleA
 	{
 	public:
-		ExampleA() : a(0) {}
+		ExampleA() : a(1), b(1.1), c(1), d(1), e(1), f(1.1), g(1.1) {}
 		int a;
 		float b;
+		int c;
+		int d;
+		int e;
+		float f;
+		float g;
 	};
-	META_REGISTER(ExampleA)->RegisterProperty("a", &ExampleA::a)->RegisterProperty("b", &ExampleA::b);
+	META_REGISTER(ExampleA)->
+	RegisterProperty("a", &ExampleA::a)->
+	RegisterProperty("b", &ExampleA::b)->
+	RegisterProperty("c", &ExampleA::c)->
+	RegisterProperty("d", &ExampleA::d)->
+	RegisterProperty("e", &ExampleA::e)->
+	RegisterProperty("f", &ExampleA::f)->
+	RegisterProperty("g", &ExampleA::g);
+
+	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
+	{
+		os << "---ExampleA Object---" << std::endl;
+		os << "a: " << obj.a << std::endl;
+		os << "b: " << obj.b<< std::endl;
+		os << "c: " << obj.c << std::endl;
+		os << "d: " << obj.d << std::endl;
+		os << "e: " << obj.e << std::endl;
+		os << "f: " << obj.f << std::endl;
+		os << "g: " << obj.g << std::endl;
+		os << "---------------------";
+
+		return os;
+	}
 
 	void TestTypeIDs()
 	{
@@ -59,7 +86,7 @@ namespace meta
 		assert(&x == xP);
 	}
 
-	void TestProperty()
+	void TestPropertyGetSet()
 	{
 		ExampleA obj;
 		obj.a = 3;
@@ -77,11 +104,41 @@ namespace meta
 		assert(*x == obj.a);
 	}
 
+	void TestPropertyInfo()
+	{
+		ExampleA obj;
+		AnyPointer pObj(&obj);
+		std::cout << obj << std::endl;
+
+		std::cout << "Setting integers to 5 and floats to 3.22." << std::endl;
+		
+		std::vector<MemberProperty *> properties = pObj.GetType()->GetPropertiesInfo();
+		for (MemberProperty *prop : properties)
+		{
+			Type * propType = prop->GetType();
+			if (propType == meta::internal::GetType<int>())
+			{
+				int temp = 5;
+				AnyPointer value(&temp);
+				pObj.SetProperty(prop->Name(), value);
+			}
+			if (propType == meta::internal::GetType<float>())
+			{
+				float temp = 3.22;
+				AnyPointer value(&temp);
+				pObj.SetProperty(prop->Name(), value);
+			}
+		}
+
+		std::cout << obj << std::endl;
+	}
+
 	void TestAll()
 	{
 		TestTypeIDs();
 		TestSimpleTypeLookup();
 		TestAny();
-		TestProperty();
+		TestPropertyGetSet();
+		TestPropertyInfo();
 	}
 }

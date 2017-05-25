@@ -32,6 +32,7 @@ namespace meta
 
 		AnyPointer GetProperty(const char *propertyName);
 		void SetProperty(const char *propertyName, AnyPointer& value);
+		Type *GetType();
 
 	private:
 		void *_pointer;
@@ -45,6 +46,7 @@ namespace meta
 
 		virtual AnyPointer Get(AnyPointer& obj) = 0;
 		virtual void Set(AnyPointer& obj, AnyPointer& value) = 0;
+		virtual Type *GetType() = 0;
 		const char *Name() { return _name; }
 
 	private:
@@ -69,6 +71,11 @@ namespace meta
 			(pObj->*_member) = *value.GetPointer<MemberType>();
 		}
 
+		virtual Type *GetType()
+		{
+			return internal::GetType<MemberType>();
+		}
+
 	private:
 		MemberType BaseType::*_member;
 	};
@@ -85,6 +92,8 @@ namespace meta
 
 		AnyPointer GetProperty(AnyPointer& obj, const char *propName) const;
 		void SetProperty(AnyPointer& obj, const char *propName, AnyPointer& value);
+		std::vector<MemberProperty *> GetPropertiesInfo();
+		bool HasProperty(const char *propertyName);
 
 	private:
 		std::string _name;

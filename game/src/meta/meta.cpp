@@ -60,6 +60,27 @@ namespace meta
 		return;
 	}
 
+	bool Type::HasProperty(const char *propertyName)
+	{
+		// Run through the properties until we find one with the desired name.
+		for (MemberProperty *prop : _properties)
+		{
+			if (strcmp(prop->Name(), propertyName) == 0)
+			{
+				return true;
+			}
+		}
+
+		// If we didn't find anything, the type doesn't have the property.
+		return false;
+	}
+
+	// Returns a vector of information on a type's properties.
+	std::vector<MemberProperty *> Type::GetPropertiesInfo()
+	{
+		return _properties;
+	}
+
 	AnyPointer AnyPointer::GetProperty(const char *propertyName)
 	{
 		return _typeInfo->GetProperty(*this, propertyName);
@@ -68,5 +89,10 @@ namespace meta
 	void AnyPointer::SetProperty(const char *propertyName, AnyPointer& value)
 	{
 		_typeInfo->SetProperty(*this, propertyName, value);
+	}
+
+	Type *AnyPointer::GetType()
+	{
+		return _typeInfo;
 	}
 }
