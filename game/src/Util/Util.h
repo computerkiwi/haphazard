@@ -1,0 +1,18 @@
+
+
+
+
+
+
+#define GetSet(CLASS, MEMBER)
+
+
+
+
+
+
+
+
+
+
+
