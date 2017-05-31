@@ -10,6 +10,7 @@ Copyright 2017 DigiPen (USA) Corporation.
 
 #pragma once
 
+#include <string>
 #include <map>
 #include <vector>
 #include <assert.h>
@@ -26,9 +27,9 @@ namespace meta
 	class AnyPointer
 	{
 	public:
-		template <typename T> AnyPointer(T *pointer) : _pointer(pointer), _typeInfo(internal::GetType<T>()) {}
+		template <typename T> AnyPointer(T *pointer);
 		
-		template <typename T> T *GetPointer() { assert(_typeInfo == internal::GetType<T>()); return reinterpret_cast<T *>(_pointer); }
+		template <typename T> T *GetPointer();
 
 		AnyPointer GetProperty(const char *propertyName);
 		void SetProperty(const char *propertyName, AnyPointer& value);
@@ -59,22 +60,11 @@ namespace meta
 	public:
 		TemplatedMember(const char *name, MemberType BaseType::*member) : MemberProperty(name), _member(member) {}
 
-		virtual AnyPointer Get(AnyPointer& obj)
-		{
-			BaseType *pObj = obj.GetPointer<BaseType>();
-			return AnyPointer(&(pObj->*_member));
-		}
-
-		virtual void Set(AnyPointer& obj, AnyPointer& value)
-		{
-			BaseType *pObj = obj.GetPointer<BaseType>();
-			(pObj->*_member) = *value.GetPointer<MemberType>();
-		}
-
-		virtual Type *GetType()
-		{
-			return internal::GetType<MemberType>();
-		}
+		virtual AnyPointer Get(AnyPointer& obj);
+	
+		virtual void Set(AnyPointer& obj, AnyPointer& value);
+	
+		virtual Type *GetType();
 
 	private:
 		MemberType BaseType::*_member;
@@ -193,4 +183,37 @@ namespace meta
 			return GetType<T>();
 		}
 	}
+
+	template <typename T> AnyPointer::AnyPointer(T *pointer) : _pointer(pointer), _typeInfo(internal::GetType<T>())
+	{
+	}
+
+	template <typename T> T *AnyPointer::GetPointer() 
+	{ 
+		assert(_typeInfo == internal::GetType<T>()); 
+		return reinterpret_cast<T *>(_pointer); 
+	}
+
+
+
+	template <typename BaseType, typename MemberType>
+	AnyPointer TemplatedMember<BaseType, MemberType>::Get(AnyPointer& obj)
+	{
+		BaseType *pObj = obj.GetPointer<BaseType>();
+		return AnyPointer(&(pObj->*_member));
+	}
+
+	template <typename BaseType, typename MemberType>
+	void TemplatedMember<BaseType, MemberType>::Set(AnyPointer& obj, AnyPointer& value)
+	{
+		BaseType *pObj = obj.GetPointer<BaseType>();
+		(pObj->*_member) = *value.GetPointer<MemberType>();
+	}
+
+	template <typename BaseType, typename MemberType>
+	Type *TemplatedMember<BaseType, MemberType>::GetType()
+	{
+		return internal::GetType<MemberType>();
+	}
+
 }

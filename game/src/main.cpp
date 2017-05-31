@@ -9,7 +9,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 */
 
 #include <iostream>
-#include "meta\tests.h"
+#include "meta/tests.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 

@@ -94,7 +94,8 @@ namespace meta
 
 		std::cout << obj.a << std::endl;
 		int temp = 5;
-		pObj.SetProperty("a", AnyPointer(&temp));
+		AnyPointer tPointer(&temp);
+		pObj.SetProperty("a", tPointer);
 		std::cout << obj.a << std::endl;
 		assert(temp == obj.a);
 		assert(&temp != &obj.a);

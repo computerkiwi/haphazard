@@ -9,6 +9,7 @@ Copyright 2017 DigiPen (USA) Corporation.
 *******************************************************/
 
 #include "meta.h"
+#include <cstring>
 
 namespace meta
 {

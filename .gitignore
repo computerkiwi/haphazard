@@ -1,0 +1,12 @@
+
+game/src/\.vscode/
+
+game/CMakeFiles/
+
+game/Makefile
+
+*.cmake
+
+game/CMakeCache\.txt
+
+*.exe
