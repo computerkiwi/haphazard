@@ -78,7 +78,7 @@ namespace meta
 
 		const std::string& Name() const { return _name; };
 
-		template <typename BaseType, typename MemberType> Type *RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return this; }
+		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return *this; }
 
 		AnyPointer GetProperty(AnyPointer& obj, const char *propName) const;
 		void SetProperty(AnyPointer& obj, const char *propName, AnyPointer& value);
@@ -143,19 +143,17 @@ namespace meta
 		//
 
 		template <typename T>
-		Type *RegisterType(std::string name)
+		Type& RegisterType(std::string name)
 		{
 			TypeID id = TypeIdentifier::Get<T>();
 
 			assert(typeMap.find(id) == typeMap.end() && "Registering an already registered type.");
 
-			// Add a new type object and store the pointer to it.
-			Type *typePointer = &(typeMap.insert(std::pair<TypeID, Type>(id, Type(name))).first->second);
-
-			return typePointer;
+			// Add a new type object and return the reference.
+			return typeMap.insert(std::pair<TypeID, Type>(id, Type(name))).first->second;
 		}
 
-		#define META_REGISTER(TYPENAME) const ::meta::Type *tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
+		#define META_REGISTER(TYPENAME) const ::meta::Type& tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
 
 		//
 		// Get Registered Type

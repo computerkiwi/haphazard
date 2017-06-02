@@ -15,4 +15,4 @@ include_directories("external/glm")
 # GLOB all the files for now, but I've been told that this may cause issues sometimes. Need to ask some people. -K
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-add_executable(game.exe ${SOURCES})
+add_executable(game ${SOURCES})

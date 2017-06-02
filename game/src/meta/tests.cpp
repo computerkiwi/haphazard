@@ -25,13 +25,13 @@ namespace meta
 		float f;
 		float g;
 	};
-	META_REGISTER(ExampleA)->
-	RegisterProperty("a", &ExampleA::a)->
-	RegisterProperty("b", &ExampleA::b)->
-	RegisterProperty("c", &ExampleA::c)->
-	RegisterProperty("d", &ExampleA::d)->
-	RegisterProperty("e", &ExampleA::e)->
-	RegisterProperty("f", &ExampleA::f)->
+	META_REGISTER(ExampleA).
+	RegisterProperty("a", &ExampleA::a).
+	RegisterProperty("b", &ExampleA::b).
+	RegisterProperty("c", &ExampleA::c).
+	RegisterProperty("d", &ExampleA::d).
+	RegisterProperty("e", &ExampleA::e).
+	RegisterProperty("f", &ExampleA::f).
 	RegisterProperty("g", &ExampleA::g);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
