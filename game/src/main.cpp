@@ -5,12 +5,14 @@ PRIMARY AUTHOR: Kieran
 Entry point into the program.
 Currently just a place to play around in.
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 
 #include <iostream>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "GameObjects/GameObject.h"
+#include "GameObjects/Components/Sprite/Sprite.h"
 
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
 {
@@ -43,6 +45,20 @@ int main()
 	{
 		std::cout << "Hello, world!" << std::endl;
 	}
+	
+	
+	GameObject_Space space;
+	space.RegisterComponentMap<Sprite>();
+	
+	GameObject object(space);
+
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
+
+	object.SetComponent(Sprite());
+
+	object.GetComponent<Sprite>();
+
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
