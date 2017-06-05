@@ -14,6 +14,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Components/Sprite/Sprite.h"
 
+
+// GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
 {
 	for (int i = 0; i < 4; ++i)
