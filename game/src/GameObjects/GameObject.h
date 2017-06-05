@@ -25,7 +25,6 @@ typedef void * Component_Maps;
 template <typename T>
 struct COMPONENT_GEN
 {
-	static const int Funct = 1;
 	static Component_Index Func()
 	{
 		return reinterpret_cast<Component_Index>(Func);
@@ -56,7 +55,7 @@ public:
 
 
 	template <typename T>
-	void Add(GameObjectID_t id, T && component)
+	void Add(GameObjectID_t id, T & component)
 	{
 		std::cout << COMPONENT_GEN<T>::Func << "\n";
 
@@ -125,7 +124,7 @@ public:
 	template <typename T>
 	void SetComponent(T && component)
 	{
-		mContainingSpace.Add(mID, component);
+		mContainingSpace.Add<T>(mID, component);
 	}
 
 
