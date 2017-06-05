@@ -59,14 +59,10 @@ int main()
 	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
 	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
 
-	object.SetComponent(Sprite());
-	object.SetComponent(Transform());
+
+	object.SetComponent(RigidBody2D(), Sprite(), Transform());
 
 	object.GetComponent<Sprite>();
-	object.GetComponent<Transform>();
-
-	object.SetComponent(RigidBody2D());
-	object.GetComponent<RigidBody2D>();
 
 
 	glm::mat4 matrix;

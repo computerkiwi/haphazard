@@ -122,6 +122,13 @@ public:
 
 
 	template <typename T>
+	void SetComponent(T & component)
+	{
+		mContainingSpace.Add<T>(mID, component);
+	}
+
+
+	template <typename T>
 	void SetComponent(T && component)
 	{
 		mContainingSpace.Add<T>(mID, component);
@@ -129,14 +136,20 @@ public:
 
 
 	// Adds custom components to an object
-	template <typename ...Args>
-	void SetComponent(Args && ...args)
+	template <typename First, typename ...Rest>
+	void SetComponent(First & first, Rest & ...args)
 	{
-		using expand = int[];
-		expand
-		{
-			0, (SetComponent(args), 0)...
-		};
+		mContainingSpace.Add<First>(mID, first);
+		SetComponent(args...);
+	}
+
+
+	// Adds custom components to an object
+	template <typename First, typename ...Rest>
+	void SetComponent(First && first, Rest && ...args)
+	{
+		mContainingSpace.Add<First>(mID, first);
+		SetComponent(args...);
 	}
 
 
