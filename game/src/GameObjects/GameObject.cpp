@@ -18,7 +18,7 @@ GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(
 
 
 // ----------------------------------------------------
-// 
+// This gets the id of a GameObject
 // --------
 GameObjectID_t GameObject::id() const
 {
