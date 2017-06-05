@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
 	{
 		for (int j = 0; j < 4; ++j)
 		{
-			os << matrix[i][j];
+			os << matrix[i][j]
 		}
 
 		os << std::endl;
