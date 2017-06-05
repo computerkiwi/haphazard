@@ -15,19 +15,17 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 int main()
 {
-
-	for (auto i = 0; i < 100; ++i)
-	{
-		std::cout << "Hello, world!" << std::endl;
-	}
-
-
 	GameObject_Space space;
+	space.RegisterComponentMap<Sprite>();
+	
 	GameObject object(space);
 
-	Sprite sprite;
-	object.SetComponent(sprite);
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
 
+	object.SetComponent(Sprite());
+
+	object.GetComponent<Sprite>();
 
 	// Keep the console from closing.
 	std::cin.ignore();

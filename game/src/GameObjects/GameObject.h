@@ -25,9 +25,10 @@ typedef void * Component_Maps;
 template <typename T>
 struct COMPONENT_GEN
 {
-	constexpr static Component_Index Func()
+	static const int Funct = 1;
+	static Component_Index Func()
 	{
-		return Func;
+		return reinterpret_cast<Component_Index>(Func);
 	}
 };
 
@@ -47,21 +48,36 @@ public:
 	template <typename T>
 	void RegisterComponentMap()
 	{
-		mSpace.emplace(COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>);
+		auto map = new std::map<GameObjectID_t, T>;
+
+		std::cout << COMPONENT_GEN<T>::Func << "\n";
+		mSpace.emplace(COMPONENT_GEN<T>::Func, map);
 	}
 
 
 	template <typename T>
 	void Add(GameObjectID_t id, T && component)
 	{
-		reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.find(COMPONENT_GEN<T>::Func)->second)->emplace(id, component);
+		std::cout << COMPONENT_GEN<T>::Func << "\n";
+
+		auto debug = mSpace.at(COMPONENT_GEN<T>::Func);
+		
+		auto debug_map = reinterpret_cast<std::map<GameObjectID_t, T> *>(debug);
+
+		debug_map->emplace(id, component);
 	}
 
 
 	template <typename T>
 	T & Find(GameObjectID_t id)
 	{
-		return *static_cast<std::map<GameObjectID_t, T>>(mSpace.find(COMPONENT_GEN<T>::Func)).at(id);
+		std::cout << COMPONENT_GEN<T>::Func << "\n";
+
+		auto * debug = mSpace.at(COMPONENT_GEN<T>::Func);
+
+		auto * debug_map = reinterpret_cast<std::map<GameObjectID_t, T> *>(debug);
+
+		return debug_map->at(id);
 	}
 
 
@@ -151,7 +167,7 @@ public:
 				throw NoComponent();
 			}
 		#else
-			return mContainingSpace->Find<T>(mID);
+			return mContainingSpace.Find<T>(mID);
 		#endif
 	}
 
