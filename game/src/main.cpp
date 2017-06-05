@@ -12,8 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "GameObjects/GameObject.h"
-#include "GameObjects/Components/Sprite/Sprite.h"
-
+#include "GameObjects/Components/Components.h"
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -51,15 +50,23 @@ int main()
 	
 	GameObject_Space space;
 	space.RegisterComponentMap<Sprite>();
-	
+	space.RegisterComponentMap<Transform>();
+	space.RegisterComponentMap<RigidBody2D>();
+
+
 	GameObject object(space);
 
 	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
 	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
 
 	object.SetComponent(Sprite());
+	object.SetComponent(Transform());
 
 	object.GetComponent<Sprite>();
+	object.GetComponent<Transform>();
+
+	object.SetComponent(RigidBody2D());
+	object.GetComponent<RigidBody2D>();
 
 
 	glm::mat4 matrix;

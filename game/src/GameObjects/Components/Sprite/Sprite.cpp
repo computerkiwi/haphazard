@@ -1,30 +1,43 @@
 /*
-FILE: Component.h
+FILE: Sprite.cpp
 PRIMARY AUTHOR: Sweet
 
-Entry point into the program.
-Currently just a place to play around in.
+Contains all the functions for Sprite
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
+
+
 #include "Sprite.h"
 
 
-Sprite::Sprite() : Sprite(1.0f)
+Sprite::Sprite() : Sprite(1.0f, nullptr)
 {
 }
 
 
-Sprite::Sprite(const Sprite & other) : Sprite(other.mAlpha)
+Sprite::Sprite(const Sprite & other) : Sprite(other.mAlpha, other.mTexture)
 {
 }
 
 
 
-Sprite::Sprite(float alpha) : mAlpha(alpha)
+Sprite::Sprite(float alpha, Texture texture) : mAlpha(1.0f), mTexture(texture)
 {
 }
+
+
+
+Sprite::Sprite(Texture texture) : Sprite(1.0f, texture)
+{
+}
+
+
+Sprite::Sprite(float alpha) : Sprite(alpha, nullptr)
+{
+}
+
 
 
 float Sprite::GetAlpha() const
@@ -46,5 +59,17 @@ void Sprite::ChangeAlpha(float change)
 		mAlpha = 1;
 	else if (mAlpha < 0)
 		mAlpha = 0;
+}
+
+
+Texture Sprite::GetTexture() const
+{
+	return mTexture;
+}
+
+
+void Sprite::SetTexture(Texture texture)
+{
+	mTexture = texture;
 }
 
