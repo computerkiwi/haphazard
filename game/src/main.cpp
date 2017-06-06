@@ -56,14 +56,9 @@ int main()
 
 	GameObject object(space);
 
-	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
-	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
-
-
 	object.SetComponent(RigidBody2D(), Sprite(), Transform());
 
 	object.GetComponent<Sprite>();
-
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;

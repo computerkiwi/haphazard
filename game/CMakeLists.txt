@@ -5,6 +5,9 @@ project(Game)
 
 SET ( CMAKE_CXX_FLAGS "-std=c++0x" )
 
+# Sets Exception handling
+SET ( CMAKE_CXX_FLAGS "/EHsc" )
+
 #
 # LIBRARIES
 #

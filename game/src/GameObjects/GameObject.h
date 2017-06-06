@@ -25,7 +25,7 @@ typedef void * Component_Maps;
 template <typename T>
 struct COMPONENT_GEN
 {
-	static Component_Index Func()
+	constexpr static Component_Index Func()
 	{
 		return reinterpret_cast<Component_Index>(Func);
 	}
@@ -47,36 +47,21 @@ public:
 	template <typename T>
 	void RegisterComponentMap()
 	{
-		auto map = new std::map<GameObjectID_t, T>;
-
-		std::cout << COMPONENT_GEN<T>::Func << "\n";
-		mSpace.emplace(COMPONENT_GEN<T>::Func, map);
+		mSpace.emplace(COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>);
 	}
 
 
 	template <typename T>
 	void Add(GameObjectID_t id, T & component)
 	{
-		std::cout << COMPONENT_GEN<T>::Func << "\n";
-
-		auto debug = mSpace.at(COMPONENT_GEN<T>::Func);
-		
-		auto debug_map = reinterpret_cast<std::map<GameObjectID_t, T> *>(debug);
-
-		debug_map->emplace(id, component);
+		reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->emplace(id, component);
 	}
 
 
 	template <typename T>
 	T & Find(GameObjectID_t id)
 	{
-		std::cout << COMPONENT_GEN<T>::Func << "\n";
-
-		auto * debug = mSpace.at(COMPONENT_GEN<T>::Func);
-
-		auto * debug_map = reinterpret_cast<std::map<GameObjectID_t, T> *>(debug);
-
-		return debug_map->at(id);
+		return reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->at(id);
 	}
 
 
@@ -120,14 +105,14 @@ public:
 
 	GameObject_Space & GetSpace() const;
 
-
+	// L-value SetComponent
 	template <typename T>
 	void SetComponent(T & component)
 	{
 		mContainingSpace.Add<T>(mID, component);
 	}
 
-
+	// R-value SetComponent
 	template <typename T>
 	void SetComponent(T && component)
 	{
@@ -176,7 +161,7 @@ public:
 			}
 			catch(std::out_of_range)
 			{
-				throw NoComponent();
+				throw NoComponent("No Component was found for this object.");
 			}
 		#else
 			return mContainingSpace.Find<T>(mID);
@@ -190,7 +175,7 @@ private:
 	GameObject_Space & mContainingSpace;
 
 	// Class to throw if no object was found
-	class NoComponent { public: const char * error = "No Component was found"; };
+	class NoComponent { public: explicit NoComponent(const char * error) { (void)error; } };
 
 	// ID of the game object
 	GameObjectID_t mID = 0;
