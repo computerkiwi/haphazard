@@ -16,7 +16,7 @@ namespace meta
 	class ExampleA
 	{
 	public:
-		ExampleA() : a(1), b(1.1), c(1), d(1), e(1), f(1.1), g(1.1) {}
+		ExampleA() : a(1), b(1.1), c(1), d(1), e(1), f(1.1), g(1.1), m_privateFloat(1.1) {}
 		int a;
 		float b;
 		int c;
@@ -24,6 +24,11 @@ namespace meta
 		int e;
 		float f;
 		float g;
+
+		float GetPrivateFloat() { return m_privateFloat; }
+		void SetPrivateFloat(const float& value) { m_privateFloat = value; }
+	private:
+		float m_privateFloat;
 	};
 	META_REGISTER(ExampleA).
 	RegisterProperty("a", &ExampleA::a).
@@ -32,7 +37,8 @@ namespace meta
 	RegisterProperty("d", &ExampleA::d).
 	RegisterProperty("e", &ExampleA::e).
 	RegisterProperty("f", &ExampleA::f).
-	RegisterProperty("g", &ExampleA::g);
+	RegisterProperty("g", &ExampleA::g).
+	RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
 	{
@@ -44,6 +50,7 @@ namespace meta
 		os << "e: " << obj.e << std::endl;
 		os << "f: " << obj.f << std::endl;
 		os << "g: " << obj.g << std::endl;
+		os << "privateFloat: " << obj.GetPrivateFloat() << std::endl;
 		os << "---------------------";
 
 		return os;
