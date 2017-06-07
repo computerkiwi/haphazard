@@ -56,7 +56,8 @@ int main()
 
 	GameObject object(space);
 
-	object.SetComponent(RigidBody2D(), Sprite(), Transform());
+	object.SetComponent(Sprite());
+	object.SetComponent<RigidBody2D, Transform>();
 
 	object.GetComponent<Sprite>();
 
