@@ -134,11 +134,29 @@ namespace meta
 
 	*/
 
+	void TestSet()
+	{
+		const int VALUE_A = 5;
+		const int VALUE_B = 123456789;
+
+		int integer = 0;
+		Any anyVal = Any(0);
+		Any anyPointer = Any(&integer);
+
+		anyVal.Set(VALUE_A);
+		assert(anyVal.Get<int>() == VALUE_A);
+
+		anyPointer.Set(VALUE_B);
+		assert(anyPointer.Get<int>() == VALUE_B);
+		assert(integer == VALUE_B);
+	}
+
 	void TestAll()
 	{
 		TestTypeIDs();
 		TestSimpleTypeLookup();
 		TestAny();
 		TestPropertyInfo();
+		TestSet();
 	}
 }

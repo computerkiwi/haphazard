@@ -35,6 +35,8 @@ namespace meta
 		template <typename T> T Get();
 		template <typename T> T *GetPointer();
 
+		template <typename T> void Set(const T& value);
+
 		Any GetProperty(const char *propertyName);
 		Any GetProperty(PropertySignature& property);
 
@@ -254,6 +256,14 @@ namespace meta
 			T *valuePointer = reinterpret_cast<T *>(&m_data);
 			return valuePointer;
 		}
+	}
+
+	template <typename T> void Any::Set(const T& value)
+	{
+		// Make sure we're getting the right data type.
+		assert(_typeInfo == internal::GetType<T>());
+
+		*GetPointer<T>() = value;
 	}
 
 
