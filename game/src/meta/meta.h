@@ -91,6 +91,8 @@ namespace meta
 		FunctionMember(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&)) : PropertySignature(name), m_getter(getter), m_setter(setter) {}
 
 		virtual Type *GetType();
+		virtual Any ExtractValue(void *baseObject);
+		virtual void SetValue(void *baseObject, Any& value);
 
 	private:
 		MemberType (BaseType::*m_getter)();
@@ -109,7 +111,7 @@ namespace meta
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&))
 		{
 			//TODO: Make this work at all.
-			//_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
+			_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
 			return *this;
 		}
 
@@ -307,5 +309,30 @@ namespace meta
 	Type *FunctionMember<BaseType, MemberType>::GetType()
 	{
 		return internal::GetType<MemberType>();
+	}
+
+	template <typename BaseType, typename MemberType>
+	Any FunctionMember<BaseType, MemberType>::ExtractValue(void *baseObjectPointer)
+	{
+		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
+
+		return Any((baseObject->*m_getter)());
+	}
+
+	template <typename BaseType, typename MemberType>
+	void FunctionMember<BaseType, MemberType>::SetValue(void *baseObjectPointer, Any& value)
+	{
+		// Don't do anything if we don't have a setter.
+		if (m_setter == nullptr)
+		{
+			return;
+		}
+
+		// Make sure we're setting with the right type.
+		assert(value.GetType() == internal::GetType<MemberType>());
+
+		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
+
+		(baseObject->*m_setter)(value.Get<MemberType>());
 	}
 }

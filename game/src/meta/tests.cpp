@@ -37,8 +37,8 @@ namespace meta
 	RegisterProperty("d", &ExampleA::d).
 	RegisterProperty("e", &ExampleA::e).
 	RegisterProperty("f", &ExampleA::f).
-	RegisterProperty("g", &ExampleA::g);
-	//RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
+	RegisterProperty("g", &ExampleA::g).
+	RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
 	{
