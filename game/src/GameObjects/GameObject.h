@@ -76,7 +76,8 @@ public:
 	{
 		for (auto & iter : mSpace)
 		{
-			delete reinterpret_cast<std::map<GameObjectID_t, decltype(iter.second)> *>(iter.second);
+			// This still leaks
+			// delete reinterpret_cast<std::map<GameObjectID_t, decltype(iter.second)> *>(iter.second);
 		}
 	}
 
