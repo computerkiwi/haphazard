@@ -20,34 +20,46 @@ Copyright 2017 DigiPen (USA) Corporation.
 //
 namespace meta
 {
-	// Forward declaration for Type class.
+	// Forward declarations for Type class.
 	class Type;
+	class PropertySignature;
 
 	// Represents a pointer to a variable of a certain type.
-	class AnyPointer
+	#define ANY_MAXSIZE 64
+	class Any
 	{
 	public:
-		template <typename T> AnyPointer(T *pointer);
-		
+		template <typename T> Any(T  value);
+		template <typename T> Any(T *value);
+
+		template <typename T> T Get();
 		template <typename T> T *GetPointer();
 
-		AnyPointer GetProperty(const char *propertyName);
-		void SetProperty(const char *propertyName, AnyPointer& value);
+		Any GetProperty(const char *propertyName);
+		Any GetProperty(PropertySignature& property);
+
+		void SetProperty(const char *propertyName, Any& value);
+		void SetProperty(PropertySignature& property, Any& value);
 		Type *GetType();
 
 	private:
-		void *_pointer;
+		union
+		{
+			char m_data[ANY_MAXSIZE];
+			void *m_pointer;
+		};
 		Type *_typeInfo;
+		bool m_isPointer;
 	};
 
-	class MemberProperty
+	class PropertySignature
 	{
 	public:
-		MemberProperty(const char *name) : _name(name) {}
+		PropertySignature(const char *name) : _name(name) {}
 
-		virtual AnyPointer Get(AnyPointer& obj) = 0;
-		virtual void Set(AnyPointer& obj, AnyPointer& value) = 0;
 		virtual Type *GetType() = 0;
+		virtual Any ExtractValue(void *baseObject) = 0;
+		virtual void SetValue(void *baseObject, Any& value) = 0;
 		const char *Name() { return _name; }
 
 	private:
@@ -55,30 +67,26 @@ namespace meta
 	};
 
 	template <typename BaseType, typename MemberType>
-	class TemplatedMember : public MemberProperty
+	class TemplatedMember : public PropertySignature
 	{
 	public:
-		TemplatedMember(const char *name, MemberType BaseType::*member) : MemberProperty(name), _member(member) {}
-
-		virtual AnyPointer Get(AnyPointer& obj);
-	
-		virtual void Set(AnyPointer& obj, AnyPointer& value);
+		TemplatedMember(const char *name, MemberType BaseType::*member) : PropertySignature(name), _member(member) {}
 	
 		virtual Type *GetType();
+
+		virtual Any ExtractValue(void *baseObject);
+
+		virtual void SetValue(void *baseObject, Any& value);
 
 	private:
 		MemberType BaseType::*_member;
 	};
 
 	template <typename BaseType, typename MemberType>
-	class FunctionMember : public MemberProperty
+	class FunctionMember : public PropertySignature
 	{
 	public:
-		FunctionMember(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&)) : MemberProperty(name), m_getter(getter), m_setter(setter) {}
-
-		virtual AnyPointer Get(AnyPointer& obj);
-
-		virtual void Set(AnyPointer& obj, AnyPointer& value);
+		FunctionMember(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&)) : PropertySignature(name), m_getter(getter), m_setter(setter) {}
 
 		virtual Type *GetType();
 
@@ -98,18 +106,18 @@ namespace meta
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return *this; }
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&))
 		{
-			_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
+			//TODO: Make this work at all.
+			//_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
 			return *this;
 		}
 
-		AnyPointer GetProperty(AnyPointer& obj, const char *propName) const;
-		void SetProperty(AnyPointer& obj, const char *propName, AnyPointer& value);
-		std::vector<MemberProperty *> GetPropertiesInfo();
+		PropertySignature *GetProperty(const char *propName);
+		std::vector<PropertySignature *> GetPropertiesInfo();
 		bool HasProperty(const char *propertyName);
 
 	private:
 		std::string _name;
-		std::vector<MemberProperty *> _properties;
+		std::vector<PropertySignature *> _properties;
 	};
 
 }
@@ -204,14 +212,48 @@ namespace meta
 		}
 	}
 
-	template <typename T> AnyPointer::AnyPointer(T *pointer) : _pointer(pointer), _typeInfo(internal::GetType<T>())
+	//
+	// Any Functions.
+	//
+
+	template <typename T> Any::Any(T value) : _typeInfo(internal::GetType<T>()), m_isPointer(false)
 	{
+		// Make sure we're not getting a value too big.
+		assert(sizeof(value) <= sizeof(m_data));
+
+		// Stuff the value into the data storage.
+		T *dataPointer = reinterpret_cast<T *>(&m_data);
+		*dataPointer = value;
 	}
 
-	template <typename T> T *AnyPointer::GetPointer() 
-	{ 
-		assert(_typeInfo == internal::GetType<T>()); 
-		return reinterpret_cast<T *>(_pointer); 
+	template <typename T> Any::Any(T *value) : _typeInfo(internal::GetType<T>()), m_isPointer(true)
+	{
+		// Make sure we're not getting a value too big.
+		assert(sizeof(*value) <= sizeof(m_data));
+
+		// Store the pointer to the value.
+		m_pointer = value;
+	}
+
+	template <typename T> T Any::Get()
+	{
+		return *GetPointer<T>();
+	}
+
+	template <typename T> T *Any::GetPointer()
+	{
+		// Make sure we're getting the right data type.
+		assert(_typeInfo == internal::GetType<T>());
+
+		if (m_isPointer)
+		{
+			return reinterpret_cast<T *>(m_pointer);
+		}
+		else
+		{
+			T *valuePointer = reinterpret_cast<T *>(&m_data);
+			return valuePointer;
+		}
 	}
 
 
@@ -220,54 +262,36 @@ namespace meta
 	//
 
 	template <typename BaseType, typename MemberType>
-	AnyPointer TemplatedMember<BaseType, MemberType>::Get(AnyPointer& obj)
-	{
-		BaseType *pObj = obj.GetPointer<BaseType>();
-		return AnyPointer(&(pObj->*_member));
-	}
-
-	template <typename BaseType, typename MemberType>
-	void TemplatedMember<BaseType, MemberType>::Set(AnyPointer& obj, AnyPointer& value)
-	{
-		BaseType *pObj = obj.GetPointer<BaseType>();
-		(pObj->*_member) = *value.GetPointer<MemberType>();
-	}
-
-	template <typename BaseType, typename MemberType>
 	Type *TemplatedMember<BaseType, MemberType>::GetType()
 	{
 		return internal::GetType<MemberType>();
 	}
 
+	template <typename BaseType, typename MemberType>
+	Any TemplatedMember<BaseType, MemberType>::ExtractValue(void *baseObjectPointer)
+	{
+		// Unsafe if the passed void pointer isn't of type BaseType.
+
+		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
+
+		return Any(baseObject->*_member);
+	}
+
+	template <typename BaseType, typename MemberType>
+	void TemplatedMember<BaseType, MemberType>::SetValue(void *baseObjectPointer, Any& value)
+	{
+		// Unsafe if the passed void pointer isn't of type BaseType.
+		// Make sure the value is of type MemberType.
+		assert(value.GetType() == internal::GetType<MemberType>());
+
+		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
+
+		baseObject->*_member = value.Get<MemberType>();
+	}
+
 	//
 	// FunctionMember Functions
 	//
-
-	template <typename BaseType, typename MemberType>
-	AnyPointer FunctionMember<BaseType, MemberType>::Get(AnyPointer& obj)
-	{
-		// Make sure we have a getter.
-		assert(m_getter != nullptr);
-
-		BaseType *pObj = obj.GetPointer<BaseType>();
-
-		// TODO: GETTING THIS VALUE LEAKS MEMORY RIGHT NOW.
-		MemberType *returnValue = new MemberType((pObj->*m_getter)());
-		return AnyPointer(returnValue);
-	}
-
-	template <typename BaseType, typename MemberType>
-	void FunctionMember<BaseType, MemberType>::Set(AnyPointer& obj, AnyPointer& value)
-	{
-		// Don't do anything if we don't actually have a setter.
-		if (m_setter == nullptr)
-		{
-			return;
-		}
-
-		BaseType *pObj = obj.GetPointer<BaseType>();
-		(pObj->*m_setter)(*value.GetPointer<MemberType>());
-	}
 
 	template <typename BaseType, typename MemberType>
 	Type *FunctionMember<BaseType, MemberType>::GetType()

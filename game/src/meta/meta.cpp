@@ -28,43 +28,29 @@ namespace meta
 	META_REGISTER(char);
 	META_REGISTER(float);
 	META_REGISTER(double);
+	META_REGISTER(bool);
+	META_REGISTER(long);
 
-	meta::AnyPointer meta::Type::GetProperty(AnyPointer& obj, const char *propName) const
+	PropertySignature *Type::GetProperty(const char *propName)
 	{
 		// Walk through the properties until we find one with the proper name.
-		for (MemberProperty *property : _properties)
+		for (PropertySignature *property : _properties)
 		{
 			if (strcmp(property->Name(), propName) == 0)
 			{
-				return property->Get(obj);
+				return property;
 			}
 		}
 
 		// If we received the name of an invalid property, the caller is at fault. Just crash it.
 		assert(false && "Tried to get an invalid property.");
-		return obj;
-	}
-
-	void meta::Type::SetProperty(AnyPointer& obj, const char *propName, AnyPointer& value)
-	{
-		// Walk through the properties until we find one with the proper name.
-		for (MemberProperty *property : _properties)
-		{
-			if (strcmp(property->Name(), propName) == 0)
-			{
-				property->Set(obj, value);
-				return;
-			}
-		}
-
-		// Do nothing if the name was invalid.
-		return;
+		return nullptr;
 	}
 
 	bool Type::HasProperty(const char *propertyName)
 	{
 		// Run through the properties until we find one with the desired name.
-		for (MemberProperty *prop : _properties)
+		for (PropertySignature *prop : _properties)
 		{
 			if (strcmp(prop->Name(), propertyName) == 0)
 			{
@@ -77,22 +63,39 @@ namespace meta
 	}
 
 	// Returns a vector of information on a type's properties.
-	std::vector<MemberProperty *> Type::GetPropertiesInfo()
+	std::vector<PropertySignature *> Type::GetPropertiesInfo()
 	{
 		return _properties;
 	}
 
-	AnyPointer AnyPointer::GetProperty(const char *propertyName)
+	Any Any::GetProperty(const char *propertyName)
 	{
-		return _typeInfo->GetProperty(*this, propertyName);
+		return GetProperty(*_typeInfo->GetProperty(propertyName));
 	}
 
-	void AnyPointer::SetProperty(const char *propertyName, AnyPointer& value)
+	Any Any::GetProperty(PropertySignature& property)
 	{
-		_typeInfo->SetProperty(*this, propertyName, value);
+		return property.ExtractValue(m_data);
 	}
 
-	Type *AnyPointer::GetType()
+	void Any::SetProperty(const char *propertyName, Any& value)
+	{
+		SetProperty(*_typeInfo->GetProperty(propertyName), value);
+	}
+
+	void Any::SetProperty(PropertySignature& property, Any& value)
+	{
+		if (m_isPointer)
+		{
+			property.SetValue(m_pointer, value);
+		}
+		else
+		{
+			property.SetValue(m_data, value);
+		}
+	}
+
+	Type *Any::GetType()
 	{
 		return _typeInfo;
 	}

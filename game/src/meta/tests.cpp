@@ -37,8 +37,8 @@ namespace meta
 	RegisterProperty("d", &ExampleA::d).
 	RegisterProperty("e", &ExampleA::e).
 	RegisterProperty("f", &ExampleA::f).
-	RegisterProperty("g", &ExampleA::g).
-	RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
+	RegisterProperty("g", &ExampleA::g);
+	//RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
 	{
@@ -80,73 +80,65 @@ namespace meta
 
 		PrintType(5);
 		PrintType(5.0f);
+		PrintType(true);
 		PrintType(example);
+		PrintType(example.a);
 	}
 
 	void TestAny()
 	{
 		int x = 5;
-		AnyPointer xAP(&x);
-		const int *xP = xAP.GetPointer<int>();
+		Any xA(x);
+		const int val = xA.Get<int>();
 
-		assert(x == *xP);
-		assert(&x == xP);
-	}
-
-	void TestPropertyGetSet()
-	{
-		ExampleA obj;
-		obj.a = 3;
-		AnyPointer pObj(&obj);
-
-		std::cout << obj.a << std::endl;
-		int temp = 5;
-		AnyPointer tPointer(&temp);
-		pObj.SetProperty("a", tPointer);
-		std::cout << obj.a << std::endl;
-		assert(temp == obj.a);
-		assert(&temp != &obj.a);
-
-		const int *x = pObj.GetProperty("a").GetPointer<int>();
-
-		assert(*x == obj.a);
+		assert(x == val);
 	}
 
 	void TestPropertyInfo()
 	{
 		ExampleA obj;
-		AnyPointer pObj(&obj);
+		Any pObj(&obj);
 		std::cout << obj << std::endl;
 
 		std::cout << "Setting integers to 5 and floats to 3.22." << std::endl;
 		
-		std::vector<MemberProperty *> properties = pObj.GetType()->GetPropertiesInfo();
-		for (MemberProperty *prop : properties)
+		std::vector<PropertySignature *> properties = pObj.GetType()->GetPropertiesInfo();
+		for (PropertySignature *prop : properties)
 		{
 			Type * propType = prop->GetType();
 			if (propType == meta::internal::GetType<int>())
 			{
-				int temp = 5;
-				AnyPointer value(&temp);
-				pObj.SetProperty(prop->Name(), value);
+				pObj.SetProperty(prop->Name(), Any(5));
 			}
 			if (propType == meta::internal::GetType<float>())
 			{
-				float temp = 3.22;
-				AnyPointer value(&temp);
-				pObj.SetProperty(prop->Name(), value);
+				pObj.SetProperty(prop->Name(), Any(3.22f));
 			}
 		}
 
 		std::cout << obj << std::endl;
 	}
 
+	/*
+	void TestExample()
+	{
+		// Anys can be:
+		// -Values.
+		// -Pointers
+
+		Any anyValue = Any(5);
+
+		int x = 5;
+		Any anyPointer = Any(&x);
+	}
+
+	*/
+
 	void TestAll()
 	{
 		TestTypeIDs();
 		TestSimpleTypeLookup();
 		TestAny();
-		TestPropertyGetSet();
 		TestPropertyInfo();
 	}
 }
