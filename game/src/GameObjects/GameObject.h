@@ -14,6 +14,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <unordered_map>
 #include <map>
 #include "Components/Component.h"
+#include <ostream>
 
 // size_t for GameObjectID
 typedef size_t GameObjectID_t;
@@ -86,7 +87,7 @@ public:
 };
 
 
-class GameObject_Space
+class GameObject_Space : public std::unordered_map<Component_Index, Component_Pointer<Component_Maps_Base>>
 {
 public:
 
@@ -94,7 +95,7 @@ public:
 	template <typename T>
 	void Register()
 	{
-		mSpace.emplace(COMPONENT_GEN<T>::Func, new Component_Maps<T>);
+		emplace(COMPONENT_GEN<T>::Func, new Component_Maps<T>);
 	}
 
 
@@ -102,7 +103,7 @@ public:
 	template <typename T>
 	void Add(GameObjectID_t id, T & component)
 	{
-		mSpace.at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->emplace(id, component);
+		at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->emplace(id, component);
 	}
 
 
@@ -110,7 +111,7 @@ public:
 	template <typename T>
 	T & Find(GameObjectID_t id)
 	{
-		return mSpace.at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->at(id);
+		return at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->at(id);
 	}
 
 
@@ -125,7 +126,7 @@ public:
 	template <typename T>
 	void Remove()
 	{
-		mSpace.erase(COMPONENT_GEN<T>::Func);
+		erase(COMPONENT_GEN<T>::Func);
 	}
 
 
@@ -133,7 +134,7 @@ private:
 	// Component_Index is static func pointer
 	// Component_Pointer is basically a unique_ptr
 	// Component_Maps_Base is for polymorphism on the destructor
-	std::unordered_map<Component_Index, Component_Pointer<Component_Maps_Base>> mSpace;
+	// mSpace;
 
 	// The id to assign to the next gameobject
 	GameObjectID_t mCurrentID = 0;
@@ -217,6 +218,7 @@ public:
 		#endif
 	}
 
+	friend std::ostream & operator<<(std::ostream & os, GameObject & object);
 
 private:
 

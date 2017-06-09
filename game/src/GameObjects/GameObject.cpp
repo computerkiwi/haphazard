@@ -32,3 +32,12 @@ GameObject_Space & GameObject::GetSpace() const
 }
 
 
+
+
+std::ostream & operator<<(std::ostream & os, GameObject & object)
+{
+	os << "<GameObject " << "id:" << object.mID << ">";
+	return os;
+}
+
+

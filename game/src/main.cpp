@@ -56,6 +56,8 @@ int main()
 
 	GameObject object(space);
 
+	std::cout << object << "\n";
+
 	object.SetComponent(Sprite());
 	object.SetComponent<RigidBody2D, Transform>();
 
