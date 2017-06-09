@@ -49,9 +49,9 @@ int main()
 	
 	
 	GameObject_Space space;
-	space.RegisterComponentMap<Sprite>();
-	space.RegisterComponentMap<Transform>();
-	space.RegisterComponentMap<RigidBody2D>();
+	space.Register<Sprite>();
+	space.Register<Transform>();
+	space.Register<RigidBody2D>();
 
 
 	GameObject object(space);
@@ -60,6 +60,10 @@ int main()
 	object.SetComponent<RigidBody2D, Transform>();
 
 	object.GetComponent<Sprite>();
+
+	space.Remove<Sprite>();
+	space.Remove<Transform>();
+	space.Remove<RigidBody2D>();
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;

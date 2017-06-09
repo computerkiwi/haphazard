@@ -20,7 +20,6 @@ typedef size_t GameObjectID_t;
 
 // Defining void * so it is actually something when read
 typedef void * Component_Index;
-typedef void * Component_Maps;
 
 template <typename T>
 struct COMPONENT_GEN
@@ -32,12 +31,18 @@ struct COMPONENT_GEN
 };
 
 
-template <typename T>
-struct Component_Map
+
+class Component_Maps_Base
 {
-	std::map<GameObjectID_t, T> mMap;
+public:
+	virtual ~Component_Maps_Base() {}
 };
 
+
+template <typename T>
+class Component_Maps : public Component_Maps_Base, public std::map<GameObjectID_t, T>
+{
+};
 
 
 class GameObject_Space
@@ -45,23 +50,23 @@ class GameObject_Space
 public:
 
 	template <typename T>
-	void RegisterComponentMap()
+	void Register()
 	{
-		mSpace.emplace(COMPONENT_GEN<T>::Func, new std::map<GameObjectID_t, T>);
+		mSpace.emplace(COMPONENT_GEN<T>::Func, new Component_Maps<T>);
 	}
 
 
 	template <typename T>
 	void Add(GameObjectID_t id, T & component)
 	{
-		reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->emplace(id, component);
+		reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->emplace(id, component);
 	}
 
 
 	template <typename T>
 	T & Find(GameObjectID_t id)
 	{
-		return reinterpret_cast<std::map<GameObjectID_t, T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->at(id);
+		return reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->at(id);
 	}
 
 
@@ -71,13 +76,20 @@ public:
 	}
 
 
+	template <typename T>
+	void Remove()
+	{
+		delete reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func));
+	}
+
+
 	// WIP function
 	~GameObject_Space()
 	{
 		for (auto & iter : mSpace)
 		{
-			// This still leaks
-			// delete reinterpret_cast<std::map<GameObjectID_t, decltype(iter.second)> *>(iter.second);
+			// This still leaks?
+			delete iter.second;
 		}
 	}
 
@@ -85,7 +97,7 @@ public:
 private:
 	// Component_Index is static func pointer
 	// Component_Maps is the map of the component
-	std::unordered_map<Component_Index, Component_Maps> mSpace;
+	std::unordered_map<Component_Index, Component_Maps_Base *> mSpace;
 
 	// The id to assign to the next gameobject
 	GameObjectID_t mCurrentID = 0;
