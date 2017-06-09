@@ -61,9 +61,6 @@ int main()
 
 	object.GetComponent<Sprite>();
 
-	space.Remove<Sprite>();
-	space.Remove<Transform>();
-	space.Remove<RigidBody2D>();
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;

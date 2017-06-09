@@ -21,6 +21,11 @@ typedef size_t GameObjectID_t;
 // Defining void * so it is actually something when read
 typedef void * Component_Index;
 
+
+
+
+// This is to generate a unique function id for the Componets.
+//    Acts as a key
 template <typename T>
 struct COMPONENT_GEN
 {
@@ -31,17 +36,53 @@ struct COMPONENT_GEN
 };
 
 
-
-class Component_Maps_Base
+// Basically unique_ptr, for memory allocation only
+template <typename T>
+struct Component_Pointer
 {
-public:
-	virtual ~Component_Maps_Base() {}
+	explicit Component_Pointer(T * data) : m_Data(data)
+	{
+	}
+
+	~Component_Pointer()
+	{
+		delete m_Data;
+	}
+
+	T * Get()
+	{
+		return m_Data;
+	}
+
+	template <typename U>
+	U * As() const
+	{
+		return reinterpret_cast<U *>(m_Data);
+	}
+
+	T * m_Data = nullptr;
 };
 
 
+// The base class for the map
+class Component_Maps_Base
+{
+public:
+	virtual ~Component_Maps_Base()
+	{
+	}
+};
+
+
+// The map of each components
 template <typename T>
 class Component_Maps : public Component_Maps_Base, public std::map<GameObjectID_t, T>
 {
+public:
+	// The non-virtual destructor is ok
+	virtual ~Component_Maps() final
+	{
+	}
 };
 
 
@@ -49,6 +90,7 @@ class GameObject_Space
 {
 public:
 
+	// Adds component type to the space
 	template <typename T>
 	void Register()
 	{
@@ -56,48 +98,42 @@ public:
 	}
 
 
+	// Adds a component to the space, used in GameObjects
 	template <typename T>
 	void Add(GameObjectID_t id, T & component)
 	{
-		reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->emplace(id, component);
+		mSpace.at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->emplace(id, component);
 	}
 
 
+	// Finds a component in the space, used in GameObjects
 	template <typename T>
 	T & Find(GameObjectID_t id)
 	{
-		return reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func))->at(id);
+		return mSpace.at(COMPONENT_GEN<T>::Func).As<Component_Maps<T>>()->at(id);
 	}
 
 
+	// Assigns an ID to the GameObject
 	GameObjectID_t AssignID()
 	{
 		return mCurrentID++;
 	}
 
 
+	// Removes a Component Type
 	template <typename T>
 	void Remove()
 	{
-		delete reinterpret_cast<Component_Maps<T> *>(mSpace.at(COMPONENT_GEN<T>::Func));
-	}
-
-
-	// WIP function
-	~GameObject_Space()
-	{
-		for (auto & iter : mSpace)
-		{
-			// This still leaks?
-			delete iter.second;
-		}
+		mSpace.erase(COMPONENT_GEN<T>::Func);
 	}
 
 
 private:
 	// Component_Index is static func pointer
-	// Component_Maps is the map of the component
-	std::unordered_map<Component_Index, Component_Maps_Base *> mSpace;
+	// Component_Pointer is basically a unique_ptr
+	// Component_Maps_Base is for polymorphism on the destructor
+	std::unordered_map<Component_Index, Component_Pointer<Component_Maps_Base>> mSpace;
 
 	// The id to assign to the next gameobject
 	GameObjectID_t mCurrentID = 0;
