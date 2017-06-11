@@ -87,6 +87,10 @@ public:
 };
 
 
+
+// Component_Index is static func pointer
+// Component_Pointer is basically a unique_ptr
+// Component_Maps_Base is for polymorphism on the destructor
 class GameObject_Space : public std::unordered_map<Component_Index, Component_Pointer<Component_Maps_Base>>
 {
 public:
@@ -131,11 +135,6 @@ public:
 
 
 private:
-	// Component_Index is static func pointer
-	// Component_Pointer is basically a unique_ptr
-	// Component_Maps_Base is for polymorphism on the destructor
-	// mSpace;
-
 	// The id to assign to the next gameobject
 	GameObjectID_t mCurrentID = 0;
 
