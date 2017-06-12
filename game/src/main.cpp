@@ -12,7 +12,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "meta/tests.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "GameObjects/GameObject.h"
+#include "GameObjects/Components/Sprite/Sprite.h"
 
+
+// GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
 {
 	for (int i = 0; i < 4; ++i)
@@ -46,6 +50,20 @@ int main()
 	{
 		std::cout << "Hello, world!" << std::endl;
 	}
+	
+	
+	GameObject_Space space;
+	space.RegisterComponentMap<Sprite>();
+	
+	GameObject object(space);
+
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
+	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
+
+	object.SetComponent(Sprite());
+
+	object.GetComponent<Sprite>();
+
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
