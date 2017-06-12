@@ -189,10 +189,18 @@ namespace meta
 
 		#define META_REGISTER(TYPENAME) const ::meta::Type& tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
 
+		#define META_VIRTUAL_DECLARE(TYPENAME)           \
+		public:                                          \
+		virtual Type *MetaInternalGetTypeVirtual() const \
+		{                                                \
+			return ::meta::internal::GetType<TYPENAME>();\
+		}                                                \
+
 		//
 		// Get Registered Type
 		//
 
+		// Gets the type from the global map of types.
 		template <typename T>
 		Type *GetType()
 		{
@@ -208,9 +216,35 @@ namespace meta
 			return &(typeIt->second);
 		}
 
-		// Convenience wrapper so we can just pass in an object.
+		// Helper struct to determine if a type has the MetaInternalGetTypeVirtual() function.
 		template <typename T>
-		Type *GetType(T obj)
+		struct HasVirtualMetaFunction
+		{
+			template <typename C>
+			static constexpr decltype(std::declval<C>().MetaInternalGetTypeVirtual(), bool()) test(int)
+			{
+				return true;
+			}
+
+			template <typename C>
+			static constexpr bool test(...)
+			{
+				return false;
+			}
+
+			static constexpr bool value = test<T>(int()); //Do we need the ints?
+		};
+
+		// Calls the virtual function to get the type if it exists.
+		template <typename T>
+		typename std::enable_if<HasVirtualMetaFunction<T>::value, Type *>::type GetType(const T& obj)
+		{
+			return obj.MetaInternalGetTypeVirtual();
+		}
+
+		// If the object doesn't have a virtual meta function, get its type.
+		template <typename T>
+		typename std::enable_if<!HasVirtualMetaFunction<T>::value, Type *>::type GetType(const T& obj)
 		{
 			return GetType<T>();
 		}

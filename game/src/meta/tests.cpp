@@ -29,6 +29,8 @@ namespace meta
 		void SetPrivateFloat(const float& value) { m_privateFloat = value; }
 	private:
 		float m_privateFloat;
+
+        META_VIRTUAL_DECLARE(ExampleA)
 	};
 	META_REGISTER(ExampleA).
 	RegisterProperty("a", &ExampleA::a).
@@ -39,6 +41,16 @@ namespace meta
 	RegisterProperty("f", &ExampleA::f).
 	RegisterProperty("g", &ExampleA::g).
 	RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
+
+	class ExampleB : public ExampleA
+	{
+	public:
+
+	private:
+
+		META_VIRTUAL_DECLARE(ExampleB)                                               \
+	};
+	META_REGISTER(ExampleB);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
 	{
@@ -68,7 +80,7 @@ namespace meta
 	}
 
 	template <typename T>
-	void PrintType(T object)
+	void PrintType(const T& object)
 	{
 		std::cout << "This object is of type " << meta::internal::GetType(object)->Name().c_str() << std::endl;
 	}
@@ -151,6 +163,20 @@ namespace meta
 		assert(integer == VALUE_B);
 	}
 
+	void TestInheritedTypeLookup()
+	{
+		ExampleA objA;
+		ExampleB objB;
+
+		ExampleA *objs[] = { &objA, &objB };
+
+		PrintType(*objs[0]);
+		PrintType(*objs[1]);
+
+		assert(internal::GetType(*objs[0]) == internal::GetType<ExampleA>());
+		assert(internal::GetType(*objs[1]) == internal::GetType<ExampleB>());
+	}
+
 	void TestAll()
 	{
 		TestTypeIDs();
@@ -158,5 +184,6 @@ namespace meta
 		TestAny();
 		TestPropertyInfo();
 		TestSet();
+		TestInheritedTypeLookup();
 	}
 }
