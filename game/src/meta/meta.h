@@ -200,12 +200,12 @@ namespace meta
 
 		#define META_REGISTER(TYPENAME) const ::meta::Type& tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
 
-		#define META_VIRTUAL_DECLARE(TYPENAME)           \
-		public:                                          \
-		virtual Type *MetaInternalGetTypeVirtual() const \
-		{                                                \
-			return ::meta::internal::GetType<TYPENAME>();\
-		}                                                \
+		#define META_VIRTUAL_DECLARE(TYPENAME)                   \
+		public:                                                  \
+		virtual ::meta::Type *MetaInternalGetTypeVirtual() const \
+		{                                                        \
+			return ::meta::internal::GetType<TYPENAME>();        \
+		}
 
 		//
 		// Get Registered Type
