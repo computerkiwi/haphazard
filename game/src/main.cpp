@@ -55,22 +55,6 @@ int main()
 
 	RegisterComponents(engine.GetLua());
 
-	GameObject_Space space;
-	space.Register<Sprite>();
-	space.Register<Transform>();
-	space.Register<RigidBody2D>();
-
-
-	GameObject object(space);
-
-	std::cout << object << "\n";
-
-	object.SetComponent(Sprite());
-	object.SetComponent<RigidBody2D, Transform>();
-
-	object.GetComponent<Sprite>();
-
-
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
 
@@ -79,6 +63,18 @@ int main()
 	glm::mat4 rotation = glm::rotate(glm::mat4(), 3.141592f, glm::vec3(0, 0, 1));
 	vector = rotation * vector;
 	std::cout << vector << std::endl;
+
+	if (luaL_dofile(engine.GetLua(), "script.lua"))
+	{
+		printf("%s\n", lua_tostring(engine.GetLua(), -1));
+	}
+	lua_pcall(engine.GetLua(), 0, 0, 0);
+
+	auto sprite_s = luabridge::getGlobal(engine.GetLua(), "sprite");
+
+	Sprite sprite = sprite_s.cast<Sprite>();
+
+	std::cout << sprite.GetAlpha();
 
 	// Keep the console from closing.
 	std::cin.ignore();

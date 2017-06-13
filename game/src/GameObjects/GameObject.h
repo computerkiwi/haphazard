@@ -167,6 +167,7 @@ public:
 	template <typename T, nothing>
 	void SetComponent(T & component)
 	{
+		std::cout << "Test\n";
 		mContainingSpace.Add<T>(mID, component);
 	}
 

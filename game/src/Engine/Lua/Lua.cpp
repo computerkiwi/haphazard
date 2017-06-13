@@ -17,16 +17,23 @@ Copyright © 2017 DigiPen (USA) Corporation.
 void RegisterComponents(lua_State * L)
 {
 	luabridge::getGlobalNamespace(L)
+		.beginClass<GameObject_Space>("GameObject_Space")
+			.addConstructor<void (*)()>()
+		.endClass()
+		.beginClass<Sprite>("Sprite")
+			.addConstructor<void(*)()>()
+			.addFunction("print", &Sprite::print)
+		.endClass()
 		.beginClass<GameObject>("GameObject")
 			.addConstructor<void(*)(GameObject_Space *)>()
 			.addFunction("GetSprite", &GameObject::GetComponent<Sprite>)
 			.addFunction("SetSprite", &GameObject::SetComponent<Sprite, 0>)
 
 			.addFunction("GetTransform", &GameObject::GetComponent<Transform>)
-			.addFunction("SetSprite", &GameObject::SetComponent<Transform, 0>)
+			.addFunction("SetTransform", &GameObject::SetComponent<Transform, 0>)
 
 			.addFunction("GetRigidBody2D", &GameObject::GetComponent<RigidBody2D>)
-			.addFunction("SetSprite", &GameObject::SetComponent<RigidBody2D, 0>)
+			.addFunction("SetRigidBody2D", &GameObject::SetComponent<RigidBody2D, 0>)
 
 			.addFunction("GetScript", &GameObject::GetComponent<Script>)
 			.addFunction("SetScript", &GameObject::SetComponent<Script, 0>)

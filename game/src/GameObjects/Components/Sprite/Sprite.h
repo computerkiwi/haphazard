@@ -10,6 +10,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 
 #include "../Component.h"
+#include <iostream>
 
 
 using Texture = void *;
@@ -32,6 +33,10 @@ public:
 	Texture GetTexture() const;
 	void SetTexture(Texture texture);
 
+	void print() const
+	{
+		std::cout << "<Sprite alpha:" << mAlpha << " texture:" << mTexture << ">";
+	}
 
 private:
 	float mAlpha;
