@@ -45,12 +45,16 @@ namespace meta
 	class ExampleB : public ExampleA
 	{
 	public:
+		ExampleB() : ExampleA(), subProperty(1) {}
+		int subProperty;
 
 	private:
 
 		META_VIRTUAL_DECLARE(ExampleB)                                               \
 	};
-	META_REGISTER(ExampleB);
+	META_REGISTER(ExampleB).
+	RegisterBaseClass<ExampleA>().
+	RegisterProperty("subProperty", &ExampleB::subProperty);
 
 	std::ostream &operator<<(std::ostream& os, ExampleA& obj)
 	{
@@ -63,6 +67,16 @@ namespace meta
 		os << "f: " << obj.f << std::endl;
 		os << "g: " << obj.g << std::endl;
 		os << "privateFloat: " << obj.GetPrivateFloat() << std::endl;
+		os << "---------------------";
+
+		return os;
+	}
+
+	std::ostream &operator<<(std::ostream& os, ExampleB& obj)
+	{
+		os << static_cast<ExampleA>(obj) << std::endl;
+		os << "---ExampleB Object---" << std::endl;
+		os << "a: " << obj.subProperty << std::endl;
 		os << "---------------------";
 
 		return os;
@@ -108,8 +122,8 @@ namespace meta
 
 	void TestPropertyInfo()
 	{
-		ExampleA obj;
-		Any pObj(&obj);
+		ExampleB obj;
+		Any pObj(reinterpret_cast<ExampleA *>(&obj));
 		std::cout << obj << std::endl;
 
 		std::cout << "Setting integers to 5 and floats to 3.22." << std::endl;

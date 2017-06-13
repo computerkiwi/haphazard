@@ -110,8 +110,19 @@ namespace meta
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return *this; }
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&))
 		{
-			//TODO: Make this work at all.
 			_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
+			return *this;
+		}
+
+		template <typename BaseClass> Type& RegisterBaseClass()
+		{
+			Type *baseType = internal::GetType<BaseClass>();
+			
+			for (auto prop : baseType->_properties)
+			{
+				_properties.push_back(prop);
+			}
+
 			return *this;
 		}
 
@@ -254,7 +265,7 @@ namespace meta
 	// Any Functions.
 	//
 
-	template <typename T> Any::Any(T value) : _typeInfo(internal::GetType<T>()), m_isPointer(false)
+	template <typename T> Any::Any(T value) : _typeInfo(internal::GetType<T>(value)), m_isPointer(false)
 	{
 		// Make sure we're not getting a value too big.
 		assert(sizeof(value) <= sizeof(m_data));
@@ -264,7 +275,7 @@ namespace meta
 		*dataPointer = value;
 	}
 
-	template <typename T> Any::Any(T *value) : _typeInfo(internal::GetType<T>()), m_isPointer(true)
+	template <typename T> Any::Any(T *value) : _typeInfo(internal::GetType(*value)), m_isPointer(true)
 	{
 		// Make sure we're not getting a value too big.
 		assert(sizeof(*value) <= sizeof(m_data));
