@@ -14,6 +14,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Components/Components.h"
 
+
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
 {

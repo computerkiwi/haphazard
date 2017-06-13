@@ -8,6 +8,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include <lua.hpp>
 
 class Engine
 {
@@ -24,7 +25,7 @@ public:
 
 private:
 	float m_dt = 0.0f;
-
+	lua_State * L = luaL_newstate();
 
 };
 
