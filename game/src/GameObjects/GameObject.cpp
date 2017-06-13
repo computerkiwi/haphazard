@@ -16,6 +16,10 @@ GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(
 }
 
 
+GameObject::GameObject(GameObject_Space * space) : mContainingSpace(*space), mID(space->AssignID())
+{
+}
+
 
 // ----------------------------------------------------
 // This gets the id of a GameObject

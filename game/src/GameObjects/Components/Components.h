@@ -11,3 +11,5 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "RigidBody2D/RigidBody2D.h"
 #include "Sprite/Sprite.h"
 #include "Transform/Transform.h"
+#include "Collider2D/Collider2D.h"
+#include "Script/Script.h"

@@ -13,6 +13,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <glm/gtc/matrix_transform.hpp>
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Components/Components.h"
+#include "Engine/Engine.h"
 
 
 // GLM didnt have these, huh.
@@ -48,7 +49,12 @@ int main()
 		std::cout << "Hello, world!" << std::endl;
 	}
 	
-	
+	Engine engine;
+
+	luaL_openlibs(engine.GetLua());
+
+	RegisterComponents(engine.GetLua());
+
 	GameObject_Space space;
 	space.Register<Sprite>();
 	space.Register<Transform>();

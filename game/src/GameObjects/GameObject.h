@@ -14,7 +14,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <unordered_map>
 #include <map>
 #include "Components/Component.h"
-#include <ostream>
+#include <iostream>
 
 // size_t for GameObjectID
 typedef size_t GameObjectID_t;
@@ -147,6 +147,7 @@ class GameObject
 public:
 
 	explicit GameObject(GameObject_Space & space);
+	explicit GameObject(GameObject_Space * space);
 
 
 	// Gets the ID of the object
@@ -160,6 +161,15 @@ public:
 	{
 		mContainingSpace.Add<T>(mID, component);
 	}
+
+	using nothing = int;
+	// Dummy is for lua binding
+	template <typename T, nothing>
+	void SetComponent(T & component)
+	{
+		mContainingSpace.Add<T>(mID, component);
+	}
+
 
 	// R-value SetComponent
 	template <typename T>
@@ -215,6 +225,12 @@ public:
 		#else
 			return mContainingSpace.Find<T>(mID);
 		#endif
+	}
+
+
+	void print()
+	{
+		std::cout << *this;
 	}
 
 	friend std::ostream & operator<<(std::ostream & os, GameObject & object);
