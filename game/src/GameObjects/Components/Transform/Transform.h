@@ -16,12 +16,13 @@ class Transform : public Component
 {
 public:
 	Transform();
+	explicit Transform(GameObject * parent);
 
-	Transform(glm::vec2 & position, glm::vec2 & scale);
-	Transform(glm::vec2 && position, glm::vec2 && scale);
+	Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale);
+	Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale);
 
-	Transform::Transform(glm::vec2 & position, glm::vec2 & scale, glm::mat3 & matrix, float rotation = 0.0f);
-	Transform::Transform(glm::vec2 && position, glm::vec2 && scale, glm::mat3 && matrix, float rotation = 0.0f);
+	Transform::Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale, glm::mat3 & matrix, float rotation = 0.0f);
+	Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale, glm::mat3 && matrix, float rotation = 0.0f);
 
 
 	glm::vec2 GetPosition() const;

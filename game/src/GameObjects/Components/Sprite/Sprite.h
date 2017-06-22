@@ -19,12 +19,14 @@ class Sprite : public Component
 {
 public:
 	Sprite();
-	Sprite(const Sprite & other);
+	explicit Sprite(GameObject * parent);
 
-	Sprite(float alpha, Texture texture);
+	Sprite(GameObject * parent, const Sprite & other);
 
-	explicit Sprite(float alpha);
-	explicit Sprite(Texture texture);
+	Sprite(GameObject * parent, float alpha, Texture texture);
+
+	explicit Sprite(GameObject * parent, float alpha);
+	explicit Sprite(GameObject * parent, Texture texture);
 
 	void SetAlpha(float alpha);
 	float GetAlpha() const;

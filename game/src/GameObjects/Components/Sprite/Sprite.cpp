@@ -12,29 +12,35 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Sprite.h"
 
 
-Sprite::Sprite() : Sprite(1.0f, nullptr)
+Sprite::Sprite() : Sprite(nullptr, 1.0f, nullptr)
 {
 }
 
 
-Sprite::Sprite(const Sprite & other) : Sprite(other.mAlpha, other.mTexture)
-{
-}
-
-
-
-Sprite::Sprite(float alpha, Texture texture) : mAlpha(1.0f), mTexture(texture)
+Sprite::Sprite(GameObject * parent) : Sprite(parent, 1.0f, nullptr)
 {
 }
 
 
 
-Sprite::Sprite(Texture texture) : Sprite(1.0f, texture)
+Sprite::Sprite(GameObject * parent, const Sprite & other) : Sprite(parent, other.mAlpha, other.mTexture)
 {
 }
 
 
-Sprite::Sprite(float alpha) : Sprite(alpha, nullptr)
+
+Sprite::Sprite(GameObject * parent, float alpha, Texture texture) : Component(parent), mAlpha(alpha), mTexture(texture)
+{
+}
+
+
+
+Sprite::Sprite(GameObject * parent, Texture texture) : Sprite(parent, 1.0f, texture)
+{
+}
+
+
+Sprite::Sprite(GameObject * parent, float alpha) : Sprite(parent, alpha, nullptr)
 {
 }
 
@@ -42,18 +48,21 @@ Sprite::Sprite(float alpha) : Sprite(alpha, nullptr)
 
 float Sprite::GetAlpha() const
 {
+	assert(mParent && "Component does not have a parent!!");
 	return mAlpha;
 }
 
 
 void Sprite::SetAlpha(float alpha)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mAlpha = alpha;
 }
 
 
 void Sprite::ChangeAlpha(float change)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mAlpha += change;
 	if (mAlpha > 1)
 		mAlpha = 1;
@@ -64,12 +73,14 @@ void Sprite::ChangeAlpha(float change)
 
 Texture Sprite::GetTexture() const
 {
+	assert(mParent && "Component does not have a parent!!");
 	return mTexture;
 }
 
 
 void Sprite::SetTexture(Texture texture)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mTexture = texture;
 }
 

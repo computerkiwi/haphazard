@@ -14,37 +14,40 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "../Engine.h"
 
 
+
 void RegisterComponents(lua_State * L)
 {
 	luabridge::getGlobalNamespace(L)
+
 		.beginClass<GameObject_Space>("GameObject_Space")
-			.addConstructor<void (*)()>()
+			.addConstructor<void(*)()>()
+			.addFunction("RegisterSprite", &GameObject_Space::Register<Sprite>)
 		.endClass()
+
 		.beginClass<Sprite>("Sprite")
 			.addConstructor<void(*)()>()
 			.addFunction("print", &Sprite::print)
 		.endClass()
-		.beginClass<GameObject>("GameObject")
-			.addConstructor<void(*)(GameObject_Space *)>()
-			.addFunction("GetSprite", &GameObject::GetComponent<Sprite>)
-			.addFunction("SetSprite", &GameObject::SetComponent<Sprite, 0>)
 
-			.addFunction("GetTransform", &GameObject::GetComponent<Transform>)
-			.addFunction("SetTransform", &GameObject::SetComponent<Transform, 0>)
+		.beginClass<Script>("Script")
+			.addFunction("GetSprite", &Script::GetComponent<Sprite>)
+			.addFunction("SetSprite", &Script::SetComponent<Sprite>)
 
-			.addFunction("GetRigidBody2D", &GameObject::GetComponent<RigidBody2D>)
-			.addFunction("SetRigidBody2D", &GameObject::SetComponent<RigidBody2D, 0>)
+			.addFunction("GetTransform", &Script::GetComponent<Transform>)
+			.addFunction("SetTransform", &Script::SetComponent<Transform>)
 
-			.addFunction("GetScript", &GameObject::GetComponent<Script>)
-			.addFunction("SetScript", &GameObject::SetComponent<Script, 0>)
+			.addFunction("GetRigidBody2D", &Script::GetComponent<RigidBody2D>)
+			.addFunction("SetRigidBody2D", &Script::SetComponent<RigidBody2D>)
 
-			.addFunction("GetCollider2D", &GameObject::GetComponent<Collider2D>)
-			.addFunction("SetCollider2D", &GameObject::SetComponent<Collider2D, 0>)
+			.addFunction("GetScript", &Script::GetComponent<Script>)
+			.addFunction("SetScript", &Script::SetComponent<Script>)
+
+			.addFunction("GetCollider2D", &Script::GetComponent<Collider2D>)
+			.addFunction("SetCollider2D", &Script::SetComponent<Collider2D>)
 
 			.addFunction("id", &GameObject::id)
 
 			.addFunction("print", &GameObject::print)
-
 		.endClass();
 }
 

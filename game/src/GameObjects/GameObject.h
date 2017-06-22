@@ -80,7 +80,7 @@ template <typename T>
 class Component_Maps : public Component_Maps_Base, public std::map<GameObjectID_t, T>
 {
 public:
-	// The non-virtual destructor is ok
+	// The non-virtual destructor from std::map is ok
 	virtual ~Component_Maps() final
 	{
 	}
@@ -162,15 +162,6 @@ public:
 		mContainingSpace.Add<T>(mID, component);
 	}
 
-	using nothing = int;
-	// Dummy is for lua binding
-	template <typename T, nothing>
-	void SetComponent(T & component)
-	{
-		std::cout << "Test\n";
-		mContainingSpace.Add<T>(mID, component);
-	}
-
 
 	// R-value SetComponent
 	template <typename T>
@@ -205,7 +196,7 @@ public:
 		using expand = int[];
 		expand
 		{
-			0, (SetComponent(Args()), 0)...
+			0, (SetComponent(Args(this)), 0)...
 		};
 	}
 

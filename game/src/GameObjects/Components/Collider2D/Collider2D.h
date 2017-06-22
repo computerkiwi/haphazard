@@ -27,10 +27,12 @@ class Collider2D : public Component
 {
 public:
 
-	Collider2D(CollisionLayer_t layers, bool collision);
+	explicit Collider2D(GameObject * parent);
 
-	explicit Collider2D(CollisionLayer_t layers);
-	explicit Collider2D(bool collision);
+	Collider2D(GameObject * parent, CollisionLayer_t layers, bool collision);
+
+	explicit Collider2D(GameObject * parent, CollisionLayer_t layers);
+	explicit Collider2D(GameObject * parent, bool collision);
 
 
 	void SetCollisionLayer(CollisionLayer_t layers);

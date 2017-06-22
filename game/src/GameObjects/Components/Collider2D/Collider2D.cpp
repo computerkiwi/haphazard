@@ -11,19 +11,24 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 
 
-
-Collider2D::Collider2D(CollisionLayer_t layers) : Collider2D(layers, true)
-{
-}
-
-
-Collider2D::Collider2D(bool collision) : Collider2D(CollisionLayers::NONE, collision)
+Collider2D::Collider2D(GameObject * parent) : Collider2D(parent, CollisionLayers::NONE, true)
 {
 }
 
 
 
-Collider2D::Collider2D(CollisionLayer_t layers, bool collision) : mCollision(collision), mLayers(layers)
+Collider2D::Collider2D(GameObject * parent, CollisionLayer_t layers) : Collider2D(parent, layers, true)
+{
+}
+
+
+Collider2D::Collider2D(GameObject * parent, bool collision) : Collider2D(parent, CollisionLayers::NONE, collision)
+{
+}
+
+
+
+Collider2D::Collider2D(GameObject * parent, CollisionLayer_t layers, bool collision) : Component(parent), mCollision(collision), mLayers(layers)
 {	
 }
 
@@ -31,36 +36,42 @@ Collider2D::Collider2D(CollisionLayer_t layers, bool collision) : mCollision(col
 
 CollisionLayer_t Collider2D::GetLayers() const
 {
+	assert(mParent && "Component does not have a parent!!");
 	return mLayers;
 }
 
 
 void Collider2D::SetCollisionLayer(CollisionLayer_t layers)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mLayers = layers;
 }
 
 
 void Collider2D::AddLayer(CollisionLayers layer)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mLayers |= layer;
 }
 
 
 void Collider2D::RemoveLayer(CollisionLayers layer)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mLayers &= ~layer;
 }
 
 
 bool Collider2D::HasCollision() const
 {
+	assert(mParent && "Component does not have a parent!!");
 	return mCollision;
 }
 
 
 void Collider2D::SetCollision(bool collision)
 {
+	assert(mParent && "Component does not have a parent!!");
 	mCollision = collision;
 }
 
@@ -68,6 +79,7 @@ void Collider2D::SetCollision(bool collision)
 
 void Collider2D::ToggleCollision()
 {
+	assert(mParent && "Component does not have a parent!!");
 	mCollision = !mCollision;
 }
 

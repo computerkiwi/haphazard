@@ -18,13 +18,14 @@ class RigidBody2D : public Component
 public:
 	
 	RigidBody2D();
+	explicit RigidBody2D(GameObject * parent);
 
-	RigidBody2D(glm::vec2 & velocity, glm::vec2 & acceleration);
-	RigidBody2D(glm::vec2 && velocity, glm::vec2 && acceleration);
-	RigidBody2D(float angularVelocity, float mass);
+	RigidBody2D(GameObject * parent, glm::vec2 & velocity, glm::vec2 & acceleration);
+	RigidBody2D(GameObject * parent, glm::vec2 && velocity, glm::vec2 && acceleration);
+	RigidBody2D(GameObject * parent, float angularVelocity, float mass);
 
-	RigidBody2D(glm::vec2 & velocity, glm::vec2 & acceleration, float angularVelocity, float mass);
-	RigidBody2D(glm::vec2 && velocity, glm::vec2 && acceleration, float angularVelocity, float mass);
+	RigidBody2D(GameObject * parent, glm::vec2 & velocity, glm::vec2 & acceleration, float angularVelocity, float mass);
+	RigidBody2D(GameObject * parent, glm::vec2 && velocity, glm::vec2 && acceleration, float angularVelocity, float mass);
 
 	glm::vec2 GetVelocity() const;
 	void SetVelocity(glm::vec2 & velocity);

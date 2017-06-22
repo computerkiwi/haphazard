@@ -20,7 +20,7 @@ include_directories("external/lua")
 find_library(LUA_LIB 
 			 NAMES lua53
 			 PATHS "external/lua/lib")
-
+configure_file("src/script.lua" "script.lua" COPYONLY)
 
 
 

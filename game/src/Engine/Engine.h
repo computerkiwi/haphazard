@@ -20,18 +20,14 @@ extern "C"
 class Engine
 {
 public:
-	void mainLoop() const
-	{
-		
-	}
+	void mainLoop() const;
 
-	void Update(float dt)
-	{
-		
-	}
+	void Update(float dt);
 
 	float Dt() const;
 	lua_State * GetLua() const;
+
+
 
 private:
 	float m_dt = 0.0f;

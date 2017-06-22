@@ -49,11 +49,27 @@ int main()
 		std::cout << "Hello, world!" << std::endl;
 	}
 	
+	
 	Engine engine;
 
 	luaL_openlibs(engine.GetLua());
 
 	RegisterComponents(engine.GetLua());
+
+	GameObject_Space space;
+	space.Register<Sprite>();
+	space.Register<Script>();
+
+	GameObject object(space);
+	object.SetComponent<Sprite>();
+	object.SetComponent(Script(&object, "script.lua"));
+
+	object.GetComponent<Script>().doFile(engine.GetLua());
+
+	Sprite sprite = luabridge::getGlobal(engine.GetLua(), "sprite").cast<Sprite>();
+
+	std::cout << "\nC++ Side - Alpha: " << sprite.GetAlpha() << "\n\n";
+
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
@@ -64,17 +80,6 @@ int main()
 	vector = rotation * vector;
 	std::cout << vector << std::endl;
 
-	if (luaL_dofile(engine.GetLua(), "script.lua"))
-	{
-		printf("%s\n", lua_tostring(engine.GetLua(), -1));
-	}
-	lua_pcall(engine.GetLua(), 0, 0, 0);
-
-	auto sprite_s = luabridge::getGlobal(engine.GetLua(), "sprite");
-
-	Sprite sprite = sprite_s.cast<Sprite>();
-
-	std::cout << sprite.GetAlpha();
 
 	// Keep the console from closing.
 	std::cin.ignore();
