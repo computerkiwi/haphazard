@@ -147,7 +147,7 @@ class GameObject
 public:
 
 	explicit GameObject(GameObject_Space & space);
-	explicit GameObject(GameObject_Space * space);
+	explicit GameObject(GameObject_Space * space); // For lua
 
 
 	// Gets the ID of the object
@@ -176,7 +176,7 @@ public:
 	void SetComponent(First & first, Rest & ...args)
 	{
 		mContainingSpace.Add<First>(mID, first);
-		SetComponent(args...);
+		SetComponent(std::forward(args)...);
 	}
 
 
@@ -185,7 +185,7 @@ public:
 	void SetComponent(First && first, Rest && ...args)
 	{
 		mContainingSpace.Add<First>(mID, first);
-		SetComponent(args...);
+		SetComponent(std::forward(args)...);
 	}
 
 
