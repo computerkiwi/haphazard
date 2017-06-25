@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjects/Components/Components.h"
 #include "Engine/Engine.h"
 
+// This comment is useless.
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
