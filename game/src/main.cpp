@@ -62,13 +62,6 @@ int main()
 
 	GameObject object(space);
 	object.SetComponent<Sprite>();
-	object.SetComponent(Script(&object, "script.lua"));
-
-	object.GetComponent<Script>().doFile(engine.GetLua());
-
-	Sprite sprite = luabridge::getGlobal(engine.GetLua(), "sprite").cast<Sprite>();
-
-	std::cout << "\nC++ Side - Alpha: " << sprite.GetAlpha() << "\n\n";
 
 
 	glm::mat4 matrix;
