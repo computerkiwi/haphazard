@@ -13,8 +13,10 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "GameObjects/GameObject.h"
-#include "GameObjects/Components/Sprite/Sprite.h"
+#include "GameObjects/Components/Components.h"
+#include "Engine/Engine.h"
 
+// This comment is useless.
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -52,17 +54,18 @@ int main()
 	}
 	
 	
+	Engine engine;
+
+	luaL_openlibs(engine.GetLua());
+
+	RegisterComponents(engine.GetLua());
+
 	GameObject_Space space;
-	space.RegisterComponentMap<Sprite>();
-	
+	space.Register<Sprite>();
+	space.Register<Script>();
+
 	GameObject object(space);
-
-	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
-	std::cout << COMPONENT_GEN<Sprite>::Func << "\n";
-
-	object.SetComponent(Sprite());
-
-	object.GetComponent<Sprite>();
+	object.SetComponent<Sprite>();
 
 
 	glm::mat4 matrix;
@@ -73,6 +76,7 @@ int main()
 	glm::mat4 rotation = glm::rotate(glm::mat4(), 3.141592f, glm::vec3(0, 0, 1));
 	vector = rotation * vector;
 	std::cout << vector << std::endl;
+
 
 	// Keep the console from closing.
 	std::cin.ignore();

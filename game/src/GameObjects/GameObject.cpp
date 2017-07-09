@@ -16,6 +16,10 @@ GameObject::GameObject(GameObject_Space & space) : mContainingSpace(space), mID(
 }
 
 
+GameObject::GameObject(GameObject_Space * space) : mContainingSpace(*space), mID(space->AssignID())
+{
+}
+
 
 // ----------------------------------------------------
 // This gets the id of a GameObject
@@ -33,5 +37,11 @@ GameObject_Space & GameObject::GetSpace() const
 
 
 
+
+std::ostream & operator<<(std::ostream & os, GameObject & object)
+{
+	os << "<GameObject " << "id:" << object.mID << ">";
+	return os;
+}
 
 

@@ -1,12 +1,6 @@
 
-game/src/\.vscode/
+game/Debug/
 
-game/CMakeFiles/
+game/x64/Debug/
 
-game/Makefile
-
-*.cmake
-
-game/CMakeCache\.txt
-
-*.exe
+*.user
