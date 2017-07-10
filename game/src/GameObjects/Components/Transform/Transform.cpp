@@ -49,7 +49,7 @@ Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && sc
 
 
 
-glm::vec2 Transform::GetPosition() const
+const glm::vec2 & Transform::GetPosition() const
 {
 	assert(mParent && "Component does not have a parent!!");
 	return mPosition;

@@ -25,7 +25,7 @@ public:
 	Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale, glm::mat3 && matrix, float rotation = 0.0f);
 
 
-	glm::vec2 GetPosition() const;
+	const glm::vec2 & GetPosition() const;
 	void SetPosition(glm::vec2 position);
 
 	glm::vec2 GetScale() const;

@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Engine\Engine.h" />
+    <ClInclude Include="src\Engine\Quadtree.h" />
     <ClInclude Include="src\GameObjects\Components\Collider2D\Collider2D.h" />
     <ClInclude Include="src\GameObjects\Components\Component.h" />
     <ClInclude Include="src\GameObjects\Components\Components.h" />
