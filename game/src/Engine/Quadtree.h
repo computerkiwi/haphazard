@@ -12,7 +12,7 @@
 template <typename T, std::size_t size>
 struct Array
 {
-	std::size_t m_size;
+	std::size_t m_size = 0;
 	T m_array[size];
 	
 	const T & operator[](std::size_t index) const
@@ -39,6 +39,10 @@ class QuadTree
 
 	int m_depth;
 public:
+	QuadTree() : QuadTree(glm::vec2(), glm::vec2(), 1)
+	{
+	}
+
 	QuadTree(glm::vec2 & minPoint, glm::vec2 & maxPoint, int depth = 1)
 	 : m_minPoint(minPoint), m_maxPoint(maxPoint), m_center((minPoint.x + maxPoint.x) / 2, (minPoint.y + maxPoint.y) / 2),
 	    m_depth(depth)
@@ -112,11 +116,14 @@ public:
 		for (auto i = 0; i < m_objects.m_size; ++i)
 		{
 			GameObject * object = m_objects[i];
-			
-			File(object, object->GetComponent<Transform>().GetPosition(), true);
+			if (object)
+			{
 
-			m_objects[i] = nullptr;
-			--m_objects.m_size;
+				File(object, object->GetComponent<Transform>().GetPosition());
+
+				m_objects[i] = nullptr;
+				--m_objects.m_size;
+			}
 		}
 	}
 
@@ -153,7 +160,7 @@ public:
 	}
 
 
-	void AddObject(GameObject * object, glm::vec2 & pos)
+	void AddObject(GameObject * object, const glm::vec2 & pos)
 	{
 		if (m_children.m_size == 0 && m_depth < MAX_DEPTH && m_objects.m_size >= max_objects - 1)
 		{
@@ -165,7 +172,7 @@ public:
 
 		if (m_children.m_size)
 		{
-			File(object, pos, true);
+			File(object, pos);
 		}
 		else
 		{
@@ -183,7 +190,7 @@ public:
 
 		if (m_children.m_size)
 		{
-			File(object, pos, false);
+			File(object, pos);
 		}
 		else
 		{
@@ -228,9 +235,9 @@ public:
 	}
 
 
-	void File(GameObject * object, const glm::vec2 & pos, bool add)
+	void File(GameObject * object, const glm::vec2 & pos)
 	{
-		glm::vec2 objectSize = object->GetComponent<Collider2D>.GetHixBox();
+		glm::vec2 objectSize = object->GetComponent<Transform>().GetScale();
 		objectSize.x /= 2;
 		objectSize.y /= 2;
 

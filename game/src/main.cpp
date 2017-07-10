@@ -11,8 +11,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <iostream>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "GameObjects/GameObject.h"
-#include "GameObjects/Components/Components.h"
+#include "Engine/Quadtree.h"
 #include "Engine/Engine.h"
 
 // This comment is useless.
@@ -59,11 +58,18 @@ int main()
 
 	GameObject_Space space;
 	space.Register<Sprite>();
+	space.Register<Transform>();
 	space.Register<Script>();
 
 	GameObject object(space);
 	object.SetComponent<Sprite>();
+	object.SetComponent<Transform>();
 
+	object.GetComponent<Transform>().SetScale(glm::vec2(1, 5));
+
+	QuadTree<9> tree;
+
+	tree.File(&object, object.GetComponent<Transform>().GetPosition());
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
