@@ -21,8 +21,6 @@ namespace meta
 
 	unsigned int meta::internal::TypeIdentifier::_idCounter = 0;
 
-	std::map<meta::internal::TypeID, meta::Type> meta::internal::typeMap;
-
 	// Register some default types.
 	META_REGISTER(int);
 	META_REGISTER(char);
@@ -98,5 +96,15 @@ namespace meta
 	Type *Any::GetType()
 	{
 		return _typeInfo;
+	}
+
+	namespace internal
+	{
+		// Singleton function to get the type map.
+		std::map<TypeID, Type>& GetTypeMap()
+		{
+			static std::map<TypeID, Type> typeMap;
+			return typeMap;
+		}
 	}
 }

@@ -181,7 +181,8 @@ namespace meta
 		// 
 		//
 
-		extern std::map<TypeID, Type> typeMap;
+		// Singleton function to get the type map.
+		std::map<TypeID, Type>& GetTypeMap();
 
 		//
 		// Registration
@@ -192,10 +193,10 @@ namespace meta
 		{
 			TypeID id = TypeIdentifier::Get<T>();
 
-			assert(typeMap.find(id) == typeMap.end() && "Registering an already registered type.");
+			assert(GetTypeMap().find(id) == GetTypeMap().end() && "Registering an already registered type.");
 
 			// Add a new type object and return the reference.
-			return typeMap.insert(std::pair<TypeID, Type>(id, Type(name))).first->second;
+			return GetTypeMap().insert(std::pair<TypeID, Type>(id, Type(name))).first->second;
 		}
 
 		#define META_REGISTER(TYPENAME) const ::meta::Type& tempPointer_##TYPENAME = ::meta::internal::RegisterType<TYPENAME>(#TYPENAME)
@@ -216,10 +217,10 @@ namespace meta
 		Type *GetType()
 		{
 			TypeID id = TypeIdentifier::Get<T>();
-			auto typeIt = typeMap.find(id);
+			auto typeIt = GetTypeMap().find(id);
 
 			// Return a null pointer if we couldn't find the type.
-			if (typeIt == typeMap.end())
+			if (typeIt == GetTypeMap().end())
 			{
 				return nullptr;
 			}
