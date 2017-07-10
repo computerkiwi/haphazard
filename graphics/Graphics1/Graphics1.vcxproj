@@ -176,8 +176,13 @@
     <ClInclude Include="Shaders.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="screen.fragshader" />
-    <None Include="screen.vertshader" />
+    <None Include="screenBlur.fragshader" />
+    <None Include="screenBlurCorners.fragshader" />
+    <None Include="screenBlurFocus.fragshader" />
+    <None Include="screenDefault.fragshader" />
+    <None Include="screenDefault.vertshader" />
+    <None Include="screenEdgeDect.fragshader" />
+    <None Include="screenSharpen.fragshader" />
     <None Include="shader.fragshader" />
     <None Include="shader.vertshader" />
   </ItemGroup>

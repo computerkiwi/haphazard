@@ -169,7 +169,12 @@ static void FailedCompile()
 
 //Shader Declaration
 Graphics::ShaderProgram* Graphics::Shaders::defaultShader;
-Graphics::ShaderProgram* Graphics::Shaders::defaultScreenShader;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Default;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Blur;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::BlurCorners;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::BlurFocus;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::EdgeDetection;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Sharpen;
 
 static void LoadDefaultShader()
 {
@@ -184,15 +189,34 @@ static void LoadDefaultShader()
 		FailedCompile();
 }
 
-static void LoadDefaultScreenShader()
+static void LoadScreenShaders()
 {
 	std::vector<Graphics::ShaderProgram::Attribute> attribs;
-	attribs.push_back(Graphics::ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(GL_FLOAT), false, 5, 0));
-	attribs.push_back(Graphics::ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 5, 3));
+	attribs.push_back(Graphics::ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0));
+	attribs.push_back(Graphics::ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2));
 
-	Graphics::Shaders::defaultScreenShader = LoadShaders("screen.vertshader", "screen.fragshader", attribs);
+	Graphics::Shaders::ScreenShader::Default = LoadShaders("screenDefault.vertshader", "screenDefault.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::Default->wasCompiled())
+		FailedCompile();
 
-	if (!Graphics::Shaders::defaultScreenShader->wasCompiled())
+	Graphics::Shaders::ScreenShader::Blur = LoadShaders("screenDefault.vertshader", "screenBlur.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::Blur->wasCompiled())
+		FailedCompile();
+
+	Graphics::Shaders::ScreenShader::BlurCorners = LoadShaders("screenDefault.vertshader", "screenBlurCorners.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::BlurCorners->wasCompiled())
+		FailedCompile();
+
+	Graphics::Shaders::ScreenShader::BlurFocus = LoadShaders("screenDefault.vertshader", "screenBlurFocus.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::BlurFocus->wasCompiled())
+		FailedCompile();
+
+	Graphics::Shaders::ScreenShader::EdgeDetection = LoadShaders("screenDefault.vertshader", "screenEdgeDect.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::EdgeDetection->wasCompiled())
+		FailedCompile();
+
+	Graphics::Shaders::ScreenShader::Sharpen= LoadShaders("screenDefault.vertshader", "screenSharpen.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::Sharpen->wasCompiled())
 		FailedCompile();
 }
 
@@ -200,11 +224,17 @@ static void LoadDefaultScreenShader()
 void Graphics::Shaders::Init()
 {
 	LoadDefaultShader();
-	LoadDefaultScreenShader();
+	LoadScreenShaders();
 }
 
 // Frees all basic shaders
 void Graphics::Shaders::Unload()
 {
 	delete defaultShader;
+	delete ScreenShader::Default;
+	delete ScreenShader::Blur;
+	delete ScreenShader::BlurCorners;
+	delete ScreenShader::BlurFocus;
+	delete ScreenShader::EdgeDetection;
+	delete ScreenShader::Sharpen;
 }

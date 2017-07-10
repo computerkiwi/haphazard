@@ -10,7 +10,15 @@ namespace Graphics
 		void Unload();
 
 		extern ShaderProgram* defaultShader;
-		extern ShaderProgram* defaultScreenShader;
+		namespace ScreenShader
+		{
+			extern ShaderProgram* Default;
+			extern ShaderProgram* EdgeDetection;
+			extern ShaderProgram* Sharpen;
+			extern ShaderProgram* Blur;
+			extern ShaderProgram* BlurCorners;
+			extern ShaderProgram* BlurFocus;
+		}
 
 	};
 };

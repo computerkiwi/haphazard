@@ -1,7 +1,7 @@
 #include "Graphics.h"
 
 Graphics::Screen::Screen(FX screenEffect, int width, int height, float effectIntensity)
-		: width{ width }, height{ height }, intensity{ effectIntensity }
+		: mWidth{ width }, mHeight{ height }, mIntensity{ effectIntensity }
 {
 	glGenFramebuffers(1, &mID);
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
@@ -9,9 +9,22 @@ Graphics::Screen::Screen(FX screenEffect, int width, int height, float effectInt
 	switch (screenEffect)
 	{
 	default:
-		shader = Shaders::defaultScreenShader;
+		mShader = Shaders::ScreenShader::Default;
+		break;
 	case EDGE_DETECTION:
-
+		mShader = Shaders::ScreenShader::EdgeDetection;
+		break;
+	case SHARPEN:
+		mShader = Shaders::ScreenShader::Sharpen;
+		break;
+	case BLUR:
+		mShader = Shaders::ScreenShader::Blur;
+		break;
+	case BLUR_CORNERS:
+		mShader = Shaders::ScreenShader::BlurCorners;
+		break;
+	case BLUR_FOCUS:
+		mShader = Shaders::ScreenShader::BlurFocus;
 		break;
 	}
 
@@ -43,7 +56,7 @@ void Graphics::Screen::GenerateDepthStencilObject()
 	// create a renderbuffer object for depth and stencil attachment (won't be sampling these)
 	glGenRenderbuffers(1, &mDepthStencilBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, mDepthStencilBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mWidth, mHeight); // use a single renderbuffer object for both a depth AND stencil buffer.
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthStencilBuffer); // now actually attach it
 }
 
@@ -81,6 +94,9 @@ Graphics::ScreenMesh::ScreenMesh(Screen& screen, float bottom, float top, float 
 // Draws screen on mesh
 void Graphics::ScreenMesh::Draw()
 {
+	mScreen.GetShader()->Use();
+	mScreen.GetShader()->SetVariable("Intensity", mScreen.Intensity());
+
 	glBindVertexArray(mVAO);
 	glBindTexture(GL_TEXTURE_2D, mScreen.ColorBuffer());
 	glDrawArrays(GL_TRIANGLES, 0, 6);

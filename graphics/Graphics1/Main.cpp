@@ -119,7 +119,7 @@ int main()
 	main.SetProjection(45.0f, 800.0f / 600.0f, 1, 10);
 
 	//Create screen
-	Screen screen(Screen::FX::DEFAULT, 800, 600);
+	Screen screen(Screen::FX::SHARPEN, 800, 600);
 
 	// Check screen for completeness
 	if(!Screen::CurrentScreenIsComplete())
@@ -132,7 +132,6 @@ int main()
 	//Screen mesh 
 	ScreenMesh screenMesh(screen);
 
-
 	float dt = 0.0f, last = 0.0f;
 	do //Main Loop
 	{
@@ -143,7 +142,7 @@ int main()
 		glEnableVertexAttribArray(0);
 
 		// Render to framebuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, screen.ID()); // Set framebuffer to off screen rendering
+		screen.Use(); // Set framebuffer to off screen rendering
 		glEnable(GL_DEPTH_TEST);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Set background color
@@ -164,8 +163,7 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		glClearColor(1.0f, 0.0f, 1.0f, 1.0f); //Set failure to render color 
 		glClear(GL_COLOR_BUFFER_BIT);
-		Shaders::defaultScreenShader->Use();
-		
+
 		screenMesh.Draw();
 
 		glDisableVertexAttribArray(0);

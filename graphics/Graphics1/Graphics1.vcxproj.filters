@@ -37,16 +37,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="screenBlur.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenBlurCorners.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenBlurFocus.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenDefault.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenDefault.vertshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenEdgeDect.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenSharpen.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="shader.fragshader">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shader.vertshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="screen.vertshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="screen.fragshader">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

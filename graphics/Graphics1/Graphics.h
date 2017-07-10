@@ -8,6 +8,7 @@
 #include "SOIL\SOIL.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shaders.h"
 
@@ -60,6 +61,27 @@ namespace Graphics
 			bool wasCompiled();
 			GLuint GetProgramID();
 			void Use();
+
+			template<typename T>
+			void SetVariable(char* varName, T value)
+			{
+				glUniform1f(glGetUniformLocation(id, varName), value);
+			}
+
+			void Graphics::ShaderProgram::SetVariable(char* varName, glm::mat4 value)
+			{
+				glUniformMatrix4fv(glGetUniformLocation(id, varName), 1, GL_FALSE, glm::value_ptr(value));
+			}
+
+			void Graphics::ShaderProgram::SetVariable(char* varName, glm::vec2 value)
+			{
+				glUniform2f(glGetUniformLocation(id, varName), value.x, value.y);
+			}
+
+			void Graphics::ShaderProgram::SetVariable(char* varName, float value)
+			{
+				glUniform1f(glGetUniformLocation(id, varName), value);
+			}
 
 		private:
 
@@ -211,6 +233,11 @@ namespace Graphics
 			GLuint ID() { return mID; }
 			GLuint ColorBuffer() { return mColorBuffer; }
 			GLuint DepthStencilBuffer() { return mDepthStencilBuffer; }
+			float Intensity() { return mIntensity; }
+
+			ShaderProgram* GetShader() { return mShader; }
+
+			void Use() { glBindFramebuffer(GL_FRAMEBUFFER, mID); }
 
 		private:
 
@@ -219,9 +246,9 @@ namespace Graphics
 
 			GLuint mID;
 			GLuint mColorBuffer, mDepthStencilBuffer;
-			int width, height;
-			float intensity;
-			ShaderProgram* shader;
+			int mWidth, mHeight;
+			float mIntensity;
+			ShaderProgram* mShader;
 	};
 
 	// Mesh to render a screen to
