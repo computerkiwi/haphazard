@@ -116,59 +116,19 @@ int main()
 	main.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	main.SetProjection(45.0f, 800.0f / 600.0f, 1, 10);
 
+	//Create screen
+	Screen screen(Screen::FX::DEFAULT, 800, 600);
 
-	////// Create framebuffer
-	unsigned int framebuffer;
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	// create a color attachment texture
-	
-	unsigned int textureColorbuffer;
-	glGenTextures(1, &textureColorbuffer);
-	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
-	// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600); // use a single renderbuffer object for both a depth AND stencil buffer.
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-																																																// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	// Check screen for completeness
+	if(!Screen::CurrentScreenIsComplete())
 	{
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		std::cin >> framebuffer;
+		int a; std::cin >> a;
 		exit(1);
 	}
 
 	//Screen mesh 
-	float quadVerts[] =
-	{
-		-1, -1, 0, 0,
-		 1, -1, 1, 0,
-		 1,  1, 1, 1,
-
-		 1,  1, 1, 1,
-		-1,  1, 0, 1,
-		-1, -1, 0, 0,
-	};
-
-	GLuint screenVAO, screenVBO;
-	glGenVertexArrays(1, &screenVAO);
-	glGenBuffers(1, &screenVBO);
-	glBindVertexArray(screenVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), &quadVerts, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-	//////
+	ScreenMesh screenMesh(screen);
 
 
 	float dt = 0.0f, last = 0.0f;
@@ -181,7 +141,7 @@ int main()
 		glEnableVertexAttribArray(0);
 
 		// Render to framebuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer); // Set framebuffer to off screen rendering
+		glBindFramebuffer(GL_FRAMEBUFFER, screen.ID()); // Set framebuffer to off screen rendering
 		glEnable(GL_DEPTH_TEST);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Set background color
@@ -204,10 +164,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 		Shaders::defaultScreenShader->Use();
 		
+		screenMesh.Draw();
+		/*
 		glBindVertexArray(screenVAO);
 		//main.SetFOV(20);
-		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+		glBindTexture(GL_TEXTURE_2D, screen.ColorBuffer());
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		*/
 
 		glDisableVertexAttribArray(0);
 
@@ -216,8 +179,6 @@ int main()
 	} while (glfwWindowShouldClose(window) == false);
 
 	Shaders::Unload();
-
-	glDeleteFramebuffers(1, &framebuffer);
 	
 	return 0;
 }

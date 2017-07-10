@@ -4,3 +4,6 @@ game/Debug/
 game/x64/Debug/
 
 *.user
+graphics/.vs/
+graphics/Graphics1/Debug/
+graphics/Graphics1/x64/
