@@ -6,9 +6,9 @@
 ///
 // Mesh
 ///
-static Texture* defaultTexture;
+static Graphics::Texture* defaultTexture;
 
-Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode) 
+Graphics::Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode)
 	: program{ *shaderProgram }, drawMode{ renderMode }
 {
 	if (!defaultTexture) // no default texture, make it
@@ -31,19 +31,19 @@ Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode)
 	glGetUniformLocation(shaderProgram->GetProgramID(), "model");
 }
 
-Mesh::~Mesh()
+Graphics::Mesh::~Mesh()
 {
 	glDeleteBuffers(1, &vboID);
 	glDeleteVertexArrays(1, &vaoID);
 }
 
-void Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
+void Graphics::Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
 {
 	Vertice vert = Vertice{ x, y, z, r, g, b, a, s, t };
 	vertices.push_back(vert);
 }
 
-void Mesh::AddTriangle(
+void Graphics::Mesh::AddTriangle(
 	float x1, float y1, float z1, float r1, float g1, float b1, float a1, float s1, float t1,
 	float x2, float y2, float z2, float r2, float g2, float b2, float a2, float s2, float t2,
 	float x3, float y3, float z3, float r3, float g3, float b3, float a3, float s3, float t3)
@@ -53,7 +53,7 @@ void Mesh::AddTriangle(
 	AddVertex(x3, y3, z3, r3, g3, b3, a3, s3, t3);
 }
 
-void Mesh::Draw()
+void Graphics::Mesh::Draw()
 {
 	glBindVertexArray(vaoID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -67,12 +67,12 @@ void Mesh::Draw()
 	glDrawArrays(drawMode, 0, (int)vertices.size());
 }
 
-std::vector<Mesh::Vertice>* Mesh::GetVertices()
+std::vector<Graphics::Mesh::Vertice>* Graphics::Mesh::GetVertices()
 {
 	return &vertices;
 }
 
-void Mesh::CompileMesh()
+void Graphics::Mesh::CompileMesh()
 {
 	glBindVertexArray(vaoID); // Enable vao to ensure correct mesh is compiled
 	glBindBuffer(GL_ARRAY_BUFFER, vboID); // Enable vbo
@@ -92,7 +92,7 @@ void Mesh::CompileMesh()
 ///
 // Texture
 ///
-Texture::Texture(const char* file)
+Graphics::Texture::Texture(const char* file)
 {
 	int width, height;
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
@@ -111,7 +111,7 @@ Texture::Texture(const char* file)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-Texture::Texture(float *pixels, int width, int height)
+Graphics::Texture::Texture(float *pixels, int width, int height)
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
@@ -126,7 +126,7 @@ Texture::Texture(float *pixels, int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-Texture::~Texture()
+Graphics::Texture::~Texture()
 {
 	glDeleteTextures(1, &id);
 }
@@ -135,15 +135,15 @@ Texture::~Texture()
 // Transform
 ///
 
-Transform::Transform()
+Graphics::Transform::Transform()
 	: scale{ glm::vec3(1,1,1) }
 { }
 
-Transform::Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale)
+Graphics::Transform::Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale)
 	: position{ pos }, rotation{ rotDegrees }, scale{ modelScale }
 { }
 
-glm::mat4 Transform::GetMatrix()
+glm::mat4 Graphics::Transform::GetMatrix()
 {
 	if (isDirty)
 	{
@@ -159,19 +159,19 @@ glm::mat4 Transform::GetMatrix()
 	return matrix;
 }
 
-void Transform::SetPosition(glm::vec3 pos)
+void Graphics::Transform::SetPosition(glm::vec3 pos)
 {
 	position = pos;
 	isDirty = true;
 }
 
-void Transform::SetRotation(glm::vec3 rotDegrees)
+void Graphics::Transform::SetRotation(glm::vec3 rotDegrees)
 {
 	rotation = rotDegrees;
 	isDirty = true;
 }
 
-void Transform::SetScale(glm::vec3 scl)
+void Graphics::Transform::SetScale(glm::vec3 scl)
 {
 	scale = scl;
 	isDirty = true;
@@ -181,9 +181,9 @@ void Transform::SetScale(glm::vec3 scl)
 // Camera
 ///
 
-std::vector<ShaderProgram*> ShaderProgram::programs;
+std::vector<Graphics::ShaderProgram*> Graphics::ShaderProgram::programs;
 
-void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
+void Graphics::Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 {
 	mPosition = pos;
 	mCenter = target;
@@ -191,7 +191,7 @@ void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 	ApplyCameraMatrices();
 }
 
-void Camera::SetProjection(float FOV, float aspectRatio, float near, float far)
+void Graphics::Camera::SetProjection(float FOV, float aspectRatio, float near, float far)
 {
 	mFOV = FOV;
 	mAspectRatio = aspectRatio;
@@ -200,7 +200,7 @@ void Camera::SetProjection(float FOV, float aspectRatio, float near, float far)
 	ApplyCameraMatrices();
 }
 
-void Camera::ApplyCameraMatrices()
+void Graphics::Camera::ApplyCameraMatrices()
 {
 	glm::mat4 view = glm::lookAt(mPosition,	mCenter, mUp);
 	glm::mat4 proj = glm::perspective(glm::radians(mFOV), mAspectRatio,	mNear, mFar);
@@ -212,7 +212,7 @@ void Camera::ApplyCameraMatrices()
 	}
 }
 
-void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
+void Graphics::Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 {
 	glm::mat4 matrix;
 	matrix = glm::translate(matrix, mCenter);
@@ -232,7 +232,7 @@ void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 	ApplyCameraMatrices();
 }
 
-void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
+void Graphics::Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
 {
 	glm::mat4 matrix;
 	matrix = glm::translate(matrix, center);

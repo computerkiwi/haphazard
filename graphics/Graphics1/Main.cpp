@@ -53,6 +53,8 @@ GLFWwindow* WindowInit()
 
 int main()
 {
+	using namespace Graphics; //Fuck the police
+
 	//Init OpenGL and start window
 	GLFWwindow *window = WindowInit();
 	
@@ -165,12 +167,6 @@ int main()
 		Shaders::defaultScreenShader->Use();
 		
 		screenMesh.Draw();
-		/*
-		glBindVertexArray(screenVAO);
-		//main.SetFOV(20);
-		glBindTexture(GL_TEXTURE_2D, screen.ColorBuffer());
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		*/
 
 		glDisableVertexAttribArray(0);
 

@@ -1,13 +1,18 @@
 #pragma once
 
-class ShaderProgram;
-
-namespace Shaders
+namespace Graphics 
 {
-	void Init();
-	void Unload();
+	class ShaderProgram;
 
-	extern ShaderProgram* defaultShader;
-	extern ShaderProgram* defaultScreenShader;
+	namespace Shaders
+	{
+		void Init();
+		void Unload();
 
+		extern ShaderProgram* defaultShader;
+		extern ShaderProgram* defaultScreenShader;
+
+	};
 };
+
+
