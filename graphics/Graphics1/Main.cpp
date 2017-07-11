@@ -114,12 +114,15 @@ int main()
 	mesh2.transform.SetScale({ 0.5f, 0.5f, 1.0f });
 
 	//Camera
-	Camera main;
-	main.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	main.SetProjection(45.0f, 800.0f / 600.0f, 1, 10);
+	Camera mainCamera;
+	mainCamera.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	mainCamera.SetProjection(45.0f, 800.0f / 600.0f, 1, 10);
 
 	//Create screen
-	Screen screen(Screen::FX::SHARPEN, 800, 600);
+	Screen screen(Screen::FX::DEFAULT, 800, 600);
+	Screen sharpenScreen(Screen::FX::SHARPEN, 800, 600);
+	Screen edgeDectScreen(Screen::FX::EDGE_DETECTION, 800, 600);
+	Screen blurScreen(Screen::FX::BLUR, 800, 600);
 
 	// Check screen for completeness
 	if(!Screen::CurrentScreenIsComplete())
@@ -130,44 +133,60 @@ int main()
 	}
 
 	//Screen mesh 
-	ScreenMesh screenMesh(screen);
+	ScreenMesh fullScreenMesh(0,1,0,1);
 
-	float dt = 0.0f, last = 0.0f;
+	ViewScreen::GetViewScreen().SetBackgroundColor(1, 0, 1, 1); // Set failure to render color
+
+	float dt = 0.0f, last = 0.0f, currentFrame;
+	int frames = 0, lastFrames = 0;
+	float second = 1;
 	do //Main Loop
 	{
-		float currentFrame = (float)glfwGetTime();
-		dt = currentFrame - last;
-		last = currentFrame;
+		//////////// Frame stuff
+		{
+			currentFrame = (float)glfwGetTime();
+			dt = currentFrame - last;
+			last = currentFrame;
 
+			second -= dt;
+			frames++;
+			if (second <= 0)
+			{
+				lastFrames = frames;
+				frames = 0;
+				second = 1;
+			}
+
+			std::string title = "<3	    dt: " + std::to_string(dt) + "    fps: " + std::to_string(lastFrames);
+			glfwSetWindowTitle(window, title.c_str());
+		}
+		////////////
 		glEnableVertexAttribArray(0);
+		////Start Loop
 
-		// Render to framebuffer
-		screen.Use(); // Set framebuffer to off screen rendering
-		glEnable(GL_DEPTH_TEST);
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Set background color
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear buffers
+		// Render to screen (pre-effects, raw verts/frags) 
+		screen.Use();
 
-		Shaders::defaultShader->Use();
-
-		main.Use();
-		//main.OrbitAround(glm::vec3(0, 0.2f, 2.2f), dt * 120, glm::vec3(1, 0, 0));
-		main.Orbit(dt * 30, glm::vec3(0, 1, 0));
+		// Don't need to use Camera.Use if there is only one camera being used, or its already enabled
+		//mainCamera.Use();
+		mainCamera.Orbit(dt * 30, glm::vec3(0, 1, 0));
 
 		//Order matters if they are both transparent
 		mesh2.Draw();
 		mesh.Draw();
 
-		// Render to screen
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f); //Set failure to render color 
-		glClear(GL_COLOR_BUFFER_BIT);
+		// Render to view port
 
-		screenMesh.Draw();
+		blurScreen.SetIntensity(2);
+		fullScreenMesh.CompoundScreens(3, screen, edgeDectScreen, blurScreen);
 
+		ViewScreen::Use();
+		fullScreenMesh.Draw(blurScreen);
+
+
+		////End Loop
 		glDisableVertexAttribArray(0);
-
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	} while (glfwWindowShouldClose(window) == false);

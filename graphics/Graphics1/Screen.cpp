@@ -1,3 +1,4 @@
+#include <cstdarg>
 #include "Graphics.h"
 
 Graphics::Screen::Screen(FX screenEffect, int width, int height, float effectIntensity)
@@ -40,12 +41,39 @@ bool Graphics::Screen::CurrentScreenIsComplete()
 	return true;
 }
 
+void Graphics::Screen::SetSize(int width, int height)
+{
+	mWidth = width;
+	mHeight = height;
+	GenerateColorBuffer();
+	GenerateDepthStencilObject();
+}
+
+void Graphics::Screen::Use(bool clearScreen)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, mID);
+	glEnable(GL_DEPTH_TEST);
+	if(clearScreen)
+		Clear();
+}
+
+void Graphics::Screen::Clear()
+{
+	glClearColor(mClearColor.x, mClearColor.y, mClearColor.z, mClearColor.w);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear buffers
+}
+
+void Graphics::Screen::ClearStencil()
+{
+	glClear(GL_STENCIL_BUFFER_BIT);
+}
+
 void Graphics::Screen::GenerateColorBuffer()
 {
 	// create a color attachment texture
 	glGenTextures(1, &mColorBuffer);
 	glBindTexture(GL_TEXTURE_2D, mColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorBuffer, 0);
@@ -61,8 +89,7 @@ void Graphics::Screen::GenerateDepthStencilObject()
 }
 
 // Variables should range from 0-1
-Graphics::ScreenMesh::ScreenMesh(Screen& screen, float bottom, float top, float left, float right)
-	: mScreen(screen)
+Graphics::ScreenMesh::ScreenMesh(float bottom, float top, float left, float right)
 {
 	bottom = bottom * 2 - 1;
 	top = top * 2 - 1;
@@ -92,14 +119,45 @@ Graphics::ScreenMesh::ScreenMesh(Screen& screen, float bottom, float top, float 
 }
 
 // Draws screen on mesh
-void Graphics::ScreenMesh::Draw()
+void Graphics::ScreenMesh::Draw(Screen& screen)
 {
-	mScreen.GetShader()->Use();
-	mScreen.GetShader()->SetVariable("Intensity", mScreen.Intensity());
+	glDisable(GL_DEPTH_TEST);
+
+	screen.GetShader()->Use();
+	screen.GetShader()->SetVariable("Intensity", screen.Intensity());
 
 	glBindVertexArray(mVAO);
-	glBindTexture(GL_TEXTURE_2D, mScreen.ColorBuffer());
+	glBindTexture(GL_TEXTURE_2D, screen.ColorBuffer());
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Graphics::ScreenMesh::DrawScreenOnScreen(Graphics::Screen& source, Graphics::Screen& dest)
+{
+	glDisable(GL_DEPTH_TEST);
+
+	dest.Use();
+
+	source.GetShader()->Use();
+	source.GetShader()->SetVariable("Intensity", source.Intensity());
+
+	glBindVertexArray(mVAO);
+	glBindTexture(GL_TEXTURE_2D, source.ColorBuffer());
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Graphics::ScreenMesh::CompoundScreens(int count, ...)
+{
+	va_list args;
+	va_start(args, count);
+	Screen source = va_arg(args, Screen);
+	for (int i = 0; i < count - 1; ++i) {
+		Screen dest = va_arg(args, Screen);
+
+		DrawScreenOnScreen(source, dest);
+
+		source = dest;
+	}
+	va_end(args);
 }
 
 Graphics::ScreenMesh::~ScreenMesh()

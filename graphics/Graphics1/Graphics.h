@@ -12,8 +12,12 @@
 
 #include "Shaders.h"
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 namespace Graphics
 {
+
 	class Shader
 	{
 		public:
@@ -113,10 +117,19 @@ namespace Graphics
 		public:
 			Transform();
 			Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale);
-			glm::mat4 GetMatrix();
+
 			void SetPosition(glm::vec3 pos);
 			void SetRotation(glm::vec3 rotDegrees);
 			void SetScale(glm::vec3 scl);
+
+			void SetPosition(float x, float y, float z);
+			void SetRotation(float x, float y, float z);
+			void SetScale(float x, float y, float z);
+
+			glm::mat4 GetMatrix();
+			glm::vec3 GetPosition() { return position; }
+			glm::vec3 GetRotation() { return rotation; }
+			glm::vec3 GetScale() { return scale; }
 
 		private:
 			glm::vec3 position; 
@@ -214,6 +227,8 @@ namespace Graphics
 
 	class Screen
 	{
+		friend class ViewScreen;
+
 		public:
 			enum FX 
 			{
@@ -223,6 +238,13 @@ namespace Graphics
 				BLUR,
 				BLUR_CORNERS,
 				BLUR_FOCUS,
+				/*
+				Adding new screen shaders:
+					- Add new FX type
+					- Add case for new type in constructor
+					- Create new shader variable in Shaders.h
+					- Load shader in Shader.cpp LoadScreenShader
+				*/
 			};
 
 			Screen(FX screenEffect, int width, int height, float effectIntensity = 1);
@@ -234,12 +256,19 @@ namespace Graphics
 			GLuint ColorBuffer() { return mColorBuffer; }
 			GLuint DepthStencilBuffer() { return mDepthStencilBuffer; }
 			float Intensity() { return mIntensity; }
-
 			ShaderProgram* GetShader() { return mShader; }
 
-			void Use() { glBindFramebuffer(GL_FRAMEBUFFER, mID); }
+			void SetSize(int width, int height);
+			void SetIntensity(float intensity) { mIntensity = intensity; }
+
+			void Use(bool clearScreen = true);
+			void Clear();
+			void ClearStencil();
+			
+			void SetBackgroundColor(float r, float g, float b, float a) { mClearColor = glm::vec4(r, g, b, a); }
 
 		private:
+			Screen() {} // Disable default constructor
 
 			void GenerateColorBuffer();
 			void GenerateDepthStencilObject();
@@ -249,6 +278,37 @@ namespace Graphics
 			int mWidth, mHeight;
 			float mIntensity;
 			ShaderProgram* mShader;
+
+			glm::vec4  mClearColor;
+	};
+
+	class ViewScreen : public Screen
+	{
+		public:
+			
+			static void Use(bool clearScreen = true)
+			{
+				GetViewScreen().UseScreen(clearScreen);
+			}
+
+			static ViewScreen& GetViewScreen()
+			{
+				static ViewScreen view(FX::DEFAULT, SCREEN_WIDTH, SCREEN_HEIGHT); // Only gets created once
+				view.mID = 0;
+				return view;
+			}
+
+			void UseScreen(bool clearScreen = true)
+			{
+				((Screen*)this)->Use(clearScreen);
+			}
+
+			// Disable compiler made stuff
+			ViewScreen(ViewScreen const&) = delete;
+			void operator=(ViewScreen const&) = delete;
+
+		private:
+			ViewScreen(FX fx, int w, int h, float i = 1) {}
 	};
 
 	// Mesh to render a screen to
@@ -256,21 +316,19 @@ namespace Graphics
 	{
 		public:
 			// Variables should range from 0-1, default (0,1,0,1) covers full screen
-			ScreenMesh(Screen& screen, float bottom = 0, float top = 1, float left = 0, float right = 1);
+			ScreenMesh(float bottom = 0, float top = 1, float left = 0, float right = 1);
 
-			// Draws screen on mesh
-			void Draw();
+			void Draw(Screen& screen); // Draws screen on mesh
+			void CompoundScreens(int screenCount, ...); // Draws screen1 onto screen2, etc, draw last sent screen
 
 			// If you want to apply other effects (such as FOV change, ect) use this, make changes, then draw
 			void Use() { glBindVertexArray(mVAO); }
 
-			void SetScreen(Screen& screen) { mScreen = screen; }
-
 			~ScreenMesh();
 
 		private:
+			void DrawScreenOnScreen(Screen& s1, Screen& s2);
 			GLuint mVAO, mVBO;
-			Screen& mScreen;
 	};
 
 };

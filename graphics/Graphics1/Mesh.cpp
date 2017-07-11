@@ -28,7 +28,7 @@ Graphics::Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode)
 	program.ApplyAttributes(); // Apply program attributes for vao to remember
 
 	//Get Transform attrib locations
-	glGetUniformLocation(shaderProgram->GetProgramID(), "model");
+	uniModel = glGetUniformLocation(shaderProgram->GetProgramID(), "model");
 }
 
 Graphics::Mesh::~Mesh()
@@ -55,6 +55,7 @@ void Graphics::Mesh::AddTriangle(
 
 void Graphics::Mesh::Draw()
 {
+	program.Use();
 	glBindVertexArray(vaoID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	if (texture)
@@ -177,6 +178,31 @@ void Graphics::Transform::SetScale(glm::vec3 scl)
 	isDirty = true;
 }
 
+void Graphics::Transform::SetPosition(float x, float y, float z) 
+{ 
+	position.x = x; 
+	position.y = y;
+	position.z = z;
+	isDirty = true; 
+}
+
+void Graphics::Transform::SetRotation(float x, float y, float z)
+{
+	rotation.x = x;
+	rotation.y = y;
+	rotation.z = z;
+	isDirty = true;
+}
+
+void Graphics::Transform::SetScale(float x, float y, float z)
+{
+	scale.x = x;
+	scale.y = y;
+	scale.z = z;
+	isDirty = true;
+}
+
+
 ///
 // Camera
 ///
@@ -207,6 +233,7 @@ void Graphics::Camera::ApplyCameraMatrices()
 	
 	for each(ShaderProgram* program in ShaderProgram::programs)
 	{
+		program->Use();
 		glUniformMatrix4fv(program->uniView, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(program->uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 	}
