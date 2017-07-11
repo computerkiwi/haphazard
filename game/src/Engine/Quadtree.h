@@ -27,7 +27,7 @@ struct Array
 };
 
 
-template <int max_objects = 9>
+constexpr int max_objects = 9;
 class QuadTree
 {
 	glm::vec2 m_minPoint;
@@ -35,7 +35,7 @@ class QuadTree
 	glm::vec2 m_center;
 
 	Array<GameObject *, max_objects> m_objects; 
-	Array<QuadTree<max_objects> *, 4> m_children;
+	Array<QuadTree *, 4> m_children;
 
 	int m_depth;
 public:
@@ -46,6 +46,12 @@ public:
 	QuadTree(glm::vec2 & minPoint, glm::vec2 & maxPoint, int depth = 0)
 	 : m_minPoint(minPoint), m_maxPoint(maxPoint), m_center((minPoint.x + maxPoint.x) / 2, (minPoint.y + maxPoint.y) / 2),
 	    m_depth(depth)
+	{
+	}
+
+	QuadTree(glm::vec2 && minPoint, glm::vec2 && maxPoint, int depth = 0)
+		: m_minPoint(minPoint), m_maxPoint(maxPoint), m_center((minPoint.x + maxPoint.x) / 2, (minPoint.y + maxPoint.y) / 2),
+		m_depth(depth)
 	{
 	}
 
@@ -87,14 +93,14 @@ public:
 		glm::vec2 newMin(m_minPoint.x, m_center.y);
 		glm::vec2 newMax(m_center.x, m_maxPoint.y);
 
-		m_children[0] = new QuadTree<max_objects>(newMin, newMax, m_depth);
+		m_children[0] = new QuadTree(newMin, newMax, m_depth);
 		++m_children.m_size;
 
 
 		// c1
 		newMin.y = m_minPoint.y;
 		
-		m_children[1] = new QuadTree<max_objects>(m_minPoint, m_center, m_depth);
+		m_children[1] = new QuadTree(m_minPoint, m_center, m_depth);
 		++m_children.m_size;
 
 
@@ -104,12 +110,12 @@ public:
 		newMax.x = m_maxPoint.x;
 		newMax.y = m_center.y;
 
-		m_children[2] = new QuadTree<max_objects>(newMin, m_maxPoint, m_depth);
+		m_children[2] = new QuadTree(newMin, m_maxPoint, m_depth);
 		++m_children.m_size;
 
 
 		// c3
-		m_children[3] = new QuadTree<max_objects>(m_center, m_maxPoint, m_depth);
+		m_children[3] = new QuadTree(m_center, m_maxPoint, m_depth);
 		++m_children.m_size;
 
 
@@ -118,8 +124,7 @@ public:
 			GameObject * object = m_objects[i];
 			if (object)
 			{
-
-				File(object, object->GetComponent<Transform>().GetPosition());
+				FileToChildren(object, object->GetComponent<Transform>().GetPosition());
 
 				m_objects[i] = nullptr;
 				--m_objects.m_size;
@@ -153,7 +158,7 @@ public:
 		{
 			for (auto i = 0; i < m_objects.m_size; ++i)
 			{
-				AddToEnd(m_objects[i], list, m_objects.m_size);
+				AddToEnd(m_objects[i]);
 			}
 		}
 		return newNum;
@@ -172,7 +177,7 @@ public:
 
 		if (m_children.m_size)
 		{
-			File(object, pos);
+			FileToChildren(object, pos);
 		}
 		else
 		{
@@ -190,7 +195,7 @@ public:
 
 		if (m_children.m_size)
 		{
-			File(object, pos);
+			FileToChildren(object, pos);
 		}
 		else
 		{
@@ -235,7 +240,7 @@ public:
 	}
 
 
-	void File(GameObject * object, const glm::vec2 & pos)
+	void FileToChildren(GameObject * object, const glm::vec2 & pos)
 	{
 		glm::vec2 objectSize = object->GetComponent<Transform>().GetScale();
 		objectSize.x /= 2;
