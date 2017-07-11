@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine/Engine.h"
 
 // This comment is useless.
+void QuadTree_Stress();
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -56,20 +57,12 @@ int main()
 
 	RegisterComponents(engine.GetLua());
 
+
 	GameObject_Space space;
 	space.Register<Sprite>();
 	space.Register<Transform>();
-	space.Register<Script>();
 
-	GameObject object(space);
-	object.SetComponent<Sprite>();
-	object.SetComponent<Transform>();
-
-	object.GetComponent<Transform>().SetScale(glm::vec2(1, 5));
-
-	QuadTree<> tree;
-
-	tree.AddObject(&object, object.GetComponent<Transform>().GetPosition());
+	QuadTree<> tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;

@@ -39,11 +39,11 @@ class QuadTree
 
 	int m_depth;
 public:
-	QuadTree() : QuadTree(glm::vec2(), glm::vec2(), 1)
+	QuadTree() : QuadTree(glm::vec2(), glm::vec2(), 0)
 	{
 	}
 
-	QuadTree(glm::vec2 & minPoint, glm::vec2 & maxPoint, int depth = 1)
+	QuadTree(glm::vec2 & minPoint, glm::vec2 & maxPoint, int depth = 0)
 	 : m_minPoint(minPoint), m_maxPoint(maxPoint), m_center((minPoint.x + maxPoint.x) / 2, (minPoint.y + maxPoint.y) / 2),
 	    m_depth(depth)
 	{
