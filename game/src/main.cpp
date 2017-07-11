@@ -67,9 +67,9 @@ int main()
 
 	object.GetComponent<Transform>().SetScale(glm::vec2(1, 5));
 
-	QuadTree<9> tree;
+	QuadTree<> tree;
 
-	tree.File(&object, object.GetComponent<Transform>().GetPosition());
+	tree.AddObject(&object, object.GetComponent<Transform>().GetPosition());
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
