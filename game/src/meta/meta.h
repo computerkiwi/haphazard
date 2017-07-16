@@ -123,7 +123,7 @@ namespace meta
 
 		template <typename BaseClass> Type& RegisterBaseClass()
 		{
-			Type *baseType = internal::GetType<BaseClass>();
+			Type *baseType = GetTypeInfo<BaseClass>();
 			
 			for (auto prop : baseType->_properties)
 			{
@@ -212,68 +212,68 @@ namespace meta
 		public:                                                  \
 		virtual ::meta::Type *MetaInternalGetTypeVirtual() const \
 		{                                                        \
-			return ::meta::internal::GetType<TYPENAME>();        \
+			return ::meta::GetTypeInfo<TYPENAME>();        \
+		}
+	}
+
+	//
+	// Get Registered Type
+	//
+
+	// Gets the type from the global map of types.
+	template <typename T>
+	Type *GetTypeInfo()
+	{
+		internal::TypeID id = internal::TypeIdentifier::Get<T>();
+		auto typeIt = internal::GetTypeMap().find(id);
+
+		// Return a null pointer if we couldn't find the type.
+		if (typeIt == internal::GetTypeMap().end())
+		{
+			return nullptr;
 		}
 
-		//
-		// Get Registered Type
-		//
+		return &(typeIt->second);
+	}
 
-		// Gets the type from the global map of types.
-		template <typename T>
-		Type *GetType()
+	// Helper struct to determine if a type has the MetaInternalGetTypeVirtual() function.
+	template <typename T>
+	struct HasVirtualMetaFunction
+	{
+		template <typename C>
+		static constexpr decltype(std::declval<C>().MetaInternalGetTypeVirtual(), bool()) test(int)
 		{
-			TypeID id = TypeIdentifier::Get<T>();
-			auto typeIt = GetTypeMap().find(id);
-
-			// Return a null pointer if we couldn't find the type.
-			if (typeIt == GetTypeMap().end())
-			{
-				return nullptr;
-			}
-
-			return &(typeIt->second);
+			return true;
 		}
 
-		// Helper struct to determine if a type has the MetaInternalGetTypeVirtual() function.
-		template <typename T>
-		struct HasVirtualMetaFunction
+		template <typename C>
+		static constexpr bool test(...)
 		{
-			template <typename C>
-			static constexpr decltype(std::declval<C>().MetaInternalGetTypeVirtual(), bool()) test(int)
-			{
-				return true;
-			}
-
-			template <typename C>
-			static constexpr bool test(...)
-			{
-				return false;
-			}
-
-			static constexpr bool value = test<T>(int()); //Do we need the ints?
-		};
-
-		// Calls the virtual function to get the type if it exists.
-		template <typename T>
-		typename std::enable_if<HasVirtualMetaFunction<T>::value, Type *>::type GetType(const T& obj)
-		{
-			return obj.MetaInternalGetTypeVirtual();
+			return false;
 		}
 
-		// If the object doesn't have a virtual meta function, get its type.
-		template <typename T>
-		typename std::enable_if<!HasVirtualMetaFunction<T>::value, Type *>::type GetType(const T& obj)
-		{
-			return GetType<T>();
-		}
+		static constexpr bool value = test<T>(int()); //Do we need the ints?
+	};
+
+	// Calls the virtual function to get the type if it exists.
+	template <typename T>
+	typename std::enable_if<HasVirtualMetaFunction<T>::value, Type *>::type GetTypeInfo(const T& obj)
+	{
+		return obj.MetaInternalGetTypeVirtual();
+	}
+
+	// If the object doesn't have a virtual meta function, get its type.
+	template <typename T>
+	typename std::enable_if<!HasVirtualMetaFunction<T>::value, Type *>::type GetTypeInfo(const T& obj)
+	{
+		return GetTypeInfo<T>();
 	}
 
 	//
 	// Any Functions.
 	//
 
-	template <typename T> Any::Any(T value) : _typeInfo(internal::GetType<T>(value)), m_isPointer(false)
+	template <typename T> Any::Any(T value) : _typeInfo(GetTypeInfo<T>(value)), m_isPointer(false)
 	{
 		// Make sure we're not getting a value too big.
 		assert(sizeof(value) <= sizeof(m_data));
@@ -283,7 +283,7 @@ namespace meta
 		*dataPointer = value;
 	}
 
-	template <typename T> Any::Any(T *value) : _typeInfo(internal::GetType(*value)), m_isPointer(true)
+	template <typename T> Any::Any(T *value) : _typeInfo(GetTypeInfo(*value)), m_isPointer(true)
 	{
 		// Make sure we're not getting a value too big.
 		assert(sizeof(*value) <= sizeof(m_data));
@@ -300,7 +300,7 @@ namespace meta
 	template <typename T> T *Any::GetPointer()
 	{
 		// Make sure we're getting the right data type.
-		assert(_typeInfo == internal::GetType<T>());
+		assert(_typeInfo == GetTypeInfo<T>());
 
 		if (m_isPointer)
 		{
@@ -316,7 +316,7 @@ namespace meta
 	template <typename T> void Any::Set(const T& value)
 	{
 		// Make sure we're getting the right data type.
-		assert(_typeInfo == internal::GetType<T>());
+		assert(_typeInfo == GetTypeInfo<T>());
 
 		*GetPointer<T>() = value;
 	}
@@ -329,7 +329,7 @@ namespace meta
 	template <typename BaseType, typename MemberType>
 	Type *TemplatedMember<BaseType, MemberType>::GetType()
 	{
-		return internal::GetType<MemberType>();
+		return GetTypeInfo<MemberType>();
 	}
 
 	template <typename BaseType, typename MemberType>
@@ -347,7 +347,7 @@ namespace meta
 	{
 		// Unsafe if the passed void pointer isn't of type BaseType.
 		// Make sure the value is of type MemberType.
-		assert(value.GetType() == internal::GetType<MemberType>());
+		assert(value.GetType() == GetTypeInfo<MemberType>());
 
 		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
 
@@ -361,7 +361,7 @@ namespace meta
 	template <typename BaseType, typename MemberType>
 	Type *FunctionMember<BaseType, MemberType>::GetType()
 	{
-		return internal::GetType<MemberType>();
+		return GetTypeInfo<MemberType>();
 	}
 
 	template <typename BaseType, typename MemberType>
@@ -382,7 +382,7 @@ namespace meta
 		}
 
 		// Make sure we're setting with the right type.
-		assert(value.GetType() == internal::GetType<MemberType>());
+		assert(value.GetType() == GetTypeInfo<MemberType>());
 
 		BaseType *baseObject = reinterpret_cast<BaseType *>(baseObjectPointer);
 

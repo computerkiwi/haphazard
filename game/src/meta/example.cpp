@@ -69,7 +69,7 @@ namespace
 	void MetaBasicTypeInfo()
 	{
 
-		meta::Type *type = meta::internal::GetType<int>();
+		meta::Type *type = meta::GetTypeInfo<int>();
 		std::cout << "This type's name is " << type->Name() << std::endl;
 	}
 }

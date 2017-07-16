@@ -96,7 +96,7 @@ namespace meta
 	template <typename T>
 	void PrintType(const T& object)
 	{
-		std::cout << "This object is of type " << meta::internal::GetType(object)->Name().c_str() << std::endl;
+		std::cout << "This object is of type " << meta::GetTypeInfo(object)->Name().c_str() << std::endl;
 	}
 
 	void TestSimpleTypeLookup()
@@ -132,11 +132,11 @@ namespace meta
 		for (PropertySignature *prop : properties)
 		{
 			Type * propType = prop->GetType();
-			if (propType == meta::internal::GetType<int>())
+			if (propType == meta::GetTypeInfo<int>())
 			{
 				pObj.SetProperty(prop->Name(), Any(5));
 			}
-			if (propType == meta::internal::GetType<float>())
+			if (propType == meta::GetTypeInfo<float>())
 			{
 				pObj.SetProperty(prop->Name(), Any(3.22f));
 			}
@@ -187,8 +187,8 @@ namespace meta
 		PrintType(*objs[0]);
 		PrintType(*objs[1]);
 
-		assert(internal::GetType(*objs[0]) == internal::GetType<ExampleA>());
-		assert(internal::GetType(*objs[1]) == internal::GetType<ExampleB>());
+		assert(GetTypeInfo(*objs[0]) == GetTypeInfo<ExampleA>());
+		assert(GetTypeInfo(*objs[1]) == GetTypeInfo<ExampleB>());
 	}
 
 	void TestAll()
