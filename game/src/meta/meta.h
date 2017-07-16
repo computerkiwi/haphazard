@@ -87,16 +87,21 @@ namespace meta
 	template <typename BaseType, typename MemberType>
 	class FunctionMember : public PropertySignature
 	{
+
+	// Setup setter/gettter function pointer prototypes.
+	typedef void (BaseType::*SetterPointer)(MemberType);
+	typedef MemberType(BaseType::*GetterPointer)() const;
+
 	public:
-		FunctionMember(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&)) : PropertySignature(name), m_getter(getter), m_setter(setter) {}
+		FunctionMember(const char *name, GetterPointer getter, SetterPointer setter) : PropertySignature(name), m_getter(getter), m_setter(setter) {}
 
 		virtual Type *GetType();
 		virtual Any ExtractValue(void *baseObject);
 		virtual void SetValue(void *baseObject, Any& value);
 
 	private:
-		MemberType (BaseType::*m_getter)();
-		void (BaseType::*m_setter)(const MemberType &);
+		GetterPointer m_getter;
+		SetterPointer m_setter;
 	};
 
 	// Represents a type or struct.
@@ -108,7 +113,9 @@ namespace meta
 		const std::string& Name() const { return _name; };
 
 		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType BaseType::*member) { _properties.push_back(new TemplatedMember<BaseType, MemberType>(name, member));  return *this; }
-		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType (BaseType::*getter)(), void (BaseType::*setter)(const MemberType&))
+
+		// TODO: Figure out why I can't use the function pointer typedefs from FunctionMember in this prototype. -K
+		template <typename BaseType, typename MemberType> Type& RegisterProperty(const char *name, MemberType(BaseType::*getter)() const , void (BaseType::*setter)(MemberType))
 		{
 			_properties.push_back(new FunctionMember<BaseType, MemberType>( name, getter, setter));
 			return *this;

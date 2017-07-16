@@ -16,7 +16,7 @@ namespace meta
 	class ExampleA
 	{
 	public:
-		ExampleA() : a(1), b(1.1), c(1), d(1), e(1), f(1.1), g(1.1), m_privateFloat(1.1) {}
+		ExampleA() : a(1), b(1.1f), c(1), d(1), e(1), f(1.1f), g(1.1f), m_privateFloat(1.1f) {}
 		int a;
 		float b;
 		int c;
@@ -25,8 +25,8 @@ namespace meta
 		float f;
 		float g;
 
-		float GetPrivateFloat() { return m_privateFloat; }
-		void SetPrivateFloat(const float& value) { m_privateFloat = value; }
+		float GetPrivateFloat() const { return m_privateFloat; }
+		void SetPrivateFloat(float value) { m_privateFloat = value; }
 	private:
 		float m_privateFloat;
 
@@ -40,7 +40,7 @@ namespace meta
 	RegisterProperty("e", &ExampleA::e).
 	RegisterProperty("f", &ExampleA::f).
 	RegisterProperty("g", &ExampleA::g).
-	RegisterProperty("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
+	RegisterProperty<ExampleA, float>("privateFloat", &ExampleA::GetPrivateFloat, &ExampleA::SetPrivateFloat);
 
 	class ExampleB : public ExampleA
 	{
@@ -50,7 +50,7 @@ namespace meta
 
 	private:
 
-		META_VIRTUAL_DECLARE(ExampleB)                                               \
+		META_VIRTUAL_DECLARE(ExampleB)
 	};
 	META_REGISTER(ExampleB).
 	RegisterBaseClass<ExampleA>().

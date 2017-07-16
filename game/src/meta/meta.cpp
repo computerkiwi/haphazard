@@ -73,7 +73,14 @@ namespace meta
 
 	Any Any::GetProperty(PropertySignature& property)
 	{
-		return property.ExtractValue(m_data);
+		if (m_isPointer)
+		{
+			return property.ExtractValue(m_pointer);
+		}
+		else
+		{
+			return property.ExtractValue(m_data);
+		}
 	}
 
 	void Any::SetProperty(const char *propertyName, Any& value)
@@ -93,6 +100,7 @@ namespace meta
 		}
 	}
 
+	//TODO: Make this return const.
 	Type *Any::GetType()
 	{
 		return _typeInfo;
