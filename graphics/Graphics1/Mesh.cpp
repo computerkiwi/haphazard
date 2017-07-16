@@ -59,7 +59,7 @@ void Graphics::Mesh::Draw()
 	glBindVertexArray(vaoID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture->GetID());
+		glBindTexture(GL_TEXTURE_2D, texture);
 	else
 		glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
 
@@ -98,8 +98,8 @@ Graphics::Texture::Texture(const char* file)
 	int width, height;
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
 
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &mID);
+	glBindTexture(GL_TEXTURE_2D, mID);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image); // Load image
 	SOIL_free_image_data(image); // Data given to opengl, dont need it here anymore
@@ -114,8 +114,8 @@ Graphics::Texture::Texture(const char* file)
 
 Graphics::Texture::Texture(float *pixels, int width, int height)
 {
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &mID);
+	glBindTexture(GL_TEXTURE_2D, mID);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, pixels); // Load image
 
@@ -129,7 +129,7 @@ Graphics::Texture::Texture(float *pixels, int width, int height)
 
 Graphics::Texture::~Texture()
 {
-	glDeleteTextures(1, &id);
+	glDeleteTextures(1, &mID);
 }
 
 ///

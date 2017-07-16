@@ -14,6 +14,15 @@
 #include "Graphics.h"
 #include "Shaders.h"
 
+#define SCREEN_WIDTH  800
+#define SCREEN_HEIGHT 600
+
+int w = SCREEN_WIDTH;
+int h = SCREEN_HEIGHT;
+
+int Settings::ScreenWidth() { return w; }
+int Settings::ScreenHeight() { return h; }
+
 GLFWwindow* WindowInit()
 {
 	if (glfwInit() == false)
@@ -23,12 +32,12 @@ GLFWwindow* WindowInit()
 		exit(1);
 	}
 
-	glfwWindowHint(GLFW_SAMPLES, 4); //4 AA
+	glfwWindowHint(GLFW_SAMPLES, 4); //4 MSAA
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(800, 600, "<3", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "<3", NULL, NULL);
 
 	if (!window)
 	{
@@ -66,6 +75,7 @@ int main()
 
 	// Enable engine default buffer
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE); // Enable multisampling for framebuffer 0 (enabled by default anyway)
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -89,7 +99,7 @@ int main()
 	);
 	mesh.CompileMesh();
 	Texture tex = Texture("sampleBlend.png");
-	mesh.SetTexture(&tex);
+	mesh.SetTexture(tex);
 
 
 	Mesh mesh2 = Mesh(Shaders::defaultShader);
@@ -106,7 +116,7 @@ int main()
 		-1.0f,  1.0f, 0, 0.0f, 0.0f, 1.0f, 1, 0, 1  // Top Left
 	);
 	mesh2.CompileMesh();
-	mesh2.SetTexture(NULL);
+	mesh2.SetTexture(0);
 
 
 	mesh2.transform.SetPosition({ -0.5f, 0.0f, 0.0f });
@@ -116,26 +126,15 @@ int main()
 	//Camera
 	Camera mainCamera;
 	mainCamera.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera.SetProjection(45.0f, 800.0f / 600.0f, 1, 10);
+	mainCamera.SetProjection(45.0f, ((float)SCREEN_WIDTH) / SCREEN_HEIGHT, 1, 10);
 
-	//Create screen
-	Screen screen(Screen::FX::DEFAULT, 800, 600);
-	Screen sharpenScreen(Screen::FX::SHARPEN, 800, 600);
-	Screen edgeDectScreen(Screen::FX::EDGE_DETECTION, 800, 600);
-	Screen blurScreen(Screen::FX::BLUR, 800, 600);
 
-	// Check screen for completeness
-	if(!Screen::CurrentScreenIsComplete())
-	{
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-		int a; std::cin >> a;
-		exit(1);
-	}
+	//Screen settings
+	Screen::GetView().SetBackgroundColor(0, 0, 0, 1);
 
-	//Screen mesh 
-	ScreenMesh fullScreenMesh(0,1,0,1);
-
-	ViewScreen::GetViewScreen().SetBackgroundColor(1, 0, 1, 1); // Set failure to render color
+//	Screen::GetView().AddEffect(Graphics::FX::SHARPEN);
+//	Screen::GetView().AddEffect(Graphics::FX::BLUR);
+//	Screen::GetView().AddEffect(Graphics::FX::EDGE_DETECTION);
 
 	float dt = 0.0f, last = 0.0f, currentFrame;
 	int frames = 0, lastFrames = 0;
@@ -162,30 +161,19 @@ int main()
 		}
 		////////////
 		glEnableVertexAttribArray(0);
+		Screen::GetView().Use();
 		////Start Loop
 
-
-		// Render to screen (pre-effects, raw verts/frags) 
-		screen.Use();
-
 		// Don't need to use Camera.Use if there is only one camera being used, or its already enabled
-		//mainCamera.Use();
 		mainCamera.Orbit(dt * 30, glm::vec3(0, 1, 0));
 
 		//Order matters if they are both transparent
 		mesh2.Draw();
 		mesh.Draw();
 
-		// Render to view port
-
-		blurScreen.SetIntensity(2);
-		fullScreenMesh.CompoundScreens(3, screen, edgeDectScreen, blurScreen);
-
-		ViewScreen::Use();
-		fullScreenMesh.Draw(blurScreen);
-
-
 		////End Loop
+		Screen::GetView().Draw();
+
 		glDisableVertexAttribArray(0);
 		glfwSwapBuffers(window);
 		glfwPollEvents();

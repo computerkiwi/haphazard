@@ -173,12 +173,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Shaders.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="screenBlur.fragshader" />
     <None Include="screenBlurCorners.fragshader" />
-    <None Include="screenBlurFocus.fragshader" />
+    <None Include="screenBloom.fragshader" />
     <None Include="screenDefault.fragshader" />
     <None Include="screenDefault.vertshader" />
     <None Include="screenEdgeDect.fragshader" />

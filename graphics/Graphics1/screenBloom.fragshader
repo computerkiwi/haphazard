@@ -3,6 +3,7 @@
 in vec2 TexCoord;
 
 out vec4 FragColor;
+out vec4 BrightColor;
 
 uniform sampler2D screenTexture;
 uniform float Intensity;

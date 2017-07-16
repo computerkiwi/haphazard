@@ -35,15 +35,15 @@
     <ClInclude Include="Shaders.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="screenBlur.fragshader">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="screenBlurCorners.fragshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="screenBlurFocus.fragshader">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="screenDefault.fragshader">
@@ -62,6 +62,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shader.vertshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenBloom.fragshader">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
