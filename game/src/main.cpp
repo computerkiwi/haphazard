@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjects/GameObject.h"
 #include "GameObjects/Components/Components.h"
 #include "Engine/Engine.h"
+#include "meta/example.h"
 
 // This comment is useless.
 
@@ -76,6 +77,8 @@ int main()
 	glm::mat4 rotation = glm::rotate(glm::mat4(), 3.141592f, glm::vec3(0, 0, 1));
 	vector = rotation * vector;
 	std::cout << vector << std::endl;
+
+	RunMetaExamples();
 
 
 	// Keep the console from closing.
