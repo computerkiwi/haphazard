@@ -29,6 +29,14 @@ private:
 	META_VIRTUAL_DECLARE(MetaExampleClassA)
 };
 
+class MetaExampleClassB
+{
+public:
+	int anotherVar;
+
+	// Make sure to use meta virtual declare anywhere where there might be inheritance
+	META_VIRTUAL_DECLARE(MetaExampleClassB)
+};
 
 
 // Function to run all the examples.

@@ -14,6 +14,20 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "meta/meta.h"
 #include <iostream>
 
+// Register a type with the meta system.
+// Chain extra registration functions with the dot operator.
+META_REGISTER(MetaExampleClassA)
+// Register a property by supplying a public variable.
+.RegisterProperty("publicVar", &MetaExampleClassA::publicVar)
+// Register a property with a public getter/setter function pair. Function prototypes must be precisely correct.
+.RegisterProperty("privateVar", &MetaExampleClassA::getPrivateVar, &MetaExampleClassA::setPrivateVar);
+
+META_REGISTER(MetaExampleClassB)
+// Make sure to register whatever the base class when inheriting.
+.RegisterBaseClass<MetaExampleClassA>()
+.RegisterProperty("anotherVar", &MetaExampleClassB::anotherVar);
+
+
 // Hide the various tests.
 namespace
 {
