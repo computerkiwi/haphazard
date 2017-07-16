@@ -7,9 +7,13 @@ in vec2 texcoord;
 out vec4 Color;
 out vec2 Texcoord;
 
+layout (std140) uniform Matrices
+{
+	uniform mat4 view;
+	uniform mat4 proj;
+};
+
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
 
 void main()
 {

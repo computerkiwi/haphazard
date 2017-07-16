@@ -1,7 +1,12 @@
-#include "Graphics.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Transform.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+#include "glm\glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "SOIL\SOIL.h"
 
 ///
 // Mesh
@@ -68,6 +73,16 @@ void Graphics::Mesh::Draw()
 	glDrawArrays(drawMode, 0, (int)vertices.size());
 }
 
+void Graphics::Mesh::SetTexture(Texture& tex) 
+{ 
+	texture = tex.GetID(); 
+}
+
+void Graphics::Mesh::SetTexture(GLuint texID)
+{
+	texture = texID; 
+}
+
 std::vector<Graphics::Mesh::Vertice>* Graphics::Mesh::GetVertices()
 {
 	return &vertices;
@@ -130,151 +145,4 @@ Graphics::Texture::Texture(float *pixels, int width, int height)
 Graphics::Texture::~Texture()
 {
 	glDeleteTextures(1, &mID);
-}
-
-///
-// Transform
-///
-
-Graphics::Transform::Transform()
-	: scale{ glm::vec3(1,1,1) }
-{ }
-
-Graphics::Transform::Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale)
-	: position{ pos }, rotation{ rotDegrees }, scale{ modelScale }
-{ }
-
-glm::mat4 Graphics::Transform::GetMatrix()
-{
-	if (isDirty)
-	{
-		matrix = glm::mat4();
-		matrix = glm::translate(matrix, position);
-		matrix = glm::rotate(matrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
-		matrix = glm::rotate(matrix, glm::radians(rotation.x), glm::vec3(1, 0, 0));
-		matrix = glm::rotate(matrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
-		matrix = glm::scale(matrix, scale);
-
-		isDirty = false;
-	}
-	return matrix;
-}
-
-void Graphics::Transform::SetPosition(glm::vec3 pos)
-{
-	position = pos;
-	isDirty = true;
-}
-
-void Graphics::Transform::SetRotation(glm::vec3 rotDegrees)
-{
-	rotation = rotDegrees;
-	isDirty = true;
-}
-
-void Graphics::Transform::SetScale(glm::vec3 scl)
-{
-	scale = scl;
-	isDirty = true;
-}
-
-void Graphics::Transform::SetPosition(float x, float y, float z) 
-{ 
-	position.x = x; 
-	position.y = y;
-	position.z = z;
-	isDirty = true; 
-}
-
-void Graphics::Transform::SetRotation(float x, float y, float z)
-{
-	rotation.x = x;
-	rotation.y = y;
-	rotation.z = z;
-	isDirty = true;
-}
-
-void Graphics::Transform::SetScale(float x, float y, float z)
-{
-	scale.x = x;
-	scale.y = y;
-	scale.z = z;
-	isDirty = true;
-}
-
-
-///
-// Camera
-///
-
-std::vector<Graphics::ShaderProgram*> Graphics::ShaderProgram::programs;
-
-void Graphics::Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
-{
-	mPosition = pos;
-	mCenter = target;
-	mUp = upVector;
-	ApplyCameraMatrices();
-}
-
-void Graphics::Camera::SetProjection(float FOV, float aspectRatio, float near, float far)
-{
-	mFOV = FOV;
-	mAspectRatio = aspectRatio;
-	mNear = near;
-	mFar = far;
-	ApplyCameraMatrices();
-}
-
-void Graphics::Camera::ApplyCameraMatrices()
-{
-	glm::mat4 view = glm::lookAt(mPosition,	mCenter, mUp);
-	glm::mat4 proj = glm::perspective(glm::radians(mFOV), mAspectRatio,	mNear, mFar);
-	
-	for each(ShaderProgram* program in ShaderProgram::programs)
-	{
-		program->Use();
-		glUniformMatrix4fv(program->uniView, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(program->uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-	}
-}
-
-void Graphics::Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
-{
-	glm::mat4 matrix;
-	matrix = glm::translate(matrix, mCenter);
-	matrix = glm::rotate(matrix, glm::radians(degrees), axis);
-	matrix = glm::translate(matrix, -mCenter);
-
-	glm::vec3 forward = mPosition - mCenter;
-
-	if ((axis.x && forward.x) || (axis.y && forward.y) || (axis.z && forward.z)) // If axis contains forward
-	{
-		mPosition = matrix * glm::vec4(mPosition, 1);
-		mUp = matrix * glm::vec4(mUp, 1);
-	}
-	else
-		mPosition = matrix * glm::vec4(mPosition, 1);
-
-	ApplyCameraMatrices();
-}
-
-void Graphics::Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
-{
-	glm::mat4 matrix;
-	matrix = glm::translate(matrix, center);
-	matrix = glm::rotate(matrix, glm::radians(degrees), axis);
-	matrix = glm::translate(matrix, -center);
-
-	glm::vec3 forward = mPosition - mCenter;
-
-	if ((axis.x && forward.x) || (axis.y && forward.y) || (axis.z && forward.z)) // If axis contains forward
-	{
-		mPosition = matrix * glm::vec4(mPosition, 1);
-		mUp = matrix * glm::vec4(mUp, 1);
-	}
-	else
-		mPosition = matrix * glm::vec4(mPosition, 1);
-
-	ApplyCameraMatrices();
 }

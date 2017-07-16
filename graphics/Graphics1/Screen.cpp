@@ -1,10 +1,14 @@
 #include <cstdarg>
-#include "Graphics.h"
+#include "Screen.h"
+#include "Shaders.h"
+#include "Settings.h"
+
+
+#include "GL\glew.h"
 
 ///
 // Screen
 ///
-
 
 void Graphics::Screen::Use() 
 { 

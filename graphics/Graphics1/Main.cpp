@@ -11,8 +11,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Graphics.h"
+#include "Camera.h"
+#include "Mesh.h"
+#include "Screen.h"
 #include "Shaders.h"
+#include "Texture.h"
+#include "Transform.h"
+#include "Settings.h"
 
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 600
@@ -115,7 +120,6 @@ int main()
 	mesh2.CompileMesh();
 	mesh2.SetTexture(0);
 
-
 	mesh2.transform.SetPosition({ -0.5f, 0.0f, 0.0f });
 	mesh2.transform.SetRotation({ -45.0f, 90, 0 });
 	mesh2.transform.SetScale({ 0.5f, 0.5f, 1.0f });
@@ -131,8 +135,8 @@ int main()
 	Graphics::Shaders::ScreenShader::HDR->SetVariable("Exposure", 1);
 
 //	Screen::GetView().AddEffect(Graphics::FX::SHARPEN);
+// 	Screen::GetView().AddEffect(Graphics::FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(Graphics::FX::BLUR);
-//	Screen::GetView().AddEffect(Graphics::FX::EDGE_DETECTION);
 	Screen::GetView().AddEffect(Graphics::FX::BLOOM);
 
 	float dt = 0.0f, last = 0.0f, currentFrame;

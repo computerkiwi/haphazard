@@ -1,10 +1,11 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <vector>
 
-#include "Graphics.h"
 #include "Shaders.h"
-
+#include "GLFW\glfw3.h"
 ///
 // Shader
 ///
@@ -18,7 +19,7 @@ Graphics::Shader::Shader(unsigned int shaderType, const char* source)
 
 Graphics::Shader::Shader(unsigned int shaderType, std::string& source)
 {
-	const GLchar* c_source = source.c_str();
+	const char* c_source = source.c_str();
 	glShaderSource(id, 1, &c_source, NULL);
 	successfulCompile = Compile();
 }
@@ -50,7 +51,7 @@ bool Graphics::Shader::Compile()
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0)
 		{
-			std::vector<GLchar> log(logSize);
+			std::vector<char> log(logSize);
 			glGetShaderInfoLog(id, logSize, &logSize, &log[0]);
 			fprintf(stderr, "Could not compile shader \n%s\n", &log[0]);
 			glDeleteShader(id);
@@ -88,11 +89,6 @@ Graphics::ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentSha
 	glLinkProgram(id);
 
 	successfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
-
-	uniView = glGetUniformLocation(id, "view"); // For non-screen shaders that support camera input
-	uniProj = glGetUniformLocation(id, "proj"); // ^^^
-
-	programs.push_back(this);
 }
 
 Graphics::ShaderProgram::~ShaderProgram()
@@ -168,102 +164,114 @@ static void FailedCompile()
 // Load Shaders
 ///
 
-//Shader Declaration
-Graphics::ShaderProgram* Graphics::Shaders::defaultShader;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Default;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::HDR;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Blur;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::BlurCorners;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::EdgeDetection;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Sharpen;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::ExtractBrights;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Bloom;
-
-void LoadDefaultShader()
+namespace Graphics
 {
-	std::vector<Graphics::ShaderProgram::Attribute> attribs;
-	attribs.push_back(Graphics::ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 0));
-	attribs.push_back(Graphics::ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
-	attribs.push_back(Graphics::ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 7));
+	namespace Shaders
+	{
+		//Shader Declaration
+		ShaderProgram* defaultShader;
+		ShaderProgram* ScreenShader::Default;
+		ShaderProgram* ScreenShader::HDR;
+		ShaderProgram* ScreenShader::Blur;
+		ShaderProgram* ScreenShader::BlurCorners;
+		ShaderProgram* ScreenShader::EdgeDetection;
+		ShaderProgram* ScreenShader::Sharpen;
+		ShaderProgram* ScreenShader::ExtractBrights;
+		ShaderProgram* ScreenShader::Bloom;
 
-	Graphics::Shaders::defaultShader = LoadShaders("shader.vertshader", "shader.fragshader", attribs);
+		void LoadDefaultShader()
+		{
+			std::vector<ShaderProgram::Attribute> attribs;
+			attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 0));
+			attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
+			attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 7));
 
-	if (!Graphics::Shaders::defaultShader->wasCompiled())
-		FailedCompile();
-}
+			defaultShader = LoadShaders("shader.vertshader", "shader.fragshader", attribs);
 
-void LoadScreenShaders()
-{
-	std::vector<Graphics::ShaderProgram::Attribute> attribs;
-	attribs.push_back(Graphics::ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0));
-	attribs.push_back(Graphics::ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2));
+			if (!defaultShader->wasCompiled())
+				FailedCompile();
+		}
 
-	Graphics::Shaders::ScreenShader::Default = LoadShaders("screenDefault.vertshader", "screenDefault.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::Default->wasCompiled())
-		FailedCompile();
+		void LoadScreenShaders()
+		{
+			std::vector<ShaderProgram::Attribute> attribs;
+			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0));
+			attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2));
 
-	Graphics::Shaders::ScreenShader::HDR = LoadShaders("screenDefault.vertshader", "screenHDR.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::HDR->wasCompiled())
-		FailedCompile();
+			ScreenShader::Default = LoadShaders("screenDefault.vertshader", "screenDefault.fragshader", attribs);
+			if (!ScreenShader::Default->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::Blur = LoadShaders("screenDefault.vertshader", "screenBlur.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::Blur->wasCompiled())
-		FailedCompile();
+			ScreenShader::HDR = LoadShaders("screenDefault.vertshader", "screenHDR.fragshader", attribs);
+			if (!ScreenShader::HDR->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::BlurCorners = LoadShaders("screenDefault.vertshader", "screenBlurCorners.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::BlurCorners->wasCompiled())
-		FailedCompile();
+			ScreenShader::Blur = LoadShaders("screenDefault.vertshader", "screenBlur.fragshader", attribs);
+			if (!ScreenShader::Blur->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::EdgeDetection = LoadShaders("screenDefault.vertshader", "screenEdgeDect.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::EdgeDetection->wasCompiled())
-		FailedCompile();
+			ScreenShader::BlurCorners = LoadShaders("screenDefault.vertshader", "screenBlurCorners.fragshader", attribs);
+			if (!ScreenShader::BlurCorners->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::Sharpen= LoadShaders("screenDefault.vertshader", "screenSharpen.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::Sharpen->wasCompiled())
-		FailedCompile();
+			ScreenShader::EdgeDetection = LoadShaders("screenDefault.vertshader", "screenEdgeDect.fragshader", attribs);
+			if (!ScreenShader::EdgeDetection->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::ExtractBrights = LoadShaders("screenDefault.vertshader", "screenExtractBrights.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::ExtractBrights->wasCompiled())
-		FailedCompile();
+			ScreenShader::Sharpen= LoadShaders("screenDefault.vertshader", "screenSharpen.fragshader", attribs);
+			if (!ScreenShader::Sharpen->wasCompiled())
+				FailedCompile();
 
-	Graphics::Shaders::ScreenShader::Bloom = LoadShaders("screenDefault.vertshader", "screenBloom.fragshader", attribs);
-	if (!Graphics::Shaders::ScreenShader::Bloom->wasCompiled())
-		FailedCompile();
-}
+			ScreenShader::ExtractBrights = LoadShaders("screenDefault.vertshader", "screenExtractBrights.fragshader", attribs);
+			if (!ScreenShader::ExtractBrights->wasCompiled())
+				FailedCompile();
 
-void LoadDefaultShaderUniforms()
-{
-	Graphics::Shaders::ScreenShader::Blur->SetVariable("Intensity", 1.0f);
-	Graphics::Shaders::ScreenShader::BlurCorners->SetVariable("Intensity", 3.0f);
-	Graphics::Shaders::ScreenShader::EdgeDetection->SetVariable("Intensity", 1.0f);
-	Graphics::Shaders::ScreenShader::Sharpen->SetVariable("Intensity", 1.0f);
-	Graphics::Shaders::ScreenShader::HDR->SetVariable("Exposure", 1.0f);
+			ScreenShader::Bloom = LoadShaders("screenDefault.vertshader", "screenBloom.fragshader", attribs);
+			if (!ScreenShader::Bloom->wasCompiled())
+				FailedCompile();
+		}
 
-	Graphics::Shaders::ScreenShader::Bloom->SetVariable("screenTexture", 0);
-	Graphics::Shaders::ScreenShader::Bloom->SetVariable("brights", 1);
-	//Graphics::Shaders::ScreenShader::Bloom->Use();
-	//glUniform1i(glGetUniformLocation(Graphics::Shaders::ScreenShader::Bloom->GetProgramID(), "screenTexture"), 0);
-	//glUniform1i(glGetUniformLocation(Graphics::Shaders::ScreenShader::Bloom->GetProgramID(), "brights"), 1);
-}
+		void LoadDefaultShaderUniforms()
+		{
+			ScreenShader::Blur->SetVariable("Intensity", 1.0f);
+			ScreenShader::BlurCorners->SetVariable("Intensity", 3.0f);
+			ScreenShader::EdgeDetection->SetVariable("Intensity", 1.0f);
+			ScreenShader::Sharpen->SetVariable("Intensity", 1.0f);
+			ScreenShader::HDR->SetVariable("Exposure", 1.0f);
 
+			ScreenShader::Bloom->SetVariable("screenTexture", 0);
+			ScreenShader::Bloom->SetVariable("brights", 1);
+		}
 
-// Creates all basic shaders
-void Graphics::Shaders::Init()
-{
-	LoadDefaultShader();
-	LoadScreenShaders();
+		void LoadUniformBlockBindings()
+		{
+			//Bind all shaders with Matrices uniform (for camera matrices) to 0
+			GLuint index = glGetUniformBlockIndex(defaultShader->GetProgramID(), "Matrices");
+			glUniformBlockBinding(defaultShader->GetProgramID(), index, 0);
+		}
 
-	LoadDefaultShaderUniforms();
-}
+		// Creates all basic shaders
+		void Init()
+		{
+			LoadDefaultShader();
+			LoadScreenShaders();
 
-// Frees all basic shaders
-void Graphics::Shaders::Unload()
-{
-	delete defaultShader;
-	delete ScreenShader::Default;
-	delete ScreenShader::Blur;
-	delete ScreenShader::BlurCorners;
-	delete ScreenShader::ExtractBrights;
-	delete ScreenShader::EdgeDetection;
-	delete ScreenShader::Sharpen;
-}
+			LoadDefaultShaderUniforms();
+			LoadUniformBlockBindings();
+		}
+
+		// Frees all basic shaders
+		void Unload()
+		{
+			delete defaultShader;
+			delete ScreenShader::Default;
+			delete ScreenShader::Blur;
+			delete ScreenShader::BlurCorners;
+			delete ScreenShader::ExtractBrights;
+			delete ScreenShader::EdgeDetection;
+			delete ScreenShader::Sharpen;
+		}
+
+	};
+};
+
