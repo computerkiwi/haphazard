@@ -84,10 +84,10 @@ namespace Graphics
 				glUniform2f(glGetUniformLocation(id, varName), value.x, value.y);
 			}
 
-			void Graphics::ShaderProgram::SetVariable(char* varName, float value)
+			void Graphics::ShaderProgram::SetVariable(char* varName, int value)
 			{
 				Use();
-				glUniform1f(glGetUniformLocation(id, varName), value);
+				glUniform1i(glGetUniformLocation(id, varName), value);
 			}
 
 		private:
@@ -266,17 +266,21 @@ namespace Graphics
 		class FrameBuffer
 		{
 		public:
-			FrameBuffer();
+			FrameBuffer(int numColBfrs = 2);
 			void SetDimensions(int width, int height);
-			void GenerateColorBuffer();
+			void GenerateColorBuffers();
 			void GenerateDepthStencilObject();
 			void Use();
-			void BindColorBuffer();
+			void BindColorBuffer(int attachment = 0);
 			void Clear();
 			void SetClearColor(float r, float g, float b, float a);
+			GLuint ColorBuffer(int attachment = 0) { return mColorBuffers[attachment]; }
 		private:
-			GLuint mID, mColorBuffer, mDepthStencilBuffer;
+			GLuint mID;
+			GLuint mDepthStencilBuffer;
+			GLuint mColorBuffers[2]; // Max color buffers = 2
 			int mWidth, mHeight;
+			int numColBfrs;
 			glm::vec4 mClearColor;
 		};
 
@@ -289,6 +293,11 @@ namespace Graphics
 		private:
 			GLuint mVAO, mVBO;
 		};
+
+		bool UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target);
+
+		void RenderBloom(FrameBuffer& source, FrameBuffer& target);
+		void RenderBlur(GLuint colorBuffer, FrameBuffer& target);
 
 	private: // Variables
 		FrameBuffer mView;

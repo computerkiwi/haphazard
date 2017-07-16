@@ -40,26 +40,90 @@ void Graphics::Screen::AddEffect(FX fx)
 	mFXList.push_back(fx);
 }
 
-void UseFxShader(Graphics::FX fx)
+void Graphics::Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
+{
+	static FrameBuffer pingpongFBO[2] = { FrameBuffer(1), FrameBuffer(1) };
+
+	bool horizontal = true, first_iteration = true;
+	int amount = 10;
+
+	Shaders::ScreenShader::Blur->Use();
+	mFullscreen.Bind();
+
+	for (int i = 0; i < amount; i++)
+	{
+		pingpongFBO[horizontal].Use();
+		Shaders::ScreenShader::Blur->SetVariable("Horizontal", horizontal);
+		if (first_iteration)
+		{
+			glBindTexture(GL_TEXTURE_2D, colorBuffer); // Take from source
+			first_iteration = false;
+		}
+		else
+			pingpongFBO[!horizontal].BindColorBuffer();
+
+		mFullscreen.DrawTris();
+		horizontal = !horizontal;
+	}
+	target.Use();
+	mFullscreen.DrawTris(); // Draw final product onto target
+}
+
+void Graphics::Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
+{
+	static FrameBuffer blurredBrights; // Framebuffer to hold blurred brights in
+	blurredBrights.Clear();
+
+	// Draw extracted brights to target color buffers
+	Shaders::ScreenShader::ExtractBrights->Use();
+	target.Use();
+	target.Clear();
+	source.BindColorBuffer();
+	mFullscreen.Bind();
+	mFullscreen.DrawTris();
+
+	// Target now contains (0) source screen, and (1) extracted brights (raw)
+	RenderBlur(target.ColorBuffer(0), blurredBrights); // Draw blurred brights onto new framebuffer
+
+	// Add blurred brights onto scene 
+	Shaders::ScreenShader::Bloom->Use();
+	target.Use();
+
+	//Set textures in bloom shader to correct colorbuffers
+	glActiveTexture(GL_TEXTURE0);
+	source.BindColorBuffer();
+	glActiveTexture(GL_TEXTURE1);
+	blurredBrights.BindColorBuffer();
+
+	mFullscreen.DrawTris();
+
+	glActiveTexture(GL_TEXTURE0); // Reset
+}
+
+bool Graphics::Screen::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
 {
 	switch (fx)
 	{
 	case Graphics::FX::BLUR:
-		Graphics::Shaders::ScreenShader::Blur->Use();
-		break;
+		RenderBlur(source.ColorBuffer(), target);
+		return false;
 	case Graphics::FX::BLUR_CORNERS:
 		Graphics::Shaders::ScreenShader::BlurCorners->Use();
-		break;
+		return true;
 	case Graphics::FX::EDGE_DETECTION:
 		Graphics::Shaders::ScreenShader::EdgeDetection->Use();
-		break;
+		return true;
 	case Graphics::FX::SHARPEN:
 		Graphics::Shaders::ScreenShader::Sharpen->Use();
-		break;
+		return true;
+	case Graphics::FX::BLOOM:
+		RenderBloom(source, target);
+		return false;
 	default:
 		Graphics::Shaders::ScreenShader::Default->Use();
-		break;
+		return true;
 	}
+
 }
 
 void Graphics::Screen::Draw()
@@ -80,10 +144,12 @@ void Graphics::Screen::Draw()
 		{
 			target.Use(); // Render to target
 
-			UseFxShader(*i); // Use next FX shader on list
-
-			source.BindColorBuffer(); // Bind source screen to target screen
-			mFullscreen.DrawTris(); // Renders to screen other framebuffer
+			if (UseFxShader(*i, source, target)) // Use next FX shader on list, returns if uses default rendering
+			{
+				//No special render method, render as normal texture
+				source.BindColorBuffer(); // Bind source screen to target screen
+				mFullscreen.DrawTris(); // Renders to screen other framebuffer
+			}
 			std::swap(source, target); // Render back and forth, applying another fx shader on each pass
 		}
 
@@ -93,7 +159,8 @@ void Graphics::Screen::Draw()
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Shaders::ScreenShader::Default->Use(); // Could use last fx shader here but cleaner this way
+	// Convert HDR to LDR
+	Shaders::ScreenShader::HDR->Use(); 
 
 	// Render final screen
 	mFullscreen.Bind();
@@ -108,7 +175,8 @@ void Graphics::Screen::Draw()
 // FrameBuffer
 ///
 
-Graphics::Screen::FrameBuffer::FrameBuffer()
+Graphics::Screen::FrameBuffer::FrameBuffer(int numColBfrs)
+	: numColBfrs{numColBfrs}
 {
 	glGenFramebuffers(1, &mID);
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
@@ -116,7 +184,7 @@ Graphics::Screen::FrameBuffer::FrameBuffer()
 	mWidth = Settings::ScreenWidth();
 	mHeight = Settings::ScreenHeight();
 
-	GenerateColorBuffer();
+	GenerateColorBuffers();
 	GenerateDepthStencilObject();
 }
 
@@ -126,20 +194,31 @@ void Graphics::Screen::FrameBuffer::SetDimensions(int width, int height)
 	{
 		mWidth = width;
 		mHeight = height;
-		GenerateColorBuffer();
+		GenerateColorBuffers();
 		GenerateDepthStencilObject();
 	}
 }
 
-void Graphics::Screen::FrameBuffer::GenerateColorBuffer()
+void Graphics::Screen::FrameBuffer::GenerateColorBuffers()
 {
 	// create a color attachment texture
-	glGenTextures(1, &mColorBuffer);
-	glBindTexture(GL_TEXTURE_2D, mColorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorBuffer, 0);
+	glGenTextures(numColBfrs, mColorBuffers);
+
+	for (int i = 0; i < numColBfrs; ++i)
+	{
+		glBindTexture(GL_TEXTURE_2D, mColorBuffers[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, mWidth, mHeight, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// Attach to framebuffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, mColorBuffers[i], 0);
+	}
+
+	// Tell OpenGL we are rendering to multiple colorbuffers
+	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
 }
 
 void Graphics::Screen::FrameBuffer::GenerateDepthStencilObject()
@@ -156,9 +235,9 @@ void Graphics::Screen::FrameBuffer::Use()
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
 }
 
-void Graphics::Screen::FrameBuffer::BindColorBuffer()
+void Graphics::Screen::FrameBuffer::BindColorBuffer(int attachment)
 {
-	glBindTexture(GL_TEXTURE_2D, mColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, mColorBuffers[attachment]);
 }
 
 void Graphics::Screen::FrameBuffer::Clear()

@@ -17,11 +17,8 @@
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 600
 
-int w = SCREEN_WIDTH;
-int h = SCREEN_HEIGHT;
-
-int Settings::ScreenWidth() { return w; }
-int Settings::ScreenHeight() { return h; }
+int Settings::ScreenWidth() { return SCREEN_WIDTH; }
+int Settings::ScreenHeight() { return SCREEN_HEIGHT; }
 
 GLFWwindow* WindowInit()
 {
@@ -131,10 +128,12 @@ int main()
 
 	//Screen settings
 	Screen::GetView().SetBackgroundColor(0, 0, 0, 1);
+	Graphics::Shaders::ScreenShader::HDR->SetVariable("Exposure", 1);
 
 //	Screen::GetView().AddEffect(Graphics::FX::SHARPEN);
 //	Screen::GetView().AddEffect(Graphics::FX::BLUR);
 //	Screen::GetView().AddEffect(Graphics::FX::EDGE_DETECTION);
+	Screen::GetView().AddEffect(Graphics::FX::BLOOM);
 
 	float dt = 0.0f, last = 0.0f, currentFrame;
 	int frames = 0, lastFrames = 0;

@@ -171,11 +171,13 @@ static void FailedCompile()
 //Shader Declaration
 Graphics::ShaderProgram* Graphics::Shaders::defaultShader;
 Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Default;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::HDR;
 Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Blur;
 Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::BlurCorners;
-Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Bloom;
 Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::EdgeDetection;
 Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Sharpen;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::ExtractBrights;
+Graphics::ShaderProgram* Graphics::Shaders::ScreenShader::Bloom;
 
 void LoadDefaultShader()
 {
@@ -200,6 +202,10 @@ void LoadScreenShaders()
 	if (!Graphics::Shaders::ScreenShader::Default->wasCompiled())
 		FailedCompile();
 
+	Graphics::Shaders::ScreenShader::HDR = LoadShaders("screenDefault.vertshader", "screenHDR.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::HDR->wasCompiled())
+		FailedCompile();
+
 	Graphics::Shaders::ScreenShader::Blur = LoadShaders("screenDefault.vertshader", "screenBlur.fragshader", attribs);
 	if (!Graphics::Shaders::ScreenShader::Blur->wasCompiled())
 		FailedCompile();
@@ -216,6 +222,10 @@ void LoadScreenShaders()
 	if (!Graphics::Shaders::ScreenShader::Sharpen->wasCompiled())
 		FailedCompile();
 
+	Graphics::Shaders::ScreenShader::ExtractBrights = LoadShaders("screenDefault.vertshader", "screenExtractBrights.fragshader", attribs);
+	if (!Graphics::Shaders::ScreenShader::ExtractBrights->wasCompiled())
+		FailedCompile();
+
 	Graphics::Shaders::ScreenShader::Bloom = LoadShaders("screenDefault.vertshader", "screenBloom.fragshader", attribs);
 	if (!Graphics::Shaders::ScreenShader::Bloom->wasCompiled())
 		FailedCompile();
@@ -223,10 +233,17 @@ void LoadScreenShaders()
 
 void LoadDefaultShaderUniforms()
 {
-	Graphics::Shaders::ScreenShader::Blur->SetVariable("Intensity", 3);
-	Graphics::Shaders::ScreenShader::BlurCorners->SetVariable("Intensity", 3);
-	Graphics::Shaders::ScreenShader::EdgeDetection->SetVariable("Intensity", 1);
-	Graphics::Shaders::ScreenShader::Sharpen->SetVariable("Intensity", 1);
+	Graphics::Shaders::ScreenShader::Blur->SetVariable("Intensity", 1.0f);
+	Graphics::Shaders::ScreenShader::BlurCorners->SetVariable("Intensity", 3.0f);
+	Graphics::Shaders::ScreenShader::EdgeDetection->SetVariable("Intensity", 1.0f);
+	Graphics::Shaders::ScreenShader::Sharpen->SetVariable("Intensity", 1.0f);
+	Graphics::Shaders::ScreenShader::HDR->SetVariable("Exposure", 1.0f);
+
+	Graphics::Shaders::ScreenShader::Bloom->SetVariable("screenTexture", 0);
+	Graphics::Shaders::ScreenShader::Bloom->SetVariable("brights", 1);
+	//Graphics::Shaders::ScreenShader::Bloom->Use();
+	//glUniform1i(glGetUniformLocation(Graphics::Shaders::ScreenShader::Bloom->GetProgramID(), "screenTexture"), 0);
+	//glUniform1i(glGetUniformLocation(Graphics::Shaders::ScreenShader::Bloom->GetProgramID(), "brights"), 1);
 }
 
 
@@ -246,7 +263,7 @@ void Graphics::Shaders::Unload()
 	delete ScreenShader::Default;
 	delete ScreenShader::Blur;
 	delete ScreenShader::BlurCorners;
-	delete ScreenShader::Bloom;
+	delete ScreenShader::ExtractBrights;
 	delete ScreenShader::EdgeDetection;
 	delete ScreenShader::Sharpen;
 }

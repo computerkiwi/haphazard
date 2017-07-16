@@ -64,6 +64,12 @@
     <None Include="shader.vertshader">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="screenHDR.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="screenExtractBrights.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="screenBloom.fragshader">
       <Filter>Resource Files</Filter>
     </None>
