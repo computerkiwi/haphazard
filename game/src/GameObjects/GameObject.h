@@ -13,11 +13,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <cstdint>
 #include <unordered_map>
 #include <map>
-#include "Components/Component.h"
+#include "Components/Components.h"
 #include <iostream>
 
 // size_t for GameObjectID
-typedef size_t GameObjectID_t;
+typedef std::size_t GameObjectID_t;
 
 // Defining void * so it is actually something when read
 typedef void * Component_Index;
@@ -102,6 +102,14 @@ public:
 		emplace(COMPONENT_GEN<T>::Func, new Component_Maps<T>);
 	}
 
+	void RegisterAll()
+	{
+		Register<Collider2D>();
+		Register<RigidBody2D>();
+		Register<Transform>();
+		Register<Sprite>();
+		Register<Script>();
+	}
 
 	// Adds a component to the space, used in GameObjects
 	template <typename T>
