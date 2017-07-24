@@ -17,7 +17,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <iostream>
 
 // size_t for GameObjectID
-typedef size_t GameObjectID_t;
+typedef std::size_t GameObjectID_t;
 
 // Defining void * so it is actually something when read
 typedef void * Component_Index;

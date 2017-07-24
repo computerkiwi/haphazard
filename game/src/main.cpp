@@ -11,11 +11,10 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <iostream>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Engine/Quadtree.h"
+#include "Engine/Quadtree/Quadtree.h"
 #include "Engine/Engine.h"
+#include "GameObjects/Components/Components.h"
 
-// This comment is useless.
-void QuadTree_Stress();
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -62,7 +61,8 @@ int main()
 	space.Register<Sprite>();
 	space.Register<Transform>();
 
-	QuadTree<> tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
+	QuadTree tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
+	tree.AddChildern();
 
 	glm::mat4 matrix;
 	std::cout << matrix << std::endl;
