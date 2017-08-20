@@ -76,8 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\moxra\Documents\Graphics1\Graphics1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\moxra\Documents\Graphics1\Graphics1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -114,12 +114,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\moxra\Documents\Graphics1\Graphics1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\moxra\Documents\Graphics1\Graphics1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -184,6 +184,8 @@
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="raindrop.fragshader" />
+    <None Include="raindrop.vertshader" />
     <None Include="screenBloom.fragshader" />
     <None Include="screenBlur.fragshader" />
     <None Include="screenBlurCorners.fragshader" />

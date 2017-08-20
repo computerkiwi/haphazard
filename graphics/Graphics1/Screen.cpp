@@ -1,8 +1,12 @@
 #include <cstdarg>
+#include <cstdlib>
+#include <ctime>
 #include "Screen.h"
 #include "Shaders.h"
 #include "Settings.h"
-
+#include "Mesh.h"
+#include "Transform.h"
+#include "Texture.h"
 
 #include "GL\glew.h"
 
@@ -44,17 +48,31 @@ void Graphics::Screen::AddEffect(FX fx)
 	mFXList.push_back(fx);
 }
 
+void Graphics::Screen::SetBlurAmount(float amt)
+{
+	blurAmount = amt;
+	Shaders::ScreenShader::Blur->SetVariable("Intensity", amt);
+	/* Use this when blurring via multi-pass gaus blur to save passes
+	blurAmount = amt > 10 ? 10 : amt;
+	if(amt > 10)
+		Shaders::ScreenShader::Blur->SetVariable("Intensity", amt / 10.0f);
+	else
+		Shaders::ScreenShader::Blur->SetVariable("Intensity", 1.0f);
+	*/
+}
+
 void Graphics::Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 {
 	static FrameBuffer pingpongFBO[2] = { FrameBuffer(1), FrameBuffer(1) };
 
 	bool horizontal = true, first_iteration = true;
-	int amount = 10;
+
+	int blurSmooth = 4;
 
 	Shaders::ScreenShader::Blur->Use();
 	mFullscreen.Bind();
 
-	for (int i = 0; i < amount; i++)
+	for (int i = 0; i < blurSmooth /*blurAmount*/; i++)
 	{
 		pingpongFBO[horizontal].Use();
 		Shaders::ScreenShader::Blur->SetVariable("Horizontal", horizontal);
@@ -160,6 +178,8 @@ void Graphics::Screen::Draw()
 		result = source; // Save outcome colorbuffer (would be target, but they are swapped at the end of each loop)
 	}
 	
+	Raindrop::DrawToScreen(result);
+
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -211,7 +231,7 @@ void Graphics::Screen::FrameBuffer::GenerateColorBuffers()
 	for (int i = 0; i < numColBfrs; ++i)
 	{
 		glBindTexture(GL_TEXTURE_2D, mColorBuffers[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, mWidth, mHeight, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, mWidth, mHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -291,6 +311,12 @@ Graphics::Screen::Mesh::Mesh(float bottom, float top, float left, float right)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
 
+Graphics::Screen::Mesh::~Mesh()
+{
+	glDeleteBuffers(1, &mVAO);
+	glDeleteVertexArrays(1, &mVBO);
+}
+
 void Graphics::Screen::Mesh::Bind() 
 { 
 	glBindVertexArray(mVAO); 
@@ -300,3 +326,140 @@ void Graphics::Screen::Mesh::DrawTris()
 { 
 	glDrawArrays(GL_TRIANGLES, 0, 6); 
 }
+
+
+///
+// Raindrop
+///
+
+Graphics::Screen::FrameBuffer* Graphics::Screen::Raindrop::drops;
+Graphics::Screen::FrameBuffer* Graphics::Screen::Raindrop::screen;
+std::list<Graphics::Screen::Raindrop*> Graphics::Screen::Raindrop::raindrops;
+
+Graphics::Texture* Graphics::Screen::Raindrop::texture;
+Graphics::Screen::Mesh* Graphics::Screen::Raindrop::mesh;
+
+Graphics::Screen::Raindrop::Raindrop()
+{
+	if (!texture)
+		texture = new Texture("raindrop.png");
+	if (!mesh)
+		mesh = new Mesh();
+
+	if (!drops)
+	{
+		drops = new FrameBuffer(1);
+		srand(2);
+	}
+	if (!screen)
+		screen = new FrameBuffer(1);
+
+	transform.SetPosition(rand() % 200 / 100.0f - 1, rand() % 200 / 100.0f - 1, 0);
+	float w = rand() % 100 / (100.0f / sizeMax.x) + sizeMin.x;
+	float h = (w + rand() % 100 / (100.0f / (sizeMax.y - w))) * Settings::ScreenWidth() / Settings::ScreenHeight();
+	transform.SetScale(w, -h, rand() % 100 / (100.0f / sizeMax.z) + sizeMin.z);
+
+	life += rand() % 10 / 10 - 0.5;
+	speed = rand() % 100 / ((w / sizeMax.x) * 50.0f) + 0.1;
+
+	drops->SetClearColor(0, 0, 0, 0);
+}
+
+void Graphics::Screen::Raindrop::DrawToScreen(Graphics::Screen::FrameBuffer& dest)
+{
+	// Blur screen
+	int b = GetView().blurAmount;
+	GetView().SetBlurAmount(10);
+	Graphics::Screen::GetView().UseFxShader(BLUR, dest, *screen);
+	GetView().SetBlurAmount(b);
+
+	// Render raindrops onto fresh buffer
+	drops->Use();
+	drops->Clear();
+	for(Raindrop* r : raindrops)
+		r->Draw();
+	
+	// Set render to additive
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
+	
+	Shaders::ScreenShader::Default->Use();
+	
+	// Render drops to destination screen
+	dest.Use();
+	Screen::GetView().mFullscreen.Bind();
+	drops->BindColorBuffer();
+	Screen::GetView().mFullscreen.DrawTris();
+
+	// Reset blend mode
+	glBlendFunc(GL_ONE, GL_ZERO);
+}
+
+void Graphics::Screen::Raindrop::Draw()
+{
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set default blendmode
+
+	Shaders::ScreenShader::Raindrop->Use();
+
+	Shaders::ScreenShader::Raindrop->SetVariable("position", transform.GetPosition());
+	Shaders::ScreenShader::Raindrop->SetVariable("scale", transform.GetScale());
+	Shaders::ScreenShader::Raindrop->SetVariable("alpha", alpha);
+
+	mesh->Bind();
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture->GetID());
+	glActiveTexture(GL_TEXTURE1);
+	screen->BindColorBuffer();
+
+	mesh->DrawTris();
+
+	glActiveTexture(GL_TEXTURE0); // Reset active texture
+}
+
+float count = 0;
+
+void Graphics::Screen::UpdateRaindrops(float dt)
+{
+	count += dt;
+	float f = 0.1f + rand() % 10 / 10.0f;
+	if (count > f)
+	{
+		GetView().AddRaindrop();
+		count=0;
+	}
+
+
+	for (Raindrop* r : Raindrop::raindrops)
+	{
+		r->Update(dt);
+	}
+	
+	for (Raindrop* r : Raindrop::raindrops)
+		if (r->life < 0)
+		{
+			Raindrop::raindrops.remove(r);
+			delete r;
+			break;
+		}
+}
+
+void Graphics::Screen::Raindrop::Update(float dt)
+{
+	transform.SetPosition(transform.GetPosition().x, transform.GetPosition().y - (dt * speed) / 40.0f, 0);
+	transform.SetScale(transform.GetScale().x - transform.GetScale().x * (dt * speed) / 7.0f, transform.GetScale().y - transform.GetScale().y * dt / 7.0f, transform.GetScale().z - transform.GetScale().z * dt / 6.0f);
+
+	life -= dt;
+
+	if(alpha < 1 && life > 5)
+		alpha += dt * 5;
+	else if (life < 5)
+		alpha = life / 5.0f;
+	else
+		alpha = 1;
+}
+
+void Graphics::Screen::AddRaindrop()
+{
+	Raindrop::raindrops.push_back(new Raindrop());
+}
+

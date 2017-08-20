@@ -11,6 +11,11 @@
 namespace Graphics
 {
 
+	enum BlendMode
+	{
+		BM_DISABLED, BM_DEFAULT, BM_DISABLE_ALPHA, BM_ADDITIVE
+	};
+
 	class Mesh
 	{
 	public:
@@ -23,7 +28,7 @@ namespace Graphics
 			float data[vertDataVars];
 		};
 
-		Mesh(ShaderProgram* shaderProgram = Shaders::defaultShader, GLenum renderMode = GL_TRIANGLES);
+		Mesh(GLenum renderMode = GL_TRIANGLES);
 		~Mesh();
 
 		void AddVertex(float x, float y, float z, float r, float g, float b, float a, float texX, float texY);
@@ -35,6 +40,8 @@ namespace Graphics
 
 		void SetTexture(Texture& tex);
 		void SetTexture(GLuint texID);
+		void SetShader(ShaderProgram *shader);
+		void SetBlendMode(BlendMode mode);
 
 		std::vector<Vertice>* GetVertices();
 		void CompileMesh(); // Creates mesh with provided vertices
@@ -42,15 +49,24 @@ namespace Graphics
 		void Draw();
 
 	private:
+		void UseBlendMode(BlendMode bm);
+
 		GLuint vaoID, vboID;
 		GLuint uniModel;
 		GLenum drawMode = GL_TRIANGLES;
 		std::vector<Vertice> vertices;
 		GLuint texture;
-		ShaderProgram program;
+		ShaderProgram *program = Shaders::defaultShader;
+		BlendMode blend = BlendMode::BM_DEFAULT;
 
 	public:
 		Transform transform;
+	};
+
+	class Sprite
+	{
+		Sprite();
+
 	};
 
 }

@@ -24,9 +24,12 @@
 
 int Settings::ScreenWidth() { return SCREEN_WIDTH; }
 int Settings::ScreenHeight() { return SCREEN_HEIGHT; }
+int Settings::AntiAliasing() { return 4; }
 
 GLFWwindow* WindowInit()
 {
+	std::cout << "    Initializing glfw... " ;
+
 	if (glfwInit() == false)
 	{
 		glfwTerminate();
@@ -34,12 +37,16 @@ GLFWwindow* WindowInit()
 		exit(1);
 	}
 
+	std::cout << "Initialized glfw" << std::endl;
+
 	glfwWindowHint(GLFW_SAMPLES, 4); //4 MSAA
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "<3", NULL, NULL);
+
+	std::cout << "    Window created" << std::endl;
 
 	if (!window)
 	{
@@ -66,9 +73,13 @@ int main()
 {
 	using namespace Graphics; //Fuck the police
 
+	std::cout << "Initializing window" << std::endl;
+
 	//Init OpenGL and start window
 	GLFWwindow *window = WindowInit();
 	
+	std::cout << "Initializing shaders" << std::endl;
+
 	// Load Shaders
 	Shaders::Init();
 
@@ -86,7 +97,7 @@ int main()
 //	glCullFace(GL_BACK); //Dont render back, CCW tri vertices
 
 	// Create triangle
-	Mesh mesh = Mesh(Shaders::defaultShader);
+	Mesh mesh = Mesh();
 	mesh.AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t
 		-0.5f,  0.5f, 0, 0.0f, 0.0f, 1.0f, 1, 0, 1, // Top Left
@@ -104,12 +115,12 @@ int main()
 	mesh.SetTexture(tex);
 
 
-	Mesh mesh2 = Mesh(Shaders::defaultShader);
+	Mesh mesh2 = Mesh();
 	mesh2.AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t
-		-1.0f, -1.0f, 0, 1.0f, 0.0f, 0.0f, 1, 0, 0, // Bot Left
-		 1.0f, -1.0f, 0, 0.0f, 1.0f, 0.0f, 1, 1, 0, // Bot Right
-		-1.0f,  1.0f, 0, 0.0f, 0.0f, 1.0f, 1, 0, 1  // Top Left
+		-1.0f, -1.0f, 0, 1.0f, 0.0f, 0.0f, 0.5f, 0, 0, // Bot Left
+		 1.0f, -1.0f, 0, 0.0f, 1.0f, 0.0f, 0.5f, 1, 0, // Bot Right
+		-1.0f,  1.0f, 0, 0.0f, 0.0f, 1.0f, 0.5f, 0, 1  // Top Left
 	);
 	mesh2.AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t
@@ -119,6 +130,7 @@ int main()
 	);
 	mesh2.CompileMesh();
 	mesh2.SetTexture(0);
+	mesh.SetBlendMode(Graphics::BlendMode::BM_ADDITIVE);
 
 	mesh2.transform.SetPosition({ -0.5f, 0.0f, 0.0f });
 	mesh2.transform.SetRotation({ -45.0f, 90, 0 });
@@ -165,6 +177,7 @@ int main()
 		////////////
 		glEnableVertexAttribArray(0);
 		Screen::GetView().Use();
+		Screen::UpdateRaindrops(dt);
 		////Start Loop
 
 		// Don't need to use Camera.Use if there is only one camera being used, or its already enabled
@@ -175,6 +188,7 @@ int main()
 		mesh.Draw();
 
 		////End Loop
+		glBlendFunc(GL_ONE, GL_ZERO);
 		Screen::GetView().Draw();
 
 		glDisableVertexAttribArray(0);

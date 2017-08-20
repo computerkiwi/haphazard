@@ -170,6 +170,9 @@ namespace Graphics
 	{
 		//Shader Declaration
 		ShaderProgram* defaultShader;
+
+		ShaderProgram* ScreenShader::Raindrop;
+
 		ShaderProgram* ScreenShader::Default;
 		ShaderProgram* ScreenShader::HDR;
 		ShaderProgram* ScreenShader::Blur;
@@ -229,6 +232,10 @@ namespace Graphics
 			ScreenShader::Bloom = LoadShaders("screenDefault.vertshader", "screenBloom.fragshader", attribs);
 			if (!ScreenShader::Bloom->wasCompiled())
 				FailedCompile();
+
+			ScreenShader::Raindrop = LoadShaders("raindrop.vertshader", "raindrop.fragshader", attribs);
+			if (!ScreenShader::Raindrop->wasCompiled())
+				FailedCompile();
 		}
 
 		void LoadDefaultShaderUniforms()
@@ -241,6 +248,9 @@ namespace Graphics
 
 			ScreenShader::Bloom->SetVariable("screenTexture", 0);
 			ScreenShader::Bloom->SetVariable("brights", 1);
+
+			ScreenShader::Raindrop->SetVariable("raindropTexture", 0);
+			ScreenShader::Raindrop->SetVariable("screenTexture", 1);
 		}
 
 		void LoadUniformBlockBindings()

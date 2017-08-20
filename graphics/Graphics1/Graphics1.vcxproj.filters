@@ -94,5 +94,11 @@
     <None Include="screenBloom.fragshader">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="raindrop.fragshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="raindrop.vertshader">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

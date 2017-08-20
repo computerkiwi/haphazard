@@ -35,7 +35,10 @@ namespace Graphics
 			extern ShaderProgram* BlurCorners;
 			extern ShaderProgram* ExtractBrights;
 			extern ShaderProgram* Bloom;
+
+			extern ShaderProgram* Raindrop;
 		}
+
 
 	};
 
@@ -108,6 +111,12 @@ namespace Graphics
 		{
 			Use();
 			glUniform2f(glGetUniformLocation(id, varName), value.x, value.y);
+		}
+
+		void Graphics::ShaderProgram::SetVariable(char* varName, glm::vec3 value)
+		{
+			Use();
+			glUniform3f(glGetUniformLocation(id, varName), value.x, value.y, value.z);
 		}
 
 		void Graphics::ShaderProgram::SetVariable(char* varName, int value)

@@ -13,8 +13,8 @@
 ///
 static Graphics::Texture* defaultTexture;
 
-Graphics::Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode)
-	: program{ *shaderProgram }, drawMode{ renderMode }
+Graphics::Mesh::Mesh(GLenum renderMode)
+	: drawMode{ renderMode }
 {
 	if (!defaultTexture) // no default texture, make it
 	{
@@ -30,10 +30,10 @@ Graphics::Mesh::Mesh(ShaderProgram* shaderProgram, GLenum renderMode)
 	glGenBuffers(1, &vboID); //Start vbo
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 
-	program.ApplyAttributes(); // Apply program attributes for vao to remember
+	program->ApplyAttributes(); // Apply program attributes for vao to remember
 
 	//Get Transform attrib locations
-	uniModel = glGetUniformLocation(shaderProgram->GetProgramID(), "model");
+	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
 }
 
 Graphics::Mesh::~Mesh()
@@ -58,9 +58,30 @@ void Graphics::Mesh::AddTriangle(
 	AddVertex(x3, y3, z3, r3, g3, b3, a3, s3, t3);
 }
 
+void Graphics::Mesh::UseBlendMode(BlendMode bm)
+{
+	switch (bm)
+	{
+	case BlendMode::BM_DISABLED:
+		glBlendFunc(GL_ZERO, GL_ZERO);
+		break;
+	case BlendMode::BM_DEFAULT:
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		break;
+	case BlendMode::BM_DISABLE_ALPHA:
+		glBlendFunc(GL_ONE, GL_ZERO);
+		break;
+	case BlendMode::BM_ADDITIVE:
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		break;
+	}
+}
+
 void Graphics::Mesh::Draw()
 {
-	program.Use();
+	UseBlendMode(blend);
+
+	program->Use();
 	glBindVertexArray(vaoID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	if (texture)
@@ -81,6 +102,22 @@ void Graphics::Mesh::SetTexture(Texture& tex)
 void Graphics::Mesh::SetTexture(GLuint texID)
 {
 	texture = texID; 
+}
+
+void Graphics::Mesh::SetShader(ShaderProgram *shader)
+{
+	program = shader;
+
+	glBindVertexArray(vaoID);
+	program->ApplyAttributes(); // Apply program attributes for vao to remember
+
+	//Get Transform attrib locations
+	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
+}
+
+void Graphics::Mesh::SetBlendMode(BlendMode b)
+{
+	blend = b;
 }
 
 std::vector<Graphics::Mesh::Vertice>* Graphics::Mesh::GetVertices()

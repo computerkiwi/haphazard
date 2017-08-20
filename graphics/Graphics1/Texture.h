@@ -13,7 +13,7 @@ namespace Graphics
 		Texture(GLuint id) { mID = id; }
 		~Texture();
 
-		GLuint GetID() { return mID; }
+		GLuint GetID() const { return mID; }
 	private:
 		GLuint mID;
 	};

@@ -2,8 +2,13 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <list>
+
+#include "Texture.h"
+#include "Transform.h"
 
 typedef unsigned int GLuint;
+
 
 namespace Graphics
 {
@@ -37,10 +42,13 @@ namespace Graphics
 		void SetDimensions(int width, int height);
 		void SetEffects(int count, FX fx[]);
 		void AddEffect(FX fx);
+		void SetBlurAmount(float amt);
+
+		void AddRaindrop();
+		static void UpdateRaindrops(float dt);
 
 		void Draw();
 
-	private:
 		class FrameBuffer
 		{
 		public:
@@ -62,14 +70,43 @@ namespace Graphics
 			glm::vec4 mClearColor;
 		};
 
+	private:
+
 		class Mesh
 		{
 		public:
 			Mesh(float bottom = 0, float top = 1, float left = 0, float right = 1);
+			~Mesh();
 			void Bind();
 			void DrawTris();
-		private:
 			GLuint mVAO, mVBO;
+		private:
+		};
+
+		class Raindrop
+		{
+		public:
+
+			Raindrop();
+			static void DrawToScreen(FrameBuffer& screen);
+			void Draw();
+			void Update(float dt);
+			
+			bool operator== (const Raindrop& r) const;
+
+			static Screen::Mesh* mesh;
+			static Texture* texture;
+			Transform transform;
+			float life = 7;
+			float alpha = 0;
+			float speed = 1;
+
+			const glm::vec3 sizeMin = glm::vec3(0.05f, 0.03f, 0.4f);
+			const glm::vec3 sizeMax = glm::vec3(0.1f,   0.15f, 0.7f);
+
+			static FrameBuffer* drops;
+			static FrameBuffer* screen;
+			static std::list<Raindrop*> raindrops;
 		};
 
 		bool UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target);
@@ -82,6 +119,8 @@ namespace Graphics
 		FrameBuffer mFX;
 		Mesh mFullscreen;
 		std::vector<FX> mFXList;
+
+		int blurAmount = 2;
 
 		Screen()
 		{
