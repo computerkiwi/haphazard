@@ -17,6 +17,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine/Engine.h"
 #include "meta/example.h"
 
+#include "Util/Logging.h"
+
 // This comment is useless.
 
 // GLM didnt have these, huh.
@@ -80,6 +82,10 @@ int main()
 
 	RunMetaExamples();
 
+	Logging::Log("This is a log message with default parameters!");
+
+	Logging::Log("This is a log message with low priority.", Logging::DEFAULT, Logging::LOW_PRIORITY);
+	Logging::Log("This is a log message with critical priority!!!!!!!!!", Logging::DEFAULT, Logging::CRITICAL_PRIORITY);
 
 	// Keep the console from closing.
 	std::cin.ignore();
