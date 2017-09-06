@@ -27,12 +27,46 @@ Having a consistent style means:
 The purpose of a style guide is not to impose arbitrary restrictions on code (though some style decisions are arbitrary), but to keep things as clear and consistent as possible.
 <p></p>
 Whenever there’s any confusion or doubt about what exactly to do, ask yourself what another programmer coming to look at your file would need to make everything clear, understandable, and as hassle-free for them as possible.
-    
+<!-------------------------------------------------------------------------------------------------------------------->
+<p class="SectionHeader">Spacing</p>
+Indentation should be done with tabs, but any spacing once at the proper indentation level should use spaces:
+<pre class="sourcecode"><code>
+int main()
+{
+	int variables = 0;
+	int      that = 1;
+	int      need = 2;
+	int    lining = 3;
+	int        up = 4;
+	
+	if (that != need)
+	{
+		int moreIndentedCode = 5;
+	}
+	
+	return 0;
+}
+</code></pre>
+Binary operators should always have spaces around them:
+<pre class="sourcecode"><code>
+// Good usage.
+int good = (1 + 2) * 14;
+
+// Bad usage
+int bad=(1+2)*14;
+</code></pre>
+Unary operators should never have spaces after them:
+<pre class="sourcecode"><code>
+// Good usage.
+int good = -5;
+
+// Bad usage
+int bad = - 5;
+</code></pre>
 <!-------------------------------------------------------------------------------------------------------------------->
 <p class="SectionHeader">Naming</p>
 Names should strike a balance between not taking up too much space and clearly indicating what that name represents, with an emphasis towards the latter. The more localized to a scope a name is, the shorter it can be.
 
-<h2>Variables</h2>
 Variables should be written in lowerCamelCase:
 <pre class="sourcecode"><code>
 // This is correct:
@@ -41,6 +75,24 @@ int someGoodVariable;
 // These should be avoided:
 int SomeBadVariable;
 int another_bad_variable;
+</code></pre>
+Function names should also be written in lowerCamelCase:
+<pre class="sourcecode"><code>
+// Correct.
+float secondsToHours(int time);
+
+// Incorrect
+float SecondsToHours(int seconds);
+float seconds_to_hours(int seconds);
+</code></pre>
+Constants should be in ALL_CAPS:
+<pre class="sourcecode"><code>
+// Correct.
+const int GOOD_CONSTANT = 0;
+
+// Incorrect
+const int badConstant = 1;
+const int ANOTHERBADCONSTANT = 2;
 </code></pre>
 Private member variables should begin with "m_":
 <pre class="sourcecode"><code>
@@ -101,13 +153,13 @@ Writing in C++ means there are a lot of little style decisions that need to be m
 <h2>Brackets</h2>
 Brackets always go on their own line:
 <pre class="sourcecode"><code>
-// DO THIS
+// Do this
 if (conditional)
 {
   // CODE
 }
  
-// NOT THIS
+// Not this
 if (conditional){
   // CODE
 }
