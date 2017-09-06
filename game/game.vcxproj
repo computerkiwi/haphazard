@@ -128,14 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp" />
-    <ClCompile Include="src\Engine\Lua\Lua.cpp" />
-    <ClCompile Include="src\GameObjects\Components\Collider2D\Collider2D.cpp" />
-    <ClCompile Include="src\GameObjects\Components\Component.cpp" />
-    <ClCompile Include="src\GameObjects\Components\RigidBody2D\RigidBody2D.cpp" />
-    <ClCompile Include="src\GameObjects\Components\Script\Script.cpp" />
-    <ClCompile Include="src\GameObjects\Components\Sprite\Sprite.cpp" />
-    <ClCompile Include="src\GameObjects\Components\Transform\Transform.cpp" />
-    <ClCompile Include="src\GameObjects\GameObject.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meta\example.cpp" />
     <ClCompile Include="src\meta\meta.cpp" />
@@ -143,14 +135,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Engine\Engine.h" />
-    <ClInclude Include="src\GameObjects\Components\Collider2D\Collider2D.h" />
-    <ClInclude Include="src\GameObjects\Components\Component.h" />
-    <ClInclude Include="src\GameObjects\Components\Components.h" />
-    <ClInclude Include="src\GameObjects\Components\RigidBody2D\RigidBody2D.h" />
-    <ClInclude Include="src\GameObjects\Components\Script\Script.h" />
-    <ClInclude Include="src\GameObjects\Components\Sprite\Sprite.h" />
-    <ClInclude Include="src\GameObjects\Components\Transform\Transform.h" />
-    <ClInclude Include="src\GameObjects\GameObject.h" />
+    <ClInclude Include="src\GameObjectSystem\Component.h" />
+    <ClInclude Include="src\GameObjectSystem\GameObject.h" />
+    <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
+    <ClInclude Include="src\GameObjectSystem\TextSprite.h" />
+    <ClInclude Include="src\GameObjectSystem\Transform.h" />
     <ClInclude Include="src\meta\example.h" />
     <ClInclude Include="src\meta\meta.h" />
     <ClInclude Include="src\meta\tests.h" />

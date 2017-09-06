@@ -12,10 +12,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "meta/tests.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "GameObjects/GameObject.h"
-#include "GameObjects/Components/Components.h"
 #include "Engine/Engine.h"
 #include "meta/example.h"
+#include "GameObjectSystem/GameSpace.h"
+#include "GameObjectSystem/Transform.h"
+#include "GameObjectSystem/TextSprite.h"
 
 // This comment is useless.
 
@@ -47,39 +48,14 @@ std::ostream& operator<<(std::ostream& os, const glm::vec4& vec)
 
 int main()
 {
-	meta::TestAll();
-
-	for (auto i = 0; i < 100; ++i)
-	{
-		std::cout << "Hello, world!" << std::endl;
-	}
 	
-	
-	Engine engine;
+	GameSpace gameSpace;
+	gameSpace.registerSystem<Transform>();
+	gameSpace.registerSystem<TextSprite>();
 
-	luaL_openlibs(engine.GetLua());
-
-	RegisterComponents(engine.GetLua());
-
-	GameObject_Space space;
-	space.Register<Sprite>();
-	space.Register<Script>();
-
-	GameObject object(space);
-	object.SetComponent<Sprite>();
-
-
-	glm::mat4 matrix;
-	std::cout << matrix << std::endl;
-
-	glm::vec4 vector(1, 1, 1, 1);
-	std::cout << vector << std::endl;
-	glm::mat4 rotation = glm::rotate(glm::mat4(), 3.141592f, glm::vec3(0, 0, 1));
-	vector = rotation * vector;
-	std::cout << vector << std::endl;
-
-	RunMetaExamples();
-
+	GameObject obj(0, &gameSpace);
+	obj.addComponent<Transform>();
+	obj.addComponent<TextSprite>("an object");
 
 	// Keep the console from closing.
 	std::cin.ignore();
