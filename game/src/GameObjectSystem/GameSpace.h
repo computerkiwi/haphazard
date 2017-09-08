@@ -1,6 +1,6 @@
 /*
 FILE: GameSpace.h
-PRIMARY AUTHOR: Karin
+PRIMARY AUTHOR: Kieran
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
