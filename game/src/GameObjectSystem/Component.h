@@ -34,6 +34,20 @@ public:
 		return GameObject(m_objID, m_gameSpace);
 	}
 
+	template <typename T>
+	ComponentHandle<T> GetSiblingComponent()
+	{
+		// Make sure the component exists before we hand it off.
+		if (m_gameSpace->getInternalComponent<T>(m_objID) != nullptr)
+		{
+			return ComponentHandle<T>(m_objID, m_gameSpace);
+		}
+		else
+		{
+			return ComponentHandle<T>(0, nullptr, false);
+		}
+	}
+
 	// Returns true if this is a valid component.
 	bool IsValid()
 	{

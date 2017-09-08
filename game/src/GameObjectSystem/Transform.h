@@ -9,6 +9,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 class Transform
 {
 public:
+	Transform(float x, float y, float z, float rot) : xPos(x), yPos(y), zPos(z), rotation(rot)
+	{}
+
 	float xPos, yPos, zPos;
 	float rotation;
 private:

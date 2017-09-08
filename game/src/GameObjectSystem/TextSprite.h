@@ -15,5 +15,7 @@ struct TextSprite
 	{
 	}
 
+	const char * GetName() { return m_name; }
+
 	const char *m_name;
 };

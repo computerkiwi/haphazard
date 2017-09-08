@@ -13,20 +13,63 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObject.h"
 #include "Component.h"
 
-typedef void * ComponentType;
+// Forward declare.
+class GameSpace;
+
+// Required interface for systems.
+class SystemBase
+{
+public:
+	void RegisterGameSpace(GameSpace *space)
+	{
+		m_space = space;
+	}
+
+	SystemBase() : m_space(nullptr)
+	{
+	}
+
+	// Called as the space initializes. Useful vs the constructor for timing purposes.
+	virtual void Init() = 0;
+
+	// Called each frame.
+	virtual void Update(float dt) = 0;
+
+	// Simply returns the default priority for this system.
+	virtual size_t DefaultPriority() = 0;
+
+protected:
+	GameSpace *GetGameSpace()
+	{
+		return m_space;
+	}
+private:
+	GameSpace *m_space;
+};
+
+// ID used as key to component containers.
+typedef int ComponentType;
+
+ComponentType GenerateComponentTypeID()
+{
+	static int maxID = 0;
+
+	return maxID++;
+}
 
 // Uses the address of the templated function as a unique ID.
 template <typename T>
 ComponentType GetComponentType()
 {
-	return reinterpret_cast<ComponentType>(GetComponentType<T>);
+	static int id = GenerateComponentTypeID();
+	return id;
 }
 
 // Only exists so we can keep all of the component maps in one container.
 class ComponentMapBase
 {
 public:
-	~ComponentMapBase()
+	virtual ~ComponentMapBase()
 	{
 	}
 
@@ -37,7 +80,11 @@ template <typename T>
 class ComponentMap : public ComponentMapBase
 {
 public:
-	~ComponentMap()
+	virtual ~ComponentMap()
+	{
+	}
+
+	ComponentMap(GameSpace *space) : m_space(space)
 	{
 	}
 
@@ -54,8 +101,66 @@ public:
 		}
 		else
 		{
-			return &(*iter).second;
+			return &iter->second;
 		}
+	}
+
+	class iterator
+	{
+	public:
+		iterator(typename std::unordered_map<GameObject_ID, T>::iterator iterator, GameSpace *space) : m_iterator(iterator), m_space(space)
+		{
+		}
+
+		iterator& operator++()
+		{
+			++m_iterator;
+
+			return *this;
+		}
+
+		iterator operator++(int)
+		{
+			iterator temp = *this;
+
+			++m_iterator;
+
+			return temp;
+		}
+
+		bool operator==(const iterator& other) const
+		{
+			return (m_iterator == other.m_iterator) && (m_space == other.m_space);
+		}
+
+		bool operator!=(const iterator& other) const
+		{
+			return !(*this == other);
+		}
+
+		ComponentHandle<T> operator*()
+		{
+			return ComponentHandle<T>(m_iterator->first, m_space);
+		}
+
+		ComponentHandle<T> operator->()
+		{
+			return ComponentHandle<T>(m_iterator->first, m_space);
+		}
+
+	private:
+		typename std::unordered_map<GameObject_ID, T>::iterator m_iterator;
+		GameSpace *m_space;
+	};
+
+	iterator begin()
+	{
+		return iterator(m_components.begin(), m_space);
+	}
+
+	iterator end()
+	{
+		return iterator(m_components.end(), m_space);
 	}
 
 	template <typename... Args>
@@ -63,10 +168,13 @@ public:
 	{
 		m_components.emplace(id, T(std::forward<Args>(args)...));
 	}
+
 private:
 	std::unordered_map<GameObject_ID, T> m_components;
+	GameSpace *m_space;
 };
 
+// Contains a container for each component type.
 class GameSpace
 {
 	template <typename T>
@@ -75,9 +183,19 @@ class GameSpace
 
 public:
 	template <typename T>
-	void registerSystem()
+	void registerComponentType()
 	{
-		m_componentMaps.emplace(GetComponentType<T>(), new ComponentMap<T>());
+		m_componentMaps.emplace(GetComponentType<T>(), new ComponentMap<T>(this));
+	}
+
+	void registerSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
+	{
+		newSystem->RegisterGameSpace(this);
+		m_systems.insert(std::make_pair(priority, std::forward<std::unique_ptr<SystemBase>>(newSystem)));
+	}
+	void registerSystem(std::unique_ptr<SystemBase>&& newSystem)
+	{
+		registerSystem(std::move(newSystem), newSystem->DefaultPriority());
 	}
 
 	// Returns a component HANDLE.
@@ -88,6 +206,12 @@ public:
 	}
 
 	template <typename T>
+	ComponentMap<T> *GetComponentMap()
+	{
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>()).get();
+		return static_cast<ComponentMap<T> *>(baseMap);
+	}
+
 	GameObject getGameObject(GameObject_ID id)
 	{
 		return GameObject(id, this);
@@ -96,6 +220,14 @@ public:
 	GameObject NewGameObject()
 	{
 		return GameObject(GameObject::GenerateID(), this);
+	}
+
+	void Update(float dt)
+	{
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter )
+		{
+			iter->second->Update(dt);
+		}
 	}
 
 private:
@@ -122,4 +254,5 @@ private:
 	}
 
 	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
+	std::map<size_t, std::unique_ptr<SystemBase>> m_systems;
 };
