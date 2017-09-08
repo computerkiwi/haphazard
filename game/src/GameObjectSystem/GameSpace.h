@@ -1,6 +1,6 @@
 /*
 FILE: GameSpace.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Karin
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
@@ -48,22 +48,18 @@ private:
 };
 
 // ID used as key to component containers.
-typedef int ComponentType;
-
-ComponentType GenerateComponentTypeID()
-{
-	static int maxID = 0;
-
-	return maxID++;
-}
+typedef void * ComponentType;
 
 // Uses the address of the templated function as a unique ID.
 template <typename T>
-ComponentType GetComponentType()
+struct GetComponentType
 {
-	static int id = GenerateComponentTypeID();
-	return id;
-}
+	constexpr static ComponentType func()
+	{
+		return static_cast<ComponentType>(func);
+	}
+};
+
 
 // Only exists so we can keep all of the component maps in one container.
 class ComponentMapBase
@@ -185,7 +181,7 @@ public:
 	template <typename T>
 	void registerComponentType()
 	{
-		m_componentMaps.emplace(GetComponentType<T>(), new ComponentMap<T>(this));
+		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
 	}
 
 	void registerSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
@@ -208,7 +204,7 @@ public:
 	template <typename T>
 	ComponentMap<T> *GetComponentMap()
 	{
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		return static_cast<ComponentMap<T> *>(baseMap);
 	}
 
@@ -236,7 +232,7 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 		return compMap->get(id);
@@ -247,7 +243,7 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func).get();
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 		compMap->emplaceComponent(id, std::forward<Args>(args)...);
