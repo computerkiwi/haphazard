@@ -53,9 +53,11 @@ int main()
 	gameSpace.registerSystem<Transform>();
 	gameSpace.registerSystem<TextSprite>();
 
-	GameObject obj(0, &gameSpace);
+	GameObject obj = gameSpace.NewGameObject();
 	obj.addComponent<Transform>();
 	obj.addComponent<TextSprite>("an object");
+
+	std::cout << obj.getComponent<Transform>()->xPos << std::endl;
 
 	// Keep the console from closing.
 	std::cin.ignore();

@@ -41,9 +41,21 @@ public:
 	{
 	}
 
+	// Returns nullptr if it's not found.
 	T *get(GameObject_ID id)
 	{
-		return &m_components.at(id);
+		// Look for the object.
+		auto iter = m_components.find(id);
+
+		// If we couldn't find it, return nullptr. Else return pointer to it.
+		if (iter == m_components.end())
+		{
+			return nullptr;
+		}
+		else
+		{
+			return &(*iter).second;
+		}
 	}
 
 	template <typename... Args>
@@ -79,6 +91,11 @@ public:
 	GameObject getGameObject(GameObject_ID id)
 	{
 		return GameObject(id, this);
+	}
+
+	GameObject NewGameObject()
+	{
+		return GameObject(GameObject::GenerateID(), this);
 	}
 
 private:

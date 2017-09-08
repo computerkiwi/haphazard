@@ -8,6 +8,10 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 class GameSpace;
 
+template <typename T>
+class ComponentHandle;
+
+
 typedef size_t GameObject_ID;
 
 class GameObject
@@ -21,6 +25,29 @@ public:
 	void addComponent(Args&&... args)
 	{
 		m_gameSpace->emplaceComponent<T>(m_objID, std::forward<Args>(args)...);
+	}
+
+	template <typename T>
+	ComponentHandle<T> getComponent()
+	{
+		// Make sure the component exists before we hand it off.
+		if (m_gameSpace->getInternalComponent<T>(m_objID) != nullptr)
+		{
+			// Why the hell does constructing a ComponentHandle work?
+			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
+			return ComponentHandle<T>(m_objID, m_gameSpace);
+		}
+		else
+		{
+			return ComponentHandle<T>(0, nullptr, false);
+		}
+	}
+
+	static GameObject_ID GenerateID()
+	{
+		static GameObject_ID lastGeneratedID = 0;
+
+		return lastGeneratedID++;
 	}
 
 private:
