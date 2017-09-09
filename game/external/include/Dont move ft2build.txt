@@ -1,0 +1,5 @@
+Due to how FreeType is developed, you cannot put their header files in a new directory,
+they should be located at the root of your include directories. 
+Including FreeType like #include <FreeType/ft2build.h> will likely cause several header conflicts.
+
+You jabroni.
