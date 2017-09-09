@@ -79,8 +79,7 @@ class TestSystem : public SystemBase
 		return 0;
 	}
 };
-	QuadTree tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
-	tree.AddChildern();
+
 
 int main()
 {
@@ -92,15 +91,19 @@ int main()
 	gameSpace.registerSystem(std::unique_ptr<TestSystem>(new TestSystem()));
 
 	GameObject obj = gameSpace.NewGameObject();
-	obj.addComponent<Transform>(1,2,3,4);
+	obj.addComponent<Transform>(1.0f, 2.0f, 3.0f, 4.0f);
 	obj.addComponent<TextSprite>("an object");
 
 	GameObject obj2 = gameSpace.NewGameObject();
-	obj2.addComponent<Transform>(5, 5, 5, 90);
+	obj2.addComponent<Transform>(5.0f, 5.0f, 5.0f, 90.0f);
 	obj2.addComponent<TextSprite>("another object");
 
 	GameObject obj3 = gameSpace.NewGameObject();
 	obj3.addComponent<TextSprite>("an object without a transform");
+
+	// QuadTree tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
+	// tree.AddChildern();
+
 	Logging::Log("This is a log message with default parameters!");
 
 	Logging::Log("This is a log message with low priority.", Logging::DEFAULT, Logging::LOW_PRIORITY);

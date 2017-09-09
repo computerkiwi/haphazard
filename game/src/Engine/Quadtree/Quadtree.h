@@ -7,10 +7,9 @@ Definition for QuadTrees
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 #pragma once
-
+#if 0
 #include <glm/detail/type_vec2.hpp>
-#include "../../GameObjects/GameObject.h"
-#include "../../GameObjects/Components/Transform/Transform.h"
+
 #include "../../Util/DataStructures/Array/Array.h"
 
 #define MAX_DEPTH 5
@@ -66,7 +65,7 @@ public:
 	void FileToChildren(GameObject * object, const glm::vec2 & pos);
 };
 
-
+#endif
 
 
 

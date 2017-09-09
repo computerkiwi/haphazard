@@ -25,9 +25,12 @@ constexpr std::size_t Max_Leaves(int depth)
 }
 
 
+
+
+#if 0
+
 // Figure out how much is in quadtree at each depth
 Array<QuadTree, Max_Leaves(MAX_DEPTH)> QuadTree__Allocator__;
-
 
 void QuadTree::Reset()
 {
@@ -96,7 +99,7 @@ void QuadTree::Clear()
 }
 
 
-const Array<GameObject *, max_objects> & QuadTree::GetObjectList() const
+const Array<GameObject_ID, max_objects> & QuadTree::GetObjectList() const
 {
 	return m_objects;
 }
@@ -372,4 +375,4 @@ void QuadTree::FileToChildren(GameObject * object, const glm::vec2 & pos)
 	}
 }
 
-
+#endif
