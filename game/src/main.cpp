@@ -12,10 +12,12 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "meta/tests.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "GameObjects/GameObject.h"
-#include "GameObjects/Components/Components.h"
+#include <memory>
 #include "Engine/Engine.h"
 #include "meta/example.h"
+#include "GameObjectSystem/GameSpace.h"
+#include "GameObjectSystem/Transform.h"
+#include "GameObjectSystem/TextSprite.h"
 
 // This comment is useless.
 
@@ -45,40 +47,60 @@ std::ostream& operator<<(std::ostream& os, const glm::vec4& vec)
 	return os;
 }
 
+class TestSystem : public SystemBase
+{
+	virtual void Init()
+	{
+	}
+
+	// Called each frame.
+	virtual void Update(float dt)
+	{
+		ComponentMap<TextSprite> *textSprites = GetGameSpace()->GetComponentMap<TextSprite>();
+
+		for (auto tSpriteHandle : *textSprites)
+		{
+			ComponentHandle<Transform> transform = tSpriteHandle.GetSiblingComponent<Transform>();
+			if (!transform.IsValid())
+			{
+				continue;
+			}
+
+			std::cout << tSpriteHandle->GetName() << ':' << transform->xPos << ',' << transform->yPos << ',' << transform->zPos << std::endl;
+		}
+	}
+
+	// Simply returns the default priority for this system.
+	virtual size_t DefaultPriority()
+	{
+		return 0;
+	}
+};
+
 int main()
 {
-	meta::TestAll();
+	
+	GameSpace gameSpace;
+	gameSpace.registerComponentType<Transform>();
+	gameSpace.registerComponentType<TextSprite>();
 
-	for (auto i = 0; i < 100; ++i)
+	gameSpace.registerSystem(std::unique_ptr<TestSystem>(new TestSystem()));
+
+	GameObject obj = gameSpace.NewGameObject();
+	obj.addComponent<Transform>(1,2,3,4);
+	obj.addComponent<TextSprite>("an object");
+
+	GameObject obj2 = gameSpace.NewGameObject();
+	obj2.addComponent<Transform>(5, 5, 5, 90);
+	obj2.addComponent<TextSprite>("another object");
+
+	GameObject obj3 = gameSpace.NewGameObject();
+	obj3.addComponent<TextSprite>("an object without a transform");
+
+	while (true)
 	{
-		std::cout << "Hello, world!" << std::endl;
+		gameSpace.Update(0.016666f);
 	}
-	
-	
-	Engine engine;
-
-	luaL_openlibs(engine.GetLua());
-
-	RegisterComponents(engine.GetLua());
-
-	GameObject_Space space;
-	space.RegisterAll();
-
-	GameObject object(space);
-	object.SetComponent<Sprite>();
-
-
-	glm::mat4 matrix;
-	std::cout << matrix << std::endl;
-
-	glm::vec4 vector(1, 1, 1, 1);
-	std::cout << vector << std::endl;
-	glm::mat4 rotation = glm::rotate(glm::mat4(), 3.141592f, glm::vec3(0, 0, 1));
-	vector = rotation * vector;
-	std::cout << vector << std::endl;
-
-	RunMetaExamples();
-
 
 	// Keep the console from closing.
 	std::cin.ignore();
