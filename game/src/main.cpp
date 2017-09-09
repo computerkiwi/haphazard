@@ -20,6 +20,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/Transform.h"
 #include "GameObjectSystem/TextSprite.h"
 
+#include "Util/Logging.h"
+
+// This comment is useless.
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -98,6 +101,10 @@ int main()
 
 	GameObject obj3 = gameSpace.NewGameObject();
 	obj3.addComponent<TextSprite>("an object without a transform");
+	Logging::Log("This is a log message with default parameters!");
+
+	Logging::Log("This is a log message with low priority.", Logging::DEFAULT, Logging::LOW_PRIORITY);
+	Logging::Log("This is a log message with critical priority!!!!!!!!!", Logging::DEFAULT, Logging::CRITICAL_PRIORITY);
 
 	while (true)
 	{
