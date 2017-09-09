@@ -12,6 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "meta/tests.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Engine/Quadtree/Quadtree.h"
 #include <memory>
 #include "Engine/Engine.h"
 #include "meta/example.h"
@@ -19,7 +20,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/Transform.h"
 #include "GameObjectSystem/TextSprite.h"
 
-// This comment is useless.
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
@@ -76,6 +76,8 @@ class TestSystem : public SystemBase
 		return 0;
 	}
 };
+	QuadTree tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
+	tree.AddChildern();
 
 int main()
 {

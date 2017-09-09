@@ -9,11 +9,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-#ifndef COMPONENT_NO_ASSERT
+#if NO_COMPONENT_ASSERT
 	// Used to Assert when parent is nullptr
-	#include <cassert>
-#else
 	#define assert(exp)
+#else
+	#include <assert.h>
 #endif
 
 

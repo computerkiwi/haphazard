@@ -1,2 +1,2 @@
 @echo off
-devenv game/
+devenv game/game.sln

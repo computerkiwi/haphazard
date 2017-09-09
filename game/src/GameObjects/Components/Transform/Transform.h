@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Transform Definitions
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
