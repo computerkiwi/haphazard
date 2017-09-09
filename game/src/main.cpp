@@ -22,6 +22,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Util/Logging.h"
 
+#include <thread>
+
 // This comment is useless.
 
 // GLM didnt have these, huh.
@@ -83,7 +85,19 @@ class TestSystem : public SystemBase
 
 int main()
 {
-	
+	std::cout << "Main Thread: " << std::this_thread::get_id() << "\n";
+
+	Logging::Entry();
+
+	Logging::Log("This is the final log.");
+	Logging::Log("This is a log message with default parameters!");
+	Logging::Log("This is a log message with default parameters!");
+	Logging::Log("This is a log message with default parameters!");
+	Logging::Log("This is a log message with default parameters!");
+
+	Logging::Log("This is a log message with low priority.", Logging::DEFAULT, Logging::LOW_PRIORITY);
+	Logging::Log("This is a log message with critical priority!!!!!!!!!", Logging::DEFAULT, Logging::CRITICAL_PRIORITY);
+
 	GameSpace gameSpace;
 	gameSpace.registerComponentType<Transform>();
 	gameSpace.registerComponentType<TextSprite>();
@@ -104,18 +118,16 @@ int main()
 	// QuadTree tree(glm::vec2(-10000, -10000), glm::vec2(10000, 10000));
 	// tree.AddChildern();
 
-	Logging::Log("This is a log message with default parameters!");
 
-	Logging::Log("This is a log message with low priority.", Logging::DEFAULT, Logging::LOW_PRIORITY);
-	Logging::Log("This is a log message with critical priority!!!!!!!!!", Logging::DEFAULT, Logging::CRITICAL_PRIORITY);
-
-	while (true)
-	{
-		gameSpace.Update(0.016666f);
-	}
+	//while (true)
+	//{
+	//	// gameSpace.Update(0.016666f);
+	//	
+	//}
 
 	// Keep the console from closing.
 	std::cin.ignore();
+	Logging::End();
 
 	return 0;
 }

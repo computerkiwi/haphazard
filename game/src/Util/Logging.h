@@ -8,6 +8,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include <fstream>
 #include <sstream>
+#include <thread>
+#include <mutex>
 
 class Logging
 {
@@ -39,6 +41,9 @@ public:
 		#undef LOGGING_CHANNEL
 	};
 
+	static void Entry();
+	static void End();
+
 	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
 
 	template <typename... Args>
@@ -52,6 +57,17 @@ public:
 private:
 	static bool m_logToFile;
 	static bool m_logToConsole;
+
+	static bool m_log;
+
+	static std::thread m_loggingthread;
+	static std::mutex m_mutex;
+
+	static std::string m_writeBufferConsole;
+	static std::string m_readBufferConsole;
+
+	static std::string m_writeBufferFile;
+	static std::string m_readBufferFile;
 
 	static Priority m_consolePriority;
 
