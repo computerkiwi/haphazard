@@ -62,8 +62,7 @@ int main()
 	RegisterComponents(engine.GetLua());
 
 	GameObject_Space space;
-	space.Register<Sprite>();
-	space.Register<Script>();
+	space.RegisterAll();
 
 	GameObject object(space);
 	object.SetComponent<Sprite>();

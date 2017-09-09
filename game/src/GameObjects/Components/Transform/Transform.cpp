@@ -11,97 +11,107 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 
 #include "Transform.h"
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
-Transform::Transform() : Transform(nullptr, glm::vec2(), glm::vec2(), glm::mat3(), 0.0f)
+Transform::Transform() : Transform(nullptr, glm::vec3(), glm::vec3(), 0.0f)
 {
 }
 
 
-Transform::Transform(GameObject * parent) : Transform(parent, glm::vec2(), glm::vec2(), glm::mat3(), 0.0f)
-{
-}
-
-
-
-Transform::Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale)
-								: Component(parent), mMatrix(glm::mat3()), mPosition(position), mScale(scale), mRotation(0.0f)
-{
-}
-
-
-Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale)
-								: Transform(parent, position, scale, glm::mat3(), 0.0f)
+Transform::Transform(GameObject * parent) : Transform(parent, glm::vec3(), glm::vec3(), 0.0f)
 {
 }
 
 
 
-Transform::Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale, glm::mat3 & matrix, float rotation)
-								: Component(parent), mMatrix(matrix), mPosition(position), mScale(scale), mRotation(rotation)
+Transform::Transform(GameObject * parent, glm::vec3 & position, glm::vec3 & scale)
+								: Component(parent), m_Position(position), m_Scale(scale), m_Rotation(0.0f)
 {
 }
 
 
-Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale, glm::mat3 && matrix, float rotation)
-								: Component(parent), mMatrix(matrix), mPosition(position), mScale(scale), mRotation(rotation)
+Transform::Transform(GameObject * parent, glm::vec3 && position, glm::vec3 && scale)
+								: Transform(parent, position, scale, 0.0f)
 {
 }
 
 
 
-glm::vec2 Transform::GetPosition() const
+Transform::Transform(GameObject * parent, glm::vec3 & position, glm::vec3 & scale, float rotation)
+								: Component(parent), m_Position(position), m_Scale(scale), m_Rotation(rotation)
+{
+}
+
+
+Transform::Transform(GameObject * parent, glm::vec3 && position, glm::vec3 && scale, float rotation)
+								: Component(parent), m_Position(position), m_Scale(scale), m_Rotation(rotation)
+{
+}
+
+
+
+glm::vec3 Transform::GetPosition() const
 {
 	assert(mParent && "Component does not have a parent!!");
-	return mPosition;
+	return m_Position;
 }
 
 
-void Transform::SetPosition(glm::vec2 position)
+void Transform::SetPosition(glm::vec3 position)
 {
 	assert(mParent && "Component does not have a parent!!");
-	mPosition = position;
+	isDirty = true;
+	m_Position = position;
 }
 
 
-glm::vec2 Transform::GetScale() const
+glm::vec3 Transform::GetScale() const
 {
 	assert(mParent && "Component does not have a parent!!");
-	return mScale;
+	return m_Scale;
 }
 
 
-void Transform::SetScale(glm::vec2 scale)
+void Transform::SetScale(glm::vec3 scale)
 {
 	assert(mParent && "Component does not have a parent!!");
-	mScale = scale;
+	isDirty = true;
+	m_Scale = scale;
 }
 
 
-const glm::mat3 & Transform::GetMatrix() const
+glm::mat4 Transform::GetMatrix()
 {
 	assert(mParent && "Component does not have a parent!!");
-	return mMatrix;
+	glm::mat4 matrix;
+
+	if (isDirty)
+	{
+		matrix = glm::translate(matrix, m_Position);
+		matrix = glm::rotate(matrix, glm::radians(m_Rotation.y), glm::vec3(0, 1, 0));
+		matrix = glm::rotate(matrix, glm::radians(m_Rotation.x), glm::vec3(1, 0, 0));
+		matrix = glm::rotate(matrix, glm::radians(m_Rotation.z), glm::vec3(0, 0, 1));
+		matrix = glm::scale(matrix, m_Scale);
+
+		isDirty = false;
+	}
+	return matrix;
 }
 
 
-void Transform::SetMatrix(glm::mat3 & matrix)
+const glm::vec3 & Transform::GetRotation() const
 {
 	assert(mParent && "Component does not have a parent!!");
-	mMatrix = matrix;
+	return m_Rotation;
 }
 
 
-float Transform::GetRotation() const
+void Transform::SetRotation(const glm::vec3 & rotation)
 {
 	assert(mParent && "Component does not have a parent!!");
-	return mRotation;
-}
-
-
-void Transform::SetRotation(float rotation)
-{
-	assert(mParent && "Component does not have a parent!!");
-	mRotation = rotation;
+	isDirty = true;
+	m_Rotation = rotation;
 }
 
 

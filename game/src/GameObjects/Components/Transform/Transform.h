@@ -9,7 +9,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "../Component.h"
-#include <glm/mat3x3.hpp>
+#include <glm/glm.hpp>
 
 
 class Transform : public Component
@@ -18,29 +18,28 @@ public:
 	Transform();
 	explicit Transform(GameObject * parent);
 
-	Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale);
-	Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale);
+	Transform(GameObject * parent, glm::vec3 & position, glm::vec3 & scale);
+	Transform(GameObject * parent, glm::vec3 && position, glm::vec3 && scale);
 
-	Transform::Transform(GameObject * parent, glm::vec2 & position, glm::vec2 & scale, glm::mat3 & matrix, float rotation = 0.0f);
-	Transform::Transform(GameObject * parent, glm::vec2 && position, glm::vec2 && scale, glm::mat3 && matrix, float rotation = 0.0f);
+	Transform::Transform(GameObject * parent, glm::vec3 & position, glm::vec3 & scale, float rotation = 0.0f);
+	Transform::Transform(GameObject * parent, glm::vec3 && position, glm::vec3 && scale, float rotation = 0.0f);
 
 
-	glm::vec2 GetPosition() const;
-	void SetPosition(glm::vec2 position);
+	glm::vec3 GetPosition() const;
+	void SetPosition(glm::vec3 position);
 
-	glm::vec2 GetScale() const;
-	void SetScale(glm::vec2 scale);
+	glm::vec3 GetScale() const;
+	void SetScale(glm::vec3 scale);
 
-	const glm::mat3 & GetMatrix() const;
-	void SetMatrix(glm::mat3 & matrix);
+	glm::mat4 GetMatrix();
 
-	float GetRotation() const;
-	void SetRotation(float rotation);
+	const glm::vec3 & GetRotation() const;
+	void SetRotation(const glm::vec3 & rotation);
 
 private:
-	glm::mat3   mMatrix;
-	glm::vec2   mPosition;
-	glm::vec2   mScale;
-	float       mRotation;
+	glm::vec3   m_Position;
+	glm::vec3   m_Scale;
+	glm::vec3   m_Rotation;
+	bool        isDirty = true;
 };
 
