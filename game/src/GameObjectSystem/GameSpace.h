@@ -2,7 +2,7 @@
 FILE: GameSpace.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -216,6 +216,14 @@ public:
 	GameObject NewGameObject()
 	{
 		return GameObject(GameObject::GenerateID(), this);
+	}
+
+	void Init()
+	{
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
+		{
+			iter->second->Init();
+		}
 	}
 
 	void Update(float dt)
