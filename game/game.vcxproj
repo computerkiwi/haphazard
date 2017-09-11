@@ -139,6 +139,11 @@
   <ItemGroup>
     <ClInclude Include="src\Engine\Allocators\Stack\Stack.h" />
     <ClInclude Include="src\Engine\Engine.h" />
+    <ClInclude Include="src\GameObjectSystem\Component.h" />
+    <ClInclude Include="src\GameObjectSystem\GameObject.h" />
+    <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
+    <ClInclude Include="src\GameObjectSystem\TextSprite.h" />
+    <ClInclude Include="src\GameObjectSystem\Transform.h" />
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />

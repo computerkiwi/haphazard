@@ -16,10 +16,13 @@ extern "C"
 }
 
 #include <LuaBridge.h>
+#include "GameObjectSystem/GameSpace.h"
 
 class Engine
 {
 public:
+	Engine();
+
 	void MainLoop();
 
 	void Update();
@@ -35,6 +38,8 @@ private:
 	float m_dt = 0.0f;
 	bool m_running = true;
 	lua_State * L = luaL_newstate();
+
+	GameSpace m_space;
 };
 
 void RegisterComponents(lua_State * L);

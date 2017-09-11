@@ -2,11 +2,12 @@
 FILE: GameSpace.h
 PRIMARY AUTHOR: Kieran
 
-Copyright ï¿½ 2017 DigiPen (USA) Corporation.
+Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 
@@ -192,6 +193,16 @@ public:
 	void registerSystem(std::unique_ptr<SystemBase>&& newSystem)
 	{
 		registerSystem(std::move(newSystem), newSystem->DefaultPriority());
+	}
+
+	void registerSystem(SystemBase *newSystem)
+	{
+		registerSystem(std::unique_ptr<SystemBase>(newSystem));
+	}
+
+	void registerSystem(SystemBase *newSystem, size_t priority)
+	{
+		registerSystem(std::unique_ptr<SystemBase>(newSystem), priority);
 	}
 
 	// Returns a component HANDLE.
