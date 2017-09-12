@@ -305,6 +305,11 @@ public:
 		return GetInteral(hash(name));
 	}
 
+	inline GameSpace *operator[](const char *name)
+	{
+		return GetInteral(hash(name));
+	}
+
 	void Update(float dt)
 	{
 
