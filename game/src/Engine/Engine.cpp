@@ -86,6 +86,7 @@ Engine::Engine()
 	Graphics::Shaders::Init();
 
 	Logging::Init();
+
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
