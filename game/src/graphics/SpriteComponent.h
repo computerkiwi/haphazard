@@ -2,8 +2,13 @@
 
 #include "Mesh.h"
 
-class SpriteComponent : public Graphics::Mesh
+namespace Graphics
 {
-public:
-	SpriteComponent(Graphics::Texture* t = NULL);
-};
+
+	class SpriteComponent : public Graphics::Mesh
+	{
+	public:
+		SpriteComponent(Graphics::Texture* t = NULL);
+	};
+
+}

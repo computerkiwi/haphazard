@@ -12,7 +12,7 @@ class RenderSystem : public SystemBase
 	// Called each frame.
 	virtual void Update(float dt)
 	{
-		ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
+		ComponentMap<Graphics::SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<Graphics::SpriteComponent>();
 
 		for (auto spriteHandle : *sprites)
 		{
