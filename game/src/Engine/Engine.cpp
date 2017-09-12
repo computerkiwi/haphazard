@@ -71,6 +71,7 @@ class TestSystem : public SystemBase
 Engine::Engine()
 {
 	Logging::Init();
+
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
