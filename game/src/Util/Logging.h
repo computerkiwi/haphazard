@@ -1,6 +1,6 @@
 /*
 FILE: Logging.h
-PRIMARY AUTHOR: Kieran Williams
+PRIMARY AUTHOR: Kieran Williams, Sweet
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */

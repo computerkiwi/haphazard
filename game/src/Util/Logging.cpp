@@ -1,6 +1,6 @@
 /*
 FILE: Logging.h
-PRIMARY AUTHOR: Kieran Williams, Sweet (threading)
+PRIMARY AUTHOR: Kieran Williams, Sweet
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
@@ -171,6 +171,7 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 		LogToConsole(message, channel, priority);
 	}
 }
+
 
 void Logging::LogToConsole(const char * message, Logging::Channel channel, Priority priority)
 {
