@@ -7,6 +7,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <memory>
 
