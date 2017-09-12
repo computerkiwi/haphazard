@@ -63,10 +63,4 @@ namespace Graphics
 		Transform transform;
 	};
 
-	class Sprite
-	{
-		Sprite();
-
-	};
-
 }

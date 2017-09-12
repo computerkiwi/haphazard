@@ -38,5 +38,5 @@ void main()
 	Color.a = length(Color.xyz);
 	Color.a *= Alpha;
 
-	FragColor += Color; // Add color to blend overlapping raindrops better
+	FragColor = Color; // Add color to blend overlapping raindrops better
 }

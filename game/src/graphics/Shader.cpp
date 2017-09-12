@@ -150,6 +150,12 @@ static Graphics::ShaderProgram* LoadShaders(const char* vertShaderPath, const ch
 	return new Graphics::ShaderProgram(Graphics::Shader(GL_VERTEX_SHADER, vertShaderSource.c_str()), Graphics::Shader(GL_FRAGMENT_SHADER, fragShaderSource.c_str()), attribs);
 }
 
+static Graphics::ShaderProgram* LoadShaders(std::string vertShaderPath, std::string fragShaderPath, std::vector<Graphics::ShaderProgram::Attribute>& attribs)
+{
+	return LoadShaders(vertShaderPath.c_str(), fragShaderPath.c_str(), attribs);
+}
+
+
 static void FailedCompile()
 {
 	glfwTerminate();
@@ -163,6 +169,8 @@ static void FailedCompile()
 ///
 // Load Shaders
 ///
+
+static const std::string path = "shaders/";
 
 namespace Graphics
 {
@@ -189,7 +197,7 @@ namespace Graphics
 			attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
 			attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 7));
 
-			defaultShader = LoadShaders("shader.vertshader", "shader.fragshader", attribs);
+			defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
 			if (!defaultShader->wasCompiled())
 				FailedCompile();
@@ -201,39 +209,39 @@ namespace Graphics
 			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0));
 			attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2));
 
-			ScreenShader::Default = LoadShaders("screenDefault.vertshader", "screenDefault.fragshader", attribs);
+			ScreenShader::Default = LoadShaders(path + "screenDefault.vertshader", path + "screenDefault.fragshader", attribs);
 			if (!ScreenShader::Default->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::HDR = LoadShaders("screenDefault.vertshader", "screenHDR.fragshader", attribs);
+			ScreenShader::HDR = LoadShaders(path + "screenDefault.vertshader", path + "screenHDR.fragshader", attribs);
 			if (!ScreenShader::HDR->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::Blur = LoadShaders("screenDefault.vertshader", "screenBlur.fragshader", attribs);
+			ScreenShader::Blur = LoadShaders(path + "screenDefault.vertshader", path + "screenBlur.fragshader", attribs);
 			if (!ScreenShader::Blur->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::BlurCorners = LoadShaders("screenDefault.vertshader", "screenBlurCorners.fragshader", attribs);
+			ScreenShader::BlurCorners = LoadShaders(path + "screenDefault.vertshader", path + "screenBlurCorners.fragshader", attribs);
 			if (!ScreenShader::BlurCorners->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::EdgeDetection = LoadShaders("screenDefault.vertshader", "screenEdgeDect.fragshader", attribs);
+			ScreenShader::EdgeDetection = LoadShaders(path + "screenDefault.vertshader", path + "screenEdgeDect.fragshader", attribs);
 			if (!ScreenShader::EdgeDetection->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::Sharpen= LoadShaders("screenDefault.vertshader", "screenSharpen.fragshader", attribs);
+			ScreenShader::Sharpen= LoadShaders(path + "screenDefault.vertshader", path + "screenSharpen.fragshader", attribs);
 			if (!ScreenShader::Sharpen->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::ExtractBrights = LoadShaders("screenDefault.vertshader", "screenExtractBrights.fragshader", attribs);
+			ScreenShader::ExtractBrights = LoadShaders(path + "screenDefault.vertshader", path + "screenExtractBrights.fragshader", attribs);
 			if (!ScreenShader::ExtractBrights->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::Bloom = LoadShaders("screenDefault.vertshader", "screenBloom.fragshader", attribs);
+			ScreenShader::Bloom = LoadShaders(path + "screenDefault.vertshader", path + "screenBloom.fragshader", attribs);
 			if (!ScreenShader::Bloom->wasCompiled())
 				FailedCompile();
 
-			ScreenShader::Raindrop = LoadShaders("raindrop.vertshader", "raindrop.fragshader", attribs);
+			ScreenShader::Raindrop = LoadShaders(path + "raindrop.vertshader", path + "raindrop.fragshader", attribs);
 			if (!ScreenShader::Raindrop->wasCompiled())
 				FailedCompile();
 		}

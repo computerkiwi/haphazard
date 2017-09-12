@@ -18,6 +18,7 @@
 #include "Texture.h"
 #include "Transform.h"
 #include "Settings.h"
+#include "SpriteComponent.h"
 
 // TODO[Max] - This is also in Settings.cpp and that's really fuckin' weird. -K
 #define SCREEN_WIDTH  800
@@ -94,22 +95,8 @@ int main()
 //	glCullFace(GL_BACK); //Dont render back, CCW tri vertices
 
 	// Create triangle
-	Mesh mesh = Mesh();
-	mesh.AddTriangle(
-		//  x,     y, z,    r,    g,    b, a, s, t
-		-0.5f,  0.5f, 0, 0.0f, 0.0f, 1.0f, 1, 0, 1, // Top Left
-		-0.5f, -0.5f, 0, 1.0f, 0.0f, 0.0f, 1, 0, 0, // Bot Left
-		 0.5f, -0.5f, 0, 0.0f, 1.0f, 0.0f, 1, 1, 0  // Bot Right
-	);
-	mesh.AddTriangle(
-		//  x,     y, z,    r,    g,    b, a, s, t
-		 0.5f, -0.5f, 0, 0.0f, 1.0f, 0.0f, 1, 1, 0, // Bot Right
-		 0.5f,  0.5f, 0, 1.0f, 0.0f, 0.0f, 1, 1, 1, // Top Right
-		-0.5f,  0.5f, 0, 0.0f, 0.0f, 1.0f, 1, 0, 1  // Top Left
-	);
-	mesh.CompileMesh();
 	Texture tex = Texture("sampleBlend.png");
-	mesh.SetTexture(tex);
+	SpriteComponent mesh = SpriteComponent(&tex);
 
 
 	Mesh mesh2 = Mesh();
