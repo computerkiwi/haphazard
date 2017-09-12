@@ -367,6 +367,9 @@ Graphics::Screen::Raindrop::Raindrop()
 
 void Graphics::Screen::Raindrop::DrawToScreen(Graphics::Screen::FrameBuffer& dest)
 {
+	if (raindrops.size() == 0) // Don't need to render
+		return;
+
 	// Blur screen
 	int b = GetView().blurAmount;
 	GetView().SetBlurAmount(10);

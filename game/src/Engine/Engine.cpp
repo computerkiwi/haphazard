@@ -11,12 +11,21 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine.h"
 #include "../Util/Logging.h"
 
+// Graphics libraries
+#include "GL\glew.h"
+#include "GLFW\glfw3.h"
+
+#include "graphics\Shaders.h" // Shaders need to be initialized
+#include "graphics\Settings.h" // Settings needed for window init
+
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
 #include "GameObjectSystem/TextSprite.h"
 #include "graphics\SpriteComponent.h"
 #include "graphics\Texture.h"
 #include "graphics\RenderSystem.h"
+
+GLFWwindow* WindowInit(); 
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os, const glm::mat4& matrix)
@@ -70,6 +79,12 @@ class TestSystem : public SystemBase
 
 Engine::Engine()
 {
+	//Init OpenGL and start window
+	GLFWwindow *window = WindowInit();
+
+	// Load Shaders
+	Graphics::Shaders::Init();
+
 	Logging::Init();
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
@@ -78,7 +93,7 @@ Engine::Engine()
 
 	// Register the systems.
 	m_space.registerSystem(new TestSystem);
-	m_space.registerSystem(new RenderSystem);
+	m_space.registerSystem(new RenderSystem(window));
 
 	// Initialize the system.
 	m_space.Init();
@@ -92,11 +107,11 @@ Engine::Engine()
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.addComponent<TransformComponent>(glm::vec3(1, 2, 3));
 	obj2.addComponent<TextSprite>("another object");
-	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	obj.addComponent<Graphics::SpriteComponent>(nullptr);
 
 	GameObject obj3 = m_space.NewGameObject();
 	obj3.addComponent<TextSprite>("an object without a transform");
-	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	obj.addComponent<Graphics::SpriteComponent>(nullptr);
 }
 
 void Engine::MainLoop()
@@ -136,5 +151,45 @@ lua_State * Engine::GetLua()
 	return L;
 }
 
+GLFWwindow* WindowInit()
+{
+	std::cout << "    Initializing glfw... ";
 
+	if (glfwInit() == false)
+	{
+		glfwTerminate();
+		fprintf(stderr, "Could not init GLFW");
+		exit(1);
+	}
 
+	std::cout << "Initialized glfw" << std::endl;
+
+	glfwWindowHint(GLFW_SAMPLES, 4); //4 MSAA
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
+
+	std::cout << "    Window created" << std::endl;
+
+	if (!window)
+	{
+		glfwTerminate();
+		fprintf(stderr, "Could not create window");
+		int i;
+		std::cin >> i;
+		exit(1);
+	}
+
+	glfwMakeContextCurrent(window);
+
+	if (glewInit() != GLEW_OK)
+	{
+		glfwTerminate();
+		fprintf(stderr, "Could not init GLEW");
+		exit(1);
+	}
+
+	return window;
+}
