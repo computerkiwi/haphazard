@@ -137,5 +137,8 @@
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

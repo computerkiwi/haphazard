@@ -1,35 +1,33 @@
+#include "graphics\RenderSystem.h"
 #include "GameObjectSystem\GameSpace.h"
 #include "graphics\SpriteComponent.h"
 #include "GameObjectSystem\TransformComponent.h"
 #include "Transform.h"
 
-class RenderSystem : public SystemBase
+void RenderSystem::Init()
 {
-	virtual void Init()
-	{
-	}
+}
 
-	// Called each frame.
-	virtual void Update(float dt)
-	{
-		ComponentMap<Graphics::SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<Graphics::SpriteComponent>();
+// Called each frame.
+void RenderSystem::Update(float dt)
+{
+	ComponentMap<Graphics::SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<Graphics::SpriteComponent>();
 
-		for (auto spriteHandle : *sprites)
+	for (auto spriteHandle : *sprites)
+	{
+		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
 		{
-			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
-			if (!transform.IsValid())
-			{
-				continue;
-			}
-
-			//Stuff happens here
-			spriteHandle->Draw();
+			continue;
 		}
-	}
 
-	// Simply returns the default priority for this system.
-	virtual size_t DefaultPriority()
-	{
-		return 0;
+		//Stuff happens here
+		spriteHandle->Draw();
 	}
-};
+}
+
+// Simply returns the default priority for this system.
+size_t RenderSystem::DefaultPriority()
+{
+	return 0;
+}

@@ -155,6 +155,7 @@
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
+    <ClInclude Include="src\graphics\RenderSystem.h" />
     <ClInclude Include="src\graphics\Screen.h" />
     <ClInclude Include="src\graphics\Settings.h" />
     <ClInclude Include="src\graphics\Shaders.h" />
