@@ -131,7 +131,6 @@
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
-    <ClCompile Include="src\graphics\Main.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\RenderSystem.cpp" />
     <ClCompile Include="src\graphics\Screen.cpp" />
@@ -139,6 +138,7 @@
     <ClCompile Include="src\graphics\Shader.cpp" />
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meta\example.cpp" />
     <ClCompile Include="src\meta\meta.cpp" />
     <ClCompile Include="src\meta\tests.cpp" />
@@ -151,7 +151,7 @@
     <ClInclude Include="src\GameObjectSystem\GameObject.h" />
     <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
     <ClInclude Include="src\GameObjectSystem\TextSprite.h" />
-    <ClInclude Include="src\GameObjectSystem\Transform.h" />
+    <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />

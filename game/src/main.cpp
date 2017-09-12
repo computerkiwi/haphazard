@@ -17,28 +17,13 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine/Engine.h"
 #include "meta/example.h"
 #include "GameObjectSystem/GameSpace.h"
-#include "GameObjectSystem/Transform.h"
 #include "GameObjectSystem/TextSprite.h"
 
 #include "Util/Logging.h"
 
 // This comment is useless.
 
-// GLM didnt have these, huh.
-std::ostream& operator<<(std::ostream& os,const glm::mat4& matrix)
-{
-	for (int i = 0; i < 4; ++i)
-	{
-		for (int j = 0; j < 4; ++j)
-		{
-			os << matrix[i][j];
-		}
 
-		os << std::endl;
-	}
-
-	return os;
-}
 
 std::ostream& operator<<(std::ostream& os, const glm::vec4& vec)
 {

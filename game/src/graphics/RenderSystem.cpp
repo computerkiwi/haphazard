@@ -1,6 +1,6 @@
 #include "GameObjectSystem\GameSpace.h"
 #include "graphics\SpriteComponent.h"
-#include "GameObjectSystem\Transform.h"
+#include "GameObjectSystem\TransformComponent.h"
 #include "Transform.h"
 
 class RenderSystem : public SystemBase
@@ -16,7 +16,7 @@ class RenderSystem : public SystemBase
 
 		for (auto spriteHandle : *sprites)
 		{
-			ComponentHandle<Transform> transform = spriteHandle.GetSiblingComponent<Transform>();
+			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
 			if (!transform.IsValid())
 			{
 				continue;

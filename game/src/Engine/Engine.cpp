@@ -11,8 +11,24 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine.h"
 
 // Component types to register.
-#include "GameObjectSystem/Transform.h"
+#include "GameObjectSystem/TransformComponent.h"
 #include "GameObjectSystem/TextSprite.h"
+
+// GLM didnt have these, huh.
+std::ostream& operator<<(std::ostream& os, const glm::mat4& matrix)
+{
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			os << '[' << matrix[j][i] << ']';
+		}
+
+		os << std::endl;
+	}
+
+	return os;
+}
 
 // Systems to register.
 // TEMPORARY TEST SYSTEM.
@@ -31,13 +47,13 @@ class TestSystem : public SystemBase
 
 		for (auto tSpriteHandle : *textSprites)
 		{
-			ComponentHandle<Transform> transform = tSpriteHandle.GetSiblingComponent<Transform>();
+			ComponentHandle<TransformComponent> transform = tSpriteHandle.GetSiblingComponent<TransformComponent>();
 			if (!transform.IsValid())
 			{
 				continue;
 			}
 
-			std::cout << tSpriteHandle->GetName() << ':' << transform->xPos << ',' << transform->yPos << ',' << transform->zPos << std::endl;
+			std::cout << tSpriteHandle->GetName() << ':' << std::endl << transform->Matrix4() << std::endl;
 		}
 	}
 
@@ -51,7 +67,7 @@ class TestSystem : public SystemBase
 Engine::Engine()
 {
 	// Register the component types.
-	m_space.registerComponentType<Transform>();
+	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
 
 	// Register the systems.
@@ -62,11 +78,11 @@ Engine::Engine()
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
-	obj.addComponent<Transform>(1.0f, 2.0f, 3.0f, 4.0f);
+	obj.addComponent<TransformComponent>(glm::vec3(0,0,0));
 	obj.addComponent<TextSprite>("an object");
 
 	GameObject obj2 = m_space.NewGameObject();
-	obj2.addComponent<Transform>(5.0f, 5.0f, 5.0f, 90.0f);
+	obj2.addComponent<TransformComponent>(glm::vec3(1, 2, 3));
 	obj2.addComponent<TextSprite>("another object");
 
 	GameObject obj3 = m_space.NewGameObject();
