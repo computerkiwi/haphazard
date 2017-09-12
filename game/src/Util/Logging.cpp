@@ -1,6 +1,6 @@
 /*
 FILE: Logging.h
-PRIMARY AUTHOR: Kieran Williams
+PRIMARY AUTHOR: Kieran Williams, Sweet
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
@@ -84,13 +84,81 @@ namespace
 
 }
 
+
 bool Logging::m_logToFile = true;
 bool Logging::m_logToConsole = true;
+bool Logging::m_log = true;
 
 Logging::Priority Logging::m_consolePriority = Logging::MEDIUM_PRIORITY;
 
 std::ofstream Logging::m_logFile = std::ofstream();
 Logging::Priority Logging::m_filePriority = Logging::TRIVIAL_PRIORITY;
+
+std::thread Logging::m_loggingthread;
+std::mutex  Logging::m_mutex;
+
+std::string Logging::m_writeBufferConsole;
+std::string Logging::m_readBufferConsole;
+
+std::string Logging::m_writeBufferFile;
+std::string Logging::m_readBufferFile;
+
+
+void Logging::Entry()
+{
+
+
+	m_loggingthread = std::thread([]()
+	{
+		std::cout << "Side Thread: " << std::this_thread::get_id() << "\n";
+		
+		while (m_log)
+		{
+			// Check if we need to write
+			if (m_writeBufferConsole.size())
+			{
+				// Lock the data and copy it out of the write buffer
+				m_mutex.lock();
+				m_readBufferConsole = m_writeBufferConsole;
+				m_writeBufferConsole.clear();
+
+				// Unlock the mutex
+				m_mutex.unlock();
+
+				std::cout << m_readBufferConsole;
+				m_readBufferConsole.clear();
+			}
+
+			if (m_writeBufferFile.size())
+			{
+				// Set up the file if we haven't yet.
+				TryOpenLogFile();
+
+				// Lock the mutex
+				m_mutex.lock();
+				m_readBufferFile = m_writeBufferFile;
+				m_writeBufferFile.clear();
+
+				// Mutex unlock
+				m_mutex.unlock();
+
+				m_logFile << m_readBufferFile;
+				m_readBufferFile.clear();
+				
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(8));
+		}
+	});
+}
+
+
+void Logging::End()
+{
+	m_log = false;
+	m_loggingthread.join();
+}
+
 
 void Logging::Log(const char *message, Logging::Channel channel, Priority priority)
 {
@@ -104,22 +172,30 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 	}
 }
 
+
 void Logging::LogToConsole(const char * message, Logging::Channel channel, Priority priority)
 {
 	if (priority >= m_consolePriority)
 	{
-		std::cout << GetTimeString("%X") << " [" << GetLoggingChannelString(channel) << "] " << message << std::endl;
+		std::stringstream ss;
+		ss << GetTimeString("%X") << " [" << GetLoggingChannelString(channel) << "] " << message << std::endl;
+
+		m_mutex.lock();
+		m_writeBufferConsole += ss.str();
+		m_mutex.unlock();
 	}
 }
 
 void Logging::LogToFile(const char * message, Logging::Channel channel, Priority priority)
 {
-	// Set up the file if we haven't yet.
-	TryOpenLogFile();
-
 	if (priority >= m_filePriority)
 	{
-		m_logFile << GetTimeString("%D,%T") << ',' << GetLoggingChannelString(channel) << ',' << message << ',' << priority << std::endl;
+		std::stringstream ss;
+		ss << GetTimeString("%D,%T") << ',' << GetLoggingChannelString(channel) << ',' << message << ',' << priority << std::endl;
+
+		m_mutex.lock();
+		m_writeBufferFile += ss.str();
+		m_mutex.unlock();
 	}
 }
 
