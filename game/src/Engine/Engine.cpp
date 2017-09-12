@@ -17,6 +17,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "graphics\SpriteComponent.h"
 #include "graphics\Texture.h"
 #include "graphics\RenderSystem.h"
+#include "Physics\RigidBody.h"
 
 // GLM didnt have these, huh.
 std::ostream& operator<<(std::ostream& os, const glm::mat4& matrix)
@@ -79,6 +80,7 @@ Engine::Engine()
 	// Register the systems.
 	m_space.registerSystem(new TestSystem);
 	m_space.registerSystem(new RenderSystem);
+	m_space.registerSystem(new RigidBodySystem);
 
 	// Initialize the system.
 	m_space.Init();
