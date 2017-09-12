@@ -104,7 +104,7 @@ std::string Logging::m_writeBufferFile;
 std::string Logging::m_readBufferFile;
 
 
-void Logging::Entry()
+void Logging::Init()
 {
 
 
@@ -153,7 +153,7 @@ void Logging::Entry()
 }
 
 
-void Logging::End()
+void Logging::Exit()
 {
 	m_log = false;
 	m_loggingthread.join();

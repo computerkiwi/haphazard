@@ -9,6 +9,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "Engine.h"
+#include "../Util/Logging.h"
 
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
@@ -66,6 +67,7 @@ class TestSystem : public SystemBase
 
 Engine::Engine()
 {
+	Logging::Init();
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
@@ -95,6 +97,7 @@ void Engine::MainLoop()
 	{
 		Update();
 	}
+	Logging::Exit();
 }
 
 
