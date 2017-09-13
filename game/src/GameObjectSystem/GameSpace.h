@@ -6,6 +6,10 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Universal.h"
+
+#include <typeinfo>
+
 #include <unordered_map>
 #include <map>
 #include <vector>
@@ -182,11 +186,13 @@ public:
 	template <typename T>
 	void registerComponentType()
 	{
+		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering component type ", typeid(T).name());
 		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
 	}
 
 	void registerSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
 	{
+		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 		newSystem->RegisterGameSpace(this);
 		m_systems.insert(std::make_pair(priority, std::move(newSystem)));
 	}
@@ -250,6 +256,8 @@ private:
 	T *getInternalComponent(GameObject_ID id)
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
+
+		Logging::Log(Logging::CORE, Logging::TRIVIAL_PRIORITY, "Gamespace ", this, " getting component type ", typeid(T).name(), " with GameObject_ID ", id);
 
 		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);

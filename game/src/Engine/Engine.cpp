@@ -8,8 +8,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Universal.h"
 #include "Engine.h"
-#include "../Util/Logging.h"
 
 // Graphics libraries
 #include "GL\glew.h"
@@ -88,6 +88,8 @@ class TestSystem : public SystemBase
 
 Engine::Engine()
 {
+	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
+
 	//Init OpenGL and start window
 	GLFWwindow *window = WindowInit();
 
@@ -126,6 +128,7 @@ Engine::Engine()
 
 void Engine::MainLoop()
 {
+	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Entering main loop. ");
 	while (m_running)
 	{
 		Update();
@@ -137,6 +140,8 @@ void Engine::MainLoop()
 
 void Engine::Update()
 {
+	Logging::Log(Logging::CORE, Logging::TRIVIAL_PRIORITY, "Starting Engine::Update.");
+
 	m_dt = CalculateDt();
 
 	m_space.Update(m_dt);
@@ -163,7 +168,8 @@ lua_State * Engine::GetLua()
 
 GLFWwindow* WindowInit()
 {
-	std::cout << "    Initializing glfw... ";
+	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Initializing glfw...");
+	std::cout << "     ";
 
 	if (glfwInit() == false)
 	{
@@ -172,7 +178,7 @@ GLFWwindow* WindowInit()
 		exit(1);
 	}
 
-	std::cout << "Initialized glfw" << std::endl;
+	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Initialized glfw");
 
 	glfwWindowHint(GLFW_SAMPLES, 4); //4 MSAA
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -181,12 +187,12 @@ GLFWwindow* WindowInit()
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
 
-	std::cout << "    Window created" << std::endl;
+	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Window created");
 
 	if (!window)
 	{
 		glfwTerminate();
-		fprintf(stderr, "Could not create window");
+		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not create window");
 		int i;
 		std::cin >> i;
 		exit(1);
@@ -197,7 +203,7 @@ GLFWwindow* WindowInit()
 	if (glewInit() != GLEW_OK)
 	{
 		glfwTerminate();
-		fprintf(stderr, "Could not init GLEW");
+		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not init GLEW");
 		exit(1);
 	}
 
