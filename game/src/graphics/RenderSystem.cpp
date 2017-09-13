@@ -13,6 +13,10 @@ RenderSystem::RenderSystem(GLFWwindow* window)
 {
 }
 
+using namespace Graphics;
+
+SpriteComponent* mesh;
+
 void RenderSystem::Init()
 {
 	Graphics::Camera mainCamera;

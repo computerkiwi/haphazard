@@ -103,7 +103,7 @@ Engine::Engine()
 	GameObject obj = m_space.NewGameObject();
 	obj.addComponent<TransformComponent>(glm::vec3(0,0,0));
 	obj.addComponent<TextSprite>("an object");
-	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.addComponent<TransformComponent>(glm::vec3(1, 2, 3));
