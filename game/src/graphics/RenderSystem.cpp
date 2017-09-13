@@ -43,7 +43,7 @@ void RenderSystem::Update(float dt)
 		}
 
 		//Stuff happens here
-		spriteHandle->Draw();
+		spriteHandle->Draw(transform->Matrix4());
 	}
 
 	//End loop

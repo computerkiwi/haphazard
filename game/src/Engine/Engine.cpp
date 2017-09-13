@@ -56,6 +56,9 @@ class TestSystem : public SystemBase
 	// Called each frame.
 	virtual void Update(float dt)
 	{
+		static float time = 0;
+		time += dt;
+
 		ComponentMap<TextSprite> *textSprites = GetGameSpace()->GetComponentMap<TextSprite>();
 
 		for (auto tSpriteHandle : *textSprites)
@@ -67,6 +70,12 @@ class TestSystem : public SystemBase
 			}
 
 			std::cout << tSpriteHandle->GetName() << ':' << std::endl << transform->Matrix4() << std::endl;
+
+			// Show a bunch of transform nonsense.
+			transform->Position().x +=sin(time + 2) * 0.03f + 3 * sin(time / 60) / 180;
+			transform->Position().y = sin(transform->Position().x * 3);
+			transform->Scale().y = 1 + 0.5 * cos(time);
+			transform->Rotation() += dt * 50;
 		}
 	}
 
@@ -101,18 +110,18 @@ Engine::Engine()
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
-	obj.addComponent<TransformComponent>(glm::vec3(0,0,0));
+	obj.addComponent<TransformComponent>(glm::vec3(0,0,-1));
 	obj.addComponent<TextSprite>("an object");
 	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
 
 	GameObject obj2 = m_space.NewGameObject();
-	obj2.addComponent<TransformComponent>(glm::vec3(1, 2, 3));
+	obj2.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
 	obj2.addComponent<TextSprite>("another object");
-	obj.addComponent<Graphics::SpriteComponent>(nullptr);
+	obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
 	GameObject obj3 = m_space.NewGameObject();
 	obj3.addComponent<TextSprite>("an object without a transform");
-	obj.addComponent<Graphics::SpriteComponent>(nullptr);
+	obj3.addComponent<Graphics::SpriteComponent>(nullptr);
 }
 
 void Engine::MainLoop()

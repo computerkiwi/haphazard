@@ -46,7 +46,7 @@ namespace Graphics
 		std::vector<Vertice>* GetVertices();
 		void CompileMesh(); // Creates mesh with provided vertices
 
-		void Draw();
+		void Draw(glm::mat4 matrix);
 
 	private:
 		void UseBlendMode(BlendMode bm);
@@ -58,9 +58,6 @@ namespace Graphics
 		GLuint texture;
 		ShaderProgram *program = Shaders::defaultShader;
 		BlendMode blend = BlendMode::BM_DEFAULT;
-
-	public:
-		Transform transform;
 	};
 
 }

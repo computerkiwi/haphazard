@@ -77,7 +77,7 @@ void Graphics::Mesh::UseBlendMode(BlendMode bm)
 	}
 }
 
-void Graphics::Mesh::Draw()
+void Graphics::Mesh::Draw(glm::mat4 matrix)
 {
 	UseBlendMode(blend);
 
@@ -89,7 +89,7 @@ void Graphics::Mesh::Draw()
 	else
 		glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
 
-	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
+	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(matrix));
 
 	glDrawArrays(drawMode, 0, (int)vertices.size());
 }
