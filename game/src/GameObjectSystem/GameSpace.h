@@ -257,8 +257,6 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		Logging::Log(Logging::CORE, Logging::TRIVIAL_PRIORITY, "Gamespace ", this, " getting component type ", typeid(T).name(), " with GameObject_ID ", id);
-
 		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 

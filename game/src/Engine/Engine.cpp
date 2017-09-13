@@ -17,74 +17,18 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "graphics\Shaders.h" // Shaders need to be initialized
 #include "graphics\Settings.h" // Settings needed for window init
+#include "graphics\Texture.h"
 
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
 #include "GameObjectSystem/TextSprite.h"
 #include "graphics\SpriteComponent.h"
-#include "graphics\Texture.h"
-#include "graphics\RenderSystem.h"
 
 GLFWwindow* WindowInit(); 
 
-// GLM didnt have these, huh.
-std::ostream& operator<<(std::ostream& os, const glm::mat4& matrix)
-{
-	for (int i = 0; i < 4; ++i)
-	{
-		for (int j = 0; j < 4; ++j)
-		{
-			os << '[' << matrix[j][i] << ']';
-		}
-
-		os << std::endl;
-	}
-
-	return os;
-}
-
 // Systems to register.
-// TEMPORARY TEST SYSTEM.
-#include <iostream>
-class TestSystem : public SystemBase
-{
-	virtual void Init()
-	{
-		std::cout << "Test system initialized." << std::endl;
-	}
+#include "graphics\RenderSystem.h"
 
-	// Called each frame.
-	virtual void Update(float dt)
-	{
-		static float time = 0;
-		time += dt;
-
-		ComponentMap<TextSprite> *textSprites = GetGameSpace()->GetComponentMap<TextSprite>();
-
-		for (auto tSpriteHandle : *textSprites)
-		{
-			ComponentHandle<TransformComponent> transform = tSpriteHandle.GetSiblingComponent<TransformComponent>();
-			if (!transform.IsValid())
-			{
-				continue;
-			}
-
-			std::cout << tSpriteHandle->GetName() << ':' << std::endl << transform->Matrix4() << std::endl;
-
-			// Show a bunch of transform nonsense.
-			transform->Position().x +=sin(time + 2) * 0.03f + 3 * sin(time / 60) / 180;
-			transform->Position().y = sin(transform->Position().x * 3);
-			transform->Scale().y = 1 + 0.5 * cos(time);
-			transform->Rotation() += dt * 50;
-		}
-	}
-
-	// Simply returns the default priority for this system.
-	virtual size_t DefaultPriority()
-	{
-		return 0;
-	}
-};
 
 Engine::Engine()
 {
@@ -104,7 +48,6 @@ Engine::Engine()
 	m_space.registerComponentType<Graphics::SpriteComponent>();
 
 	// Register the systems.
-	m_space.registerSystem(new TestSystem);
 	m_space.registerSystem(new RenderSystem(window));
 
 	// Initialize the system.
@@ -140,8 +83,6 @@ void Engine::MainLoop()
 
 void Engine::Update()
 {
-	Logging::Log(Logging::CORE, Logging::TRIVIAL_PRIORITY, "Starting Engine::Update.");
-
 	m_dt = CalculateDt();
 
 	m_space.Update(m_dt);
@@ -169,7 +110,6 @@ lua_State * Engine::GetLua()
 GLFWwindow* WindowInit()
 {
 	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Initializing glfw...");
-	std::cout << "     ";
 
 	if (glfwInit() == false)
 	{
@@ -193,8 +133,6 @@ GLFWwindow* WindowInit()
 	{
 		glfwTerminate();
 		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not create window");
-		int i;
-		std::cin >> i;
 		exit(1);
 	}
 
