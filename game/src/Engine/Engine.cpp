@@ -49,6 +49,7 @@ Engine::Engine()
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
 	m_space.registerComponentType<Graphics::SpriteComponent>();
+	m_space.registerComponentType<RigidBodyComponent>();
 
 	// Register the systems.
 	m_space.registerSystem(new RigidBodySystem);
