@@ -38,7 +38,8 @@ void Graphics::Camera::SetProjection(float FOV, float aspectRatio, float near, f
 void Graphics::Camera::ApplyCameraMatrices()
 {
 	glm::mat4 view = glm::lookAt(mPosition, mCenter, mUp);
-	glm::mat4 proj = glm::perspective(glm::radians(mFOV), mAspectRatio, mNear, mFar);
+	glm::mat4 proj = glm::ortho(-1.0f, 1.0f, -1.0f / mAspectRatio, 1.0f / mAspectRatio, mNear, mFar);
+		//glm::perspective(glm::radians(mFOV), mAspectRatio, mNear, mFar);
 
 	glm::mat4 data[] = { view, proj };
 

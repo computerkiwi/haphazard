@@ -6,6 +6,10 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Universal.h"
+
+#include <typeinfo>
+
 #include <unordered_map>
 #include <map>
 #include <vector>
@@ -182,13 +186,15 @@ public:
 	template <typename T>
 	void registerComponentType()
 	{
+		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering component type ", typeid(T).name());
 		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
 	}
 
 	void registerSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
 	{
+		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 		newSystem->RegisterGameSpace(this);
-		m_systems.insert(std::make_pair(priority, std::forward<std::unique_ptr<SystemBase>>(newSystem)));
+		m_systems.insert(std::make_pair(priority, std::move(newSystem)));
 	}
 	void registerSystem(std::unique_ptr<SystemBase>&& newSystem)
 	{
@@ -271,3 +277,52 @@ private:
 	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
 	std::map<size_t, std::unique_ptr<SystemBase>> m_systems;
 };
+
+
+constexpr unsigned long hash(const char *str)
+{
+	unsigned long hash = 5381;
+	int c = 0;
+
+	while (c = *str++)
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+}
+
+
+class GameSpaceManager
+{
+	std::unordered_map<size_t, GameSpace *> m_spaces;
+
+	GameSpace *GetInteral(size_t key)
+	{
+		return m_spaces.at(key);
+	}
+
+public:
+	void AddSpace(const char *name)
+	{
+		m_spaces.emplace(hash(name), new GameSpace());
+	}
+
+	inline GameSpace *Get(const char *name)
+	{
+		return GetInteral(hash(name));
+	}
+
+	inline GameSpace *operator[](const char *name)
+	{
+		return GetInteral(hash(name));
+	}
+
+	void Update(float dt)
+	{
+
+		for (auto sys : m_spaces)
+		{
+			sys.second->Update(dt);
+		}
+	}
+};
+
