@@ -6,5 +6,14 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-// Currently a single function to play around in before any concrete implementation occurs.
-void AudioTests();
+namespace Audio
+{
+	void Init();
+
+	void Update();
+
+	void LoadSound(const char *fileName);
+
+	// Plays a given sound once.
+	void PlaySound(const char *fileName, float volume = 1.0f);
+}

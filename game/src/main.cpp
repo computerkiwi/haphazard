@@ -14,8 +14,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 int main()
 {
-	AudioTests();
-
 	Engine engine;
 
 	engine.MainLoop();
