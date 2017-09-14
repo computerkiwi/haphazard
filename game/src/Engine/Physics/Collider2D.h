@@ -9,6 +9,57 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "glm/glm.hpp"
+#include "../../GameObjectSystem/GameSpace.h"
+
+class Collider2D
+{
+public:
+
+	enum class colliderType
+	{
+		colliderBox = 0
+	};
+
+	Collider2D(colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset, float rotationOffset = 0);
+
+private:
+	glm::vec3 dimensions_;
+	glm::vec3 offset_;
+	float rotationOffset_;
+};
+
+
+class StaticCollider2DComponent
+{
+public:
+	// constructor
+	StaticCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset, float rotationOffset = 0) : colliderData_(colliderType, dimensions, offset, rotationOffset)
+	{
+	}
+
+	Collider2D& GetColliderData();
+
+private:
+	Collider2D colliderData_;
+};
+
+class DynamicCollider2DComponent
+{
+public:
+	// constructor
+	DynamicCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset, float rotationOffset = 0) : colliderData_(colliderType, dimensions, offset, rotationOffset)
+	{
+	}
+
+	Collider2D& GetColliderData();
+
+private:
+	Collider2D colliderData_;
+};
+
+
+
+
 
 class ColliderBox2DComponent
 {
@@ -37,4 +88,18 @@ private:
 	glm::vec3 dimensions_;
 	glm::vec3 offset_;
 	float rotationOffset_;
+};
+
+class CollisionSystem : public SystemBase
+{
+	virtual void Init();
+
+	// Called each frame.
+	virtual void Update(float dt);
+
+	// Simply returns the default priority for this system.
+	virtual size_t DefaultPriority()
+	{
+		return 2;
+	}
 };

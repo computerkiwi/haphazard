@@ -250,7 +250,7 @@ void QuadTree::AddToEnd(GameObject * object)
 
 void QuadTree::FileToChildren(GameObject * object, const glm::vec2 & pos)
 {
-	glm::vec2 objectSize = object->GetComponent<Transform>().GetScale(); // Replace with HitBox
+	glm::vec2 objectSize = object->GetComponent<Transform>().GetScale(); //!?!? Replace with HitBox
 	objectSize.x /= 2;
 	objectSize.y /= 2;
 

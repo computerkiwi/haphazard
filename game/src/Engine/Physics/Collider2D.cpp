@@ -60,3 +60,28 @@ void ColliderBox2DComponent::AdjustRotationOffset(float rotationAdjustment)
 {
 	rotationOffset_ += rotationAdjustment;
 }
+
+
+
+
+void CollisionSystem::Init()
+{
+
+}
+
+// Called each frame.
+void CollisionSystem::Update(float dt)
+{
+	// get all Collider Components
+	ComponentMap<RigidBodyComponent> *rigidBodies = GetGameSpace()->GetComponentMap<RigidBodyComponent>();
+
+	for (auto tRigidBodyHandle : *rigidBodies)
+	{
+		// get the transform from the same gameobject
+		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			tRigidBodyHandle->Update(dt, transform);
+		}
+	}
+}
