@@ -26,6 +26,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "graphics\Texture.h"
 #include "graphics\RenderSystem.h"
 #include "Physics\RigidBody.h"
+#include "Physics\Collider2D.h"
 
 GLFWwindow* WindowInit(); 
 
@@ -49,6 +50,9 @@ Engine::Engine()
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
 	m_space.registerComponentType<Graphics::SpriteComponent>();
+	m_space.registerComponentType<RigidBodyComponent>();
+	m_space.registerComponentType<ColliderBox2DComponent>();
+
 
 	// Register the systems.
 	m_space.registerSystem(new RigidBodySystem);

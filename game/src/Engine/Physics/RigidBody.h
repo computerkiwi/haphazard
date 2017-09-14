@@ -2,7 +2,7 @@
 FILE: RigidBody.h
 PRIMARY AUTHOR: Brett Schiff
 
-Velocity, Acceleration, etc
+Velocity, Acceleration, and Mass
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
@@ -16,11 +16,11 @@ class RigidBodyComponent
 {
 public:
 	// constructors
-	RigidBodyComponent() : acceleration_(glm::vec3(0, 0, 0)), velocity_(glm::vec3(0, 0, 0)), mass_(1.0f)
+	RigidBodyComponent() : acceleration_(glm::vec3(0, 0, 0)), velocity_(glm::vec3(0, 0, 0)), inverseMass_(1.0f)
 	{
 	}
 
-	RigidBodyComponent(glm::vec3 acceleration, glm::vec3 velocity, float mass) : acceleration_(acceleration), velocity_(velocity), mass_(mass)
+	RigidBodyComponent(glm::vec3 acceleration, glm::vec3 velocity, float mass) : acceleration_(acceleration), velocity_(velocity), inverseMass_(mass)
 	{
 	}
 
@@ -45,7 +45,7 @@ public:
 private:
 	glm::vec3 acceleration_;
 	glm::vec3 velocity_;
-	float mass_;
+	float inverseMass_;
 };
 
 class RigidBodySystem : public SystemBase

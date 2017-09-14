@@ -2,7 +2,7 @@
 FILE: RigidBody.cpp
 PRIMARY AUTHOR: Brett Schiff
 
-Velocity, Acceleration, etc
+Velocity, Acceleration, and Mass
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
@@ -23,7 +23,7 @@ glm::vec3 RigidBodyComponent::Velocity() const
 
 float RigidBodyComponent::Mass() const
 {
-	return mass_;
+	return inverseMass_;
 }
 
 // setters
@@ -38,14 +38,14 @@ void RigidBodyComponent::SetVelocity(glm::vec3 newVelocity)
 }
 void RigidBodyComponent::SetMass(float newMass)
 {
-	mass_ = newMass;
+	inverseMass_ = newMass;
 }
 
 // adjusters
 void RigidBodyComponent::AddForce(glm::vec3 addForce)
 {
-	assert(mass_ != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
-	acceleration_ += (addForce / mass_);
+	assert(inverseMass_ != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
+	acceleration_ += (addForce * inverseMass_);
 }
 
 void RigidBodyComponent::AddAcceleration(glm::vec3 addAcceleration)
@@ -60,7 +60,7 @@ void RigidBodyComponent::AddVelocity(glm::vec3 addVelocity)
 
 void RigidBodyComponent::AddMass(float addMass)
 {
-	mass_ += addMass;
+	inverseMass_ += ( 1 / addMass);
 }
 
 void RigidBodyComponent::Update(float dt, ComponentHandle<TransformComponent> transform)
