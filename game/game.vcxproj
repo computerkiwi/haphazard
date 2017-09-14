@@ -87,7 +87,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external\lua;$(ProjectDir)external\include;$(ProjectDir)external\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)external\lua;$(ProjectDir)external\include;$(ProjectDir)external\glm;$(ProjectDir)external\imgui</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -127,6 +127,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\Engine\Allocators\Stack\Stack.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
@@ -138,6 +141,8 @@
     <ClCompile Include="src\graphics\Shader.cpp" />
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
+    <ClCompile Include="src\Imgui\Editor.cpp" />
+    <ClCompile Include="src\Imgui\imgui-setup.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meta\example.cpp" />
     <ClCompile Include="src\meta\meta.cpp" />
@@ -163,6 +168,8 @@
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\Transform.h" />
+    <ClInclude Include="src\Imgui\Editor.h" />
+    <ClInclude Include="src\Imgui\imgui-setup.h" />
     <ClInclude Include="src\Universal.h" />
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />

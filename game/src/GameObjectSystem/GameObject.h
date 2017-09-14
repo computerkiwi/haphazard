@@ -50,6 +50,11 @@ public:
 		return lastGeneratedID++;
 	}
 
+	GameObject_ID Getid() const
+	{
+		return m_objID;
+	}
+
 private:
 	GameObject_ID m_objID;
 	GameSpace *m_gameSpace;

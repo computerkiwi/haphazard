@@ -60,7 +60,7 @@ namespace meta
 	{
 		os << "---ExampleA Object---" << std::endl;
 		os << "a: " << obj.a << std::endl;
-		os << "b: " << obj.b<< std::endl;
+		os << "b: " << obj.b << std::endl;
 		os << "c: " << obj.c << std::endl;
 		os << "d: " << obj.d << std::endl;
 		os << "e: " << obj.e << std::endl;

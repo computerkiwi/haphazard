@@ -19,6 +19,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "graphics\Settings.h" // Settings needed for window init
 #include "graphics\Texture.h"
 
+// imgui
+#include <imgui.h>
+#include "../Imgui/imgui-setup.h"
+#include "../Imgui/Editor.h"
+
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
 #include "GameObjectSystem/TextSprite.h"
@@ -36,6 +41,8 @@ Engine::Engine()
 
 	//Init OpenGL and start window
 	GLFWwindow *window = WindowInit();
+
+	ImGui_ImplGlfwGL3_Init(window, true);
 
 	// Load Shaders
 	Graphics::Shaders::Init();
@@ -76,6 +83,7 @@ void Engine::MainLoop()
 	{
 		Update();
 	}
+	ImGui_ImplGlfwGL3_Shutdown();
 	Logging::Exit();
 }
 
@@ -84,8 +92,12 @@ void Engine::MainLoop()
 void Engine::Update()
 {
 	m_dt = CalculateDt();
+	
+	// m_space.Update(m_dt);
+	Editor();
 
-	m_space.Update(m_dt);
+	ImGui_Render();
+	
 }
 
 
@@ -137,6 +149,7 @@ GLFWwindow* WindowInit()
 	}
 
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Enable vsync
 
 	if (glewInit() != GLEW_OK)
 	{
