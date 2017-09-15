@@ -10,6 +10,7 @@
 
 
 #include "GameObjectSystem\GameSpace.h"
+#include "GameObjectSystem\TextSprite.h"
 #include "GameObjectSystem\TransformComponent.h"
 
 #include "Util\Logging.h"
@@ -18,15 +19,16 @@ void TopBar();
 void Console();
 void ImGui_GameObject(GameObject *object);
 void ImGui_Transform(TransformComponent *transform);
+void ImGui_TextSprite(TextSprite *tsprite);
 
 void Editor()
 {
 	ImGui_ImplGlfwGL3_NewFrame();
 	glfwPollEvents();
 
-	TopBar();
+	// TopBar();
 
-	ImGui::ShowTestWindow();
+	// ImGui::ShowTestWindow();
 
 	ImGui_GameObject(nullptr);
 }
@@ -82,14 +84,14 @@ void ImGui_GameObject(GameObject *object)
 		name += std::to_string(object->Getid());
 
 		ImGui::SetNextWindowSize(ImVec2(325, 400));
-		ImGui::SetNextWindowPos(ImVec2(15, 25));
+		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
 		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
 
 
 
-		ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::ImColor(0.25f, 0.55f, 0.9f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::ImColor(0.0f,  0.45f, 0.9f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::ImColor(0.25f, 0.25f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::ImColor(0.25f, 0.55f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::ImColor(0.0f, 0.45f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::ImColor(0.25f, 0.25f, 0.9f));
 		if (ImGui::Button("Duplicate"))
 		{
 			object->Duplicate<dummy>();
@@ -101,11 +103,17 @@ void ImGui_GameObject(GameObject *object)
 
 		}
 
-		if (object->getComponent<TransformComponent>().Get())
-			ImGui_Transform(object->getComponent<TransformComponent>().Get());
-
 		// if object - > component
-		// ImGui_Component(&component);
+		// ImGui_Component(ComponetType *component);
+		if (object->getComponent<TransformComponent>().Get())
+		{
+			ImGui_Transform(object->getComponent<TransformComponent>().Get());
+		}
+
+		if (object->getComponent<TextSprite>().Get())
+		{
+			ImGui_TextSprite(object->getComponent<TextSprite>().Get());
+		}
 
 		ImGui::End();
 	}
@@ -146,4 +154,12 @@ void ImGui_Transform(TransformComponent *transform)
 	}
 }
 
+
+void ImGui_TextSprite(TextSprite *tsprite)
+{
+	if (ImGui::CollapsingHeader("Text Sprite"))
+	{
+		ImGui::Separator();
+	}
+}
 
