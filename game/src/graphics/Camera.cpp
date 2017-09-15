@@ -26,9 +26,9 @@ void Graphics::Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVect
 	ApplyCameraMatrices();
 }
 
-void Graphics::Camera::SetProjection(float FOV, float aspectRatio, float near, float far)
+void Graphics::Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
 {
-	mFOV = FOV;
+	m_zoom = zoom;
 	mAspectRatio = aspectRatio;
 	mNear = near;
 	mFar = far;
@@ -38,7 +38,7 @@ void Graphics::Camera::SetProjection(float FOV, float aspectRatio, float near, f
 void Graphics::Camera::ApplyCameraMatrices()
 {
 	glm::mat4 view = glm::lookAt(mPosition, mCenter, mUp);
-	glm::mat4 proj = glm::ortho(-1.0f, 1.0f, -1.0f / mAspectRatio, 1.0f / mAspectRatio, mNear, mFar);
+	glm::mat4 proj = glm::ortho(-1.0f * m_zoom, 1.0f * m_zoom, -1.0f * m_zoom / mAspectRatio, 1.0f * m_zoom / mAspectRatio, mNear, mFar);
 		//glm::perspective(glm::radians(mFOV), mAspectRatio, mNear, mFar);
 
 	glm::mat4 data[] = { view, proj };

@@ -93,10 +93,10 @@ void Engine::Update()
 {
 	m_dt = CalculateDt();
 	
-	// m_space.Update(m_dt);
+	m_space.Update(m_dt);
 	Editor();
 
-	ImGui_Render();
+	//ImGui_Render();
 	
 }
 

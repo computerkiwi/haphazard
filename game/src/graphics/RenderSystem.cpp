@@ -15,13 +15,14 @@ RenderSystem::RenderSystem(GLFWwindow* window)
 
 using namespace Graphics;
 
-SpriteComponent* mesh;
+static Camera* mainCamera;
 
 void RenderSystem::Init()
 {
-	Graphics::Camera mainCamera;
-	mainCamera.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera.SetProjection(45.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	mainCamera = new Camera();
+	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
 }
 
 // Called each frame.
