@@ -40,9 +40,9 @@ Engine::Engine()
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 	//Init OpenGL and start window
-	GLFWwindow *window = WindowInit();
+	m_window = WindowInit();
 
-	ImGui_ImplGlfwGL3_Init(window, true);
+	ImGui_ImplGlfwGL3_Init(m_window, true);
 
 	// Load Shaders
 	Graphics::Shaders::Init();
@@ -55,7 +55,7 @@ Engine::Engine()
 	m_space.registerComponentType<Graphics::SpriteComponent>();
 
 	// Register the systems.
-	m_space.registerSystem(new RenderSystem(window));
+	m_space.registerSystem(new RenderSystem());
 
 	// Initialize the system.
 	m_space.Init();
@@ -93,10 +93,14 @@ void Engine::Update()
 {
 	m_dt = CalculateDt();
 	
-	// m_space.Update(m_dt);
-	Editor();
+	m_space.Update(m_dt);
 
-	ImGui_Render();
+	ImGui_ImplGlfwGL3_NewFrame();
+	Editor();
+	ImGui::Render();
+	
+	glfwSwapBuffers(m_window);
+	glfwPollEvents();
 }
 
 

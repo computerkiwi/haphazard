@@ -18,6 +18,8 @@ extern "C"
 #include <LuaBridge.h>
 #include "GameObjectSystem/GameSpace.h"
 
+struct GLFWwindow;
+
 class Engine
 {
 public:
@@ -38,7 +40,7 @@ private:
 	float m_dt = 0.0f;
 	bool m_running = true;
 	lua_State * L = luaL_newstate();
-
+	GLFWwindow *m_window;
 	GameSpace m_space;
 };
 

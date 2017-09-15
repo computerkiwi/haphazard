@@ -6,7 +6,7 @@ struct GLFWwindow;
 class RenderSystem : public SystemBase
 {
 public:
-	RenderSystem(GLFWwindow* window);
+	RenderSystem();
 
 	virtual void Init();
 
@@ -15,7 +15,4 @@ public:
 
 	// Simply returns the default priority for this system.
 	virtual size_t DefaultPriority();
-
-private:
-	GLFWwindow* m_window;
 };

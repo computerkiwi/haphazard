@@ -23,9 +23,6 @@ void ImGui_TextSprite(TextSprite *tsprite);
 
 void Editor()
 {
-	ImGui_ImplGlfwGL3_NewFrame();
-	glfwPollEvents();
-
 	// TopBar();
 
 	// ImGui::ShowTestWindow();

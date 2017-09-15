@@ -41,7 +41,7 @@ void ImGui_Render()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 	ImGui::Render();
-	glfwSwapBuffers(g_Window);
+	// glfwSwapBuffers(g_Window);
 }
 
 
