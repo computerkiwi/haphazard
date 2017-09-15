@@ -97,7 +97,6 @@ void Engine::Update()
 	Editor();
 
 	ImGui_Render();
-	
 }
 
 

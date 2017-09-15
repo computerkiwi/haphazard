@@ -8,6 +8,9 @@
 #include "Camera.h"
 #include "Settings.h"
 
+#include <imgui.h>
+#include "Imgui\imgui-setup.h"
+
 RenderSystem::RenderSystem(GLFWwindow* window)
 	: m_window(window)
 {
@@ -43,8 +46,10 @@ void RenderSystem::Update(float dt)
 		}
 
 		//Stuff happens here
-		spriteHandle->Draw(transform->Matrix4());
+		spriteHandle->Draw(transform->GetMatrix4());
 	}
+
+	// ImGui_Render();
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);

@@ -15,7 +15,6 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <vector>
 #include <memory>
 
-#include "GameObject.h"
 #include "Component.h"
 
 // Forward declare.
@@ -74,6 +73,8 @@ public:
 	{
 	}
 
+	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) = 0;
+
 private:
 };
 
@@ -103,6 +104,14 @@ public:
 		else
 		{
 			return &iter->second;
+		}
+	}
+
+	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
+	{
+		if (m_components.find(originalObject) != m_components.end())
+		{
+			m_components.emplace(originalObject, T(m_components.find(originalObject)->second));
 		}
 	}
 
@@ -251,6 +260,16 @@ public:
 		}
 	}
 
+	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
+	{
+		for (auto& c_map : m_componentMaps)
+		{
+			c_map.second->Duplicate(originalObject, newObject);
+		}
+
+		return GameObject(newObject, this);
+	}
+
 private:
 	template <typename T>
 	T *getInternalComponent(GameObject_ID id)
@@ -326,3 +345,4 @@ public:
 	}
 };
 
+#include "GameObject.h"

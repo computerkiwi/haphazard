@@ -8,3 +8,5 @@ graphics/x64/
 
 game/x64/*
 game/.vs/*
+
+game/imgui\.ini

@@ -10,6 +10,9 @@
 
 #include "GL\glew.h"
 
+#include <imgui.h>
+#include "Imgui\imgui-setup.h"
+
 ///
 // Screen
 ///
@@ -183,8 +186,10 @@ void Graphics::Screen::Draw()
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
 	// Convert HDR to LDR
 	Shaders::ScreenShader::HDR->Use(); 
+
 
 	// Render final screen
 	mFullscreen.Bind();

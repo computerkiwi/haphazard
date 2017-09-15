@@ -13,6 +13,7 @@ class ComponentHandle;
 
 
 typedef size_t GameObject_ID;
+typedef int    dummy;
 
 class GameObject
 {
@@ -53,6 +54,13 @@ public:
 	GameObject_ID Getid() const
 	{
 		return m_objID;
+	}
+
+	// Dummy Template param since GameSpace are forward delcared here
+	template <typename dummy>
+	GameObject Duplicate()
+	{
+		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
 	}
 
 private:

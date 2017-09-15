@@ -8,26 +8,46 @@
 #include <string>
 #include <sstream>
 
-#include "GameObjectSystem\GameObject.h"
+
+#include "GameObjectSystem\GameSpace.h"
+#include "GameObjectSystem\TransformComponent.h"
+
 #include "Util\Logging.h"
 
+void TopBar();
 void Console();
-void ImGui_GameObject();
-void ImGui_Transform();
+void ImGui_GameObject(GameObject *object);
+void ImGui_Transform(TransformComponent *transform);
 
 void Editor()
 {
-	bool show_test_window = true;
-	bool show_another_window = false;
-
-	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
+	glfwPollEvents();
 
-	std::string console;
+	TopBar();
 
 	ImGui::ShowTestWindow();
 
-	ImGui_GameObject();
+	ImGui_GameObject(nullptr);
+}
+
+
+void TopBar()
+{
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save"))
+			{
+				Logging::Log("Saving");
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+	}
 }
 
 
@@ -54,65 +74,75 @@ void Console()
 }
 
 
-void ImGui_GameObject()
+void ImGui_GameObject(GameObject *object)
 {
-	std::string name("GameObject - ");
-	name += std::to_string(0);
-
-	ImGui::SetNextWindowSize(ImVec2(325, 400));
-	ImGui::SetNextWindowPos(ImVec2(15, 15));
-	ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
-
-
-	
-	ImGui::PushStyleColor(ImGuiCol_Button,         (ImVec4)ImColor::ImColor(0.25f, 0.55f, 0.9f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered,  (ImVec4)ImColor::ImColor(0.0f,  0.45f,  0.9f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive,   (ImVec4)ImColor::ImColor(0.25f, 0.25f, 0.9f));	
-	if (ImGui::Button("Duplicate"))
+	if (object)
 	{
+		std::string name("GameObject - ");
+		name += std::to_string(object->Getid());
 
+		ImGui::SetNextWindowSize(ImVec2(325, 400));
+		ImGui::SetNextWindowPos(ImVec2(15, 25));
+		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
+
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button,        (ImVec4)ImColor::ImColor(0.25f, 0.55f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::ImColor(0.0f,  0.45f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive,  (ImVec4)ImColor::ImColor(0.25f, 0.25f, 0.9f));
+		if (ImGui::Button("Duplicate"))
+		{
+			object->Duplicate<dummy>();
+		}
+		ImGui::PopStyleColor(3);
+		ImGui::SameLine();
+		if (ImGui::Button("Delete"))
+		{
+
+		}
+
+		if (object->getComponent<TransformComponent>().Get())
+			ImGui_Transform(object->getComponent<TransformComponent>().Get());
+
+		// if object - > component
+		// ImGui_Component(&component);
+
+		ImGui::End();
 	}
-	ImGui::PopStyleColor(3);
-	ImGui::SameLine();
-	if (ImGui::Button("Delete"))
+	else
 	{
+		std::string name("GameObject - ");
+		name += "No Object Selected";
 
+		ImGui::SetNextWindowSize(ImVec2(325, 400));
+		ImGui::SetNextWindowPos(ImVec2(15, 35), ImGuiCond_Once);
+		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
+		ImGui::End();
 	}
-
-	// if object - > transform
-	ImGui_Transform();
-
-	// if object - > component
-	// ImGui_Component(&component);
-
-	ImGui::End();
 }
 
 
-void ImGui_Transform()
+void ImGui_Transform(TransformComponent *transform)
 {
 	if (ImGui::CollapsingHeader("Transform Component"))
 	{
-		static float x, y, z;
-		static float sx, sy, rotation;
+		ImGui::PushItemWidth(120);
 		if (ImGui::CollapsingHeader("Position"))
 		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X", &x);
-			ImGui::InputFloat(" Y", &y);
-			ImGui::InputFloat(" Z", &z);
+			ImGui::InputFloat(" X", &transform->GetPosition().x);
+			ImGui::InputFloat(" Y", &transform->GetPosition().x);
+			// ImGui::InputFloat(" Z", &z); - Add for 3d
 			ImGui::PopItemWidth();			
 		}
 		if (ImGui::CollapsingHeader("Scale"))
 		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X", &sx);
-			ImGui::InputFloat(" Y", &sy);
-			ImGui::PopItemWidth();
+			ImGui::InputFloat(" X", &transform->GetScale().x);
+			ImGui::InputFloat(" Y", &transform->GetScale().y);
 			ImGui::Separator();
 		}
+		ImGui::PopItemWidth();
 		
-		ImGui::InputFloat("Rotation", &rotation);
+		ImGui::InputFloat("Rotation", &transform->GetRotation());
 	}
 }
 

@@ -24,6 +24,11 @@ public:
 		return m_gameSpace->getInternalComponent<T>(m_objID);
 	}
 
+	T *Get()
+	{
+		return operator->();
+	}
+
 	T& operator*()
 	{
 		return *m_gameSpace->getInternalComponent(m_objID);

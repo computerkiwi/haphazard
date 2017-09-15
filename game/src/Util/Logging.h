@@ -11,6 +11,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <thread>
 #include <mutex>
 
+#undef NULL
+#define NULL nullptr
+
 class Logging
 {
 public:
