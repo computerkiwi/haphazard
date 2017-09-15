@@ -65,8 +65,8 @@ void RigidBodyComponent::AddMass(float addMass)
 
 void RigidBodyComponent::Update(float dt, ComponentHandle<TransformComponent> transform)
 {
-	transform->Position() += velocity_;
-	velocity_ += acceleration_;
+	transform->Position() += (velocity_ * dt);
+	velocity_ += (acceleration_ * dt);
 }
 
 
@@ -88,7 +88,9 @@ void RigidBodySystem::Update(float dt)
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())
 		{
-			tRigidBodyHandle->Update(dt, transform);
+			continue;
 		}
+
+		tRigidBodyHandle->Update(dt, transform);
 	}
 }
