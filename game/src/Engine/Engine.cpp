@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Engine class data, no work really in here yet.
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -25,6 +25,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/TransformComponent.h"
 #include "GameObjectSystem/TextSprite.h"
 #include "graphics\SpriteComponent.h"
+#include "graphics\Texture.h"
+#include "graphics\RenderSystem.h"
+#include "Physics\RigidBody.h"
 
 GLFWwindow* WindowInit(); 
 
@@ -49,8 +52,10 @@ Engine::Engine()
 	m_space.registerComponentType<TransformComponent>();
 	m_space.registerComponentType<TextSprite>();
 	m_space.registerComponentType<Graphics::SpriteComponent>();
+	m_space.registerComponentType<RigidBodyComponent>();
 
 	// Register the systems.
+	m_space.registerSystem(new RigidBodySystem);
 	m_space.registerSystem(new RenderSystem(window));
 
 	// Initialize the system.
