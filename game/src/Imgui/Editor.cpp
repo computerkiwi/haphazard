@@ -15,6 +15,8 @@
 
 #include "Util\Logging.h"
 
+#include "Engine\Engine.h"
+
 void TopBar();
 void Console();
 void ImGui_GameObject(GameObject *object);
@@ -108,13 +110,16 @@ void Editor_Init()
 }
 
 
-void Editor(GameObject *object)
+void Editor(Engine *engine)
 {
 	// TopBar();
 
 	// ImGui::ShowTestWindow();
 
-	ImGui_GameObject(object);
+	// for (auto object : engine->GetSpace())
+	// {
+	// 	ImGui_GameObject(object);
+	// }
 }
 
 

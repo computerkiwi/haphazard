@@ -34,15 +34,11 @@ GLFWwindow* WindowInit();
 // Systems to register.
 #include "graphics\RenderSystem.h"
 
-
-GameObject * obj3;
-
-Engine::Engine()
+				   // Init OpenGL and start window
+Engine::Engine() : m_window(WindowInit())
 {
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-	//Init OpenGL and start window
-	m_window = WindowInit();
 
 	ImGui_ImplGlfwGL3_Init(m_window, true);
 
@@ -74,10 +70,10 @@ Engine::Engine()
 	obj2.addComponent<TextSprite>("another object");
 	obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
-	obj3 = new GameObject(m_space.NewGameObject());
-	obj3->addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj3->addComponent<TextSprite>("another object");
-	obj3->addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	GameObject obj3 = m_space.NewGameObject();
+	obj3.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
+	obj3.addComponent<TextSprite>("another object");
+	obj3.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 }
 
 void Engine::MainLoop()
@@ -100,7 +96,7 @@ void Engine::Update()
 	m_space.Update(m_dt);
 
 	ImGui_ImplGlfwGL3_NewFrame();
-	Editor(obj3);
+	Editor(this);
 	ImGui::Render();
 	
 	glfwSwapBuffers(m_window);

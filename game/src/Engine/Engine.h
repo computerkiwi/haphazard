@@ -32,7 +32,7 @@ public:
 	float Dt() const;
 	lua_State * GetLua();
 
-
+	GameSpace *GetSpace() { return &m_space; }
 
 private:
 	float CalculateDt();

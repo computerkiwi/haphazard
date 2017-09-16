@@ -2,6 +2,6 @@
 
 #include <imgui.h>
 
-class GameObject;
-void Editor(GameObject *);
+class Engine;
+void Editor(Engine *);
 void Editor_Init();
