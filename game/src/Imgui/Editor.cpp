@@ -1,10 +1,7 @@
 
 
 #include "Editor.h"
-#include "imgui-setup.h"
 
-#include <GL/glew.h>
-#include <GLFW\glfw3.h>
 #include <string>
 #include <sstream>
 
@@ -24,7 +21,10 @@ void ImGui_Transform(TransformComponent *transform);
 void ImGui_TextSprite(TextSprite *tsprite);
 
 // Enter Hex code not including the 0x
-#define HexVec(HEX) ((0xFF000000 & HEX) / 0xFF000000), ((0x00FF0000 & HEX) / 0x00FF0000), ((0x0000FF00 & HEX) / 0x0000FF00), ((0x000000FF & HEX) / 0x000000FF)
+#define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
+	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
+	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
+	                (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
 
 // ((0xFF000000 & HEX) / 0xFF000000)
 
@@ -46,7 +46,7 @@ void Editor_Init()
 	style->GrabMinSize = 5.0f;
 	style->GrabRounding = 3.0f;
 
-	style->Colors[ImGuiCol_Text]         = ImVec4(0xCCCCD3FF);
+	style->Colors[ImGuiCol_Text]         = ImVec4(HexVec(0xCCCCD3FF));
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 
 	style->Colors[ImGuiCol_WindowBg]      = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
@@ -114,12 +114,11 @@ void Editor(Engine *engine)
 {
 	// TopBar();
 
-	// ImGui::ShowTestWindow();
-
-	// for (auto object : engine->GetSpace())
-	// {
-	// 	ImGui_GameObject(object);
-	// }
+	auto objects = engine->GetSpace()->CollectGameObjects();
+	for (auto& object : objects)
+	{
+		ImGui_GameObject(&object);
+	}
 }
 
 
@@ -176,9 +175,9 @@ void ImGui_GameObject(GameObject *object)
 		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
 		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
 
-		ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::ImColor(0.25f, 0.55f, 0.9f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::ImColor(0.0f, 0.45f, 0.9f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::ImColor(0.25f, 0.25f, 0.9f));
+		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (ImGui::Button("Duplicate"))
 		{
 			object->Duplicate<dummy>();
@@ -187,7 +186,7 @@ void ImGui_GameObject(GameObject *object)
 		ImGui::SameLine();
 		if (ImGui::Button("Delete"))
 		{
-
+			object->Delete<dummy>();
 		}
 
 		// if object - > component

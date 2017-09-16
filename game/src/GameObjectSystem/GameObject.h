@@ -12,7 +12,7 @@ template <typename T>
 class ComponentHandle;
 
 
-typedef size_t GameObject_ID;
+typedef std::size_t GameObject_ID;
 typedef int    dummy;
 
 class GameObject
@@ -61,6 +61,12 @@ public:
 	GameObject Duplicate()
 	{
 		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
+	}
+
+	template <typename dummy>
+	void Delete()
+	{
+		m_gameSpace->Delete(m_objID);
 	}
 
 private:
