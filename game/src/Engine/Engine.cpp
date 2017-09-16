@@ -32,6 +32,7 @@ GLFWwindow* WindowInit();
 
 // Systems to register.
 #include "graphics\RenderSystem.h"
+#include "Physics\PhysicsSystem.h"
 
 
 Engine::Engine()
@@ -51,11 +52,11 @@ Engine::Engine()
 	m_space.registerComponentType<TextSprite>();
 	m_space.registerComponentType<Graphics::SpriteComponent>();
 	m_space.registerComponentType<RigidBodyComponent>();
-	m_space.registerComponentType<ColliderBox2DComponent>();
-
+	m_space.registerComponentType<StaticCollider2DComponent>();
+	m_space.registerComponentType<DynamicCollider2DComponent>();
 
 	// Register the systems.
-	m_space.registerSystem(new RigidBodySystem);
+	m_space.registerSystem(new PhysicsSystem);
 	m_space.registerSystem(new RenderSystem(window));
 
 	// Initialize the system.
@@ -75,6 +76,21 @@ Engine::Engine()
 	GameObject obj3 = m_space.NewGameObject();
 	obj3.addComponent<TextSprite>("an object without a transform");
 	obj3.addComponent<Graphics::SpriteComponent>(nullptr);
+
+	// RigidBody and Collider Testing Objects
+	// object with velocity
+	GameObject Brett_obj1 = m_space.NewGameObject();
+	Brett_obj1.addComponent<TextSprite>("an object with velocity");
+	Brett_obj1.addComponent<TransformComponent>(glm::vec3(0,0,1), glm::vec3(.1f,.1f,1));
+	Brett_obj1.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	Brett_obj1.addComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.003,.003,0));
+
+	// object with acceleration
+	GameObject Brett_obj2 = m_space.NewGameObject();
+	Brett_obj2.addComponent<TextSprite>("an object with velocity");
+	Brett_obj2.addComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(.1f, .1f, 1));
+	Brett_obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	Brett_obj2.addComponent<RigidBodyComponent>(glm::vec3(.0001f, 0, 0), glm::vec3(0, 0, 0));
 }
 
 void Engine::MainLoop()

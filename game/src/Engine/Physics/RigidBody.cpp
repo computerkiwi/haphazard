@@ -13,84 +13,58 @@ Copyright © 2017 DigiPen (USA) Corporation.
 // getters
 glm::vec3 RigidBodyComponent::Acceleration() const
 {
-	return acceleration_;
+	return m_acceleration;
 }
 
 glm::vec3 RigidBodyComponent::Velocity() const
 {
-	return velocity_;
+	return m_velocity;
+}
+
+glm::vec3 RigidBodyComponent::QueuedForce() const
+{
+	return m_queuedForce;
 }
 
 float RigidBodyComponent::Mass() const
 {
-	return inverseMass_;
+	return m_inverseMass;
 }
+
 
 // setters
 void RigidBodyComponent::SetAcceleration(glm::vec3 newAcceleration)
 {
-	acceleration_ = newAcceleration;
+	m_acceleration = newAcceleration;
 }
 
 void RigidBodyComponent::SetVelocity(glm::vec3 newVelocity)
 {
-	velocity_ = newVelocity;
+	m_velocity = newVelocity;
 }
 void RigidBodyComponent::SetMass(float newMass)
 {
-	inverseMass_ = newMass;
+	m_inverseMass = newMass;
 }
 
 // adjusters
 void RigidBodyComponent::AddForce(glm::vec3 addForce)
 {
-	assert(inverseMass_ != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
-	acceleration_ += (addForce * inverseMass_);
+	assert(m_inverseMass != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
+	m_queuedForce += (addForce * m_inverseMass);
 }
 
 void RigidBodyComponent::AddAcceleration(glm::vec3 addAcceleration)
 {
-	acceleration_ += addAcceleration;
+	m_acceleration += addAcceleration;
 }
 
 void RigidBodyComponent::AddVelocity(glm::vec3 addVelocity)
 {
-	velocity_ += addVelocity;
+	m_velocity += addVelocity;
 }
 
 void RigidBodyComponent::AddMass(float addMass)
 {
-	inverseMass_ += ( 1 / addMass);
-}
-
-void RigidBodyComponent::Update(float dt, ComponentHandle<TransformComponent> transform)
-{
-	transform->Position() += (velocity_ * dt);
-	velocity_ += (acceleration_ * dt);
-}
-
-
-
-
-void RigidBodySystem::Init()
-{
-	
-}
-
-void RigidBodySystem::Update(float dt)
-{
-	// get all rigid bodies
-	ComponentMap<RigidBodyComponent> *rigidBodies = GetGameSpace()->GetComponentMap<RigidBodyComponent>();
-
-	for (auto tRigidBodyHandle : *rigidBodies)
-	{
-		// get the transform from the same gameobject
-		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
-		{
-			continue;
-		}
-
-		tRigidBodyHandle->Update(dt, transform);
-	}
+	m_inverseMass += ( 1 / addMass);
 }

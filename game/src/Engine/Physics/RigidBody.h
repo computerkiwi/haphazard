@@ -9,24 +9,21 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "glm/glm.hpp"
-#include "../../GameObjectSystem/GameSpace.h"
 #include "../../GameObjectSystem/TransformComponent.h"
+#include "../../GameObjectSystem/GameSpace.h"
 
 class RigidBodyComponent
 {
 public:
 	// constructors
-	RigidBodyComponent() : acceleration_(glm::vec3(0, 0, 0)), velocity_(glm::vec3(0, 0, 0)), inverseMass_(1.0f)
-	{
-	}
-
-	RigidBodyComponent(glm::vec3 acceleration, glm::vec3 velocity, float mass) : acceleration_(acceleration), velocity_(velocity), inverseMass_(mass)
+	RigidBodyComponent(glm::vec3 acceleration = glm::vec3(0), glm::vec3 velocity = glm::vec3(0), float mass = 0, glm::vec3 queuedForce = glm::vec3(0,0,0)) : m_acceleration(acceleration), m_velocity(velocity), m_inverseMass(mass), m_queuedForce(queuedForce)
 	{
 	}
 
 	// getters
 	glm::vec3 Acceleration() const;
 	glm::vec3 Velocity() const;
+	glm::vec3 QueuedForce() const;
 	float Mass() const;
 
 	// setters
@@ -40,24 +37,9 @@ public:
 	void AddVelocity(glm::vec3 addVelocity);
 	void AddMass(float addMass);
 
-	void Update(float dt, ComponentHandle<TransformComponent> transform);
-
 private:
-	glm::vec3 acceleration_;
-	glm::vec3 velocity_;
-	float inverseMass_;
-};
-
-class RigidBodySystem : public SystemBase
-{
-	virtual void Init();
-
-	// Called each frame.
-	virtual void Update(float dt);
-
-	// Simply returns the default priority for this system.
-	virtual size_t DefaultPriority()
-	{
-		return 1;
-	}
+	glm::vec3 m_acceleration;
+	glm::vec3 m_velocity;
+	glm::vec3 m_queuedForce;
+	float m_inverseMass;
 };

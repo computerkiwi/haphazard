@@ -9,79 +9,64 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 
 // getters
-glm::vec3 ColliderBox2DComponent::GetDimensions()
+Collider2D::colliderType Collider2D::GetColliderType()
 {
-	return dimensions_;
+	return m_colliderType;
 }
 
-glm::vec3 ColliderBox2DComponent::GetOffset()
+glm::vec3 Collider2D::GetDimensions()
 {
-	return offset_;
+	return m_dimensions;
 }
 
-float ColliderBox2DComponent::GetRotationOffset()
+glm::vec3 Collider2D::GetOffset()
 {
-	return rotationOffset_;
+	return m_offset;
+}
+
+float Collider2D::GetRotationOffset()
+{
+	return m_rotationOffset;
 }
 
 // setters
-void ColliderBox2DComponent::SetDimensions(glm::vec3 newDimensions)
+void Collider2D::SetColliderType(colliderType colliderType)
 {
-	dimensions_ = newDimensions;
+
 }
 
-void ColliderBox2DComponent::SetOffset(glm::vec3 newOffset)
+void Collider2D::SetDimensions(glm::vec3 newDimensions)
 {
-	offset_ = newOffset;
+	m_dimensions = newDimensions;
 }
 
-void ColliderBox2DComponent::SetRotationOffset(float newRotationOffset)
+void Collider2D::SetOffset(glm::vec3 newOffset)
 {
-	rotationOffset_ = newRotationOffset;
+	m_offset = newOffset;
+}
+
+void Collider2D::SetRotationOffset(float newRotationOffset)
+{
+	m_rotationOffset = newRotationOffset;
 }
 
 // methods
 	// Passed only one parameter, scales both axes by the same thing
-void ColliderBox2DComponent::ScaleDimensions(float xScale, float yScale)
+void Collider2D::ScaleDimensions(float xScale, float yScale)
 {
-	dimensions_.x *= xScale;
+	m_dimensions.x *= xScale;
 	
 	if (yScale == 0)
 	{
-		dimensions_.y *= xScale;
+		m_dimensions.y *= xScale;
 	}
 	else
 	{
-		dimensions_.y *= yScale;
+		m_dimensions.y *= yScale;
 	}
 }
 
-void ColliderBox2DComponent::AdjustRotationOffset(float rotationAdjustment)
+void Collider2D::AdjustRotationOffset(float rotationAdjustment)
 {
-	rotationOffset_ += rotationAdjustment;
-}
-
-
-
-
-void CollisionSystem::Init()
-{
-
-}
-
-// Called each frame.
-void CollisionSystem::Update(float dt)
-{
-	// get all Collider Components
-	ComponentMap<RigidBodyComponent> *rigidBodies = GetGameSpace()->GetComponentMap<RigidBodyComponent>();
-
-	for (auto tRigidBodyHandle : *rigidBodies)
-	{
-		// get the transform from the same gameobject
-		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
-		{
-			tRigidBodyHandle->Update(dt, transform);
-		}
-	}
+	m_rotationOffset += rotationAdjustment;
 }
