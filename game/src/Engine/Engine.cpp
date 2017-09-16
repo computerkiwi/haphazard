@@ -11,6 +11,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 #include "Engine.h"
 
+#include "Audio/AudioEngine.h"
+
 // Graphics libraries
 #include "GL\glew.h"
 #include "GLFW\glfw3.h"
@@ -46,6 +48,7 @@ Engine::Engine()
 	Graphics::Shaders::Init();
 
 	Logging::Init();
+	Audio::Init();
 
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
@@ -108,6 +111,8 @@ void Engine::MainLoop()
 void Engine::Update()
 {
 	m_dt = CalculateDt();
+
+	Audio::Update();
 
 	m_space.Update(m_dt);
 }

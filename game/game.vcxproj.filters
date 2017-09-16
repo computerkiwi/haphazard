@@ -66,6 +66,9 @@
     <ClCompile Include="src\Util\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Audio\AudioEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Engine\Physics\Collider2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Engine\Physics\PhysicsSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio\AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

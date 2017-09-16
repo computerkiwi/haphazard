@@ -1,5 +1,5 @@
 /*
-FILE: GameSpace.h
+FILE: Universal.h
 PRIMARY AUTHOR: Kieran
 
 General universal header containing things that will commonly be used everywhere.
