@@ -111,7 +111,7 @@ public:
 	{
 		if (m_components.find(originalObject) != m_components.end())
 		{
-			m_components.emplace(originalObject, T(m_components.find(originalObject)->second));
+			m_components.emplace(newObject, T(m_components.find(originalObject)->second));
 		}
 	}
 

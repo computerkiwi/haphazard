@@ -26,7 +26,7 @@ public:
 
 	T *Get()
 	{
-		return operator->();
+		return m_gameSpace ? operator->() : nullptr;
 	}
 
 	T& operator*()

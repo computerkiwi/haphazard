@@ -105,6 +105,12 @@ struct ImVec4
     float x, y, z, w;
     ImVec4() { x = y = z = w = 0.0f; }
     ImVec4(float _x, float _y, float _z, float _w) { x = _x; y = _y; z = _z; w = _w; }
+
+	ImVec4(size_t hex) : x(((float)(hex & 0xFF000000)) / 0xFF000000), 
+						 y(((float)(hex & 0x00FF0000)) / 0x00FF0000),
+					     z(((float)(hex & 0x0000FF00)) / 0x0000FF00), 
+						 w(((float)(hex & 0x000000FF)) / 0x000000FF) {}
+
 #ifdef IM_VEC4_CLASS_EXTRA          // Define constructor and implicit cast operators in imconfig.h to convert back<>forth from your math types and ImVec4.
     IM_VEC4_CLASS_EXTRA
 #endif
