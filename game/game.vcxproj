@@ -153,9 +153,6 @@
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\meta\example.cpp" />
-    <ClCompile Include="src\meta\meta.cpp" />
-    <ClCompile Include="src\meta\tests.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -179,13 +176,11 @@
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\Transform.h" />
+    <ClInclude Include="src\meta\meta.h" />
     <ClInclude Include="src\Universal.h" />
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />
-    <ClInclude Include="src\meta\example.h" />
-    <ClInclude Include="src\meta\meta.h" />
-    <ClInclude Include="src\meta\tests.h" />
     <ClInclude Include="src\Util\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
