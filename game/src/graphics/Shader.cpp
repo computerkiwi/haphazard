@@ -91,6 +91,18 @@ Graphics::ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentSha
 	successfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
 }
 
+Graphics::ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
+	: attributes{ attribs }
+{
+	id = glCreateProgram();
+	glAttachShader(id, vertexShader.GetShaderID());
+	glAttachShader(id, geoShader.GetShaderID());
+	glAttachShader(id, fragmentShader.GetShaderID());
+	glLinkProgram(id);
+
+	successfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled();
+}
+
 Graphics::ShaderProgram::~ShaderProgram()
 {
 	glDeleteProgram(id);
@@ -150,9 +162,23 @@ static Graphics::ShaderProgram* LoadShaders(const char* vertShaderPath, const ch
 	return new Graphics::ShaderProgram(Graphics::Shader(GL_VERTEX_SHADER, vertShaderSource.c_str()), Graphics::Shader(GL_FRAGMENT_SHADER, fragShaderSource.c_str()), attribs);
 }
 
+static Graphics::ShaderProgram* LoadShaders(const char* vertShaderPath, const char* geoShaderPath, const char* fragShaderPath, std::vector<Graphics::ShaderProgram::Attribute>& attribs)
+{
+	std::string vertShaderSource = LoadFileToString(vertShaderPath).c_str();
+	std::string geoShaderSource = LoadFileToString(geoShaderPath).c_str();
+	std::string fragShaderSource = LoadFileToString(fragShaderPath).c_str();
+
+	return new Graphics::ShaderProgram(Graphics::Shader(GL_VERTEX_SHADER, vertShaderSource.c_str()), Graphics::Shader(GL_GEOMETRY_SHADER, geoShaderSource.c_str()), Graphics::Shader(GL_FRAGMENT_SHADER, fragShaderSource.c_str()), attribs);
+}
+
 static Graphics::ShaderProgram* LoadShaders(std::string vertShaderPath, std::string fragShaderPath, std::vector<Graphics::ShaderProgram::Attribute>& attribs)
 {
 	return LoadShaders(vertShaderPath.c_str(), fragShaderPath.c_str(), attribs);
+}
+
+static Graphics::ShaderProgram* LoadShaders(std::string vertShaderPath, std::string geoShaderPath, std::string fragShaderPath, std::vector<Graphics::ShaderProgram::Attribute>& attribs)
+{
+	return LoadShaders(vertShaderPath.c_str(), geoShaderPath.c_str(), fragShaderPath.c_str(), attribs);
 }
 
 
@@ -178,6 +204,7 @@ namespace Graphics
 	{
 		//Shader Declaration
 		ShaderProgram* defaultShader;
+		ShaderProgram* debugShader;
 
 		ShaderProgram* ScreenShader::Raindrop;
 
@@ -200,6 +227,18 @@ namespace Graphics
 			defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
 			if (!defaultShader->wasCompiled())
+				FailedCompile();
+		}
+
+		void LoadDebugShader()
+		{
+			std::vector<ShaderProgram::Attribute> attribs;
+			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 2, 0));
+			//attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
+
+			debugShader = LoadShaders(path + "debug.vertshader", path + "debug.geoshader", path + "debug.fragshader", attribs);
+
+			if (!debugShader->wasCompiled())
 				FailedCompile();
 		}
 
@@ -272,6 +311,7 @@ namespace Graphics
 		void Init()
 		{
 			LoadDefaultShader();
+			LoadDebugShader();
 			LoadScreenShaders();
 
 			LoadDefaultShaderUniforms();

@@ -78,6 +78,9 @@
     <ClCompile Include="src\Imgui\Editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\DebugGraphic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Engine\Engine.h">
@@ -164,5 +167,13 @@
     <ClInclude Include="src\Imgui\Editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\DebugGraphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\debug.vertshader" />
+    <None Include="shaders\debug.geoshader" />
+    <None Include="shaders\debug.fragshader" />
   </ItemGroup>
 </Project>

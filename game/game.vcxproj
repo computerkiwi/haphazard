@@ -134,6 +134,7 @@
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
+    <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\RenderSystem.cpp" />
     <ClCompile Include="src\graphics\Screen.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="src\GameObjectSystem\TextSprite.h" />
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />
+    <ClInclude Include="src\graphics\DebugGraphic.h" />
     <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
@@ -178,6 +180,11 @@
     <ClInclude Include="src\meta\meta.h" />
     <ClInclude Include="src\meta\tests.h" />
     <ClInclude Include="src\Util\Util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\debug.fragshader" />
+    <None Include="shaders\debug.geoshader" />
+    <None Include="shaders\debug.vertshader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

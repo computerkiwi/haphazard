@@ -35,6 +35,8 @@ void Graphics::Camera::SetProjection(float zoom, float aspectRatio, float near, 
 	ApplyCameraMatrices();
 }
 
+#include <cstdio>
+
 void Graphics::Camera::ApplyCameraMatrices()
 {
 	glm::mat4 view = glm::lookAt(mPosition, mCenter, mUp);
@@ -42,6 +44,8 @@ void Graphics::Camera::ApplyCameraMatrices()
 		//glm::perspective(glm::radians(mFOV), mAspectRatio, mNear, mFar);
 
 	glm::mat4 data[] = { view, proj };
+
+	printf("%f,%f\n", proj[0][0], proj[1][1]);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, mMatricesUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 2 * sizeof(glm::mat4), data);

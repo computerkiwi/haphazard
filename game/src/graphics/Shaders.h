@@ -25,6 +25,8 @@ namespace Graphics
 
 		extern ShaderProgram* defaultShader;
 
+		extern ShaderProgram* debugShader;
+
 		namespace ScreenShader
 		{
 			extern ShaderProgram* Default;
@@ -88,6 +90,7 @@ namespace Graphics
 		};
 
 		ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::vector<Attribute> attributes);
+		ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attributes);
 		~ShaderProgram();
 
 		bool wasCompiled();
@@ -125,9 +128,9 @@ namespace Graphics
 			glUniform1i(glGetUniformLocation(id, varName), value);
 		}
 
-	private:
-
 		void ApplyAttributes();
+
+	private:
 
 		GLuint id;
 		std::vector<Attribute> attributes;
