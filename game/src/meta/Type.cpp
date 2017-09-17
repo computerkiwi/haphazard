@@ -77,7 +77,7 @@ namespace meta
 	{
 		assert(m_members.find(name) == m_members.end());
 
-		m_members.emplace(name, new Member(name, type, offset));
+		m_members.emplace(name, new MemberOffset(name, type, offset));
 	}
 
 	std::vector<Member *> Type::GetMembers()

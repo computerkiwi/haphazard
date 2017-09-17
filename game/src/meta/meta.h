@@ -101,6 +101,14 @@ namespace meta
 
 		void RegisterMember(const char *name, Type *type, size_t offset);
 
+		template <typename BaseType, typename MemberType, typename GetterType, typename SetterType>
+		void RegisterMember(const char *name, GetterType getter, SetterType setter)
+		{
+			assert(m_members.find(name) == m_members.end());
+
+			m_members.emplace(name, new MemberGetSet<BaseType, MemberType>(name, getter, setter));
+		}
+
 		std::vector<Member *> GetMembers();
 
 		// Returns nullptr if the member name doesn't exist.
@@ -126,28 +134,53 @@ namespace meta
 	class Member
 	{
 	public:
-		Member(const char *name, Type *type, size_t offset) : m_name(name), m_type(type), m_offset(offset)
+
+		virtual std::string GetName() = 0;
+
+		virtual Type *GetType() = 0;
+
+		// Previous pointers received from Get are invalidated on each call to Get.
+		virtual const void *Get(const void *object) = 0;
+
+		virtual void Set(void *object, const void *data) = 0;
+
+		virtual ~Member()
+		{
+		}
+	};
+
+	// Member using a simple offset.
+	class MemberOffset : public Member
+	{
+	public:
+		MemberOffset(const char *name, Type *type, size_t offset) : m_name(name), m_type(type), m_offset(offset)
 		{
 		}
 
 		//---------
 		// Getters
 		//---------
-		std::string GetName()
+		virtual std::string GetName()
 		{
 			return m_name;
 		}
-		Type *GetType()
+
+		virtual Type *GetType()
 		{
 			return m_type;
 		}
 
-		void *Get(void *object) const
+		virtual const void *Get(const void *object)
+		{
+			return reinterpret_cast<const char *>(object) + m_offset;
+		}
+
+		virtual void *Get(void *object)
 		{
 			return reinterpret_cast<char *>(object) + m_offset;
 		}
 
-		void Set(void *object, const void *data)
+		virtual void Set(void *object, const void *data)
 		{
 			void *dataPointer = Get(object);
 
@@ -158,6 +191,94 @@ namespace meta
 		std::string m_name;
 		Type *m_type;
 		size_t m_offset;
+	};
+
+	template <typename BaseType, typename MemberType>
+	class MemberGetSet : public Member
+	{
+	public:
+		using Getter = MemberType(BaseType::*)();
+		using Setter = void (BaseType::*)(MemberType);
+
+		using ReferenceGetter = MemberType&(BaseType::*)();
+		using ReferenceSetter = void (BaseType::*)(const MemberType&);
+
+		MemberGetSet(const char * name, Getter getter, Setter setter) : m_name(name), m_getter(getter), m_setter(setter), m_refGetter(nullptr), m_refSetter(nullptr)
+		{
+		}
+
+		MemberGetSet(const char * name, Getter getter, ReferenceSetter setter) : m_name(name), m_getter(getter), m_setter(nullptr), m_refGetter(nullptr), m_refSetter(setter)
+		{
+		}
+
+		MemberGetSet(const char * name, ReferenceGetter getter, Setter setter) : m_name(name), m_getter(nullptr), m_setter(setter), m_refGetter(getter), m_refSetter(nullptr)
+		{
+		}
+
+		MemberGetSet(const char * name, ReferenceGetter getter, ReferenceSetter setter) : m_name(name), m_getter(nullptr), m_setter(nullptr), m_refGetter(getter), m_refSetter(setter)
+		{
+		}
+
+		//---------
+		// Getters
+		//---------
+		virtual std::string GetName()
+		{
+			return m_name;
+		}
+
+		virtual Type *GetType()
+		{
+			return GetTypePointer<MemberType>();
+		}
+
+		virtual const void *Get(const void *object)
+		{
+			// It's 1:30 AM and I can't be bothered to deal with this const where it shouldn't really matter. Fuck it.
+			BaseType *baseObj = reinterpret_cast<BaseType *>(const_cast<void *>(object));
+
+			if (m_getter != nullptr)
+			{
+				m_getterBuffer = (baseObj->*m_getter)();
+				return &m_getterBuffer;
+			}
+			else if (m_refGetter != nullptr)
+			{
+				return &(baseObj->*m_refGetter)();
+			}
+
+			assert(false); // One of the above conditions should be true.
+			return nullptr;
+		}
+
+		virtual void Set(void *object, const void *data)
+		{
+			BaseType *baseObj   = reinterpret_cast<BaseType *>(object);
+			const MemberType *dataPtr = reinterpret_cast<const MemberType *>(data);
+
+			if (m_setter != nullptr)
+			{
+				(baseObj->*m_setter)(*dataPtr);
+				return;
+			}
+			else if (m_refSetter != nullptr)
+			{
+				(baseObj->*m_refSetter)(*dataPtr);
+				return;
+			}
+
+			assert(false); // One of the above conditions should be true.
+		}
+
+	private:
+		Getter m_getter;
+		Setter m_setter;
+		ReferenceGetter m_refGetter;
+		ReferenceSetter m_refSetter;
+
+		MemberType m_getterBuffer; // Required so that we can return a pointer when we have a copying get function.
+
+		std::string m_name;
 	};
 
 	class Any
@@ -394,7 +515,7 @@ namespace meta
 
 			assert(member->GetType() == GetTypePointer<T>());
 
-			return *reinterpret_cast<T *>(member->Get(GetDataPointer()));
+			return *reinterpret_cast<const T *>(member->Get(GetDataPointer()));
 		}
 
 		Any GetMember(const char *memberName)
@@ -601,6 +722,8 @@ namespace meta
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
 
 #define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)))
+
+#define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 
 #define META_NAMESPACE(NAMESPACE)
 #define META_REGISTER(TYPE) public: static void Meta__Register__##TYPE()
