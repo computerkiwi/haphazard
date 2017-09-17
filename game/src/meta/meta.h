@@ -7,6 +7,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include <string>
+#include <type_traits>
 
 namespace meta
 {
@@ -14,13 +15,6 @@ namespace meta
 
 	namespace internal
 	{
-		template <typename T>
-		void DefaultConstructor(void *destination)
-		{
-			// Construct with the default constructor to the location.
-			new (destination) T;
-		}
-
 		template <typename T>
 		void CopyConstructor(void *destination, const void *source)
 		{
@@ -93,16 +87,24 @@ namespace meta
 	{
 	public:
 
-		typedef void(*DefaultConstructorFunction)(void *destination);
 		typedef void(*CopyConstructorFunction)(void *destination, const void *source);
 		typedef void(*MoveConstructorFunction)(void *destination, void *source);
 		typedef void(*AssignmentFunction)(void *destination, const void *source);
 		typedef void(*MoveAssignmentFunction)(void *destination, void *source);
 		typedef void(*DestructorFunction)(void *object);
 
-		Type(size_t size, const char *name, DefaultConstructorFunction dcf, CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df) 
-			: m_size(size), m_name(name), defaultConstructor(dcf), copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df)
+		Type(size_t size, const char *name, 
+			 CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, 
+			 Type *dereferenceType) 
+			: m_size(size), m_name(name), 
+			  copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), 
+			  m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
+		}
+
+		~Type()
+		{
+			delete m_pointerType;
 		}
 
 		//---------
@@ -116,8 +118,31 @@ namespace meta
 		{
 			return m_size;
 		}
+		Type *GetPointerType()
+		{
+			// Construct the pointer type if we have to.
+			if (m_pointerType == nullptr)
+			{
+				std::string pointerName = "ptr to ";
+				pointerName += m_name;
 
-		DefaultConstructorFunction defaultConstructor;
+				m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, this);
+			}
+
+			return m_pointerType;
+		}
+		Type *GetDereferenceType()
+		{
+			assert(IsPointerType());
+
+			return m_dereferenceType;
+		}
+
+		bool IsPointerType()
+		{
+			return (m_dereferenceType != nullptr);
+		}
+
 		CopyConstructorFunction copyConstructor;
 		MoveConstructorFunction moveConstructor;
 		AssignmentFunction assignmentOperator;
@@ -127,6 +152,9 @@ namespace meta
 	private:
 		size_t m_size;
 		std::string m_name;
+
+		Type *m_pointerType;
+		Type *m_dereferenceType;
 	};
 
 	class Any
@@ -279,6 +307,24 @@ namespace meta
 			}
 		}
 
+		Any operator*()
+		{
+			assert(m_type->IsPointerType());
+
+			// Void pointer to the data we're pointing at.
+			void *dataPointer;
+			if (m_usesPointer)
+			{
+				dataPointer = *reinterpret_cast<void **>(m_dataPointer);
+			}
+			else
+			{
+				dataPointer = &m_data;
+			}
+
+			return Any(dataPointer, m_type->GetDereferenceType());
+		}
+
 		//---------
 		// Getters
 		//---------
@@ -297,14 +343,38 @@ namespace meta
 		};
 	};
 
+	namespace internal
+	{
+		// For non-pointer types.
+		template <typename T>
+		struct TypeGetter
+		{
+			static Type *GetTypePointer(const char *typeName = nullptr)
+			{
+				static Type type(sizeof(T), typeName, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>, nullptr);
+
+				return &type;
+			}
+		};
+
+		// For pointer types.
+		template <typename T>
+		struct TypeGetter<T *>
+		{
+			static Type *GetTypePointer(const char *typeName = nullptr)
+			{
+				return TypeGetter<T>::GetTypePointer(typeName)->GetPointerType();
+			}
+		};
+	}
+
 	template <typename T>
 	Type *GetTypePointer(const char *typeName = nullptr)
 	{
-		static Type type(sizeof(T), typeName, internal::DefaultConstructor<T>, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>);
-
-		return &type;
+		return internal::TypeGetter<T>::GetTypePointer(typeName);
 	}
 
 }
+
 
 #define META_DefineType(TYPE) ::meta::GetTypePointer<TYPE>(#TYPE)
