@@ -594,6 +594,8 @@ namespace meta
 		return internal::TypeGetter<T>::GetTypePointer(typeName);
 	}
 
+	void Init();
+
 }
 
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
