@@ -16,18 +16,30 @@ Copyright � 2017 DigiPen (USA) Corporation.
 struct BigInt
 {
 	int data;
+	float moreData;
 	char filler[100];
 };
 
 int main()
 {
 	META_DefineType(int);
+	META_DefineType(float);
+
 	META_DefineType(BigInt);
+	META_DefineMember(BigInt, data, "data");
+	META_DefineMember(BigInt, moreData, "moreData");
 
 
 	BigInt bigInt = { 6 };
 	meta::Any bigContainer = bigInt;
-	std::cout << bigContainer.GetData<BigInt>().data << std::endl;
+	std::cout << bigContainer.GetMember("moreData").GetType()->GetName() << std::endl;
+
+	meta::Any bigPointer = &bigInt;
+
+	bigPointer.SetPointerMember("data", 1234);
+
+	std::cout << bigInt.data << std::endl;
+	
 
 	meta::Any movedThing = std::move(bigContainer);
 

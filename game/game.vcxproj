@@ -153,6 +153,7 @@
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\meta\Type.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>

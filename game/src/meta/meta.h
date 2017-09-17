@@ -7,12 +7,15 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include <string>
-#include <type_traits>
+#include <vector>
+#include <unordered_map>
+#include <assert.h>
 
 namespace meta
 {
-	class Type;
+	class Member;
 
+	// Helper wrappers around constructors/assignment operators. (We get pointers to these.)
 	namespace internal
 	{
 		template <typename T>
@@ -58,6 +61,68 @@ namespace meta
 		}
 	}
 
+	class Type
+	{
+	public:
+
+		typedef void(*CopyConstructorFunction)(void *destination, const void *source);
+		typedef void(*MoveConstructorFunction)(void *destination, void *source);
+		typedef void(*AssignmentFunction)(void *destination, const void *source);
+		typedef void(*MoveAssignmentFunction)(void *destination, void *source);
+		typedef void(*DestructorFunction)(void *object);
+
+		Type(size_t size, const char *name,
+			CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df,
+			Type *dereferenceType)
+			: m_size(size), m_name(name),
+			copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df),
+			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
+		{
+		}
+
+		Type(const Type&) = delete;
+
+		~Type();
+
+		//---------
+		// Getters
+		//---------
+		std::string GetName();
+
+		size_t GetSize();
+
+		Type *GetPointerType();
+
+		Type *GetDereferenceType();
+
+		Type *Type::GetDeepestDereference();
+
+		bool IsPointerType();
+
+		void RegisterMember(const char *name, Type *type, size_t offset);
+
+		std::vector<Member *> GetMembers();
+
+		// Returns nullptr if the member name doesn't exist.
+		Member *Type::GetMember(const char *name);
+
+		CopyConstructorFunction copyConstructor;
+		MoveConstructorFunction moveConstructor;
+		AssignmentFunction assignmentOperator;
+		MoveAssignmentFunction moveAssignmentOperator;
+		DestructorFunction destructor;
+
+	private:
+		size_t m_size;
+		std::string m_name;
+
+		Type *m_pointerType;
+		Type *m_dereferenceType;
+
+		std::unordered_map<std::string, Member *> m_members;
+	};
+
+
 	class Member
 	{
 	public:
@@ -77,84 +142,22 @@ namespace meta
 			return m_type;
 		}
 
+		void *Get(void *object) const
+		{
+			return reinterpret_cast<char *>(object) + m_offset;
+		}
+
+		void Set(void *object, const void *data)
+		{
+			void *dataPointer = Get(object);
+
+			m_type->assignmentOperator(dataPointer, data);
+		}
+
 	private:
 		std::string m_name;
 		Type *m_type;
 		size_t m_offset;
-	};
-
-	class Type
-	{
-	public:
-
-		typedef void(*CopyConstructorFunction)(void *destination, const void *source);
-		typedef void(*MoveConstructorFunction)(void *destination, void *source);
-		typedef void(*AssignmentFunction)(void *destination, const void *source);
-		typedef void(*MoveAssignmentFunction)(void *destination, void *source);
-		typedef void(*DestructorFunction)(void *object);
-
-		Type(size_t size, const char *name, 
-			 CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, 
-			 Type *dereferenceType) 
-			: m_size(size), m_name(name), 
-			  copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), 
-			  m_pointerType(nullptr), m_dereferenceType(dereferenceType)
-		{
-		}
-
-		~Type()
-		{
-			delete m_pointerType;
-		}
-
-		//---------
-		// Getters
-		//---------
-		std::string GetName()
-		{
-			return m_name;
-		}
-		size_t GetSize()
-		{
-			return m_size;
-		}
-		Type *GetPointerType()
-		{
-			// Construct the pointer type if we have to.
-			if (m_pointerType == nullptr)
-			{
-				std::string pointerName = "ptr to ";
-				pointerName += m_name;
-
-				m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, this);
-			}
-
-			return m_pointerType;
-		}
-		Type *GetDereferenceType()
-		{
-			assert(IsPointerType());
-
-			return m_dereferenceType;
-		}
-
-		bool IsPointerType()
-		{
-			return (m_dereferenceType != nullptr);
-		}
-
-		CopyConstructorFunction copyConstructor;
-		MoveConstructorFunction moveConstructor;
-		AssignmentFunction assignmentOperator;
-		MoveAssignmentFunction moveAssignmentOperator;
-		DestructorFunction destructor;
-
-	private:
-		size_t m_size;
-		std::string m_name;
-
-		Type *m_pointerType;
-		Type *m_dereferenceType;
 	};
 
 	class Any
@@ -307,6 +310,7 @@ namespace meta
 			}
 		}
 
+		// Dereference operator.
 		Any operator*()
 		{
 			assert(m_type->IsPointerType());
@@ -325,12 +329,227 @@ namespace meta
 			return Any(dataPointer, m_type->GetDereferenceType());
 		}
 
-		//---------
-		// Getters
-		//---------
-		Type *GetType()
+		//-----------------------
+		// Member Getter/Setters
+		//-----------------------
+		
+		template <typename T>
+		void SetMember(Member *member, const T& value)
+		{
+			assert(!m_type->IsPointerType());
+			assert(member->GetType() == GetTypePointer<T>());
+
+			member->Set(GetDataPointer(), &value);
+		}
+
+		void SetMember(Member *member, const Any& value)
+		{
+			assert(!m_type->IsPointerType());
+			assert(member->GetType() == value.GetType());
+
+			member->Set(GetDataPointer(), value.GetDataPointer());
+		}
+
+		template <typename T>
+		void SetMember(const char *memberName, const T& value)
+		{
+			assert(!m_type->IsPointerType());
+			Member *member = m_type->GetMember(memberName);
+
+			assert(member->GetType() == GetTypePointer<T>());
+
+			member->Set(GetDataPointer(), &value);
+		}
+
+		void SetMember(const char *memberName, const Any& value)
+		{
+			assert(!m_type->IsPointerType());
+			Member *member = m_type->GetMember(memberName);
+
+			assert(member->GetType() == value.GetType());
+
+			member->Set(GetDataPointer(), value.GetDataPointer());
+		}
+
+		template <typename T>
+		T GetMember(Member *member) const
+		{
+			assert(!m_type->IsPointerType());
+			assert(member->GetType() == GetTypePointer<T>());
+
+			return *reinterpret_cast<T *>(member->Get(GetDataPointer()));
+		}
+
+		Any GetMember(Member *member)
+		{
+			assert(!m_type->IsPointerType());
+			return Any(member->Get(GetDataPointer()), member->GetType());
+		}
+
+		template <typename T>
+		T GetMember(const char *memberName) const
+		{
+			assert(!m_type->IsPointerType());
+			Member *member = m_type->GetMember(memberName);
+
+			assert(member->GetType() == GetTypePointer<T>());
+
+			return *reinterpret_cast<T *>(member->Get(GetDataPointer()));
+		}
+
+		Any GetMember(const char *memberName)
+		{
+			assert(!m_type->IsPointerType());
+			Member *member = m_type->GetMember(memberName);
+
+			assert(member != nullptr);
+
+			return Any(member->Get(GetDataPointer()), member->GetType());
+		}
+
+		//-------------------------------
+		// Pointer Member Getter/Setters
+		//-------------------------------
+
+		template <typename T>
+		void SetPointerMember(Member *member, const T& value)
+		{
+			assert(m_type->IsPointerType());
+			assert(member->GetType() == GetTypePointer<T>());
+
+			member->Set(GetDeepestDataPointer(), &value);
+		}
+
+		void SetPointerMember(Member *member, const Any& value)
+		{
+			assert(m_type->IsPointerType());
+			assert(member->GetType() == value.GetType());
+
+			member->Set(GetDeepestDataPointer(), value.GetDataPointer());
+		}
+
+		template <typename T>
+		void SetPointerMember(const char *memberName, const T& value)
+		{
+			assert(m_type->IsPointerType());
+			Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
+
+			assert(member->GetType() == GetTypePointer<T>());
+
+			member->Set(GetDeepestDataPointer(), &value);
+		}
+
+		void SetPointerMember(const char *memberName, const Any& value)
+		{
+			assert(m_type->IsPointerType());
+			Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
+
+			assert(member->GetType() == value.GetType());
+
+			member->Set(GetDeepestDataPointer(), value.GetDataPointer());
+		}
+
+		template <typename T>
+		T GetPointerMember(Member *member) const
+		{
+			assert(m_type->IsPointerType());
+			assert(member->GetType() == GetTypePointer<T>());
+
+			return *reinterpret_cast<T *>(member->Get(GetDeepestDataPointer()));
+		}
+
+		Any GetPointerMember(Member *member)
+		{
+			assert(m_type->IsPointerType());
+			return Any(member->Get(GetDeepestDataPointer()), member->GetType());
+		}
+
+		template <typename T>
+		T GetPointerMember(const char *memberName) const
+		{
+			assert(m_type->IsPointerType());
+			Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
+
+			assert(member->GetType() == GetTypePointer<T>());
+
+			return *reinterpret_cast<T *>(member->Get(GetDeepestDataPointer()));
+		}
+
+		Any GetPointerMember(const char *memberName)
+		{
+			assert(m_type->IsPointerType());
+			Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
+
+			assert(member != nullptr);
+
+			return Any(member->Get(GetDeepestDataPointer()), member->GetType());
+		}
+
+		//-----------------
+		// General Getters
+		//-----------------
+		Type *GetType() const
 		{
 			return m_type;
+		}
+
+	private:
+		void *GetDataPointer()
+		{
+			if (m_usesPointer)
+			{
+				return m_dataPointer;
+			}
+			else
+			{
+				return m_data;
+			}
+		}
+		const void *GetDataPointer() const
+		{
+			if (m_usesPointer)
+			{
+				return m_dataPointer;
+			}
+			else
+			{
+				return m_data;
+			}
+		}
+
+		// Points to the actual data even if we have a pointer type.
+		void *GetDeepestDataPointer()
+		{
+			// Start at the top level.
+			void *data = GetDataPointer();
+
+			Type *type = m_type;
+			// Chase the pointer down the types.
+			while (type->IsPointerType())
+			{
+				type = type->GetDereferenceType();
+				data = *reinterpret_cast<void **>(data);
+			}
+
+			return data;
+		}
+		const void *GetDeepestDataPointer() const
+		{
+			// Makes the casting clearer.
+			typedef const void * ConstVoidPtr;
+
+			// Start at the top level.
+			ConstVoidPtr data = GetDataPointer();
+
+			Type *type = m_type;
+			// Chase the pointer down the types.
+			while (type->IsPointerType())
+			{
+				type = type->GetDereferenceType();
+				data = *reinterpret_cast<const ConstVoidPtr *>(data);
+			}
+
+			return data;
 		}
 
 	private:
@@ -343,6 +562,7 @@ namespace meta
 		};
 	};
 
+	// Helpers for GetTypePointer
 	namespace internal
 	{
 		// For non-pointer types.
@@ -376,5 +596,9 @@ namespace meta
 
 }
 
+#define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
 
-#define META_DefineType(TYPE) ::meta::GetTypePointer<TYPE>(#TYPE)
+#define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)))
+
+#define META_NAMESPACE(NAMESPACE)
+#define META_REGISTER(TYPE) public: static void Meta__Register__##TYPE()
