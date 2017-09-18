@@ -12,6 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine.h"
 
 #include "Audio/AudioEngine.h"
+#include "meta/meta.h"
 
 // Graphics libraries
 #include "GL\glew.h"
@@ -37,8 +38,6 @@ GLFWwindow* WindowInit();
 
 Engine::Engine()
 {
-	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
-
 	//Init OpenGL and start window
 	GLFWwindow *window = WindowInit();
 
@@ -47,6 +46,9 @@ Engine::Engine()
 
 	Logging::Init();
 	Audio::Init();
+	meta::Init();
+
+	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();

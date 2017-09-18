@@ -54,19 +54,19 @@
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\meta\example.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\meta\meta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\meta\tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Util\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Audio\AudioEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\Type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\BuiltInRegistration.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\Registration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,15 +131,6 @@
     <ClInclude Include="src\Engine\Physics\RigidBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\meta\example.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\meta\meta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\meta\tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Util\DataStructures\Array\Array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -155,5 +146,11 @@
     <ClInclude Include="src\Audio\AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\meta\meta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\meta\.gitignore" />
   </ItemGroup>
 </Project>
