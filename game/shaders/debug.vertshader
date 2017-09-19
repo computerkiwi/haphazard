@@ -1,8 +1,10 @@
 #version 330 core
 layout (location = 0) in vec2 pos;
-layout (location = 0) in vec2 scale;
+layout (location = 1) in vec2 scale;
 
-out vec2 Scale;
+out VS_OUT {
+    vec2 Scale;
+} vs_out;
 
 layout (std140) uniform Matrices
 {
@@ -13,5 +15,5 @@ layout (std140) uniform Matrices
 void main()
 {
     gl_Position = proj * view * vec4(pos.x, pos.y, 0.0, 1.0);
-	Scale = vec2(0.2,0.267); //vec2(proj[0][0], proj[1][1]);
+	vs_out.Scale = vec2(proj[0][0] * scale.x, proj[1][1] * scale.y) / 2;
 }

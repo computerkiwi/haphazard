@@ -6,17 +6,22 @@ int DebugGraphic::amount;
 unsigned int DebugGraphic::VAO;
 unsigned int DebugGraphic::VBO;
 
-DebugGraphic::DebugGraphic(glm::vec2 pos, int verts)
-	: m_position(pos), m_vertices(verts), m_index(amount)
+DebugGraphic::DebugGraphic(glm::vec2 pos, glm::vec2 scale, int verts)
+	: m_position(pos), m_scale(scale), m_vertices(verts), m_index(amount)
 {
+	if (!VBO)
+	{
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	}
+
 	if (!VAO)
 	{
 		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 		Graphics::Shaders::debugShader->ApplyAttributes();
 	}
 
-	if(!VBO)
-		glGenBuffers(1, &VBO);
 
 	shapes.push_back(this);
 	amount++;
@@ -35,16 +40,19 @@ void DebugGraphic::DebugGraphic::DrawAll()
 
 	Graphics::Shaders::debugShader->Use();
 
-	float *positions = new float(amount * 2); // 2 floats per shape
+	//float *data = new float(amount * 4); // 4 floats per shape
+	float data[256];
 	int i = 0;
 
 	for (auto shape : shapes)
 	{
-		positions[i++] = shape->m_position.x;
-		positions[i++] = shape->m_position.y;
+		data[i++] = shape->m_position.x;
+		data[i++] = shape->m_position.y;
+		data[i++] = shape->m_scale.x;
+		data[i++] = shape->m_scale.y;
 	}
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * amount, positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * i, data, GL_STATIC_DRAW);
 
-	glDrawArrays(GL_POINTS, 0, 4);
+	glDrawArraysInstanced(GL_POINTS, 0, amount, amount);
 }

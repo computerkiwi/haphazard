@@ -2,10 +2,12 @@
 layout (points) in;
 layout (line_strip, max_vertices = 5) out;
 
-in vec2 Scale;
+in VS_OUT {
+    vec2 Scale;
+} gs_in[];
 
 void main() {
-	//vec2 Scale = vec2(0.2,0.267);
+	vec2 Scale = gs_in[0].Scale; // / 2;
 	
     gl_Position = gl_in[0].gl_Position + vec4(-Scale.x, -Scale.y, 0,0);
     EmitVertex();

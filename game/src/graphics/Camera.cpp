@@ -45,8 +45,6 @@ void Graphics::Camera::ApplyCameraMatrices()
 
 	glm::mat4 data[] = { view, proj };
 
-	printf("%f,%f\n", proj[0][0], proj[1][1]);
-
 	glBindBuffer(GL_UNIFORM_BUFFER, mMatricesUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 2 * sizeof(glm::mat4), data);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);

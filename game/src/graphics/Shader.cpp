@@ -64,8 +64,8 @@ bool Graphics::Shader::Compile()
 // Attribute
 ///
 
-Graphics::ShaderProgram::Attribute::Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart)
-	: name{ name }, size{ numArgs }, type{ argType }, normalized{ (unsigned char)isNormalized }, stride{ argStride * (GLsizei)sizeofType }, start{ argStart * (GLsizei)sizeofType }
+Graphics::ShaderProgram::Attribute::Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced)
+	: name{ name }, size{ numArgs }, type{ argType }, normalized{ (GLboolean)isNormalized }, stride{ argStride * (GLsizei)sizeofType }, start{ argStart * (GLsizei)sizeofType }, instanced{ (GLboolean)isInstanced }
 {
 }
 
@@ -74,6 +74,7 @@ void Graphics::ShaderProgram::Attribute::Apply(ShaderProgram* program)
 	index = glGetAttribLocation(program->id, name);
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, (void*)(start));
+	glVertexAttribDivisor(index, instanced);
 }
 
 ///
@@ -125,7 +126,7 @@ void Graphics::ShaderProgram::Use()
 
 void Graphics::ShaderProgram::ApplyAttributes()
 {
-	for each (Attribute attrib in attributes)
+	for (Attribute& attrib : attributes)
 	{
 		attrib.Apply(this);
 	}
@@ -233,7 +234,8 @@ namespace Graphics
 		void LoadDebugShader()
 		{
 			std::vector<ShaderProgram::Attribute> attribs;
-			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 2, 0));
+			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0, true));
+			attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2, true));
 			//attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
 
 			debugShader = LoadShaders(path + "debug.vertshader", path + "debug.geoshader", path + "debug.fragshader", attribs);

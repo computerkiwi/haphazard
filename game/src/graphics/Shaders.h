@@ -76,7 +76,7 @@ namespace Graphics
 		class Attribute
 		{
 		public:
-			Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart);
+			Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
 			void Apply(ShaderProgram* program);
 
 		private:
@@ -85,6 +85,7 @@ namespace Graphics
 			GLint size;
 			GLenum type;
 			GLboolean normalized;
+			GLboolean instanced;
 			GLsizei stride;
 			GLsizei start;
 		};

@@ -18,6 +18,8 @@ using namespace Graphics;
 
 static Camera* mainCamera;
 
+DebugGraphic* c;
+
 void RenderSystem::Init()
 {
 	mainCamera = new Camera();
@@ -26,6 +28,9 @@ void RenderSystem::Init()
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
 
 	DebugGraphic* d = new DebugGraphic(glm::vec2(1, 0));
+	DebugGraphic* a = new DebugGraphic(glm::vec2(2, 1));
+	DebugGraphic* b = new DebugGraphic(glm::vec2(-2, -2));
+	c = new DebugGraphic(glm::vec2(1, 0), glm::vec2(0.5f,0.5f) );
 }
 
 // Called each frame.
@@ -50,15 +55,17 @@ void RenderSystem::Update(float dt)
 		spriteHandle->Draw(transform->Matrix4());
 
 		mainCamera->SetZoom(5);
+		c->SetScale(c->GetScale().x + dt, 0.5f);
 
 		//mainCamera->SetPosition(mainCamera->GetPosition() + glm::vec3(dt,0,0));
 	}
 
-	DebugGraphic::DrawAll();
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 	Graphics::Screen::GetView().Draw();
+
+	DebugGraphic::DrawAll();
 
 	glDisableVertexAttribArray(0);
 	glfwSwapBuffers(m_window);
