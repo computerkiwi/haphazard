@@ -54,8 +54,9 @@ void RenderSystem::Update(float dt)
 		//Stuff happens here
 		spriteHandle->Draw(transform->Matrix4());
 
-		mainCamera->SetZoom(5);
+		mainCamera->SetZoom(3);
 		c->SetScale(c->GetScale().x + dt, 0.5f);
+		c->SetColor(0, 0, 1, 1);
 
 		//mainCamera->SetPosition(mainCamera->GetPosition() + glm::vec3(dt,0,0));
 	}

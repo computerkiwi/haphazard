@@ -6,8 +6,8 @@ int DebugGraphic::amount;
 unsigned int DebugGraphic::VAO;
 unsigned int DebugGraphic::VBO;
 
-DebugGraphic::DebugGraphic(glm::vec2 pos, glm::vec2 scale, int verts)
-	: m_position(pos), m_scale(scale), m_vertices(verts), m_index(amount)
+DebugGraphic::DebugGraphic(glm::vec2 pos, glm::vec2 scale, float rotation, glm::vec4 color)
+	: m_position(pos), m_scale(scale), m_rotation(rotation), m_color(color), m_index(amount)
 {
 	if (!VBO)
 	{
@@ -40,19 +40,28 @@ void DebugGraphic::DebugGraphic::DrawAll()
 
 	Graphics::Shaders::debugShader->Use();
 
-	//float *data = new float(amount * 4); // 4 floats per shape
-	float data[256];
+	float *data = new float[amount * 9]; // 9 floats per shape
 	int i = 0;
 
 	for (auto shape : shapes)
 	{
 		data[i++] = shape->m_position.x;
 		data[i++] = shape->m_position.y;
+
 		data[i++] = shape->m_scale.x;
 		data[i++] = shape->m_scale.y;
+
+		data[i++] = shape->m_rotation;
+
+		data[i++] = shape->m_color.x;
+		data[i++] = shape->m_color.y;
+		data[i++] = shape->m_color.z;
+		data[i++] = shape->m_color.w;
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * i, data, GL_STATIC_DRAW);
 
 	glDrawArraysInstanced(GL_POINTS, 0, amount, amount);
+
+	delete[] data;
 }

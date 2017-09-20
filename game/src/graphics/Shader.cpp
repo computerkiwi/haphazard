@@ -234,9 +234,10 @@ namespace Graphics
 		void LoadDebugShader()
 		{
 			std::vector<ShaderProgram::Attribute> attribs;
-			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0, true));
-			attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2, true));
-			//attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
+			attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 0, true));
+			attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 2, true));
+			attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 4, true));
+			attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 5, true));
 
 			debugShader = LoadShaders(path + "debug.vertshader", path + "debug.geoshader", path + "debug.fragshader", attribs);
 
