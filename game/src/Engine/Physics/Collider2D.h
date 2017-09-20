@@ -54,30 +54,30 @@ class StaticCollider2DComponent
 {
 public:
 	// constructor
-	StaticCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : colliderData_(colliderType, dimensions, offset, rotationOffset)
+	StaticCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : m_colliderData(colliderType, dimensions, offset, rotationOffset)
 	{
 	}
 
 	// getter of the Collider
-	Collider2D& GetColliderData();
+	Collider2D& ColliderData();
 
 private:
 	// the actual data of the collider
-	Collider2D colliderData_;
+	Collider2D m_colliderData;
 };
 
 class DynamicCollider2DComponent
 {
 public:
 	// constructor
-	DynamicCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : colliderData_(colliderType, dimensions, offset, rotationOffset)
+	DynamicCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : m_colliderData(colliderType, dimensions, offset, rotationOffset)
 	{
 	}
 
 	// getter of the Collider
-	Collider2D& GetColliderData();
+	Collider2D& ColliderData();
 
 private:
 	// the actual data of the collider
-	Collider2D colliderData_;
+	Collider2D m_colliderData;
 };

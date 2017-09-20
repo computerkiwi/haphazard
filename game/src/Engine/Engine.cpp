@@ -87,13 +87,15 @@ Engine::Engine()
 	Brett_obj1.addComponent<TransformComponent>(glm::vec3(0,0,1), glm::vec3(.1f,.1f,1));
 	Brett_obj1.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 	Brett_obj1.addComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.003,.003,0));
+	Brett_obj1.addComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.1, .1, 0));
 
 	// object with acceleration
 	GameObject Brett_obj2 = m_space.NewGameObject();
-	Brett_obj2.addComponent<TextSprite>("an object with velocity");
-	Brett_obj2.addComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(.1f, .1f, 1));
+	Brett_obj2.addComponent<TextSprite>("an object with acceleration");
+	Brett_obj2.addComponent<TransformComponent>(glm::vec3(-.5f, .5f, 1), glm::vec3(.1f, .1f, 1));
 	Brett_obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 	Brett_obj2.addComponent<RigidBodyComponent>(glm::vec3(.0001f, 0, 0), glm::vec3(0, 0, 0));
+	Brett_obj2.addComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.1, .1, 0));
 }
 
 void Engine::MainLoop()

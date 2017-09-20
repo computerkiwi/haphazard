@@ -32,7 +32,7 @@ float Collider2D::GetRotationOffset()
 // setters
 void Collider2D::SetColliderType(colliderType colliderType)
 {
-
+	m_colliderType = colliderType;
 }
 
 void Collider2D::SetDimensions(glm::vec3 newDimensions)
@@ -69,4 +69,14 @@ void Collider2D::ScaleDimensions(float xScale, float yScale)
 void Collider2D::AdjustRotationOffset(float rotationAdjustment)
 {
 	m_rotationOffset += rotationAdjustment;
+}
+
+Collider2D& StaticCollider2DComponent::ColliderData()
+{
+	return m_colliderData;
+}
+
+Collider2D& DynamicCollider2DComponent::ColliderData()
+{
+	return m_colliderData;
 }
