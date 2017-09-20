@@ -112,13 +112,8 @@ void Editor_Init()
 
 void Editor(Engine *engine)
 {
-	// TopBar();
-
 	auto objects = engine->GetSpace()->CollectGameObjects();
-	for (auto& object : objects)
-	{
-		ImGui_GameObject(&object);
-	}
+	ImGui_GameObject(&objects[0]);
 }
 
 
