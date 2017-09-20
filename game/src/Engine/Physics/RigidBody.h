@@ -46,6 +46,15 @@ private:
 	glm::vec3 acceleration_;
 	glm::vec3 velocity_;
 	float mass_;
+
+	META_REGISTER(RigidBodyComponent)
+	{
+		META_DefineType(RigidBodyComponent);
+
+		META_DefineGetterSetter(RigidBodyComponent, glm::vec3, Acceleration, SetAcceleration, "acceleration");
+		META_DefineGetterSetter(RigidBodyComponent, glm::vec3, Velocity, SetVelocity, "velocity");
+		META_DefineGetterSetter(RigidBodyComponent, float, Mass, SetMass, "mass");
+	}
 };
 
 class RigidBodySystem : public SystemBase
