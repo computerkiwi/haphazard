@@ -184,36 +184,36 @@ class GameSpace
 
 public:
 	template <typename T>
-	void registerComponentType()
+	void RegisterComponentType()
 	{
 		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering component type ", typeid(T).name());
 		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
 	}
 
-	void registerSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
+	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
 	{
 		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 		newSystem->RegisterGameSpace(this);
 		m_systems.insert(std::make_pair(priority, std::move(newSystem)));
 	}
-	void registerSystem(std::unique_ptr<SystemBase>&& newSystem)
+	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem)
 	{
-		registerSystem(std::move(newSystem), newSystem->DefaultPriority());
+		RegisterSystem(std::move(newSystem), newSystem->DefaultPriority());
 	}
 
-	void registerSystem(SystemBase *newSystem)
+	void RegisterSystem(SystemBase *newSystem)
 	{
-		registerSystem(std::unique_ptr<SystemBase>(newSystem));
+		RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
 	}
 
-	void registerSystem(SystemBase *newSystem, size_t priority)
+	void RegisterSystem(SystemBase *newSystem, size_t priority)
 	{
-		registerSystem(std::unique_ptr<SystemBase>(newSystem), priority);
+		RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
 	}
 
 	// Returns a component HANDLE.
 	template <typename T>
-	ComponentHandle<T> getComponent(GameObject_ID id)
+	ComponentHandle<T> GetComponent(GameObject_ID id)
 	{
 		return ComponentHandle<T>(id, this);
 	}
@@ -225,7 +225,7 @@ public:
 		return static_cast<ComponentMap<T> *>(baseMap);
 	}
 
-	GameObject getGameObject(GameObject_ID id)
+	GameObject GetGameObject(GameObject_ID id)
 	{
 		return GameObject(id, this);
 	}
@@ -253,7 +253,7 @@ public:
 
 private:
 	template <typename T>
-	T *getInternalComponent(GameObject_ID id)
+	T *GetInternalComponent(GameObject_ID id)
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
@@ -264,7 +264,7 @@ private:
 	}
 
 	template <typename T, typename... Args>
-	void emplaceComponent(GameObject_ID id, Args&&... args)
+	void EmplaceComponent(GameObject_ID id, Args&&... args)
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 

@@ -50,28 +50,28 @@ Engine::Engine()
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 	// Register the component types.
-	m_space.registerComponentType<TransformComponent>();
-	m_space.registerComponentType<Graphics::SpriteComponent>();
-	m_space.registerComponentType<RigidBodyComponent>();
+	m_space.RegisterComponentType<TransformComponent>();
+	m_space.RegisterComponentType<Graphics::SpriteComponent>();
+	m_space.RegisterComponentType<RigidBodyComponent>();
 
 	// Register the systems.
-	m_space.registerSystem(new RigidBodySystem);
-	m_space.registerSystem(new RenderSystem(window));
+	m_space.RegisterSystem(new RigidBodySystem);
+	m_space.RegisterSystem(new RenderSystem(window));
 
 	// Initialize the system.
 	m_space.Init();
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
-	obj.addComponent<TransformComponent>(glm::vec3(0,0,-1));
-	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
+	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
+	obj.AddComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
 
 	GameObject obj2 = m_space.NewGameObject();
-	obj2.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
+	obj2.AddComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
 	GameObject obj3 = m_space.NewGameObject();
-	obj3.addComponent<Graphics::SpriteComponent>(nullptr);
+	obj3.AddComponent<Graphics::SpriteComponent>(nullptr);
 }
 
 void Engine::MainLoop()

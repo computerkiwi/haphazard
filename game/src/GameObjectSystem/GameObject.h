@@ -22,16 +22,16 @@ public:
 	}
 
 	template <typename T, typename... Args>
-	void addComponent(Args&&... args)
+	void AddComponent(Args&&... args)
 	{
-		m_gameSpace->emplaceComponent<T>(m_objID, std::forward<Args>(args)...);
+		m_gameSpace->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
 	template <typename T>
-	ComponentHandle<T> getComponent()
+	ComponentHandle<T> GetComponent()
 	{
 		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->getInternalComponent<T>(m_objID) != nullptr)
+		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
 		{
 			// Why the hell does constructing a ComponentHandle work?
 			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
