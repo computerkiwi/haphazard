@@ -22,6 +22,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "graphics\Settings.h" // Settings needed for window init
 #include "graphics\Texture.h"
 
+// imgui
+#include <imgui.h>
+#include "../Imgui/imgui-setup.h"
+#include "../Imgui/Editor.h"
+
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
 #include "graphics\SpriteComponent.h"
@@ -34,12 +39,15 @@ GLFWwindow* WindowInit();
 // Systems to register.
 #include "graphics\RenderSystem.h"
 
-
-Engine::Engine()
+				   // Init OpenGL and start window
+Engine::Engine() : m_window(WindowInit())
 {
-	//Init OpenGL and start window
-	GLFWwindow *window = WindowInit();
+	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
+
+	ImGui_ImplGlfwGL3_Init(m_window, true);
+
+	Editor_Init();
 	// Load Shaders
 	Graphics::Shaders::Init();
 
@@ -56,7 +64,7 @@ Engine::Engine()
 
 	// Register the systems.
 	m_space.RegisterSystem(new RigidBodySystem);
-	m_space.RegisterSystem(new RenderSystem(window));
+	m_space.RegisterSystem(new RenderSystem());
 
 	// Initialize the system.
 	m_space.Init();
@@ -71,7 +79,9 @@ Engine::Engine()
 	obj2.AddComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
 	GameObject obj3 = m_space.NewGameObject();
-	obj3.AddComponent<Graphics::SpriteComponent>(nullptr);
+	obj3.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
+	obj3.addComponent<TextSprite>("another object");
+	obj3.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 }
 
 void Engine::MainLoop()
@@ -81,6 +91,7 @@ void Engine::MainLoop()
 	{
 		Update();
 	}
+	ImGui_ImplGlfwGL3_Shutdown();
 	Logging::Exit();
 }
 
@@ -89,10 +100,17 @@ void Engine::MainLoop()
 void Engine::Update()
 {
 	m_dt = CalculateDt();
+	
+	m_space.Update(m_dt);
 
 	Audio::Update();
-
-	m_space.Update(m_dt);
+	
+	ImGui_ImplGlfwGL3_NewFrame();
+	Editor(this);
+	ImGui::Render();
+	
+	glfwSwapBuffers(m_window);
+	glfwPollEvents();
 }
 
 
@@ -144,6 +162,7 @@ GLFWwindow* WindowInit()
 	}
 
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1); // Enable vsync
 
 	if (glewInit() != GLEW_OK)
 	{

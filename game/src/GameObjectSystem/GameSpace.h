@@ -2,7 +2,7 @@
 FILE: GameSpace.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -15,8 +15,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <vector>
 #include <memory>
 
-#include "GameObject.h"
 #include "Component.h"
+#include "TransformComponent.h"
+
 
 // Forward declare.
 class GameSpace;
@@ -41,7 +42,7 @@ public:
 	virtual void Update(float dt) = 0;
 
 	// Simply returns the default priority for this system.
-	virtual size_t DefaultPriority() = 0;
+	virtual std::size_t DefaultPriority() = 0;
 
 protected:
 	GameSpace *GetGameSpace()
@@ -74,6 +75,10 @@ public:
 	{
 	}
 
+	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) = 0;
+
+	virtual void Delete(GameObject_ID object) = 0;
+
 private:
 };
 
@@ -103,6 +108,22 @@ public:
 		else
 		{
 			return &iter->second;
+		}
+	}
+
+	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override
+	{
+		if (m_components.find(originalObject) != m_components.end())
+		{
+			m_components.emplace(newObject, T(m_components.find(originalObject)->second));
+		}
+	}
+
+	virtual void Delete(GameObject_ID object)
+	{
+		if (m_components.find(object) != m_components.end())
+		{
+			m_components.erase(object);
 		}
 	}
 
@@ -190,7 +211,7 @@ public:
 		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
 	}
 
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, size_t priority)
+	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
 	{
 		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 		newSystem->RegisterGameSpace(this);
@@ -206,7 +227,7 @@ public:
 		RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
 	}
 
-	void RegisterSystem(SystemBase *newSystem, size_t priority)
+	void RegisterSystem(SystemBase *newSystem, std::size_t priority)
 	{
 		RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
 	}
@@ -251,6 +272,38 @@ public:
 		}
 	}
 
+	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
+	{
+		for (auto& c_map : m_componentMaps)
+		{
+			c_map.second->Duplicate(originalObject, newObject);
+		}
+
+		return GameObject(newObject, this);
+	}
+
+	void Delete(GameObject_ID object)
+	{
+		for (auto& c_map : m_componentMaps)
+		{
+			c_map.second->Delete(object);
+		}
+	}
+
+	std::vector<GameObject> CollectGameObjects()
+	{
+		std::vector<GameObject> objects;
+		objects.reserve(30);
+		auto *map = GetComponentMap<TransformComponent>();
+
+		for (auto& transform : *map)
+		{
+			objects.emplace_back(transform.GetGameObject());
+		}
+
+		return std::move(objects);
+	}
+
 private:
 	template <typename T>
 	T *GetInternalComponent(GameObject_ID id)
@@ -275,7 +328,7 @@ private:
 	}
 
 	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
-	std::map<size_t, std::unique_ptr<SystemBase>> m_systems;
+	std::map<std::size_t, std::unique_ptr<SystemBase>> m_systems;
 };
 
 
@@ -293,9 +346,9 @@ constexpr unsigned long hash(const char *str)
 
 class GameSpaceManager
 {
-	std::unordered_map<size_t, GameSpace *> m_spaces;
+	std::unordered_map<std::size_t, GameSpace *> m_spaces;
 
-	GameSpace *GetInteral(size_t key)
+	GameSpace *GetInteral(std::size_t key)
 	{
 		return m_spaces.at(key);
 	}
@@ -326,3 +379,4 @@ public:
 	}
 };
 
+#include "GameObject.h"

@@ -10,6 +10,9 @@
 
 #include "GL\glew.h"
 
+#include <imgui.h>
+#include "Imgui\imgui-setup.h"
+
 ///
 // Screen
 ///
@@ -185,6 +188,7 @@ void Graphics::Screen::Draw()
 
 	// Convert HDR to LDR
 	Shaders::ScreenShader::HDR->Use(); 
+
 
 	// Render final screen
 	mFullscreen.Bind();

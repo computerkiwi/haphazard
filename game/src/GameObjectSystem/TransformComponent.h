@@ -2,7 +2,7 @@
 FILE: Transform.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -39,7 +39,7 @@ public:
 	// Getters
 	//---------
 
-	float& Rotation()
+	float& GetRotation()
 	{
 		return m_rotation;
 	}
@@ -74,17 +74,22 @@ public:
 		return m_position;
 	}
 
-	glm::vec2 Position2D() const
+	glm::vec2 GetPosition2D()
 	{
 		return m_position;
 	}
 
-	glm::vec3& Scale()
+	glm::vec2 GetPosition2D() const
+	{
+		return m_position;
+	}
+
+	glm::vec3& GetScale()
 	{
 		return m_scale;
 	}
 
-	glm::vec3 Scale() const
+	glm::vec3 GetScale() const
 	{
 		return m_scale;
 	}
@@ -104,7 +109,7 @@ public:
 		return m_scale;
 	}
 
-	glm::mat4 Matrix4() const
+	glm::mat4 GetMatrix4() const
 	{
 		return glm::translate(glm::mat4(),m_position) * glm::rotate(glm::mat4(), DegToRad(m_rotation), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
 	}

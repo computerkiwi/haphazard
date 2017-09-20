@@ -12,7 +12,8 @@ template <typename T>
 class ComponentHandle;
 
 
-typedef size_t GameObject_ID;
+typedef std::size_t GameObject_ID;
+typedef int    dummy;
 
 class GameObject
 {
@@ -48,6 +49,24 @@ public:
 		static GameObject_ID lastGeneratedID = 0;
 
 		return lastGeneratedID++;
+	}
+
+	GameObject_ID Getid() const
+	{
+		return m_objID;
+	}
+
+	// Dummy Template param since GameSpace are forward delcared here
+	template <typename dummy>
+	GameObject Duplicate()
+	{
+		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
+	}
+
+	template <typename dummy>
+	void Delete()
+	{
+		m_gameSpace->Delete(m_objID);
 	}
 
 private:

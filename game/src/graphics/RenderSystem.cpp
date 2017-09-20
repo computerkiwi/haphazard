@@ -8,8 +8,10 @@
 #include "Camera.h"
 #include "Settings.h"
 
-RenderSystem::RenderSystem(GLFWwindow* window)
-	: m_window(window)
+#include <imgui.h>
+#include "Imgui\imgui-setup.h"
+
+RenderSystem::RenderSystem()
 {
 }
 
@@ -43,16 +45,15 @@ void RenderSystem::Update(float dt)
 		}
 
 		//Stuff happens here
-		spriteHandle->Draw(transform->Matrix4());
+		spriteHandle->Draw(transform->GetMatrix4());
 	}
+
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 	Graphics::Screen::GetView().Draw();
 
 	glDisableVertexAttribArray(0);
-	glfwSwapBuffers(m_window);
-	glfwPollEvents();
 }
 
 // Simply returns the default priority for this system.
