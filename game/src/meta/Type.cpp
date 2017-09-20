@@ -89,6 +89,17 @@ namespace meta
 			membersVector.push_back(iter->second);
 		}
 
+		// Add the members of our pointer type.
+		if (m_dereferenceType != nullptr)
+		{
+			std::vector<Member *> dereferenceMembers = m_dereferenceType->GetMembers();
+
+			for (auto member : dereferenceMembers)
+			{
+				membersVector.push_back(member);
+			}
+		}
+
 		return membersVector;
 	}
 

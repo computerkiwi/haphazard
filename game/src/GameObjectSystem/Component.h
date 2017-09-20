@@ -26,7 +26,7 @@ public:
 
 	T& operator*()
 	{
-		return *m_gameSpace->getInternalComponent(m_objID);
+		return *m_gameSpace->getInternalComponent<T>(m_objID);
 	}
 
 	GameObject GetGameObject()

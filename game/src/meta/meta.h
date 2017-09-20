@@ -197,7 +197,7 @@ namespace meta
 	class MemberGetSet : public Member
 	{
 	public:
-		using Getter = MemberType(BaseType::*)();
+		using Getter = MemberType(BaseType::*)() const;
 		using Setter = void (BaseType::*)(MemberType);
 
 		using ReferenceGetter = MemberType&(BaseType::*)();
@@ -211,11 +211,19 @@ namespace meta
 		{
 		}
 
+		MemberGetSet(const char * name, Getter getter, ReferenceGetter setter) : m_name(name), m_getter(getter), m_setter(nullptr), m_refGetter(nullptr), m_refSetter(nullptr)
+		{
+		}
+
 		MemberGetSet(const char * name, ReferenceGetter getter, Setter setter) : m_name(name), m_getter(nullptr), m_setter(setter), m_refGetter(getter), m_refSetter(nullptr)
 		{
 		}
 
 		MemberGetSet(const char * name, ReferenceGetter getter, ReferenceSetter setter) : m_name(name), m_getter(nullptr), m_setter(nullptr), m_refGetter(getter), m_refSetter(setter)
+		{
+		}
+
+		MemberGetSet(const char * name, ReferenceGetter getter, ReferenceGetter setter) : m_name(name), m_getter(nullptr), m_setter(nullptr), m_refGetter(getter), m_refSetter(nullptr)
 		{
 		}
 
@@ -264,6 +272,11 @@ namespace meta
 			else if (m_refSetter != nullptr)
 			{
 				(baseObj->*m_refSetter)(*dataPtr);
+				return;
+			}
+			else if (m_refGetter != nullptr)
+			{
+				(baseObj->*m_refGetter)() = *reinterpret_cast<const MemberType *>(data);
 				return;
 			}
 

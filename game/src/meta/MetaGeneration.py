@@ -47,11 +47,6 @@ def FindMacroValue(fileString, macro):
 
 	openParenIndex  = fileString.find('(', startIndex)
 	closeParenIndex = fileString.find(')', openParenIndex)
-	
-
-
-
-	print (fileString[openParenIndex + 1: closeParenIndex])
 
 	return fileString[openParenIndex + 1 : closeParenIndex]
 	
@@ -92,7 +87,7 @@ def GenerateFile(filePath, typesList, namespacesList, headersList):
 		file.write("}\n}\n")
 
 		
-		
+print("Generating meta info with Python...")	
 
 ParseCommandLine()
 headerFilePaths = GetHeaderFiles(sourceDirectory)
