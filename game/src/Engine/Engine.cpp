@@ -24,7 +24,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
-#include "GameObjectSystem/TextSprite.h"
 #include "graphics\SpriteComponent.h"
 #include "graphics\Texture.h"
 #include "graphics\RenderSystem.h"
@@ -52,7 +51,6 @@ Engine::Engine()
 
 	// Register the component types.
 	m_space.registerComponentType<TransformComponent>();
-	m_space.registerComponentType<TextSprite>();
 	m_space.registerComponentType<Graphics::SpriteComponent>();
 	m_space.registerComponentType<RigidBodyComponent>();
 
@@ -66,16 +64,13 @@ Engine::Engine()
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
 	obj.addComponent<TransformComponent>(glm::vec3(0,0,-1));
-	obj.addComponent<TextSprite>("an object");
 	obj.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj2.addComponent<TextSprite>("another object");
 	obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
 	GameObject obj3 = m_space.NewGameObject();
-	obj3.addComponent<TextSprite>("an object without a transform");
 	obj3.addComponent<Graphics::SpriteComponent>(nullptr);
 }
 
