@@ -49,8 +49,11 @@ namespace Graphics
 
 		void Draw();
 
+		void ResizeScreen(int width, int height);
+
 		class FrameBuffer
 		{
+			friend Screen;
 		public:
 			FrameBuffer(int numColBfrs = 2);
 			void SetDimensions(int width, int height);

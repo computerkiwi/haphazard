@@ -178,7 +178,7 @@ void Graphics::Screen::Draw()
 		result = source; // Save outcome colorbuffer (would be target, but they are swapped at the end of each loop)
 	}
 	
-	Raindrop::DrawToScreen(result);
+	//Raindrop::DrawToScreen(result);
 
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -191,9 +191,24 @@ void Graphics::Screen::Draw()
 	glDisable(GL_DEPTH_TEST); // Dont want to lose screen to near clipping
 	result.BindColorBuffer();
 	mFullscreen.DrawTris();
+	glEnable(GL_DEPTH_TEST);
 }
 
+void Graphics::Screen::ResizeScreen(int width, int height)
+{
+	glDeleteBuffers(2, mView.mColorBuffers);
+	glDeleteBuffers(2, mFX.mColorBuffers);
+	glDeleteBuffers(1, &mView.mDepthStencilBuffer);
+	glDeleteBuffers(1, &mFX.mDepthStencilBuffer);
 
+	mView.mWidth = mFX.mWidth = width;
+	mView.mHeight = mFX.mHeight = height;
+
+	mView.GenerateColorBuffers();
+	mView.GenerateDepthStencilObject();
+	mFX.GenerateColorBuffers();
+	mFX.GenerateDepthStencilObject();
+}
 
 ///
 // FrameBuffer

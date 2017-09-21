@@ -14,6 +14,8 @@ namespace Graphics
 		void SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector);
 		void SetProjection(float zoom, float aspectRatio, float near, float far);
 
+		void Graphics::Camera::ResizeViewport(int width, int height);
+
 		void SetPosition(glm::vec3 pos) { mPosition = mCenter = pos; mCenter.z = 0; ApplyCameraMatrices(); }
 		//void SetTarget(glm::vec3 pos) { mCenter = pos; ApplyCameraMatrices(); }
 		void SetUp(glm::vec3 up) { mUp = up; ApplyCameraMatrices(); }
