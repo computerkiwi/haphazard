@@ -26,11 +26,6 @@ void RenderSystem::Init()
 	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
-
-	DebugGraphic* d = new DebugGraphic(glm::vec2(1, 0));
-	DebugGraphic* a = new DebugGraphic(glm::vec2(2, 1));
-	DebugGraphic* b = new DebugGraphic(glm::vec2(-2, -2));
-	c = new DebugGraphic(glm::vec2(1, 0), glm::vec2(0.5f,0.5f) );
 }
 
 // Called each frame.
@@ -55,10 +50,8 @@ void RenderSystem::Update(float dt)
 		spriteHandle->Draw(transform->Matrix4());
 
 		mainCamera->SetZoom(3);
-		c->SetScale(c->GetScale().x + dt, 0.5f);
-		c->SetColor(0, 0, 1, 1);
 
-		//mainCamera->SetPosition(mainCamera->GetPosition() + glm::vec3(dt,0,0));
+		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
 	}
 
 
