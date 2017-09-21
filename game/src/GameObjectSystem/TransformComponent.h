@@ -12,7 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <cmath>
 
 // TODO[Kieran] - Move this somewhere more general.
-static float DegToRad(float degrees)
+constexpr float DegToRad(float degrees)
 {
 	const float PI = 3.14159265358979323846264338327950f;
 	const float RADIANS_IN_CIRCLE = 2 * PI;

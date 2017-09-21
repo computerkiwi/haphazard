@@ -17,6 +17,7 @@ extern "C"
 
 #include <LuaBridge.h>
 #include "GameObjectSystem/GameSpace.h"
+#include "../Imgui/Editor.h"
 
 struct GLFWwindow;
 
@@ -42,6 +43,7 @@ private:
 	lua_State * L = luaL_newstate();
 	GLFWwindow *m_window;
 	GameSpace m_space;
+	Editor   m_editor;
 };
 
 void RegisterComponents(lua_State * L);

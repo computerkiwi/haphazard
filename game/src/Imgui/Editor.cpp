@@ -1,10 +1,19 @@
+/*
+FILE: Editor.cpp
+PRIMARY AUTHOR: Sweet
 
+Copyright © 2017 DigiPen (USA) Corporation.
+*/
+
+// http://www.ariel.com/images/animated-messages-small2.gif
 
 #include "Editor.h"
 
 #include <string>
 #include <sstream>
+#include <algorithm>
 
+#include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
 #include "GameObjectSystem\TransformComponent.h"
@@ -13,8 +22,15 @@
 
 #include "Engine\Engine.h"
 
-void TopBar();
-void Console();
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <locale>
+#include <codecvt>
+
+
 void ImGui_GameObject(GameObject *object);
 void ImGui_Transform(TransformComponent *transform);
 
@@ -24,13 +40,12 @@ void ImGui_Transform(TransformComponent *transform);
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
 	                (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
 
-// ((0xFF000000 & HEX) / 0xFF000000)
-
-
-void Editor_Init()
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engine)
 {
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
+
+	ImGui_ImplGlfwGL3_Init(window, true);
 
 	style->WindowPadding = ImVec2(15, 15);
 	style->WindowRounding = 5.0f;
@@ -105,55 +120,289 @@ void Editor_Init()
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
 	
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+
+	RegisterCommand("log", []() { Logging::Log("Hello!"); });
+	RegisterCommand("exit", []() { std::exit(0); });
+
+}
+
+Editor::~Editor()
+{
+	ImGui_ImplGlfwGL3_Shutdown();
 }
 
 
-void Editor(Engine *engine)
+void Editor::Update()
 {
-	auto objects = engine->GetSpace()->CollectGameObjects();
-	ImGui_GameObject(&objects[0]);
+	ImGui_ImplGlfwGL3_NewFrame();
+	ImGui::ShowTestWindow();
+	m_objects = m_engine->GetSpace()->CollectGameObjects();
+	Console();
+	ImGui_GameObject(&m_objects[0]);
+
+	ImGui::Render();
 }
 
 
-void TopBar()
+void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	if (ImGui::BeginMenuBar())
+	m_commands.emplace(command, f);
+}
+
+
+void Editor::Log(const char *log_message, ...)
+{
+	int old_size = m_log_buffer.size();
+	std::stringstream ss;
+
+	auto t = std::time(nullptr);
+	
+	#pragma warning(disable : 4996)
+	ss << std::put_time(std::localtime(&t), "[%H:%M:%S]") << " - " << log_message << std::endl;
+
+	va_list args;
+	va_start(args, log_message);
+	m_log_buffer.appendv(ss.str().c_str(), args);
+	va_end(args);
+	m_offsets.push_back(m_log_buffer.size() - 1);
+}
+
+
+void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
+{
+	memmove(data->Buf, m_log_history[entryIndex].c_str(), m_log_history[entryIndex].length());
+	data->BufDirty = true;
+	data->BufTextLen = static_cast<int>(m_log_history[entryIndex].length());
+}
+
+
+int Input(ImGuiTextEditCallbackData *data)
+{
+	Editor *editor = reinterpret_cast<Editor *>(data->UserData);
+
+	switch (data->EventFlag)
 	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Save"))
+	case ImGuiInputTextFlags_CallbackCompletion:
+			if (editor->m_state.m_popUp && editor->m_state.activeIndex != -1)
 			{
-				Logging::Log("Saving");
+
+			}
+			editor->m_state.m_popUp = false;
+			editor->m_state.activeIndex = -1;
+			editor->m_state.clickedIndex = -1;
+		
+		break;
+
+	case ImGuiInputTextFlags_CallbackHistory:
+		editor->m_state.m_popUp = true;
+
+			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0)
+			{
+				editor->m_state.activeIndex--;
+				editor->m_state.m_selection_change = true;
+			}
+			else if (data->EventKey == ImGuiKey_DownArrow && editor->m_state.activeIndex < editor->m_log_history.size() - 1)
+			{
+				editor->m_state.activeIndex++;
+				editor->m_state.m_selection_change = true;
 			}
 
-			ImGui::EndMenu();
-		}
+		break;
 
-		ImGui::EndMenuBar();
+	case ImGuiInputTextFlags_CallbackAlways:
+			if (editor->m_state.activeIndex != -1)
+			{
+				
+				editor->m_state.activeIndex = -1;
+				editor->m_state.clickedIndex = -1;
+				editor->m_state.m_popUp = false;
+			}
+		break;
+	case ImGuiInputTextFlags_CallbackCharFilter:
+		break;
 	}
+
+	return 0;
 }
 
 
-void Console()
+bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 {
-	ImGui::SetNextWindowPosCenter();
-	char command_buffer[1024];
-	ImGui::Begin("Console");
-	ImGui::InputText("Command: ", command_buffer, 300);
+	if (!m_state.m_popUp)
+		return false;
 
-	std::stringstream command(command_buffer);
-	std::string parse;
+	ImGuiWindowFlags flags = 
+        ImGuiWindowFlags_NoTitleBar          | 
+        ImGuiWindowFlags_NoResize            |
+        ImGuiWindowFlags_NoMove              |
+        ImGuiWindowFlags_HorizontalScrollbar |
+        ImGuiWindowFlags_NoSavedSettings     |
+        ImGuiWindowFlags_ShowBorders;
+	ImGui::SetNextWindowPos(pos);
+	ImGui::SetNextWindowSize(size);
+	ImGui::Begin("console_popup", nullptr, flags);
+	
+	ImGui::PushAllowKeyboardFocus(false);
 
-	while (command >> parse)
+	for (auto i = 0; i < m_log_history.size(); ++i)
 	{
-		if (parse == "Log")
+		bool isActiveIndex = m_state.activeIndex == i;
+		if (isActiveIndex)
 		{
-			Logging::Log("Hello!");
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 0, 0, 1));
+		}
+
+		ImGui::PushID(i);
+		if (ImGui::Selectable(m_log_history[i].c_str(), m_state.activeIndex))
+		{
+			m_state.clickedIndex = i;
+		}
+		ImGui::PopID();
+
+		if (isActiveIndex)
+		{
+			if (m_state.m_selection_change)
+			{
+				ImGui::SetScrollHere();
+				m_state.m_selection_change = false;
+			}
+
+			ImGui::PopStyleColor(1);
 		}
 	}
 
+	bool isFocuesed = ImGui::IsRootWindowFocused();
+
+	ImGui::PopAllowKeyboardFocus();
+	ImGui::End();
+
+	return isFocuesed;
+}
+
+
+void Editor::Console()
+{
+	char command_buffer[1024] = { 0 };
+	ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
+
+	auto winflags = 0;
+	if (m_state.m_popUp)
+		winflags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiSetCond_FirstUseEver);
+	ImGui::Begin("Console", nullptr, winflags);
+
+	if (ImGui::Button("Clear Log"))
+	{
+		Clear();
+	}
+
+	ImGui::SameLine();
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+	if (ImGui::Button("Copy"))
+	{
+		ImGui::LogToClipboard();
+	}
+	ImGui::PopStyleVar();
+	
+	ImGui::SameLine();
+	m_log_filter.Draw("Filter", -100.0f);
+
+	ImGui::BeginChild("scrolling", ImVec2(470, 285));
+	if (m_log_filter.IsActive())
+	{
+		const char* buf_begin = m_log_buffer.begin();
+		const char* line = buf_begin;
+
+		for (int line_no = 0; line != NULL; line_no++)
+		{
+			const char* line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
+
+			if (m_log_filter.PassFilter(line, line_end))
+			{
+				ImGui::TextUnformatted(line, line_end);
+			}
+
+			line = line_end && line_end[1] ? line_end + 1 : NULL;
+		}
+	}
+	else
+	{
+		ImGui::TextUnformatted(m_log_buffer.begin());
+	}
+	ImGui::EndChild();
+	ImGui::Separator();
+
+
+
+	ImGui::Text("Command: ");
+	ImGui::SameLine();
+
+	auto flags = ImGuiInputTextFlags_CtrlEnterForNewLine  |
+				 ImGuiInputTextFlags_EnterReturnsTrue     |
+				 ImGuiWindowFlags_NoSavedSettings         |
+				 ImGuiInputTextFlags_CallbackAlways       |
+				 ImGuiInputTextFlags_CallbackCharFilter   |
+				 ImGuiInputTextFlags_CallbackCompletion   |
+				 ImGuiInputTextFlags_CallbackHistory;
+
+	if (ImGui::InputText("", command_buffer, 300, flags, Input, this))
+	{
+		std::string command(command_buffer);
+		std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+		if (m_log_history.size() < 8092)
+		{
+			m_log_history.emplace_back(command.c_str());
+		}
+
+		
+		this->Log(command.c_str());
+
+		if (m_state.m_popUp && m_state.activeIndex != -1)
+		{
+			memmove(command_buffer, m_log_history[m_state.activeIndex].c_str(), m_log_history[m_state.activeIndex].size());
+		}
+		else
+		{
+			for (auto& cmd : m_commands)
+			{
+				if (cmd.first == command)
+					cmd.second();
+			}
+		}
+		m_state.m_popUp = false;
+		m_state.activeIndex = -1;
+		ImGui::SetKeyboardFocusHere(-1);
+	}
+
+	if (m_state.clickedIndex != -1)
+	{
+		ImGui::SetKeyboardFocusHere(-1);
+		m_state.m_popUp = false;
+	}
+
+	// Draw PopUp
+	ImVec2 pop_pos(ImGui::GetItemRectMin());
+	ImVec2 pop_size(ImGui::GetItemRectSize().x - 60, ImGui::GetItemsLineHeightWithSpacing() * 4);
+	bool windowFocus = ImGui::IsRootWindowFocused();
+
+	pop_pos.y += ImGui::GetItemRectSize().y;
+
+	bool popUpFocus = PopUp(pop_pos, pop_size);
+
+	if (!windowFocus && !popUpFocus)
+	{
+		m_state.m_popUp = false;
+	}
 
 	ImGui::End();
+}
+
+
+void Editor::Clear()
+{
+	m_log_buffer.clear();
 }
 
 
