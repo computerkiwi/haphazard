@@ -18,6 +18,8 @@ namespace Graphics
 		//void SetTarget(glm::vec3 pos) { mCenter = pos; ApplyCameraMatrices(); }
 		void SetUp(glm::vec3 up) { mUp = up; ApplyCameraMatrices(); }
 
+		void SetRotation(float degrees);
+
 		void SetZoom(float zoom) { m_zoom = zoom; ApplyCameraMatrices(); }
 		void SetAspectRatio(float ar) { mAspectRatio = ar; ApplyCameraMatrices(); }
 		void SetNearPlane(float near) { mNear = near; ApplyCameraMatrices(); }
