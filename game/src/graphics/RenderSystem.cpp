@@ -48,13 +48,14 @@ void RenderSystem::Update(float dt)
 			continue;
 		}
 
+		spriteHandle->UpdateAnimatedTexture(dt);
+
 		//Stuff happens here
 		spriteHandle->Draw(transform->Matrix4());
 
 		mainCamera->SetZoom(3);
 		
 		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
-
 	}
 
 

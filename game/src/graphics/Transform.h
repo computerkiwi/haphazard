@@ -29,5 +29,3 @@ private:
 	glm::mat4 matrix;
 	bool isDirty = true;
 };
-
-

@@ -6,8 +6,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "SOIL\SOIL.h"
-
 ///
 // Mesh
 ///
@@ -34,6 +32,7 @@ Mesh::Mesh(GLenum renderMode)
 
 	//Get Transform attrib locations
 	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
+	uniTextureBox = glGetUniformLocation(program->GetProgramID(), "texBox");
 }
 
 Mesh::~Mesh()
@@ -84,12 +83,25 @@ void Mesh::Draw(glm::mat4 matrix)
 	program->Use();
 	glBindVertexArray(vaoID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	if (texture)
-		glBindTexture(GL_TEXTURE_2D, texture);
+	if (animatedTexture)
+	{
+		glBindTexture(GL_TEXTURE_2D, animatedTexture->GetID());
+		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
+		glm::vec2 s = animatedTexture->GetSpriteSize();
+		glUniform4f( uniTextureBox, t.x, t.y, t.x + s.x, t.y + s.y );
+		//glUniform4f(uniTextureBox, 0, 0, 1, 1);
+	}
 	else
-		glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
+	{
+		if (texture)
+			glBindTexture(GL_TEXTURE_2D, texture);
+		else
+			glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
+		glUniform4f(uniTextureBox, 0, 0, 1, 1);
+	}
 
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(matrix));
+
 
 	glDrawArrays(drawMode, 0, (int)vertices.size());
 }
@@ -142,44 +154,19 @@ void Mesh::CompileMesh()
 	delete [] verts;
 }
 
-///
-// Texture
-///
-Texture::Texture(const char* file)
+void Mesh::UpdateAnimatedTexture(float dt)
 {
-	int width, height;
-	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
+	if (animatedTexture)
+	{
+		AT_timer += dt;
+		if (AT_timer > 1.0f / AT_fps)
+		{
+			// Not adding by 1 prevents skipped frames in low framerates
+			AT_frame += AT_timer / (1.0f / AT_fps);
+			AT_timer = 0;
 
-	glGenTextures(1, &mID);
-	glBindTexture(GL_TEXTURE_2D, mID);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image); // Load image
-	SOIL_free_image_data(image); // Data given to opengl, dont need it here anymore
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-}
-
-Texture::Texture(float *pixels, int width, int height)
-{
-	glGenTextures(1, &mID);
-	glBindTexture(GL_TEXTURE_2D, mID);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, pixels); // Load image
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-}
-
-Texture::~Texture()
-{
-	glDeleteTextures(1, &mID);
+			if (AT_frame >= animatedTexture->GetMaxFrame())
+				AT_frame = 0;
+		}
+	}
 }

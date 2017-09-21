@@ -47,15 +47,26 @@ public:
 
 	void Draw(glm::mat4 matrix);
 
+	void SetTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
+	void SetAnimatedTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
+
+	void SetFrame(int frame) { AT_frame = frame; AT_timer = 0; }
+
+	void UpdateAnimatedTexture(float dt);
+
 private:
 	void UseBlendMode(BlendMode bm);
 
 	GLuint vaoID, vboID;
-	GLuint uniModel;
-	GLenum drawMode = GL_TRIANGLES;
+	GLuint uniModel, uniTextureBox;
 	std::vector<Vertice> vertices;
-	GLuint texture;
 	ShaderProgram *program = Shaders::defaultShader;
 	BlendMode blend = BlendMode::BM_DEFAULT;
+	GLenum drawMode = GL_TRIANGLES;
+	
+	AnimatedTexture* animatedTexture = NULL;
+	GLuint texture = 0;
+	int AT_frame = 0;
+	float AT_fps, AT_timer = 0;
 };
 

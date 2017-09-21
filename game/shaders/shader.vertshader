@@ -14,10 +14,11 @@ layout (std140) uniform Matrices
 };
 
 uniform mat4 model;
+uniform vec4 texBox; // For animated sprites
 
 void main()
 {
 	Color = color;
-	Texcoord = texcoord;
+	Texcoord = texBox.xy + (texcoord * (texBox.zw - texBox.xy));
 	gl_Position = proj * view * model * vec4(pos, 1.0);
 }

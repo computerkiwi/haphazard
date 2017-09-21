@@ -64,7 +64,7 @@ Engine::Engine()
 	GameObject obj = m_space.NewGameObject();
 	obj.addComponent<TransformComponent>(glm::vec3(0,0,-1));
 	obj.addComponent<TextSprite>("an object");
-	obj.addComponent<SpriteComponent>(new Texture("sampleBlend.png"));
+	obj.addComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
