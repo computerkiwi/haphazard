@@ -45,7 +45,7 @@ public:
 	std::vector<Vertice>* GetVertices();
 	void CompileMesh(); // Creates mesh with provided vertices
 
-	void Draw(glm::mat4 matrix);
+	void Draw(glm::mat4 matrix, std::vector<float>* data);
 
 	void SetTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
 	void SetAnimatedTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
@@ -54,16 +54,26 @@ public:
 
 	void UpdateAnimatedTexture(float dt);
 
+	void BindVAO() { glBindVertexArray(vaoID); }
+	int NumVerts() { return vertices.size(); }
+	
+	void BindTexture();
+
+	static void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
+
+
 private:
 	void UseBlendMode(BlendMode bm);
 
-	GLuint vaoID, vboID;
+	static GLuint vboID;
+
+	GLuint vaoID;
 	GLuint uniModel, uniTextureBox;
 	std::vector<Vertice> vertices;
 	ShaderProgram *program = Shaders::defaultShader;
 	BlendMode blend = BlendMode::BM_DEFAULT;
 	GLenum drawMode = GL_TRIANGLES;
-	
+
 	AnimatedTexture* animatedTexture = NULL;
 	GLuint texture = 0;
 	int AT_frame = 0;

@@ -1,8 +1,10 @@
 #version 330 core
 
-in vec3 pos;
-in vec4 color;
-in vec2 texcoord;
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec4 color;
+layout (location = 2) in vec2 texcoord;
+layout (location = 3) in vec4 texBox;
+layout (location = 4) in mat4 model;
 
 out vec4 Color;
 out vec2 Texcoord;
@@ -13,8 +15,8 @@ layout (std140) uniform Matrices
 	uniform mat4 proj;
 };
 
-uniform mat4 model;
-uniform vec4 texBox; // For animated sprites
+//uniform mat4 model;
+//uniform vec4 texBox; // For animated sprites
 
 void main()
 {

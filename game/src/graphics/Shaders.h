@@ -76,6 +76,7 @@ public:
 	{
 	public:
 		Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
+		Attribute(GLuint location, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
 		void Apply(ShaderProgram* program);
 
 	private:

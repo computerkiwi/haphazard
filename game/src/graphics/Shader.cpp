@@ -69,9 +69,16 @@ ShaderProgram::Attribute::Attribute(const char* name, int numArgs, GLenum argTyp
 {
 }
 
+ShaderProgram::Attribute::Attribute(GLuint loc, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced)
+	: name{ nullptr }, index{ loc }, size{ numArgs }, type{ argType }, normalized{ (GLboolean)isNormalized }, stride{ argStride * (GLsizei)sizeofType }, start{ argStart * (GLsizei)sizeofType }, instanced{ (GLboolean)isInstanced }
+{
+}
+
 void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 {
-	index = glGetAttribLocation(program->id, name);
+	if(name)
+		index = glGetAttribLocation(program->id, name);
+
 	glEnableVertexAttribArray(index);
 	glVertexAttribPointer(index, size, type, normalized, stride, (void*)(start));
 	glVertexAttribDivisor(index, instanced);
@@ -219,9 +226,16 @@ namespace Shaders
 	void LoadDefaultShader()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 0));
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 3));
-		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 7));
+		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 29, 0));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 29, 3));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 29, 7));
+		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 29, 9, true));
+
+		// Model matrix
+		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 29, 13, true));
+		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 29, 17, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 29, 21, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 29, 25, true));
 
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
@@ -232,10 +246,10 @@ namespace Shaders
 	void LoadDebugShader()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 0, true));
-		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 2, true));
-		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 4, true));
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(GL_FLOAT), false, 9, 5, true));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 9, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 9, 2, true));
+		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 9, 4, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 9, 5, true));
 
 		debugShader = LoadShaders(path + "debug.vertshader", path + "debug.geoshader", path + "debug.fragshader", attribs);
 
@@ -246,8 +260,8 @@ namespace Shaders
 	void LoadScreenShaders()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 0));
-		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(GL_FLOAT), false, 4, 2));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 4, 0));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 4, 2));
 
 		ScreenShader::Default = LoadShaders(path + "screenDefault.vertshader", path + "screenDefault.fragshader", attribs);
 		if (!ScreenShader::Default->wasCompiled())

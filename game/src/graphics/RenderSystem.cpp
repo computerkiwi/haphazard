@@ -40,6 +40,13 @@ void RenderSystem::Update(float dt)
 
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
+	std::vector<float> data;
+	int numMeshes = 0;
+
+	Mesh::BindVBO();
+
+	Shaders::defaultShader->Use();
+
 	for (auto spriteHandle : *sprites)
 	{
 		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
@@ -49,15 +56,28 @@ void RenderSystem::Update(float dt)
 		}
 
 		spriteHandle->UpdateAnimatedTexture(dt);
+		spriteHandle->Draw(transform->Matrix4(), &data);
+
+		numMeshes++;
 
 		//Stuff happens here
-		spriteHandle->Draw(transform->Matrix4());
-
 		mainCamera->SetZoom(3);
-		
 		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
 	}
 
+	if(data.size() > 0)
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+
+	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
+
+	int i = 0;
+	for (auto spriteHandle : *sprites)
+	{
+		spriteHandle->BindVAO();
+		spriteHandle->BindTexture();
+		glDrawArraysInstanced(GL_TRIANGLES, 0, spriteHandle->NumVerts() * sizeof(float), numMeshes);
+		i++;
+	}
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
@@ -68,6 +88,8 @@ void RenderSystem::Update(float dt)
 	glDisableVertexAttribArray(0);
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
+
+	//data.clear();
 }
 
 // Simply returns the default priority for this system.
