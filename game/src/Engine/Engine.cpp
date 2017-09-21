@@ -79,9 +79,8 @@ Engine::Engine() : m_window(WindowInit())
 	obj2.AddComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 
 	GameObject obj3 = m_space.NewGameObject();
-	obj3.addComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj3.addComponent<TextSprite>("another object");
-	obj3.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
+	obj3.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
+	obj3.AddComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
 }
 
 void Engine::MainLoop()

@@ -7,7 +7,6 @@
 
 
 #include "GameObjectSystem\GameSpace.h"
-#include "GameObjectSystem\TextSprite.h"
 #include "GameObjectSystem\TransformComponent.h"
 
 #include "Util\Logging.h"
@@ -18,7 +17,6 @@ void TopBar();
 void Console();
 void ImGui_GameObject(GameObject *object);
 void ImGui_Transform(TransformComponent *transform);
-void ImGui_TextSprite(TextSprite *tsprite);
 
 // Enter Hex code not including the 0x
 #define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
@@ -186,14 +184,9 @@ void ImGui_GameObject(GameObject *object)
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
-		if (object->getComponent<TransformComponent>().Get())
+		if (object->GetComponent<TransformComponent>().Get())
 		{
-			ImGui_Transform(object->getComponent<TransformComponent>().Get());
-		}
-
-		if (object->getComponent<TextSprite>().Get())
-		{
-			ImGui_TextSprite(object->getComponent<TextSprite>().Get());
+			ImGui_Transform(object->GetComponent<TransformComponent>().Get());
 		}
 
 		ImGui::End();
@@ -218,36 +211,26 @@ void ImGui_Transform(TransformComponent *transform)
 		if (ImGui::CollapsingHeader("Position"))
 		{
 			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X", &transform->GetPosition().x);
-			ImGui::InputFloat(" Y", &transform->GetPosition().y);
+			ImGui::InputFloat(" X", &transform->Position().x);
+			ImGui::InputFloat(" Y", &transform->Position().y);
 			ImGui::PopItemWidth();
 		}
 		if (ImGui::CollapsingHeader("Scale"))
 		{
 			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X ", &transform->GetScale().x);
-			ImGui::InputFloat(" Y ", &transform->GetScale().y);
+			ImGui::InputFloat(" X ", &transform->Scale().x);
+			ImGui::InputFloat(" Y ", &transform->Scale().y);
 			ImGui::PopItemWidth();
 			ImGui::Separator();
 		}
 
 		ImGui::PushItemWidth(120);
-		ImGui::SliderFloat("", &transform->GetRotation(), 0, 360); 
+		ImGui::SliderFloat("", &transform->Rotation(), 0, 360); 
 		ImGui::SameLine();
 		ImGui::PopItemWidth();
 		ImGui::PushItemWidth(100);
-		ImGui::InputFloat("Rotation", &transform->GetRotation(), 0.0f, 0.0f, 2); 
+		ImGui::InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2); 
 		ImGui::PopItemWidth();
-	}
-}
-
-
-void ImGui_TextSprite(TextSprite *tsprite)
-{
-	if (ImGui::CollapsingHeader("Text Sprite"))
-	{
-		ImGui::Text(tsprite->m_name);
-		ImGui::Separator();
 	}
 }
 

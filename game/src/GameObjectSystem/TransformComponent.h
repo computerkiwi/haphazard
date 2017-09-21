@@ -39,7 +39,7 @@ public:
 	// Getters
 	//---------
 
-	float& GetRotation()
+	float& Rotation()
 	{
 		return m_rotation;
 	}
@@ -74,22 +74,12 @@ public:
 		return m_position;
 	}
 
-	glm::vec2 GetPosition2D()
-	{
-		return m_position;
-	}
-
 	glm::vec2 GetPosition2D() const
 	{
 		return m_position;
 	}
 
-	glm::vec3& GetScale()
-	{
-		return m_scale;
-	}
-
-	glm::vec3 GetScale() const
+	glm::vec3& Scale()
 	{
 		return m_scale;
 	}
