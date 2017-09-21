@@ -14,27 +14,27 @@
 // Screen
 ///
 
-void Graphics::Screen::Use() 
+void Screen::Use() 
 { 
 	mView.Use(); 
 	glEnable(GL_DEPTH_TEST);
 	mView.Clear(); 
 }
 
-void Graphics::Screen::SetBackgroundColor(float r, float g, float b, float a)
+void Screen::SetBackgroundColor(float r, float g, float b, float a)
 {
 	mView.SetClearColor(r, g, b, a);
 	mFX.SetClearColor(1 - r, 1 - g, 1 - b, a); // Set FX as negative for debug
 }
 
-void Graphics::Screen::SetDimensions(int w, int h) 
+void Screen::SetDimensions(int w, int h) 
 {
 	glViewport(0, 0, w, h);
 	mView.SetDimensions(w, h);
 	mFX.SetDimensions(w, h);
 }
 
-void Graphics::Screen::SetEffects(int c, FX fx[])
+void Screen::SetEffects(int c, FX fx[])
 {
 	mFXList.clear();
 	for (int i = 0; i < c; ++i)
@@ -43,12 +43,12 @@ void Graphics::Screen::SetEffects(int c, FX fx[])
 	}
 }
 
-void Graphics::Screen::AddEffect(FX fx)
+void Screen::AddEffect(FX fx)
 {
 	mFXList.push_back(fx);
 }
 
-void Graphics::Screen::SetBlurAmount(float amt)
+void Screen::SetBlurAmount(float amt)
 {
 	blurAmount = amt;
 	Shaders::ScreenShader::Blur->SetVariable("Intensity", amt);
@@ -61,7 +61,7 @@ void Graphics::Screen::SetBlurAmount(float amt)
 	*/
 }
 
-void Graphics::Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
+void Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 {
 	static FrameBuffer pingpongFBO[2] = { FrameBuffer(1), FrameBuffer(1) };
 
@@ -91,7 +91,7 @@ void Graphics::Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 	mFullscreen.DrawTris(); // Draw final product onto target
 }
 
-void Graphics::Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
+void Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 {
 	static FrameBuffer blurredBrights; // Framebuffer to hold blurred brights in
 	blurredBrights.Clear();
@@ -122,33 +122,33 @@ void Graphics::Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	glActiveTexture(GL_TEXTURE0); // Reset
 }
 
-bool Graphics::Screen::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
+bool Screen::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
 {
 	switch (fx)
 	{
-	case Graphics::FX::BLUR:
+	case FX::BLUR:
 		RenderBlur(source.ColorBuffer(), target);
 		return false;
-	case Graphics::FX::BLUR_CORNERS:
-		Graphics::Shaders::ScreenShader::BlurCorners->Use();
+	case FX::BLUR_CORNERS:
+		Shaders::ScreenShader::BlurCorners->Use();
 		return true;
-	case Graphics::FX::EDGE_DETECTION:
-		Graphics::Shaders::ScreenShader::EdgeDetection->Use();
+	case FX::EDGE_DETECTION:
+		Shaders::ScreenShader::EdgeDetection->Use();
 		return true;
-	case Graphics::FX::SHARPEN:
-		Graphics::Shaders::ScreenShader::Sharpen->Use();
+	case FX::SHARPEN:
+		Shaders::ScreenShader::Sharpen->Use();
 		return true;
-	case Graphics::FX::BLOOM:
+	case FX::BLOOM:
 		RenderBloom(source, target);
 		return false;
 	default:
-		Graphics::Shaders::ScreenShader::Default->Use();
+		Shaders::ScreenShader::Default->Use();
 		return true;
 	}
 
 }
 
-void Graphics::Screen::Draw()
+void Screen::Draw()
 {
 	FrameBuffer result = mView; // Resulting framebuffer after fx are applied (if applicable)
 
@@ -194,7 +194,7 @@ void Graphics::Screen::Draw()
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Graphics::Screen::ResizeScreen(int width, int height)
+void Screen::ResizeScreen(int width, int height)
 {
 	glDeleteBuffers(2, mView.mColorBuffers);
 	glDeleteBuffers(2, mFX.mColorBuffers);
@@ -214,7 +214,7 @@ void Graphics::Screen::ResizeScreen(int width, int height)
 // FrameBuffer
 ///
 
-Graphics::Screen::FrameBuffer::FrameBuffer(int numColBfrs)
+Screen::FrameBuffer::FrameBuffer(int numColBfrs)
 	: numColBfrs{numColBfrs}
 {
 	glGenFramebuffers(1, &mID);
@@ -227,7 +227,7 @@ Graphics::Screen::FrameBuffer::FrameBuffer(int numColBfrs)
 	GenerateDepthStencilObject();
 }
 
-void Graphics::Screen::FrameBuffer::SetDimensions(int width, int height)
+void Screen::FrameBuffer::SetDimensions(int width, int height)
 {
 	if (mWidth != width || mHeight != height)
 	{
@@ -238,7 +238,7 @@ void Graphics::Screen::FrameBuffer::SetDimensions(int width, int height)
 	}
 }
 
-void Graphics::Screen::FrameBuffer::GenerateColorBuffers()
+void Screen::FrameBuffer::GenerateColorBuffers()
 {
 	// create a color attachment texture
 	glGenTextures(numColBfrs, mColorBuffers);
@@ -260,7 +260,7 @@ void Graphics::Screen::FrameBuffer::GenerateColorBuffers()
 	glDrawBuffers(2, attachments);
 }
 
-void Graphics::Screen::FrameBuffer::GenerateDepthStencilObject()
+void Screen::FrameBuffer::GenerateDepthStencilObject()
 {
 	// create a renderbuffer object for depth and stencil attachment (won't be sampling these)
 	glGenRenderbuffers(1, &mDepthStencilBuffer);
@@ -269,24 +269,24 @@ void Graphics::Screen::FrameBuffer::GenerateDepthStencilObject()
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthStencilBuffer); // now attach it
 }
 
-void Graphics::Screen::FrameBuffer::Use()
+void Screen::FrameBuffer::Use()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
 }
 
-void Graphics::Screen::FrameBuffer::BindColorBuffer(int attachment)
+void Screen::FrameBuffer::BindColorBuffer(int attachment)
 {
 	glBindTexture(GL_TEXTURE_2D, mColorBuffers[attachment]);
 }
 
-void Graphics::Screen::FrameBuffer::Clear()
+void Screen::FrameBuffer::Clear()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
 	glClearColor(mClearColor.x, mClearColor.y, mClearColor.z, mClearColor.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear buffers
 }
 
-void Graphics::Screen::FrameBuffer::SetClearColor(float r, float g, float b, float a) 
+void Screen::FrameBuffer::SetClearColor(float r, float g, float b, float a) 
 {
 	mClearColor = glm::vec4(r, g, b, a); 
 }
@@ -296,7 +296,7 @@ void Graphics::Screen::FrameBuffer::SetClearColor(float r, float g, float b, flo
 // Mesh
 ///
 
-Graphics::Screen::Mesh::Mesh(float bottom, float top, float left, float right)
+Screen::Mesh::Mesh(float bottom, float top, float left, float right)
 {
 	bottom = bottom * 2 - 1;
 	top = top * 2 - 1;
@@ -326,18 +326,18 @@ Graphics::Screen::Mesh::Mesh(float bottom, float top, float left, float right)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 }
 
-Graphics::Screen::Mesh::~Mesh()
+Screen::Mesh::~Mesh()
 {
 	glDeleteBuffers(1, &mVAO);
 	glDeleteVertexArrays(1, &mVBO);
 }
 
-void Graphics::Screen::Mesh::Bind() 
+void Screen::Mesh::Bind() 
 { 
 	glBindVertexArray(mVAO); 
 }
 
-void Graphics::Screen::Mesh::DrawTris() 
+void Screen::Mesh::DrawTris() 
 { 
 	glDrawArrays(GL_TRIANGLES, 0, 6); 
 }
@@ -347,14 +347,14 @@ void Graphics::Screen::Mesh::DrawTris()
 // Raindrop
 ///
 
-Graphics::Screen::FrameBuffer* Graphics::Screen::Raindrop::drops;
-Graphics::Screen::FrameBuffer* Graphics::Screen::Raindrop::screen;
-std::list<Graphics::Screen::Raindrop*> Graphics::Screen::Raindrop::raindrops;
+Screen::FrameBuffer* Screen::Raindrop::drops;
+Screen::FrameBuffer* Screen::Raindrop::screen;
+std::list<Screen::Raindrop*> Screen::Raindrop::raindrops;
 
-Graphics::Texture* Graphics::Screen::Raindrop::texture;
-Graphics::Screen::Mesh* Graphics::Screen::Raindrop::mesh;
+Texture* Screen::Raindrop::texture;
+Screen::Mesh* Screen::Raindrop::mesh;
 
-Graphics::Screen::Raindrop::Raindrop()
+Screen::Raindrop::Raindrop()
 {
 	if (!texture)
 		texture = new Texture("raindrop.png");
@@ -380,7 +380,7 @@ Graphics::Screen::Raindrop::Raindrop()
 	drops->SetClearColor(0, 0, 0, 0);
 }
 
-void Graphics::Screen::Raindrop::DrawToScreen(Graphics::Screen::FrameBuffer& dest)
+void Screen::Raindrop::DrawToScreen(Screen::FrameBuffer& dest)
 {
 	if (raindrops.size() == 0) // Don't need to render
 		return;
@@ -388,7 +388,7 @@ void Graphics::Screen::Raindrop::DrawToScreen(Graphics::Screen::FrameBuffer& des
 	// Blur screen
 	int b = GetView().blurAmount;
 	GetView().SetBlurAmount(10);
-	Graphics::Screen::GetView().UseFxShader(BLUR, dest, *screen);
+	Screen::GetView().UseFxShader(BLUR, dest, *screen);
 	GetView().SetBlurAmount(b);
 
 	// Render raindrops onto fresh buffer
@@ -412,7 +412,7 @@ void Graphics::Screen::Raindrop::DrawToScreen(Graphics::Screen::FrameBuffer& des
 	glBlendFunc(GL_ONE, GL_ZERO);
 }
 
-void Graphics::Screen::Raindrop::Draw()
+void Screen::Raindrop::Draw()
 {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Set default blendmode
 
@@ -436,7 +436,7 @@ void Graphics::Screen::Raindrop::Draw()
 
 float count = 0;
 
-void Graphics::Screen::UpdateRaindrops(float dt)
+void Screen::UpdateRaindrops(float dt)
 {
 	count += dt;
 	float f = 0.1f + rand() % 10 / 10.0f;
@@ -461,7 +461,7 @@ void Graphics::Screen::UpdateRaindrops(float dt)
 		}
 }
 
-void Graphics::Screen::Raindrop::Update(float dt)
+void Screen::Raindrop::Update(float dt)
 {
 	transform.SetPosition(transform.GetPosition().x, transform.GetPosition().y - (dt * speed) / 40.0f, 0);
 	transform.SetScale(transform.GetScale().x - transform.GetScale().x * (dt * speed) / 7.0f, transform.GetScale().y - transform.GetScale().y * dt / 7.0f, transform.GetScale().z - transform.GetScale().z * dt / 6.0f);
@@ -476,7 +476,7 @@ void Graphics::Screen::Raindrop::Update(float dt)
 		alpha = 1;
 }
 
-void Graphics::Screen::AddRaindrop()
+void Screen::AddRaindrop()
 {
 	Raindrop::raindrops.push_back(new Raindrop());
 }

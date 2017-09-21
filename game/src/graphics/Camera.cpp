@@ -7,7 +7,7 @@
 // Camera
 ///
 
-Graphics::Camera::Camera()
+Camera::Camera()
 {
 	glGenBuffers(1, &mMatricesUbo);
 	glBindBuffer(GL_UNIFORM_BUFFER, mMatricesUbo);
@@ -18,7 +18,7 @@ Graphics::Camera::Camera()
 }
 
 
-void Graphics::Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
+void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 {
 	mPosition = pos;
 	mCenter = target;
@@ -26,7 +26,7 @@ void Graphics::Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVect
 	ApplyCameraMatrices();
 }
 
-void Graphics::Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
+void Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
 {
 	m_zoom = zoom;
 	mAspectRatio = aspectRatio;
@@ -35,7 +35,7 @@ void Graphics::Camera::SetProjection(float zoom, float aspectRatio, float near, 
 	ApplyCameraMatrices();
 }
 
-void Graphics::Camera::SetRotation(float degrees)
+void Camera::SetRotation(float degrees)
 {
 	float r = degrees / 180.0f * 3.1416;
 	glm::mat4 rotation;
@@ -44,7 +44,7 @@ void Graphics::Camera::SetRotation(float degrees)
 	ApplyCameraMatrices();
 }
 
-void Graphics::Camera::ApplyCameraMatrices()
+void Camera::ApplyCameraMatrices()
 {
 	glm::mat4 view = glm::lookAt(mPosition, mCenter, mUp);
 	glm::mat4 proj = glm::ortho(-1.0f * m_zoom, 1.0f * m_zoom, -1.0f * m_zoom / mAspectRatio, 1.0f * m_zoom / mAspectRatio, mNear, mFar);
@@ -57,12 +57,12 @@ void Graphics::Camera::ApplyCameraMatrices()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Graphics::Camera::ResizeViewport(int width, int height)
+void Camera::ResizeViewport(int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
 
-void Graphics::Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
+void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 {
 	glm::mat4 matrix;
 	matrix = glm::translate(matrix, mCenter);
@@ -82,7 +82,7 @@ void Graphics::Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around ta
 	ApplyCameraMatrices();
 }
 
-void Graphics::Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
+void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
 {
 	glm::mat4 matrix;
 	matrix = glm::translate(matrix, center);

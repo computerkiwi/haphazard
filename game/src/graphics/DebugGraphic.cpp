@@ -30,12 +30,12 @@ void DebugGraphic::DebugGraphic::DrawAll()
 	{
 		glGenVertexArrays(1, &VAO);
 		glBindVertexArray(VAO);
-		Graphics::Shaders::debugShader->ApplyAttributes();
+		Shaders::debugShader->ApplyAttributes();
 	}
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	Graphics::Shaders::debugShader->Use();
+	Shaders::debugShader->Use();
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * shapeData.size(), shapeData.data(), GL_STATIC_DRAW);
 	glDrawArraysInstanced(GL_POINTS, 0, shapeData.size(), shapeData.size());

@@ -1,6 +1,6 @@
 #include "SpriteComponent.h"
 
-Graphics::SpriteComponent::SpriteComponent(Texture* t)
+SpriteComponent::SpriteComponent(Texture* t)
 {
 	AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t

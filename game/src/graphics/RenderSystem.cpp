@@ -14,8 +14,6 @@ RenderSystem::RenderSystem(GLFWwindow* window)
 {
 }
 
-using namespace Graphics;
-
 static Camera* mainCamera;
 
 DebugGraphic* c;
@@ -26,17 +24,21 @@ void RenderSystem::Init()
 	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
+
+	//mainCamera->ResizeViewport(1920, 1080);
 }
 
 // Called each frame.
 void RenderSystem::Update(float dt)
 {
 	glEnableVertexAttribArray(0);
-	Graphics::Screen::GetView().Use();
-	Graphics::Screen::UpdateRaindrops(dt);
+	Screen::GetView().Use();
+	Screen::UpdateRaindrops(dt);
 	////Start Loop
 
-	ComponentMap<Graphics::SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<Graphics::SpriteComponent>();
+	//Screen::GetView().ResizeScreen(1920, 1080);
+
+	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
 	for (auto spriteHandle : *sprites)
 	{
@@ -58,7 +60,7 @@ void RenderSystem::Update(float dt)
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
-	Graphics::Screen::GetView().Draw();
+	Screen::GetView().Draw();
 
 	DebugGraphic::DrawAll();
 

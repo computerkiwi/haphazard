@@ -11,9 +11,9 @@
 ///
 // Mesh
 ///
-static Graphics::Texture* defaultTexture;
+static Texture* defaultTexture;
 
-Graphics::Mesh::Mesh(GLenum renderMode)
+Mesh::Mesh(GLenum renderMode)
 	: drawMode{ renderMode }
 {
 	if (!defaultTexture) // no default texture, make it
@@ -36,19 +36,19 @@ Graphics::Mesh::Mesh(GLenum renderMode)
 	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
 }
 
-Graphics::Mesh::~Mesh()
+Mesh::~Mesh()
 {
 	//glDeleteBuffers(1, &vboID);
 	//glDeleteVertexArrays(1, &vaoID);
 }
 
-void Graphics::Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
+void Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
 {
 	Vertice vert = Vertice{ x, y, z, r, g, b, a, s, t };
 	vertices.push_back(vert);
 }
 
-void Graphics::Mesh::AddTriangle(
+void Mesh::AddTriangle(
 	float x1, float y1, float z1, float r1, float g1, float b1, float a1, float s1, float t1,
 	float x2, float y2, float z2, float r2, float g2, float b2, float a2, float s2, float t2,
 	float x3, float y3, float z3, float r3, float g3, float b3, float a3, float s3, float t3)
@@ -58,7 +58,7 @@ void Graphics::Mesh::AddTriangle(
 	AddVertex(x3, y3, z3, r3, g3, b3, a3, s3, t3);
 }
 
-void Graphics::Mesh::UseBlendMode(BlendMode bm)
+void Mesh::UseBlendMode(BlendMode bm)
 {
 	switch (bm)
 	{
@@ -77,7 +77,7 @@ void Graphics::Mesh::UseBlendMode(BlendMode bm)
 	}
 }
 
-void Graphics::Mesh::Draw(glm::mat4 matrix)
+void Mesh::Draw(glm::mat4 matrix)
 {
 	UseBlendMode(blend);
 
@@ -94,17 +94,17 @@ void Graphics::Mesh::Draw(glm::mat4 matrix)
 	glDrawArrays(drawMode, 0, (int)vertices.size());
 }
 
-void Graphics::Mesh::SetTexture(Texture& tex) 
+void Mesh::SetTexture(Texture& tex) 
 { 
 	texture = tex.GetID(); 
 }
 
-void Graphics::Mesh::SetTexture(GLuint texID)
+void Mesh::SetTexture(GLuint texID)
 {
 	texture = texID; 
 }
 
-void Graphics::Mesh::SetShader(ShaderProgram *shader)
+void Mesh::SetShader(ShaderProgram *shader)
 {
 	program = shader;
 
@@ -115,17 +115,17 @@ void Graphics::Mesh::SetShader(ShaderProgram *shader)
 	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
 }
 
-void Graphics::Mesh::SetBlendMode(BlendMode b)
+void Mesh::SetBlendMode(BlendMode b)
 {
 	blend = b;
 }
 
-std::vector<Graphics::Mesh::Vertice>* Graphics::Mesh::GetVertices()
+std::vector<Mesh::Vertice>* Mesh::GetVertices()
 {
 	return &vertices;
 }
 
-void Graphics::Mesh::CompileMesh()
+void Mesh::CompileMesh()
 {
 	glBindVertexArray(vaoID); // Enable vao to ensure correct mesh is compiled
 	glBindBuffer(GL_ARRAY_BUFFER, vboID); // Enable vbo
@@ -145,7 +145,7 @@ void Graphics::Mesh::CompileMesh()
 ///
 // Texture
 ///
-Graphics::Texture::Texture(const char* file)
+Texture::Texture(const char* file)
 {
 	int width, height;
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
@@ -164,7 +164,7 @@ Graphics::Texture::Texture(const char* file)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-Graphics::Texture::Texture(float *pixels, int width, int height)
+Texture::Texture(float *pixels, int width, int height)
 {
 	glGenTextures(1, &mID);
 	glBindTexture(GL_TEXTURE_2D, mID);
@@ -179,7 +179,7 @@ Graphics::Texture::Texture(float *pixels, int width, int height)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-Graphics::Texture::~Texture()
+Texture::~Texture()
 {
 	glDeleteTextures(1, &mID);
 }
