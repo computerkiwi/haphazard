@@ -139,6 +139,16 @@ void ShaderProgram::ApplyAttributes()
 	}
 }
 
+void ShaderProgram::ApplyAttributes(int start, int end)
+{
+	Attribute* attrib;
+	for (int i = start; i < end; i++)
+	{
+		attrib = &attributes[i];
+		attrib->Apply(this);
+	}
+}
+
 ///
 // Shader Helper Functions
 ///
@@ -226,16 +236,17 @@ namespace Shaders
 	void LoadDefaultShader()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 29, 0));
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 29, 3));
-		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 29, 7));
-		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 29, 9, true));
+		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 9, 0));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 9, 3));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 9, 7));
 
+		// Instance Attribs
+		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 20, 0, true));
 		// Model matrix
-		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 29, 13, true));
-		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 29, 17, true));
-		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 29, 21, true));
-		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 29, 25, true));
+		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 20, 4, true));
+		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 20, 8, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 20, 12, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 20, 16, true));
 
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 

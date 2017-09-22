@@ -43,7 +43,6 @@ void RenderSystem::Update(float dt)
 	std::vector<float> data;
 	int numMeshes = 0;
 
-	Mesh::BindVBO();
 
 	Shaders::defaultShader->Use();
 
@@ -62,11 +61,11 @@ void RenderSystem::Update(float dt)
 
 		//Stuff happens here
 		mainCamera->SetZoom(3);
-		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
 	}
 
-	if(data.size() > 0)
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+	Mesh::BindInstanceVBO();
+	Shaders::defaultShader->ApplyAttributes(3, 8); // Apply instance attributes
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
@@ -74,11 +73,14 @@ void RenderSystem::Update(float dt)
 	for (auto spriteHandle : *sprites)
 	{
 		spriteHandle->BindVAO();
+		spriteHandle->BindVBO();
 		spriteHandle->BindTexture();
-		glDrawArraysInstanced(GL_TRIANGLES, 0, spriteHandle->NumVerts() * sizeof(float), numMeshes);
+		glDrawArrays(GL_TRIANGLES, 0, spriteHandle->NumVerts());
 		i++;
 	}
 
+	DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
+	
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 	Screen::GetView().Draw();

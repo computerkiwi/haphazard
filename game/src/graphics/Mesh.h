@@ -55,19 +55,20 @@ public:
 	void UpdateAnimatedTexture(float dt);
 
 	void BindVAO() { glBindVertexArray(vaoID); }
+	void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
 	int NumVerts() { return vertices.size(); }
 	
 	void BindTexture();
 
-	static void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
+	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); }
 
 
 private:
 	void UseBlendMode(BlendMode bm);
 
-	static GLuint vboID;
+	static GLuint instanceVBO;
 
-	GLuint vaoID;
+	GLuint vaoID, vboID;
 	GLuint uniModel, uniTextureBox;
 	std::vector<Vertice> vertices;
 	ShaderProgram *program = Shaders::defaultShader;

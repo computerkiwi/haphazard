@@ -130,6 +130,7 @@ public:
 	}
 
 	void ApplyAttributes();
+	void ApplyAttributes(int start, int end);
 
 private:
 

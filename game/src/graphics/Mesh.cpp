@@ -6,11 +6,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-GLuint Mesh::vboID = 0;
 
 ///
 // Mesh
 ///
+
+// Statics 
+GLuint Mesh::instanceVBO = 0;
 static Texture* defaultTexture;
 
 Mesh::Mesh(GLenum renderMode)
@@ -27,12 +29,17 @@ Mesh::Mesh(GLenum renderMode)
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
 
-	if(!vboID)
-		glGenBuffers(1, &vboID); //Start vbo
+	if (!instanceVBO)
+	{
+		glGenBuffers(1, &instanceVBO);
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	program->ApplyAttributes(3, 8); // Apply instance attributes
 
+	glGenBuffers(1, &vboID); //Start vbo
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 
-	program->ApplyAttributes(); // Apply program attributes for vao to remember
+	program->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember
 
 	//Get Transform attrib locations
 	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
@@ -116,8 +123,16 @@ void Mesh::Draw(glm::mat4 matrix, std::vector<float>* data)
 		tex[3] = 1;
 	}
 
+	data->push_back(tex[0]);
+	data->push_back(tex[1]);
+	data->push_back(tex[2]);
+	data->push_back(tex[3]);
+
 	// Load data into array
-	for (auto vert : vertices)
+	for (int i = 0; i < 4 * 4; i++)
+		data->push_back(matrix[i % 4][i / 4]);
+
+/*	for (auto vert : vertices)
 	{
 		for (int j = 0; j < sizeof(vert) / sizeof(float); ++j)
 			data->push_back(vert.data[j]);
@@ -128,7 +143,7 @@ void Mesh::Draw(glm::mat4 matrix, std::vector<float>* data)
 
 		for (int i = 0; i < 4 * 4; i++)
 			data->push_back(matrix[i % 4][i / 4]);
-	}
+	}*/
 
 	//numArrays += vertices.size();
 

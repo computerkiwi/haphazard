@@ -3,8 +3,11 @@
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec4 color;
 layout (location = 2) in vec2 texcoord;
+
+// Instanced
 layout (location = 3) in vec4 texBox;
 layout (location = 4) in mat4 model;
+// location 4,5,6,7 used by model
 
 out vec4 Color;
 out vec2 Texcoord;
