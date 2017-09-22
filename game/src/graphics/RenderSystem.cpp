@@ -54,17 +54,17 @@ void RenderSystem::Update(float dt)
 			continue;
 		}
 
-		spriteHandle->UpdateAnimatedTexture(dt);
+		//spriteHandle->UpdateAnimatedTexture(dt);
 		spriteHandle->Draw(transform->Matrix4(), &data);
 
 		numMeshes++;
 
 		//Stuff happens here
 		mainCamera->SetZoom(3);
+		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14 / 4, glm::vec4(1, 0, 1, 1));
 	}
 
 	Mesh::BindInstanceVBO();
-	Shaders::defaultShader->ApplyAttributes(3, 8); // Apply instance attributes
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
@@ -73,13 +73,10 @@ void RenderSystem::Update(float dt)
 	for (auto spriteHandle : *sprites)
 	{
 		spriteHandle->BindVAO();
-		spriteHandle->BindVBO();
 		spriteHandle->BindTexture();
-		glDrawArrays(GL_TRIANGLES, 0, spriteHandle->NumVerts());
+		glDrawArraysInstanced(GL_TRIANGLES, spriteHandle->NumVerts() * i, (i+1) * spriteHandle->NumVerts(), numMeshes);
 		i++;
 	}
-
-	DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f,0.25f), 3.14/4, glm::vec4(1,0,1,1));
 	
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);

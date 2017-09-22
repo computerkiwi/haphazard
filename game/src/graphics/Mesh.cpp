@@ -130,7 +130,7 @@ void Mesh::Draw(glm::mat4 matrix, std::vector<float>* data)
 
 	// Load data into array
 	for (int i = 0; i < 4 * 4; i++)
-		data->push_back(matrix[i % 4][i / 4]);
+		data->push_back(matrix[i / 4][i % 4]);
 
 /*	for (auto vert : vertices)
 	{

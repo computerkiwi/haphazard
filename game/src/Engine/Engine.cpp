@@ -62,7 +62,7 @@ Engine::Engine()
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
-	obj.addComponent<TransformComponent>(glm::vec3(0,0,-1));
+	obj.addComponent<TransformComponent>(glm::vec3(1,0,-1));
 	obj.addComponent<TextSprite>("an object");
 	obj.addComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
 
