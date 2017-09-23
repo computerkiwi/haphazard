@@ -23,12 +23,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine\Engine.h"
 
 
-#include <iostream>
-#include <fstream>
 #include <iomanip>
-#include <sstream>
 #include <locale>
-#include <codecvt>
+#include <ctype.h>
 
 
 void ImGui_GameObject(GameObject *object);
@@ -40,7 +37,7 @@ void ImGui_Transform(TransformComponent *transform);
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
 	                (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engine)
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engine), m_state{ false, -1, -1, false }
 {
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
@@ -123,7 +120,17 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 
 	RegisterCommand("log", []() { Logging::Log("Hello!"); });
 	RegisterCommand("exit", []() { std::exit(0); });
-
+	RegisterCommand("history__", 
+	[this]()
+	{
+		for (auto& history : m_log_history)
+		{
+			Editor::Log(history.c_str());
+		}
+	});
+	RegisterCommand("create", [this]() { CreateGameObject(); });
+	RegisterCommand("clear", [this]() { Clear(); });
+	RegisterCommand("cls", [this]() { Clear(); });
 }
 
 Editor::~Editor()
@@ -138,7 +145,7 @@ void Editor::Update()
 	ImGui::ShowTestWindow();
 	m_objects = m_engine->GetSpace()->CollectGameObjects();
 	Console();
-	ImGui_GameObject(&m_objects[0]);
+	ImGui_GameObject(&m_selected_object);
 
 	ImGui::Render();
 }
@@ -168,11 +175,26 @@ void Editor::Log(const char *log_message, ...)
 }
 
 
+void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
+{
+	GameObject object = m_engine->GetSpace()->NewGameObject();
+	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 0), glm::vec3(size.x, size.y, 1));
+	m_selected_object = object;
+}
+
+
+
+void Editor::SetGameObject(GameObject& new_object)
+{
+	m_selected_object = new_object;
+}
+
+
 void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
 {
 	memmove(data->Buf, m_log_history[entryIndex].c_str(), m_log_history[entryIndex].length());
-	data->BufDirty = true;
 	data->BufTextLen = static_cast<int>(m_log_history[entryIndex].length());
+	data->BufDirty = true;
 }
 
 
@@ -185,7 +207,7 @@ int Input(ImGuiTextEditCallbackData *data)
 	case ImGuiInputTextFlags_CallbackCompletion:
 			if (editor->m_state.m_popUp && editor->m_state.activeIndex != -1)
 			{
-
+				editor->SetActive(data, editor->m_state.activeIndex);
 			}
 			editor->m_state.m_popUp = false;
 			editor->m_state.activeIndex = -1;
@@ -201,7 +223,7 @@ int Input(ImGuiTextEditCallbackData *data)
 				editor->m_state.activeIndex--;
 				editor->m_state.m_selection_change = true;
 			}
-			else if (data->EventKey == ImGuiKey_DownArrow && editor->m_state.activeIndex < editor->m_log_history.size() - 1)
+			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
 			{
 				editor->m_state.activeIndex++;
 				editor->m_state.m_selection_change = true;
@@ -210,9 +232,9 @@ int Input(ImGuiTextEditCallbackData *data)
 		break;
 
 	case ImGuiInputTextFlags_CallbackAlways:
-			if (editor->m_state.activeIndex != -1)
+			if (editor->m_state.clickedIndex != -1)
 			{
-				
+				editor->SetActive(data, editor->m_state.clickedIndex);
 				editor->m_state.activeIndex = -1;
 				editor->m_state.clickedIndex = -1;
 				editor->m_state.m_popUp = false;
@@ -238,6 +260,9 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
         ImGuiWindowFlags_HorizontalScrollbar |
         ImGuiWindowFlags_NoSavedSettings     |
         ImGuiWindowFlags_ShowBorders;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+
 	ImGui::SetNextWindowPos(pos);
 	ImGui::SetNextWindowSize(size);
 	ImGui::Begin("console_popup", nullptr, flags);
@@ -249,7 +274,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		bool isActiveIndex = m_state.activeIndex == i;
 		if (isActiveIndex)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1, 0, 0, 1));
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVec(0x072f70FF)));
 		}
 
 		ImGui::PushID(i);
@@ -275,7 +300,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 
 	ImGui::PopAllowKeyboardFocus();
 	ImGui::End();
-
+	ImGui::PopStyleVar(1);
 	return isFocuesed;
 }
 
@@ -348,18 +373,24 @@ void Editor::Console()
 
 	if (ImGui::InputText("", command_buffer, 300, flags, Input, this))
 	{
-		std::string command(command_buffer);
-		std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+		m_line = command_buffer;
+		std::transform(m_line.begin(), m_line.end(), m_line.begin(), ::tolower);
+		auto first_of_not_space = m_line.find_first_not_of(' ');
 
-		if (m_log_history.size() < 8092)
+		std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
+
+		if (first_of_not_space != std::string::npos)
 		{
-			m_log_history.emplace_back(command.c_str());
+			m_line = m_line.substr(first_of_not_space);
+			this->Log(m_line.c_str());
+
+			if (m_log_history.size() < 100)
+			{
+				m_log_history.emplace_back(command.c_str());
+			}
 		}
 
-		
-		this->Log(command.c_str());
-
-		if (m_state.m_popUp && m_state.activeIndex != -1)
+		if (m_state.m_popUp && m_state.clickedIndex != -1)
 		{
 			memmove(command_buffer, m_log_history[m_state.activeIndex].c_str(), m_log_history[m_state.activeIndex].size());
 		}
@@ -368,9 +399,13 @@ void Editor::Console()
 			for (auto& cmd : m_commands)
 			{
 				if (cmd.first == command)
+				{
 					cmd.second();
+					break;
+				}
 			}
 		}
+
 		m_state.m_popUp = false;
 		m_state.activeIndex = -1;
 		ImGui::SetKeyboardFocusHere(-1);
@@ -408,14 +443,14 @@ void Editor::Clear()
 
 void ImGui_GameObject(GameObject *object)
 {
-	if (object)
+	if (object && object->GetSpace())
 	{
 		std::string name("GameObject - ");
 		name += std::to_string(object->Getid());
 
 		ImGui::SetNextWindowSize(ImVec2(325, 400));
 		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
-		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
+		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 
 		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
@@ -429,6 +464,9 @@ void ImGui_GameObject(GameObject *object)
 		if (ImGui::Button("Delete"))
 		{
 			object->Delete<dummy>();
+			object->SetSpace<dummy>(nullptr);
+			ImGui::End();
+			return;
 		}
 
 		// if object - > component

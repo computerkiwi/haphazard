@@ -69,6 +69,17 @@ public:
 		m_gameSpace->Delete(m_objID);
 	}
 
+	const GameSpace *GetSpace() const
+	{
+		return m_gameSpace;
+	}
+
+	template <typename AVOID>
+	void SetSpace(GameSpace *space)
+	{
+		m_gameSpace = space;
+	}
+
 private:
 	GameObject_ID m_objID;
 	GameSpace *m_gameSpace;
