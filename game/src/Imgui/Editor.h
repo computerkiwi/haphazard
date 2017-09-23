@@ -19,7 +19,7 @@ struct GLFWwindow;
 
 class Editor
 {
-	std::map<std::string, std::function<void()>> m_commands;
+	std::vector<std::pair<std::string, std::function<void()>>> m_commands;
 
 	GameObject m_selected_object = GameObject(0, nullptr);
 	std::vector<GameObject> m_objects;

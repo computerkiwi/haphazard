@@ -118,7 +118,11 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 	
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 
-	RegisterCommand("log", []() { Logging::Log("Hello!"); });
+	RegisterCommand("log", 
+	[this]()
+	{
+		Logging::Log(m_line.substr(strlen("log")).c_str());
+	});
 	RegisterCommand("exit", []() { std::exit(0); });
 	RegisterCommand("history__", 
 	[this]()
@@ -153,7 +157,7 @@ void Editor::Update()
 
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	m_commands.emplace(command, f);
+	m_commands.emplace_back(command, f);
 }
 
 
@@ -192,8 +196,9 @@ void Editor::SetGameObject(GameObject& new_object)
 
 void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
 {
-	memmove(data->Buf, m_log_history[entryIndex].c_str(), m_log_history[entryIndex].length());
-	data->BufTextLen = static_cast<int>(m_log_history[entryIndex].length());
+	memmove(data->Buf, m_commands[entryIndex].first.c_str(), m_commands[entryIndex].first.length());
+	data->Buf[m_commands[entryIndex].first.size()] = '\0';
+	data->BufTextLen = static_cast<int>(m_commands[entryIndex].first.size());
 	data->BufDirty = true;
 }
 
@@ -223,7 +228,7 @@ int Input(ImGuiTextEditCallbackData *data)
 				editor->m_state.activeIndex--;
 				editor->m_state.m_selection_change = true;
 			}
-			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
+			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_commands.size() - 1)))
 			{
 				editor->m_state.activeIndex++;
 				editor->m_state.m_selection_change = true;
@@ -241,6 +246,10 @@ int Input(ImGuiTextEditCallbackData *data)
 			}
 		break;
 	case ImGuiInputTextFlags_CallbackCharFilter:
+		editor->m_state.m_popUp = true;
+		break;
+
+	default:
 		break;
 	}
 
@@ -269,7 +278,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 	
 	ImGui::PushAllowKeyboardFocus(false);
 
-	for (auto i = 0; i < m_log_history.size(); ++i)
+	for (auto i = 0; i < m_commands.size(); ++i)
 	{
 		bool isActiveIndex = m_state.activeIndex == i;
 		if (isActiveIndex)
@@ -278,21 +287,24 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		}
 
 		ImGui::PushID(i);
-		if (ImGui::Selectable(m_log_history[i].c_str(), m_state.activeIndex))
+		if (m_commands[i].first.find(m_line.c_str()) != std::string::npos)
 		{
-			m_state.clickedIndex = i;
-		}
-		ImGui::PopID();
-
-		if (isActiveIndex)
-		{
-			if (m_state.m_selection_change)
+			if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
 			{
-				ImGui::SetScrollHere();
-				m_state.m_selection_change = false;
+				m_state.clickedIndex = i;
 			}
+			ImGui::PopID();
 
-			ImGui::PopStyleColor(1);
+			if (isActiveIndex)
+			{
+				if (m_state.m_selection_change)
+				{
+					ImGui::SetScrollHere();
+					m_state.m_selection_change = false;
+				}
+
+				ImGui::PopStyleColor(1);
+			}
 		}
 	}
 
@@ -371,13 +383,15 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, 300, flags, Input, this))
+	if (ImGui::InputText("", command_buffer, 512, flags, Input, this) && m_line.size())
 	{
 		m_line = command_buffer;
-		std::transform(m_line.begin(), m_line.end(), m_line.begin(), ::tolower);
 		auto first_of_not_space = m_line.find_first_not_of(' ');
-
+		
 		std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
+
+		std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
 
 		if (first_of_not_space != std::string::npos)
 		{
@@ -386,13 +400,13 @@ void Editor::Console()
 
 			if (m_log_history.size() < 100)
 			{
-				m_log_history.emplace_back(command.c_str());
+				m_log_history.emplace_back(m_line.c_str());
 			}
 		}
 
 		if (m_state.m_popUp && m_state.clickedIndex != -1)
 		{
-			memmove(command_buffer, m_log_history[m_state.activeIndex].c_str(), m_log_history[m_state.activeIndex].size());
+			memmove(command_buffer, m_commands[m_state.activeIndex].first.c_str(), m_commands[m_state.activeIndex].first.size());
 		}
 		else
 		{
