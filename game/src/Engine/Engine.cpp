@@ -24,11 +24,12 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/TextSprite.h"
 #include "graphics\SpriteComponent.h"
 
+#include "input\Input.h"
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
 #include "graphics\RenderSystem.h"
-
 
 Engine::Engine()
 {
@@ -52,6 +53,9 @@ Engine::Engine()
 
 	// Initialize the system.
 	m_space.Init();
+
+  // TEMPORARY IDK where to put this
+  Input::Init(window);
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
@@ -86,6 +90,9 @@ void Engine::Update()
 	m_dt = CalculateDt();
 
 	m_space.Update(m_dt);
+
+  // TEMPORARY still don't know where to put this
+  Input::Update();
 }
 
 
