@@ -84,18 +84,35 @@ Engine::Engine()
 	// object with velocity
 	GameObject Brett_obj1 = m_space.NewGameObject();
 	Brett_obj1.addComponent<TextSprite>("an object with velocity");
-	Brett_obj1.addComponent<TransformComponent>(glm::vec3(0,0,1), glm::vec3(.1f,.1f,1));
+	Brett_obj1.addComponent<TransformComponent>(glm::vec3(-.25f, 0, 1), glm::vec3(.1f, .1f, 1));
 	Brett_obj1.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
-	Brett_obj1.addComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.003,.003,0));
+	Brett_obj1.addComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.000301,.000301,0));
 	Brett_obj1.addComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.1, .1, 0));
 
-	// object with acceleration
-	GameObject Brett_obj2 = m_space.NewGameObject();
-	Brett_obj2.addComponent<TextSprite>("an object with acceleration");
-	Brett_obj2.addComponent<TransformComponent>(glm::vec3(-.5f, .5f, 1), glm::vec3(.1f, .1f, 1));
-	Brett_obj2.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("bird.png"));
-	Brett_obj2.addComponent<RigidBodyComponent>(glm::vec3(.0001f, 0, 0), glm::vec3(0, 0, 0));
-	Brett_obj2.addComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.1, .1, 0));
+	// static colliders: box of cats
+	GameObject Brett_obj3 = m_space.NewGameObject();
+	Brett_obj3.addComponent<TransformComponent>(glm::vec3(0, -1, -1), glm::vec3(1, 1, 1));
+	Brett_obj3.addComponent<TextSprite>("an object");
+	Brett_obj3.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
+	Brett_obj3.addComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+
+	GameObject Brett_obj4 = m_space.NewGameObject();
+	Brett_obj4.addComponent<TransformComponent>(glm::vec3(1, 0, -1), glm::vec3(1, 1, 1));
+	Brett_obj4.addComponent<TextSprite>("an object");
+	Brett_obj4.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
+	Brett_obj4.addComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+
+	GameObject Brett_obj5 = m_space.NewGameObject();
+	Brett_obj5.addComponent<TransformComponent>(glm::vec3(-1, 0, -1), glm::vec3(1, 1, 1));
+	Brett_obj5.addComponent<TextSprite>("an object");
+	Brett_obj5.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
+	Brett_obj5.addComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+
+	GameObject Brett_obj6 = m_space.NewGameObject();
+	Brett_obj6.addComponent<TransformComponent>(glm::vec3(0, 1, -1), glm::vec3(1, 1, 1));
+	Brett_obj6.addComponent<TextSprite>("an object");
+	Brett_obj6.addComponent<Graphics::SpriteComponent>(new Graphics::Texture("sampleBlend.png"));
+	Brett_obj6.addComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
 }
 
 void Engine::MainLoop()

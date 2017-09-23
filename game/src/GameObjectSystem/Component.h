@@ -19,6 +19,16 @@ public:
 	{
 	}
 
+	bool operator== (const ComponentHandle& other)
+	{
+		return m_objID == other.m_objID;
+	}
+
+	bool operator!=(const ComponentHandle& other)
+	{
+		return !(*this == other);
+	}
+
 	T *operator->()
 	{
 		return m_gameSpace->getInternalComponent<T>(m_objID);
