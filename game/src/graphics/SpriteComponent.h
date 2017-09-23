@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
+#include "meta/meta.h"
 
 namespace Graphics
 {
@@ -9,6 +10,14 @@ namespace Graphics
 	{
 	public:
 		SpriteComponent(Graphics::Texture* t = NULL);
+
+		META_NAMESPACE(::Graphics)
+		META_REGISTER(SpriteComponent)
+		{
+			META_DefineType(SpriteComponent);
+		}
+
 	};
+
 
 }

@@ -6,6 +6,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+namespace FMOD
+{
+	class Channel;
+}
+
 namespace Audio
 {
 	void Init();
@@ -14,6 +19,27 @@ namespace Audio
 
 	void LoadSound(const char *fileName);
 
+
+	// Represents a currently playing sound.
+	class SoundHandle
+	{
+	public:
+		SoundHandle(FMOD::Channel *fmodChannel);
+
+		bool IsPlaying() const;
+
+		bool IsLooping() const;
+
+		void Stop();
+
+		void SetPitch(float pitch);
+
+		float GetPitch();
+
+	private:
+		FMOD::Channel *m_fmodChannel;
+	};
+
 	// Plays a given sound once.
-	void PlaySound(const char *fileName, float volume = 1.0f);
+	SoundHandle PlaySound(const char *fileName, float volume = 1.0f, float pitch = 1.0f, bool looping = false);
 }

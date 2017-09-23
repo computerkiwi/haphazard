@@ -51,22 +51,40 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Imgui\imgui-setup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Imgui\Editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\DebugGraphic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\meta\example.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\meta\meta.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\meta\tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Util\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Audio\AudioEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\Type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\BuiltInRegistration.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meta\Registration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Engine\Physics\Collider2D.cpp">
@@ -93,9 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GameObjectSystem\GameSpace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameObjectSystem\TextSprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\Camera.h">
@@ -137,15 +152,6 @@
     <ClInclude Include="src\Engine\Physics\RigidBody.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\meta\example.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\meta\meta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\meta\tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Util\DataStructures\Array\Array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -158,6 +164,16 @@
     <ClInclude Include="src\Universal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Audio\AudioEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meta\meta.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meta\RegisterGLM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Imgui\imgui-setup.h">
     <ClInclude Include="src\Engine\Physics\Collider2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -167,5 +183,19 @@
     <ClInclude Include="src\Audio\AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Imgui\Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\DebugGraphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\debug.vertshader" />
+    <None Include="shaders\debug.geoshader" />
+    <None Include="shaders\debug.fragshader" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\meta\.gitignore" />
   </ItemGroup>
 </Project>

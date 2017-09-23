@@ -25,6 +25,8 @@ namespace Graphics
 
 		extern ShaderProgram* defaultShader;
 
+		extern ShaderProgram* debugShader;
+
 		namespace ScreenShader
 		{
 			extern ShaderProgram* Default;
@@ -74,7 +76,7 @@ namespace Graphics
 		class Attribute
 		{
 		public:
-			Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart);
+			Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
 			void Apply(ShaderProgram* program);
 
 		private:
@@ -83,11 +85,13 @@ namespace Graphics
 			GLint size;
 			GLenum type;
 			GLboolean normalized;
+			GLboolean instanced;
 			GLsizei stride;
 			GLsizei start;
 		};
 
 		ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::vector<Attribute> attributes);
+		ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attributes);
 		~ShaderProgram();
 
 		bool wasCompiled();
@@ -125,9 +129,9 @@ namespace Graphics
 			glUniform1i(glGetUniformLocation(id, varName), value);
 		}
 
-	private:
-
 		void ApplyAttributes();
+
+	private:
 
 		GLuint id;
 		std::vector<Attribute> attributes;

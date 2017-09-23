@@ -13,6 +13,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "fmod.hpp"
 #include "fmod_errors.h"
+#include "AudioEngine.h"
 
 namespace Audio
 {
@@ -65,7 +66,7 @@ namespace Audio
 	}
 
 	// Plays a given sound once.
-	void PlaySound(const char *fileName, float volume)
+	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
 	{
 		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
@@ -75,13 +76,61 @@ namespace Audio
 		if (sound == nullptr)
 		{
 			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to play not loaded file", path);
-			return;
+			return SoundHandle(nullptr);
 		}
 
 		FMOD::Channel *channel;
 		fmodSystem->playSound(sound, nullptr, false, &channel);
 
-		channel->setMode(FMOD_LOOP_OFF);
+		if (looping)
+		{
+			channel->setMode(FMOD_LOOP_NORMAL);
+		}
+		else
+		{
+			channel->setMode(FMOD_LOOP_OFF);
+		}
 		channel->setVolume(volume);
+		channel->setPitch(pitch);
+
+		return(SoundHandle(channel));
+	}
+
+	SoundHandle::SoundHandle(FMOD::Channel *fmodChannel) : m_fmodChannel(fmodChannel)
+	{
+	}
+
+	bool SoundHandle::IsPlaying() const
+	{
+		bool isPlaying;
+		CheckErrorFMOD(m_fmodChannel->isPlaying(&isPlaying));
+
+		return isPlaying;
+	}
+
+	bool SoundHandle::IsLooping() const
+	{
+		FMOD_MODE mode;
+		CheckErrorFMOD(m_fmodChannel->getMode(&mode));
+
+		return (mode == FMOD_LOOP_NORMAL);
+	}
+
+	void SoundHandle::Stop()
+	{
+		CheckErrorFMOD(m_fmodChannel->stop());
+	}
+
+	void SoundHandle::SetPitch(float pitch)
+	{
+		CheckErrorFMOD(m_fmodChannel->setPitch(pitch));
+	}
+
+	float SoundHandle::GetPitch()
+	{
+		float pitch;
+		CheckErrorFMOD(m_fmodChannel->getPitch(&pitch));
+
+		return pitch;
 	}
 }

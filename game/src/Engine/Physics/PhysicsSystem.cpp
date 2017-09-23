@@ -143,8 +143,6 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 
 	transform1->Position() += rigidBody1->Velocity() - resolutionVector;
 
-	std::cout << resolutionVector.x << ", " << resolutionVector.y << std::endl;
-
 	if (resolutionVector.x)
 	{
 		rigidBody1->SetVelocity(glm::vec3(0, rigidBody1->Velocity().y, rigidBody1->Velocity().z));

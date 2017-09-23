@@ -31,12 +31,17 @@ public:
 
 	T *operator->()
 	{
-		return m_gameSpace->getInternalComponent<T>(m_objID);
+		return m_gameSpace->GetInternalComponent<T>(m_objID);
+	}
+
+	T *Get()
+	{
+		return m_gameSpace ? operator->() : nullptr;
 	}
 
 	T& operator*()
 	{
-		return *m_gameSpace->getInternalComponent(m_objID);
+		return *m_gameSpace->GetInternalComponent<T>(m_objID);
 	}
 
 	GameObject GetGameObject()
@@ -48,7 +53,7 @@ public:
 	ComponentHandle<T> GetSiblingComponent()
 	{
 		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->getInternalComponent<T>(m_objID) != nullptr)
+		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
 		{
 			return ComponentHandle<T>(m_objID, m_gameSpace);
 		}
