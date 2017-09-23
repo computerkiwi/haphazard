@@ -35,6 +35,8 @@ public:
 
 	GameSpace *GetSpace() { return &m_space; }
 
+	Editor *GetEditor() { return &m_editor; }
+
 private:
 	float CalculateDt();
 

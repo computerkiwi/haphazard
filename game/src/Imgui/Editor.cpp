@@ -118,18 +118,32 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 	
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 
+
+	auto help = [this]()
+	{
+		Editor::Internal_Log("    Commands Avaiable: \n");
+		
+		for (auto& cmd : m_commands)
+		{
+			Editor::Internal_Log("     - %s \n", cmd.first.c_str());
+		}
+	};
+	RegisterCommand("help", help);
+	RegisterCommand("?", help);
 	RegisterCommand("log", 
 	[this]()
 	{
 		Logging::Log(m_line.substr(strlen("log")).c_str());
 	});
 	RegisterCommand("exit", []() { std::exit(0); });
-	RegisterCommand("history__", 
+	RegisterCommand("history", 
 	[this]()
 	{
+		Editor::Internal_Log("    Command History: \n");
+
 		for (auto& history : m_log_history)
 		{
-			Editor::Log(history.c_str());
+			Editor::Internal_Log("     - %s \n", history.c_str());
 		}
 	});
 	RegisterCommand("create", [this]() { CreateGameObject(); });
@@ -163,7 +177,6 @@ void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 
 void Editor::Log(const char *log_message, ...)
 {
-	int old_size = m_log_buffer.size();
 	std::stringstream ss;
 
 	auto t = std::time(nullptr);
@@ -177,6 +190,17 @@ void Editor::Log(const char *log_message, ...)
 	va_end(args);
 	m_offsets.push_back(m_log_buffer.size() - 1);
 }
+
+
+void Editor::Internal_Log(const char * log_message, ...)
+{
+	va_list args;
+	va_start(args, log_message);
+	m_log_buffer.appendv(log_message, args);
+	va_end(args);
+	m_offsets.push_back(m_log_buffer.size() - 1);
+}
+
 
 
 void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
@@ -287,24 +311,21 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		}
 
 		ImGui::PushID(i);
-		if (m_commands[i].first.find(m_line.c_str()) != std::string::npos)
+		if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
 		{
-			if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
-			{
-				m_state.clickedIndex = i;
-			}
-			ImGui::PopID();
+			m_state.clickedIndex = i;
+		}
+		ImGui::PopID();
 
-			if (isActiveIndex)
+		if (isActiveIndex)
+		{
+			if (m_state.m_selection_change)
 			{
-				if (m_state.m_selection_change)
-				{
-					ImGui::SetScrollHere();
-					m_state.m_selection_change = false;
-				}
-
-				ImGui::PopStyleColor(1);
+				ImGui::SetScrollHere();
+				m_state.m_selection_change = false;
 			}
+
+			ImGui::PopStyleColor(1);
 		}
 	}
 
@@ -383,7 +404,7 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, 512, flags, Input, this) && m_line.size())
+	if (ImGui::InputText("", command_buffer, 512, flags, Input, this))
 	{
 		m_line = command_buffer;
 		auto first_of_not_space = m_line.find_first_not_of(' ');
