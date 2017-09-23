@@ -248,6 +248,8 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 20, 12, true));
 		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 20, 16, true));
 
+		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_UNSIGNED_INT, sizeof(unsigned int), false, 1, 0, true));
+
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
 		if (!defaultShader->wasCompiled())

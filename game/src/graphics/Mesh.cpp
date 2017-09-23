@@ -13,6 +13,7 @@
 
 // Statics 
 GLuint Mesh::instanceVBO = 0;
+GLuint Mesh::textureVBO = 0;
 static Texture* defaultTexture;
 
 Mesh::Mesh(GLenum renderMode)
@@ -32,9 +33,13 @@ Mesh::Mesh(GLenum renderMode)
 	if (!instanceVBO)
 	{
 		glGenBuffers(1, &instanceVBO);
+		glGenBuffers(1, &textureVBO);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 	program->ApplyAttributes(3, 8); // Apply instance attributes
+
+	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+	program->ApplyAttributes(8, 9);
 
 	glGenBuffers(1, &vboID); //Start vbo
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);

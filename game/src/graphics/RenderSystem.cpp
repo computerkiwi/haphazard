@@ -41,6 +41,7 @@ void RenderSystem::Update(float dt)
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
 	std::vector<float> data;
+	std::vector<GLuint> tex;
 	int numMeshes = 0;
 
 
@@ -57,12 +58,18 @@ void RenderSystem::Update(float dt)
 		//spriteHandle->UpdateAnimatedTexture(dt);
 		spriteHandle->Draw(transform->Matrix4(), &data);
 
+		tex.push_back(1u);
+
 		numMeshes++;
 
 		//Stuff happens here
 		mainCamera->SetZoom(3);
 		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14 / 4, glm::vec4(1, 0, 1, 1));
 	}
+
+	Mesh::BindTextureVBO();
+	Shaders::defaultShader->ApplyAttributes(8, 9);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * tex.size(), tex.data(), GL_STATIC_DRAW);
 
 	Mesh::BindInstanceVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);

@@ -61,12 +61,12 @@ public:
 	void BindTexture();
 
 	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); }
-
+	static void BindTextureVBO() { glBindBuffer(GL_ARRAY_BUFFER, textureVBO); }
 
 private:
 	void UseBlendMode(BlendMode bm);
 
-	static GLuint instanceVBO;
+	static GLuint instanceVBO, textureVBO;
 
 	GLuint vaoID, vboID;
 	GLuint uniModel, uniTextureBox;
