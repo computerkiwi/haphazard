@@ -160,6 +160,7 @@
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
+    <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\RenderSystem.cpp" />
     <ClCompile Include="src\graphics\Screen.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />
+    <ClInclude Include="src\graphics\DebugGraphic.h" />
     <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
@@ -204,6 +206,11 @@
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />
     <ClInclude Include="src\Util\Util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\debug.fragshader" />
+    <None Include="shaders\debug.geoshader" />
+    <None Include="shaders\debug.vertshader" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\meta\.gitignore" />
