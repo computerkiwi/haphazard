@@ -2,10 +2,11 @@
 #include "glm\glm.hpp"
 
 typedef unsigned int GLuint;
-
+class AnimatedTexture;
 
 class Texture
 {
+	friend class AnimatedTexture;
 public:
 	Texture(const char* file);
 	Texture(float *pixels, int width, int height);
@@ -13,8 +14,21 @@ public:
 	~Texture();
 
 	GLuint GetID() const { return m_ID; }
+	glm::vec2 GetBounds();
+
+	static void BindArray();
+	
 private:
+	const static int MAX_WIDTH = 1920;
+	const static int MAX_HEIGHT = 1920;
+
+	static void GenerateTextureArray();
+
+	static GLuint m_TextureArray;
+	static int m_layers;
+
 	GLuint m_ID;
+	float m_width, m_height;
 };
 
 class AnimatedTexture
@@ -42,6 +56,7 @@ public:
 
 private:
 	GLuint m_ID;
+	float m_width, m_height;
 	float m_spriteWidth, m_spriteHeight;
 	int m_spritesX, m_spritesY;
 };

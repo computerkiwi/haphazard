@@ -92,94 +92,46 @@ void Mesh::UseBlendMode(BlendMode bm)
 	}
 }
 
-void Mesh::Draw(glm::mat4 matrix, std::vector<float>* data)
+void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 {
-	//UseBlendMode(blend);
-
-	//program->Use();
-	//glBindVertexArray(vaoID);
-	//glBindBuffer(GL_ARRAY_BUFFER, vboID);
-
 	float tex[4];
 	
 	if (animatedTexture)
 	{
-		//glBindTexture(GL_TEXTURE_2D, animatedTexture->GetID());
 		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
 		glm::vec2 s = animatedTexture->GetSpriteSize();
 
-		//glUniform4f( uniTextureBox, t.x, t.y, t.x + s.x, t.y + s.y );
-		tex[0] = t.x;
-		tex[1] = t.y;
-		tex[2] = t.x + s.x;
-		tex[3] = t.y + s.y;
+		data->push_back(t.x);
+		data->push_back(t.y);
+		data->push_back(t.x + s.x);
+		data->push_back(t.y + s.y);
 	}
 	else
 	{
-		//if (texture)
-		//	glBindTexture(GL_TEXTURE_2D, texture);
-		//else
-		//	glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
-
-		//glUniform4f(uniTextureBox, 0, 0, 1, 1);
-		tex[0] = 0;
-		tex[1] = 0;
-		tex[2] = 1;
-		tex[3] = 1;
+		glm::vec2 b = texture->GetBounds();
+		data->push_back(0);
+		data->push_back(0);
+		data->push_back(b.x);
+		data->push_back(b.y);
 	}
-
-	data->push_back(tex[0]);
-	data->push_back(tex[1]);
-	data->push_back(tex[2]);
-	data->push_back(tex[3]);
 
 	// Load data into array
 	for (int i = 0; i < 4 * 4; i++)
 		data->push_back(matrix[i / 4][i % 4]);
-
-/*	for (auto vert : vertices)
-	{
-		for (int j = 0; j < sizeof(vert) / sizeof(float); ++j)
-			data->push_back(vert.data[j]);
-		data->push_back(tex[0]);
-		data->push_back(tex[1]);
-		data->push_back(tex[2]);
-		data->push_back(tex[3]);
-
-		for (int i = 0; i < 4 * 4; i++)
-			data->push_back(matrix[i % 4][i / 4]);
-	}*/
-
-	//numArrays += vertices.size();
-
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data->size(), data, GL_STATIC_DRAW);
-
-	//glDrawArraysInstanced(drawMode, 0, (int)vertices.size(), 1);
-
-	//data->clear();
 }
 
-void Mesh::BindTexture()
+GLuint Mesh::GetRenderTextureID()
 {
 	if (animatedTexture)
-		glBindTexture(GL_TEXTURE_2D, animatedTexture->GetID());
-	else
-	{
-		if (texture)
-			glBindTexture(GL_TEXTURE_2D, texture);
-		else
-			glBindTexture(GL_TEXTURE_2D, defaultTexture->GetID());
-	}
+		return animatedTexture->GetID();
+	if(texture)
+		return texture->GetID();
+	return defaultTexture->GetID();
 }
 
-void Mesh::SetTexture(Texture& tex) 
+void Mesh::SetTexture(Texture* tex)
 { 
-	texture = tex.GetID(); 
-}
-
-void Mesh::SetTexture(GLuint texID)
-{
-	texture = texID; 
+	texture = tex;
 }
 
 void Mesh::SetShader(ShaderProgram *shader)

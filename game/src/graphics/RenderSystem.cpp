@@ -42,7 +42,7 @@ void RenderSystem::Update(float dt)
 
 	std::vector<float> data;
 	std::vector<int> tex;
-	int numMeshes = 0;
+	int numMeshes = 0, numVerts = 0;
 
 
 	Shaders::defaultShader->Use();
@@ -55,12 +55,15 @@ void RenderSystem::Update(float dt)
 			continue;
 		}
 
-		//spriteHandle->UpdateAnimatedTexture(dt);
-		spriteHandle->Draw(transform->Matrix4(), &data);
+		spriteHandle->UpdateAnimatedTexture(dt);
 
-		tex.push_back(1);
+		spriteHandle->SetRenderData(transform->Matrix4(), &data);
+		tex.push_back(spriteHandle->GetRenderTextureID());
 
 		numMeshes++;
+
+		if (numVerts == 0)
+			numVerts = spriteHandle->NumVerts();
 
 		//Stuff happens here
 		mainCamera->SetZoom(3);
@@ -74,16 +77,10 @@ void RenderSystem::Update(float dt)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
+	// Bind first VAO, all VAOs should be the same until multiple shaders are used for sprites
+	sprites->begin()->BindVAO();
 
-	int i = 0;
-	for (auto spriteHandle : *sprites)
-	{
-		spriteHandle->BindVAO();
-		spriteHandle->BindTexture();
-
-		glDrawArraysInstanced(GL_TRIANGLES, spriteHandle->NumVerts() * i, (i+1) * spriteHandle->NumVerts(), numMeshes);
-		i++;
-	}
+	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
 	
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);

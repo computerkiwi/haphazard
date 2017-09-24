@@ -6,12 +6,12 @@ flat in int TexLayer;
 
 out vec4 outColor;
 
-uniform sampler2D tex;
+uniform sampler2DArray tex;
 
 void main()
 {
-	vec4 texColor = texture(tex, Texcoord);
-	if(texColor.a < 0.1 || TexLayer == 0)
+	vec4 texColor = texture(tex, vec3(Texcoord,TexLayer));
+	if(texColor.a < 0.1)
 		discard;
 	outColor = texColor * Color;
 }

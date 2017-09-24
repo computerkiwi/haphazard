@@ -37,15 +37,14 @@ public:
 		float x2, float y2, float z2, float r2, float g2, float b2, float a2, float texX2, float texY2,
 		float x3, float y3, float z3, float r3, float g3, float b3, float a3, float texX3, float texY3);
 
-	void SetTexture(Texture& tex);
-	void SetTexture(GLuint texID);
+	void SetTexture(Texture* tex);
 	void SetShader(ShaderProgram *shader);
 	void SetBlendMode(BlendMode mode);
 
 	std::vector<Vertice>* GetVertices();
 	void CompileMesh(); // Creates mesh with provided vertices
 
-	void Draw(glm::mat4 matrix, std::vector<float>* data);
+	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
 
 	void SetTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
 	void SetAnimatedTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
@@ -58,7 +57,7 @@ public:
 	void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
 	int NumVerts() { return vertices.size(); }
 	
-	void BindTexture();
+	GLuint GetRenderTextureID(); // Returns texture id that will be rendered. Returns default texture is no texture is set.
 
 	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); }
 	static void BindTextureVBO() { glBindBuffer(GL_ARRAY_BUFFER, textureVBO); }
@@ -76,7 +75,7 @@ private:
 	GLenum drawMode = GL_TRIANGLES;
 
 	AnimatedTexture* animatedTexture = NULL;
-	GLuint texture = 0;
+	Texture* texture = 0;
 	int AT_frame = 0;
 	float AT_fps, AT_timer = 0;
 };
