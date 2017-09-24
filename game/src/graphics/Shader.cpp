@@ -80,7 +80,12 @@ void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 		index = glGetAttribLocation(program->id, name);
 
 	glEnableVertexAttribArray(index);
-	glVertexAttribPointer(index, size, type, normalized, stride, (void*)(start));
+
+	if(type == GL_INT)
+		glVertexAttribIPointer(index, size, type, stride, (void*)(start));
+	else
+		glVertexAttribPointer(index, size, type, normalized, stride, (void*)(start));
+
 	glVertexAttribDivisor(index, instanced);
 }
 
@@ -248,7 +253,7 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 20, 12, true));
 		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 20, 16, true));
 
-		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_UNSIGNED_INT, sizeof(unsigned int), false, 1, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(int), false, 1, 0, true));
 
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 

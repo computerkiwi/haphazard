@@ -41,7 +41,7 @@ void RenderSystem::Update(float dt)
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
 	std::vector<float> data;
-	std::vector<GLuint> tex;
+	std::vector<int> tex;
 	int numMeshes = 0;
 
 
@@ -58,7 +58,7 @@ void RenderSystem::Update(float dt)
 		//spriteHandle->UpdateAnimatedTexture(dt);
 		spriteHandle->Draw(transform->Matrix4(), &data);
 
-		tex.push_back(1u);
+		tex.push_back(1);
 
 		numMeshes++;
 
@@ -68,8 +68,7 @@ void RenderSystem::Update(float dt)
 	}
 
 	Mesh::BindTextureVBO();
-	Shaders::defaultShader->ApplyAttributes(8, 9);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * tex.size(), tex.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
 
 	Mesh::BindInstanceVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
@@ -81,6 +80,7 @@ void RenderSystem::Update(float dt)
 	{
 		spriteHandle->BindVAO();
 		spriteHandle->BindTexture();
+
 		glDrawArraysInstanced(GL_TRIANGLES, spriteHandle->NumVerts() * i, (i+1) * spriteHandle->NumVerts(), numMeshes);
 		i++;
 	}
