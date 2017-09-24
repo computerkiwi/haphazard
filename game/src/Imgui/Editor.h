@@ -43,6 +43,7 @@ class Editor
 	friend int Input(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
 	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void ObjectsList();
 
 	void Internal_Log(const char *log_message, ...);
 
@@ -57,7 +58,7 @@ public:
 	void Clear();
 
 	void SetGameObject(GameObject& new_object);
-
+	
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);

@@ -149,7 +149,31 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 	RegisterCommand("create", [this]() { CreateGameObject(); });
 	RegisterCommand("clear", [this]() { Clear(); });
 	RegisterCommand("cls", [this]() { Clear(); });
+	RegisterCommand("objects",
+	[this]()
+	{
+		Editor::Internal_Log("    Current Objects: \n");
+		for (auto& object : m_objects)
+		{
+			Editor::Internal_Log("     - %d \n", object.Getid());
+		}
+	});
+	RegisterCommand("select",
+	[this]()
+	{
+		int seleted_id = atoi(m_line.substr(strlen("select ")).c_str());
+
+		for (auto& object : m_objects)
+		{
+			if (object.Getid() == seleted_id)
+			{
+				m_selected_object = object;
+				break;
+			}
+		}
+	});
 }
+
 
 Editor::~Editor()
 {
@@ -160,9 +184,10 @@ Editor::~Editor()
 void Editor::Update()
 {
 	ImGui_ImplGlfwGL3_NewFrame();
-	ImGui::ShowTestWindow();
+	// ImGui::ShowTestWindow();
 	m_objects = m_engine->GetSpace()->CollectGameObjects();
 	Console();
+	ObjectsList();
 	ImGui_GameObject(&m_selected_object);
 
 	ImGui::Render();
@@ -211,10 +236,34 @@ void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
 }
 
 
-
 void Editor::SetGameObject(GameObject& new_object)
 {
 	m_selected_object = new_object;
+}
+
+
+void Editor::ObjectsList()
+{
+	using namespace ImGui;
+
+	SetNextWindowSize(ImVec2(225, 350));
+	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
+
+	std::string name("GameObject - ");
+	for (auto& object : m_objects)
+	{
+		name += std::to_string(object.Getid());
+		if (Selectable(name.c_str()))
+		{
+			SetGameObject(object);
+			break;
+		}
+
+		name.clear();
+		name = "GameObject - ";
+	}
+
+	End();
 }
 
 
@@ -309,7 +358,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVec(0x072f70FF)));
 		}
-
+		
 		ImGui::PushID(i);
 		if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
 		{
