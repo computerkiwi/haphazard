@@ -13,6 +13,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Audio/AudioEngine.h"
 #include "meta/meta.h"
+#include "../Util/FrameCap.h"
 
 // Graphics libraries
 #include "GL\glew.h"
@@ -130,6 +131,8 @@ void Engine::MainLoop()
 
 void Engine::Update()
 {
+	Timer frameCap;
+
 	m_dt = CalculateDt();
 	
 	m_space.Update(m_dt);
@@ -142,6 +145,8 @@ void Engine::Update()
 	
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
+
+	frameCap.waitUntil(16666);
 }
 
 

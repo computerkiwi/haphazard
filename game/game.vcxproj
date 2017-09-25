@@ -176,6 +176,7 @@
     <ClCompile Include="src\meta\BuiltInRegistration.h" />
     <ClCompile Include="src\meta\Registration.cpp" />
     <ClCompile Include="src\meta\Type.cpp" />
+    <ClCompile Include="src\Util\FrameCap.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +207,7 @@
     <ClInclude Include="src\Imgui\Editor.h" />
     <ClInclude Include="src\Imgui\imgui-setup.h" />
     <ClInclude Include="src\Universal.h" />
+    <ClInclude Include="src\Util\FrameCap.h" />
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />
