@@ -16,8 +16,6 @@ RenderSystem::RenderSystem(GLFWwindow* window)
 
 static Camera* mainCamera;
 
-DebugGraphic* c;
-
 void RenderSystem::Init()
 {
 	mainCamera = new Camera();
@@ -25,7 +23,7 @@ void RenderSystem::Init()
 	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
 
-	//mainCamera->ResizeViewport(1920, 1080);
+	Screen::GetView().SetBackgroundColor(0, 0.1f, 0.9f, 1);
 }
 
 // Called each frame.
@@ -82,11 +80,13 @@ void RenderSystem::Update(float dt)
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
 	
+
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
-	Screen::GetView().Draw();
 
 	DebugGraphic::DrawAll();
+
+	Screen::GetView().Draw();
 
 	glDisableVertexAttribArray(0);
 	glfwSwapBuffers(m_window);

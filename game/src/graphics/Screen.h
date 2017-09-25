@@ -38,7 +38,6 @@ public:
 	void Use(); // Start render to this screen (clears screen)
 
 	void SetBackgroundColor(float r, float g, float b, float a);
-	void SetDimensions(int width, int height);
 	void SetEffects(int count, FX fx[]);
 	void AddEffect(FX fx);
 	void SetBlurAmount(float amt);
@@ -66,7 +65,7 @@ public:
 	private:
 		GLuint mID;
 		GLuint mDepthStencilBuffer;
-		GLuint mColorBuffers[2]; // Max color buffers = 2
+		GLuint mColorBuffers[2] = {0,0}; // Max color buffers = 2
 		int mWidth, mHeight;
 		int numColBfrs;
 		glm::vec4 mClearColor;

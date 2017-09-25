@@ -27,13 +27,6 @@ void Screen::SetBackgroundColor(float r, float g, float b, float a)
 	mFX.SetClearColor(1 - r, 1 - g, 1 - b, a); // Set FX as negative for debug
 }
 
-void Screen::SetDimensions(int w, int h) 
-{
-	glViewport(0, 0, w, h);
-	mView.SetDimensions(w, h);
-	mFX.SetDimensions(w, h);
-}
-
 void Screen::SetEffects(int c, FX fx[])
 {
 	mFXList.clear();
@@ -196,18 +189,10 @@ void Screen::Draw()
 
 void Screen::ResizeScreen(int width, int height)
 {
-	glDeleteBuffers(2, mView.mColorBuffers);
-	glDeleteBuffers(2, mFX.mColorBuffers);
-	glDeleteBuffers(1, &mView.mDepthStencilBuffer);
-	glDeleteBuffers(1, &mFX.mDepthStencilBuffer);
+	glViewport(0, 0, width, height);
 
-	mView.mWidth = mFX.mWidth = width;
-	mView.mHeight = mFX.mHeight = height;
-
-	mView.GenerateColorBuffers();
-	mView.GenerateDepthStencilObject();
-	mFX.GenerateColorBuffers();
-	mFX.GenerateDepthStencilObject();
+	mView.SetDimensions(width, height);
+	mFX.SetDimensions(width, height);
 }
 
 ///
@@ -219,12 +204,8 @@ Screen::FrameBuffer::FrameBuffer(int numColBfrs)
 {
 	glGenFramebuffers(1, &mID);
 	glBindFramebuffer(GL_FRAMEBUFFER, mID);
-
-	mWidth = Settings::ScreenWidth();
-	mHeight = Settings::ScreenHeight();
-
-	GenerateColorBuffers();
-	GenerateDepthStencilObject();
+	glGenTextures(numColBfrs, mColorBuffers);
+	SetDimensions(Settings::ScreenWidth(), Settings::ScreenHeight());
 }
 
 void Screen::FrameBuffer::SetDimensions(int width, int height)
@@ -240,8 +221,7 @@ void Screen::FrameBuffer::SetDimensions(int width, int height)
 
 void Screen::FrameBuffer::GenerateColorBuffers()
 {
-	// create a color attachment texture
-	glGenTextures(numColBfrs, mColorBuffers);
+	Use();
 
 	for (int i = 0; i < numColBfrs; ++i)
 	{

@@ -57,11 +57,6 @@ void Camera::ApplyCameraMatrices()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Camera::ResizeViewport(int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
-
 void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 {
 	glm::mat4 matrix;
