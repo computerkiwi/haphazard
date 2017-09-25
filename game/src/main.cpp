@@ -43,7 +43,7 @@ int main()
 	// We shouldn't get past MainLoop at this point.
 
 	// Keep the console from closing.
-	std::cin.ignore();
+	//std::cin.ignore();
 
 	return 0;
 }

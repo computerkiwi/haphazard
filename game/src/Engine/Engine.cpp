@@ -30,17 +30,17 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "graphics\SpriteComponent.h"
 
 GLFWwindow* WindowInit(); 
+GLFWwindow* window;
 
 // Systems to register.
 #include "graphics\RenderSystem.h"
-
 
 Engine::Engine()
 {
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 	//Init OpenGL and start window
-	GLFWwindow *window = WindowInit();
+	window = WindowInit();
 
 	ImGui_ImplGlfwGL3_Init(window, true);
 
@@ -91,6 +91,9 @@ void Engine::MainLoop()
 
 void Engine::Update()
 {
+	if (glfwWindowShouldClose(window))
+		m_running = false;
+
 	m_dt = CalculateDt();
 	
 	m_space.Update(m_dt);
@@ -157,6 +160,8 @@ GLFWwindow* WindowInit()
 		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not init GLEW");
 		exit(1);
 	}
+
+	glfwSetWindowSizeCallback(window, RenderSystem::ResizeWindowEvent);
 
 	return window;
 }

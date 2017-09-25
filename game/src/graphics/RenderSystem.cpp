@@ -22,8 +22,6 @@ void RenderSystem::Init()
 	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
-
-	Screen::GetView().SetBackgroundColor(0, 0.1f, 0.9f, 1);
 }
 
 // Called each frame.
@@ -93,6 +91,12 @@ void RenderSystem::Update(float dt)
 	glfwPollEvents();
 
 	//data.clear();
+}
+
+void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int width, int height)
+{
+	Screen::GetView().ResizeScreen(width, height);
+	mainCamera->SetAspectRatio(width / (float)height);
 }
 
 // Simply returns the default priority for this system.
