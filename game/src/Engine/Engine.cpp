@@ -36,6 +36,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Physics\RigidBody.h"
 #include "Physics\Collider2D.h"
 
+#include "input\Input.h"
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
@@ -73,6 +75,9 @@ Engine::Engine() : m_window(WindowInit())
 
 	// Initialize the system.
 	m_space.Init();
+
+  // TEMPORARY IDK where to put this
+  Input::Init(window);
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
