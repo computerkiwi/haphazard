@@ -37,6 +37,8 @@ public:
 
 	Editor *GetEditor() { return &m_editor; }
 
+	void Exit() { m_running = false; }
+
 private:
 	float CalculateDt();
 

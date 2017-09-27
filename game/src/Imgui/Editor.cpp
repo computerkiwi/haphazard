@@ -32,10 +32,14 @@ void ImGui_GameObject(GameObject *object);
 void ImGui_Transform(TransformComponent *transform);
 
 // Enter Hex code not including the 0x
+#define HexVecA(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
+	                 (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
+	                 (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
+	                 (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
+
 #define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
 	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
-	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
-	                (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
+	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engine), m_state{ false, -1, -1, false }
 {
@@ -56,7 +60,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 	style->GrabMinSize = 5.0f;
 	style->GrabRounding = 3.0f;
 
-	style->Colors[ImGuiCol_Text]         = ImVec4(HexVec(0xCCCCD3FF));
+	style->Colors[ImGuiCol_Text]         = ImVec4(HexVecA(0xCCCCD3FF));
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 
 	style->Colors[ImGuiCol_WindowBg]      = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
@@ -135,7 +139,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engin
 	{
 		Logging::Log(m_line.substr(strlen("log")).c_str());
 	});
-	RegisterCommand("exit", []() { std::exit(0); });
+	RegisterCommand("exit", [this]() { m_engine->Exit(); });
 	RegisterCommand("history", 
 	[this]()
 	{
