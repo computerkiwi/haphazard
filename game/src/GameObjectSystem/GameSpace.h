@@ -54,18 +54,23 @@ private:
 };
 
 // ID used as key to component containers.
-typedef void * ComponentType;
+typedef size_t ComponentType;
 
+ComponentType GenerateComponentTypeID();
+
+#pragma optimize("", off)
 // Uses the address of the templated function as a unique ID.
 template <typename T>
 struct GetComponentType
 {
-	constexpr static ComponentType func()
+	static ComponentType func()
 	{
-		return static_cast<ComponentType>(func);
+		static ComponentType cType = GenerateComponentTypeID();
+
+		return cType;
 	}
 };
-
+#pragma optimize("", on)
 
 // Only exists so we can keep all of the component maps in one container.
 class ComponentMapBase
@@ -208,7 +213,9 @@ public:
 	void RegisterComponentType()
 	{
 		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering component type ", typeid(T).name());
-		m_componentMaps.emplace(GetComponentType<T>::func, new ComponentMap<T>(this));
+		m_componentMaps.emplace(GetComponentType<T>::func(), new ComponentMap<T>(this));
+
+		std::cout << "Registering component type" << GetComponentType<T>::func() << std::endl;
 	}
 
 	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
@@ -321,7 +328,7 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 		compMap->emplaceComponent(id, std::forward<Args>(args)...);
