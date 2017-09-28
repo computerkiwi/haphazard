@@ -379,4 +379,3 @@ public:
 	}
 };
 
-#include "GameObject.h"

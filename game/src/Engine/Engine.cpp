@@ -25,8 +25,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 // imgui
 #include <imgui.h>
-#include "../Imgui/imgui-setup.h"
-#include "../Imgui/Editor.h"
 
 // Component types to register.
 #include "GameObjectSystem/TransformComponent.h"
@@ -43,14 +41,11 @@ GLFWwindow* WindowInit();
 #include "Physics\PhysicsSystem.h"
 
 				   // Init OpenGL and start window
-Engine::Engine() : m_window(WindowInit())
+Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 
-	ImGui_ImplGlfwGL3_Init(m_window, true);
-
-	Editor_Init();
 	// Load Shaders
 	Graphics::Shaders::Init();
 
@@ -123,7 +118,6 @@ void Engine::MainLoop()
 	{
 		Update();
 	}
-	ImGui_ImplGlfwGL3_Shutdown();
 	Logging::Exit();
 }
 
@@ -139,9 +133,8 @@ void Engine::Update()
 
 	Audio::Update();
 	
-	ImGui_ImplGlfwGL3_NewFrame();
-	Editor(this);
-	ImGui::Render();
+	
+	m_editor.Update();
 	
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
