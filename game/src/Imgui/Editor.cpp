@@ -16,7 +16,6 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
-#include "GameObjectSystem\TransformComponent.h"
 
 #include "Util\Logging.h"
 
@@ -189,6 +188,7 @@ void Editor::Update()
 {
 	if (m_show_editor)
 	{
+		OnClick();
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		m_objects = m_engine->GetSpace()->CollectGameObjects();
@@ -254,12 +254,36 @@ void Editor::OnClick()
 	// Check for mouse 1 click
 	if (true)
 	{
-		glm::vec2 mouse;
+		ImVec2 mouse = ImGui::GetCursorPos();
 
 		for (auto& transform : *m_engine->GetSpace()->GetComponentMap<TransformComponent>())
 		{
 			const glm::vec3& scale = transform.Get()->Scale();
 			const glm::vec3& pos = transform.Get()->Position();
+
+			if (mouse.x > pos.x + scale.x)
+			{
+				if (mouse.y > pos.y + scale.y)
+				{
+					m_selected_object = transform.GetGameObject();
+				}
+				else if (mouse.y < pos.y - scale.y)
+				{
+					m_selected_object = transform.GetGameObject();
+				}
+			}
+			else if (mouse.x < pos.x - scale.x)
+			{
+				if (mouse.y > pos.y + scale.y)
+				{
+					m_selected_object = transform.GetGameObject();
+				}
+				else if (mouse.y < pos.y - scale.y)
+				{
+					m_selected_object = transform.GetGameObject();
+				}
+			}
+
 
 		}
 
