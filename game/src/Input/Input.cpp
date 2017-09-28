@@ -31,16 +31,38 @@ Input::Input(GLFWwindow * window) : window_(window) //, keyMap_()
 namespace Input
 {
 
+  typedef std::map<KeyboardMap, KeyState> TriggerMap;
+
+  ////////// Static Variables //////////
+  static GLFWwindow * inputWindow;    // Window to detect input from
+  static TriggerMap triggerMap;       // 0 to 9, A to Z, special characters, modifiers, numpad
+  static glm::vec2 cursorPos;         // x, y cursor positions; top-left is origin
+
+  static ControllerMap player1;
+//  static ControllerMap player2;
+//  static ControllerMap player3;
+//  static ControllerMap player4;
+
+//  static Controls * player1;
+
+  // Initializes input window for detection
   void Init(GLFWwindow * window)
   {
     // Set default controls
 
-    // Map keys
-
-    inputWindow = window;
+    if (window)
+    {
+      inputWindow = window;
+ //     player1Controls
+    }
+    else
+    {
+      std::cout << "No input window set" << std::endl;
+    }
 
   }
 
+  // Calls GLFW functions to check and store input
   void Update()
   {
       // Action: press, repeat, release
@@ -50,9 +72,39 @@ namespace Input
     glfwSetCursorPosCallback(inputWindow, CursorCallback);
     glfwSetMouseButtonCallback(inputWindow, MouseButtonCallback);
 
-    // Not sure what this means: On platforms that provide it, the full sub - pixel cursor position is passed on.
+    // Detects controller
+    glfwSetJoystickCallback(ControllerCallback);
 
 
+
+  }
+
+  // Check if key is pressed; takes the key to check
+  // Returns true if pressed
+  bool IsPressed(KeyboardMap key)
+  {
+    // Key pressed
+    if (triggerMap[key] == KeyState::pressed)
+    {
+      return true;
+    }
+
+    // Key not pressed
+    return false;
+  }
+  
+  // Check if key is held down; takes the key to check
+  // Returns true if held down
+  bool IsHeldDown(KeyboardMap key)
+  {
+    // Key held down
+    if (triggerMap[key] == KeyState::heldDown)
+    {
+      return true;
+    }
+    
+    // Key not held down
+    return false;
   }
 
   void Exit()
@@ -65,15 +117,15 @@ namespace Input
   }
 
   // Debug
-  void KeyCheck_Debug(int key)
+  void Input_Debug(KeyboardMap key)
   {
-    if (triggerMap[key] == pressed)
+    if (Input::IsPressed(key) == true)
     {
-      std::cout << "KeyCheck: Key pressed" << std::endl;
+      printf("A is pressed\n");
     }
-    else if (triggerMap[key] == heldDown)
+    else if (Input::IsHeldDown(key) == true)
     {
-      std::cout << "KeyCheck: Key held down" << std::endl;
+      printf("A is held down\n");
     }
   }
 
@@ -82,6 +134,9 @@ namespace Input
   // Function for checking which key is pressed
   // Mouse position, key presses
   // Get axis from Unity (tutorial for input scheme)
+
+  // Callback for GLFW keyboard input detection
+  // Stores keyboard input information
   void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
   {
     if (key)
@@ -90,28 +145,29 @@ namespace Input
       {
         // Key was pressed
         case GLFW_PRESS:
-          triggerMap[key] = pressed;
+          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::pressed;
 
-          std::cout << "KEY " << key << " pressed" << std::endl;
+      //    std::cout << "KEY " << key << " pressed" << std::endl;
           break;
 
         // Key was held down
         case GLFW_REPEAT:
-          triggerMap[key] = heldDown;
+          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::heldDown;
 
-          std::cout << "KEY " << key << " held down" << std::endl;
+       //   std::cout << "KEY " << key << " held down" << std::endl;
           break;
 
         // Key was released
         case GLFW_RELEASE:
 
-          triggerMap[key] = released;
+          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::released;
 
           std::cout << "KEY " << key << " released" << std::endl;
       }
     }
   }
 
+  // Stores mouse position
   void CursorCallback(GLFWwindow * window, double xpos, double ypos)
   {
     //double x_pos;
@@ -125,13 +181,33 @@ namespace Input
     std::cout << "CURSOR POSITION: x = " << cursorPos.x << ", y = " << cursorPos.y << std::endl;
   }
 
+  // Stores mouse button input information
   void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod)
   {
-    if ((button >= 0) && (action == pressed))
+    if ((button >= 0) && (action == static_cast<int>(KeyState::pressed)))
     {
-      triggerMap[button] = pressed;
+      triggerMap[static_cast<KeyboardMap>(button)] = KeyState::pressed;
 
       std::cout << "MOUSE BUTTON " << button << " was pressed" << std::endl;
+    }
+  }
+
+  // Detects when controller is connected
+  void ControllerCallback(int joy, int event)
+  {
+    // Joystick connected
+    if (event == GLFW_CONNECTED)
+    {
+      std::cout << "Controller connected" << std::endl;
+
+      // Match controller ID to player
+      // Set controls
+
+    }
+    // Joystick disconnected
+    else if (event == GLFW_DISCONNECTED)
+    {
+      std::cout << "Controller disconnected" << std::endl;
     }
   }
 }

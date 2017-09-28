@@ -28,6 +28,8 @@
     <ClCompile Include="src\meta\Type.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
     <ClCompile Include="src\Util\FrameCap.cpp" />
+    <ClCompile Include="src\Input\Input.cpp" />
+    <ClCompile Include="src\Input\Controls.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Audio\AudioEngine.h" />
@@ -62,6 +64,9 @@
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />
     <ClInclude Include="src\Util\Util.h" />
     <ClInclude Include="src\Util\FrameCap.h" />
+    <ClInclude Include="src\Input\Input.h" />
+    <ClInclude Include="src\Input\KeyMap.h" />
+    <ClInclude Include="src\Input\Controls.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug.fragshader" />

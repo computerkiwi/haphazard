@@ -77,7 +77,7 @@ Engine::Engine() : m_window(WindowInit())
 	m_space.Init();
 
   // TEMPORARY IDK where to put this
-  Input::Init(window);
+  Input::Init(m_window);
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
@@ -141,6 +141,11 @@ void Engine::Update()
 	m_dt = CalculateDt();
 	
 	m_space.Update(m_dt);
+
+  Input::Update();
+
+  // Checks 'A' key state
+  Input::Input_Debug(KeyboardMap::A);
 
 	Audio::Update();
 	
