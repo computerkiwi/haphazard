@@ -139,10 +139,10 @@ void Engine::Update()
 	
 	m_space.Update(m_dt);
 
-  Input::Update();
+	Input::Update();
 
-  // Checks 'A' key state
-  Input::Input_Debug(Key::B);
+	// Checks 'A' key state
+	Input::Input_Debug(Key::B);
 
 	Audio::Update();
 	

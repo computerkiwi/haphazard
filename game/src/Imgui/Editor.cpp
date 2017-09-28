@@ -21,6 +21,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "Engine\Engine.h"
 
+#include "Input\Input.h"
 
 #include <iomanip>
 #include <locale>
@@ -40,7 +41,7 @@ void ImGui_Transform(TransformComponent *transform);
 	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(true), m_objects(), m_state{ false, -1, -1, false }
 {
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
@@ -186,8 +187,8 @@ Editor::~Editor()
 
 void Editor::Update()
 {
-	if (m_show_editor)
-	{
+	//if (m_show_editor)
+	//{
 		OnClick();
 		ImGui_ImplGlfwGL3_NewFrame();
 
@@ -197,7 +198,7 @@ void Editor::Update()
 		ImGui_GameObject(&m_selected_object);
 
 		ImGui::Render();
-	}
+	//}
 }
 
 
@@ -252,9 +253,9 @@ void Editor::SetGameObject(GameObject& new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (true)
+	if (Input::IsPressed(Key::MOUSE_1))
 	{
-		ImVec2 mouse = ImGui::GetCursorPos();
+		const glm::vec2& mouse = Input::GetMousePos();
 
 		for (auto& transform : *m_engine->GetSpace()->GetComponentMap<TransformComponent>())
 		{
@@ -283,10 +284,11 @@ void Editor::OnClick()
 					m_selected_object = transform.GetGameObject();
 				}
 			}
-
-
+			else
+			{
+				m_selected_object = GameObject(-1, nullptr);
+			}
 		}
-
 	}
 }
 
