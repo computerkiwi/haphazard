@@ -42,12 +42,13 @@ void RenderSystem::Update(float dt)
 
 	std::vector<float> data;
 	std::vector<int> tex;
-	int numMeshes = 0, numVerts = 0;
+  int numMeshes = 0;
+  int numVerts = 0;
 
 
 	Shaders::defaultShader->Use();
 
-	for (auto spriteHandle : *sprites)
+	for (auto& spriteHandle : *sprites)
 	{
 		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())

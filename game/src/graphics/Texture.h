@@ -25,7 +25,7 @@ private:
 	static void GenerateTextureArray();
 
 	static GLuint m_TextureArray;
-	static int m_layers;
+	static GLuint m_layers;
 
 	GLuint m_ID;
 	float m_width, m_height;

@@ -17,7 +17,7 @@ GLuint Mesh::textureVBO = 0;
 static Texture* defaultTexture;
 
 Mesh::Mesh(GLenum renderMode)
-	: drawMode{ renderMode }
+  : drawMode{ renderMode }, animatedTexture(nullptr), vaoID{ 0 }, vboID{ 0 }, vertices{ std::vector<Vertice>() }, program{ nullptr }, blend{ BlendMode::BM_DEFAULT }, texture{nullptr}, AT_frame{0}, AT_fps{0}, AT_timer{0}
 {
 	if (!defaultTexture) // no default texture, make it
 	{
@@ -26,6 +26,8 @@ Mesh::Mesh(GLenum renderMode)
 		};
 		defaultTexture = new Texture(p, 1, 1);
 	}
+
+  program = Shaders::defaultShader;
 
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
@@ -47,8 +49,8 @@ Mesh::Mesh(GLenum renderMode)
 	program->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember
 
 	//Get Transform attrib locations
-	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
-	uniTextureBox = glGetUniformLocation(program->GetProgramID(), "texBox");
+	//uniModel = glGetUniformLocation(program->GetProgramID(), "model");
+	//uniTextureBox = glGetUniformLocation(program->GetProgramID(), "texBox");
 }
 
 Mesh::~Mesh()
@@ -95,7 +97,7 @@ void Mesh::UseBlendMode(BlendMode bm)
 void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 {
 	float tex[4];
-	
+  
 	if (animatedTexture)
 	{
 		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
@@ -142,7 +144,7 @@ void Mesh::SetShader(ShaderProgram *shader)
 	program->ApplyAttributes(); // Apply program attributes for vao to remember
 
 	//Get Transform attrib locations
-	uniModel = glGetUniformLocation(program->GetProgramID(), "model");
+	//uniModel = glGetUniformLocation(program->GetProgramID(), "model");
 }
 
 void Mesh::SetBlendMode(BlendMode b)

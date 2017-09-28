@@ -1,6 +1,7 @@
 #include "SpriteComponent.h"
 
 SpriteComponent::SpriteComponent(Texture* t)
+  : Mesh()
 {
 	AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t

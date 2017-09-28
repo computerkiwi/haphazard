@@ -6,7 +6,7 @@
 ///
 
 GLuint Texture::m_TextureArray = 0;
-int Texture::m_layers = 0;
+GLuint Texture::m_layers = 0;
 
 void Texture::GenerateTextureArray()
 {
@@ -34,11 +34,8 @@ void LoadTexture(void* image, int width, int height, int layer, GLenum format)
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
-void LoadMipMaps()
-{
-}
-
 Texture::Texture(const char* file)
+  : m_ID { m_layers }
 {
 	int width, height;
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
@@ -50,7 +47,6 @@ Texture::Texture(const char* file)
 	LoadTexture(image, width, height, m_layers, GL_UNSIGNED_BYTE);
 	SOIL_free_image_data(image); // Data given to opengl, dont need it here anymore
 
-	m_ID = m_layers;
 	m_layers++;
 
 	m_width = width / (float)MAX_WIDTH;

@@ -45,7 +45,7 @@ class Editor
 
 
 private:
-	friend int Input(ImGuiTextEditCallbackData *data);
+	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
 	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();

@@ -68,7 +68,6 @@ private:
 	static GLuint instanceVBO, textureVBO;
 
 	GLuint vaoID, vboID;
-	GLuint uniModel, uniTextureBox;
 	std::vector<Vertice> vertices;
 	ShaderProgram *program = Shaders::defaultShader;
 	BlendMode blend = BlendMode::BM_DEFAULT;

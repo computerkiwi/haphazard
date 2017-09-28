@@ -325,7 +325,7 @@ void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
 }
 
 
-int Input(ImGuiTextEditCallbackData *data)
+int Input_Editor(ImGuiTextEditCallbackData *data)
 {
 	Editor *editor = reinterpret_cast<Editor *>(data->UserData);
 
@@ -502,7 +502,7 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, 512, flags, Input, this))
+	if (ImGui::InputText("", command_buffer, 512, flags, Input_Editor, this))
 	{
 		m_line = command_buffer;
 		auto first_of_not_space = m_line.find_first_not_of(' ');
