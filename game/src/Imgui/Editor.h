@@ -19,15 +19,18 @@ struct GLFWwindow;
 
 class Editor
 {
-	std::vector<std::pair<std::string, std::function<void()>>> m_commands;
+	Engine * m_engine;
+	bool m_show_editor;
 
 	GameObject m_selected_object = GameObject(0, nullptr);
 	std::vector<GameObject> m_objects;
-	Engine * m_engine;
+
 
 	std::string m_line;
-
+	std::vector<std::pair<std::string, std::function<void()>>> m_commands;
 	std::vector<std::string> m_log_history;
+
+
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
 	struct State 
 	{
@@ -40,12 +43,16 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
+
+private:
 	friend int Input(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
 	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
 	void Internal_Log(const char *log_message, ...);
+
+	void OnClick();
 
 public:
 	Editor(Engine *engine, GLFWwindow *window);
