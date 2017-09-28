@@ -29,7 +29,7 @@
     <ClCompile Include="src\Util\Logging.cpp" />
     <ClCompile Include="src\Util\FrameCap.cpp" />
     <ClCompile Include="src\Input\Input.cpp" />
-    <ClCompile Include="src\Input\Controls.cpp" />
+    <ClCompile Include="src\Input\Gamepad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Audio\AudioEngine.h" />
@@ -66,7 +66,7 @@
     <ClInclude Include="src\Util\FrameCap.h" />
     <ClInclude Include="src\Input\Input.h" />
     <ClInclude Include="src\Input\KeyMap.h" />
-    <ClInclude Include="src\Input\Controls.h" />
+    <ClInclude Include="src\Input\Gamepad.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug.fragshader" />

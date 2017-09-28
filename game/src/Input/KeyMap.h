@@ -1,6 +1,6 @@
 #pragma once
 
-enum class KeyState : int
+enum class Keytate : int
 {
 
   released,
@@ -10,8 +10,21 @@ enum class KeyState : int
 }; 
 
 // Avoids polluting global namespace
-enum class KeyboardMap : int
+enum class Key : int
 {
+  MOUSE_1,
+  MOUSE_2,
+  MOUSE_3,
+  MOUSE_4,
+  MOUSE_5,
+  MOUSE_6,
+  MOUSE_7,
+  MOUSE_8,
+  MOUSE_LAST = MOUSE_8,
+  MOUSE_BUTTON_LEFT = MOUSE_1,
+  MOUSE_BUTTON_RIGHT = MOUSE_2,
+  MOUSE_BUTTON_MIDDLE = MOUSE_3,
+
   UNKNOWN = -1,
   SPACE = 32,
   APOSTROPHE = 39, // '
@@ -19,6 +32,7 @@ enum class KeyboardMap : int
   MINUS = 45,      // -
   PERIOD = 46,     // .
   SLASH = 47,      // /
+
   ZERO = 48,
   ONE = 49,
   TWO = 50,
@@ -31,6 +45,7 @@ enum class KeyboardMap : int
   NINE = 57,
   SEMICOLON = 59,  // ;
   EQUAL = 61,      // =
+
   A = 65,
   B = 66,
   C = 67,
@@ -57,22 +72,27 @@ enum class KeyboardMap : int
   X = 88,
   Y = 89,
   Z = 90,
+
   BRACKET_LEFT = 91,
   BACKSLASH = 92,
   RIGHT_BRACKET = 93,
   GRAVE_ACCENT = 96,
+
   WORLD_1 = 161, // Non-US #1
   WORLD_2 = 162, // Non-US #2
+
   ESCAPE = 256,
   ENTER = 257,
   TAB = 258,
   BACKSPACE = 259,
   INSERT = 260,
   DELETE = 261,
+
   RIGHT = 262,
   LEFT = 263,
   DOWN = 264,
   UP = 265,
+
   PAGE_UP = 266,
   PAGE_DOWN = 267,
   HOME = 268,
@@ -82,6 +102,7 @@ enum class KeyboardMap : int
   NUM_LOCK = 282,
   PRINT_SCREEN = 283,
   PAUSE = 284,
+
   F1 = 290,
   F2 = 291,
   F3 = 292,
@@ -97,23 +118,25 @@ enum class KeyboardMap : int
   F13 = 302,
   F14 = 303,
   F15 = 304,
-  NumPad_0 = 320,
-  NumPad_1 = 321,
-  NumPad_2 = 322,
-  NumPad_3 = 323,
-  NumPad_4 = 324,
-  NumPad_5 = 325,
-  NumPad_6 = 326,
-  NumPad_7 = 327,
-  NumPad_8 = 328,
-  NumPad_9 = 329,
-  NumPad_Decimal = 330,
-  NumPad_Divide = 331,
-  NumPad_Multiply = 332,
-  NumPad_Subtract = 333,
-  NumPad_Add = 334,
-  NumPad_Enter = 335,
-  NumPad_Equal = 336,
+
+  NUMPAD_0 = 320,
+  NUMPAD_1 = 321,
+  NUMPAD_2 = 322,
+  NUMPAD_3 = 323,
+  NUMPAD_4 = 324,
+  NUMPAD_5 = 325,
+  NUMPAD_6 = 326,
+  NUMPAD_7 = 327,
+  NUMPAD_8 = 328,
+  NUMPAD_9 = 329,
+  NUMPAD_DECIMAL = 330,
+  NUMPAD_DIVIDE = 331,
+  NUMPAD_MULTIPLY = 332,
+  NUMPAD_SUBTRACT = 333,
+  NUMPAD_ADD = 334,
+  NUMPAD_ENTER = 335,
+  NUMPAD_EQUAL = 336,
+
   LEFT_SHIFT = 340,
   LEFT_CONTROL = 341,
   LEFT_ALT = 342,
@@ -123,28 +146,34 @@ enum class KeyboardMap : int
 
 };
 
-// Based on GLFW mouse map
-enum class MouseMap : int
+enum class GamepadButton : int
 {
-
-  mouse_1,
-  mouse_2,
-  mouse_3,
-  mouse_4,
-  mouse_5,
-  mouse_6,
-  mouse_7,
-  mouse_8,
-  mouse_last = mouse_8,
-  mouse_BUTTON_LEFT = mouse_1,
-  mouse_BUTTON_RIGHT = mouse_2,
-  mouse_BUTTON_MIDDLE = mouse_3
+   A,
+   B,
+   X,
+   Y,
+   LEFT_TRIGGER,
+   RIGHT_TRIGGER,
+   BACK,
+   START,
+   LEFT_THUMB,
+   RIGHT_THUMB,
+   UP,
+   RIGHT,
+   DOWN,
+   LEFT
 
 };
 
-enum class ControllerMap
+enum class GamepadAxis : int
 {
+  LEFT_ANALOG_X,
+  LEFT_ANALOG_Y,
+  RIGHT_ANALOG_X,
+  RIGHT_ANALOG_Y,
+  LEFT_TRIGGER,
+  RIGHT_TRIGGER,
 
-  
-
+  LEFT_ANALOG,  // Both left XY axes
+  RIGHT_ANALOG, // Both right XY axes
 };

@@ -14,12 +14,12 @@ Copyright 2017 DigiPen (USA) Corporation.
 // Keep binding in mind
 
 
-/*Controls::Controls() : moveLeft_(GLFW_KEY_A), moveRight_(GLFW_KEY_D)
+/*Gamepad::Gamepad() : moveLeft_(GLFW_KEY_A), moveRight_(GLFW_KEY_D)
                      , attack_(GLFW_KEY_RIGHT_ALT), jump_(GLFW_KEY_SPACE)
 {
 }
 
-Controls const & Controls::GetConfig() const
+Gamepad const & Gamepad::GetConfig() const
 {
   return *this;
 } 
@@ -31,29 +31,25 @@ Input::Input(GLFWwindow * window) : window_(window) //, keyMap_()
 namespace Input
 {
 
-  typedef std::map<KeyboardMap, KeyState> TriggerMap;
+  typedef std::map<Key, Keytate> TriggerMap;
 
   ////////// Static Variables //////////
   static GLFWwindow * inputWindow;    // Window to detect input from
   static TriggerMap triggerMap;       // 0 to 9, A to Z, special characters, modifiers, numpad
   static glm::vec2 cursorPos;         // x, y cursor positions; top-left is origin
+  static std::vector<Gamepad *> gamepads; // TEMP: vector of gamepad objects
 
-  static ControllerMap player1;
-//  static ControllerMap player2;
-//  static ControllerMap player3;
-//  static ControllerMap player4;
-
-//  static Controls * player1;
+//  static Gamepad * player1;
 
   // Initializes input window for detection
   void Init(GLFWwindow * window)
   {
-    // Set default controls
+    // Set default Gamepad
 
     if (window)
     {
       inputWindow = window;
- //     player1Controls
+ //     player1Gamepad
     }
     else
     {
@@ -66,25 +62,50 @@ namespace Input
   void Update()
   {
       // Action: press, repeat, release
-      // Input mode (GLFW set input mode): sticky keys (makes sure a key is polled, event stays until handled)
+      // Input mode (GLFW set input mode): sticky Key (makes sure a key is polled, event stays until handled)
 
     glfwSetKeyCallback(inputWindow, KeyCallback);
     glfwSetCursorPosCallback(inputWindow, CursorCallback);
     glfwSetMouseButtonCallback(inputWindow, MouseButtonCallback);
 
-    // Detects controller
-    glfwSetJoystickCallback(ControllerCallback);
+    // Detects gamepads
+    glfwSetJoystickCallback(GamepadCallback);
+    
+    // Gamepads connected
+    if (gamepads.size() > 0)
+    {
+      gamepads[0]->GamepadDebug();
+    }
+    /*
+    for (size_t i = 0; i < gamepads.size(); ++i)
+    {
+      if (gamepads[i] != NULL)
+      {
+        int axes; // ???? Why do I need the address whyyy
+
+        glfwGetJoystickAxes(gamepads[i]->GetGamepadID(), &axes);
+
+        gamepads[i]->SetAxes(axes);
 
 
+        std::cout << "ID: " << gamepads[i]->GetGamepadID() << std::endl;
+        std::cout << "AXES: " << gamepads[i]->GetGamepadAxis() << std::endl;
+      }
+    } */
 
+  }
+
+  glm::vec2 GetMousePos()
+  {
+    return cursorPos;
   }
 
   // Check if key is pressed; takes the key to check
   // Returns true if pressed
-  bool IsPressed(KeyboardMap key)
+  bool IsPressed(Key key)
   {
     // Key pressed
-    if (triggerMap[key] == KeyState::pressed)
+    if (triggerMap[key] == Keytate::pressed)
     {
       return true;
     }
@@ -95,10 +116,10 @@ namespace Input
   
   // Check if key is held down; takes the key to check
   // Returns true if held down
-  bool IsHeldDown(KeyboardMap key)
+  bool IsHeldDown(Key key)
   {
     // Key held down
-    if (triggerMap[key] == KeyState::heldDown)
+    if (triggerMap[key] == Keytate::heldDown)
     {
       return true;
     }
@@ -109,23 +130,33 @@ namespace Input
 
   void Exit()
   {
+    // Free gamepads
+    for (size_t i = 0; i < gamepads.size(); ++i)
+    {
+      if (gamepads[i] != NULL)
+      {
+        delete gamepads[i];
+      }
+    }
   }
 
-  void SetControls()
+  void SetGamepad()
   {
 
   }
 
   // Debug
-  void Input_Debug(KeyboardMap key)
+  void Input_Debug(Key key)
   {
+    char letter = static_cast<int>(key);
+
     if (Input::IsPressed(key) == true)
     {
-      printf("A is pressed\n");
+      printf("%c is pressed\n", letter);
     }
     else if (Input::IsHeldDown(key) == true)
     {
-      printf("A is held down\n");
+      printf("%c is held down\n", letter);
     }
   }
 
@@ -145,14 +176,14 @@ namespace Input
       {
         // Key was pressed
         case GLFW_PRESS:
-          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::pressed;
+          triggerMap[static_cast<Key>(key)] = Keytate::pressed;
 
       //    std::cout << "KEY " << key << " pressed" << std::endl;
           break;
 
         // Key was held down
         case GLFW_REPEAT:
-          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::heldDown;
+          triggerMap[static_cast<Key>(key)] = Keytate::heldDown;
 
        //   std::cout << "KEY " << key << " held down" << std::endl;
           break;
@@ -160,7 +191,7 @@ namespace Input
         // Key was released
         case GLFW_RELEASE:
 
-          triggerMap[static_cast<KeyboardMap>(key)] = KeyState::released;
+          triggerMap[static_cast<Key>(key)] = Keytate::released;
 
           std::cout << "KEY " << key << " released" << std::endl;
       }
@@ -184,30 +215,32 @@ namespace Input
   // Stores mouse button input information
   void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod)
   {
-    if ((button >= 0) && (action == static_cast<int>(KeyState::pressed)))
+    if ((button >= 0) && (action == static_cast<int>(Keytate::pressed)))
     {
-      triggerMap[static_cast<KeyboardMap>(button)] = KeyState::pressed;
+      triggerMap[static_cast<Key>(button)] = Keytate::pressed;
 
       std::cout << "MOUSE BUTTON " << button << " was pressed" << std::endl;
     }
   }
 
-  // Detects when controller is connected
-  void ControllerCallback(int joy, int event)
+  // Detects when gamepad is connected
+  void GamepadCallback(int joy, int event)
   {
     // Joystick connected
     if (event == GLFW_CONNECTED)
     {
-      std::cout << "Controller connected" << std::endl;
+      std::cout << "Gamepad connected" << std::endl;
 
-      // Match controller ID to player
-      // Set controls
+      // Add gamepad ID to player list
+      gamepads.push_back(new Gamepad(joy));
+
+      // Set Gamepad
 
     }
     // Joystick disconnected
     else if (event == GLFW_DISCONNECTED)
     {
-      std::cout << "Controller disconnected" << std::endl;
+      std::cout << "Gamepad disconnected" << std::endl;
     }
   }
 }

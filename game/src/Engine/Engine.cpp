@@ -145,7 +145,7 @@ void Engine::Update()
   Input::Update();
 
   // Checks 'A' key state
-  Input::Input_Debug(KeyboardMap::A);
+  Input::Input_Debug(Key::B);
 
 	Audio::Update();
 	
