@@ -41,7 +41,7 @@ void ImGui_Transform(TransformComponent *transform);
 	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_objects(), m_engine(engine), m_state{ false, -1, -1, false }
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
 {
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
@@ -187,14 +187,17 @@ Editor::~Editor()
 
 void Editor::Update()
 {
-	ImGui_ImplGlfwGL3_NewFrame();
-	// ImGui::ShowTestWindow();
-	m_objects = m_engine->GetSpace()->CollectGameObjects();
-	Console();
-	ObjectsList();
-	ImGui_GameObject(&m_selected_object);
+	if (m_show_editor)
+	{
+		ImGui_ImplGlfwGL3_NewFrame();
 
-	ImGui::Render();
+		m_objects = m_engine->GetSpace()->CollectGameObjects();
+		Console();
+		ObjectsList();
+		ImGui_GameObject(&m_selected_object);
+
+		ImGui::Render();
+	}
 }
 
 
@@ -243,6 +246,24 @@ void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
 void Editor::SetGameObject(GameObject& new_object)
 {
 	m_selected_object = new_object;
+}
+
+
+void Editor::OnClick()
+{
+	// Check for mouse 1 click
+	if (true)
+	{
+		glm::vec2 mouse;
+
+		for (auto& transform : *m_engine->GetSpace()->GetComponentMap<TransformComponent>())
+		{
+			const glm::vec3& scale = transform.Get()->Scale();
+			const glm::vec3& pos = transform.Get()->Position();
+
+		}
+
+	}
 }
 
 
