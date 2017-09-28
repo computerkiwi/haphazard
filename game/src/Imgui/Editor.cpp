@@ -360,7 +360,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		bool isActiveIndex = m_state.activeIndex == i;
 		if (isActiveIndex)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVec(0x072f70FF)));
+			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVecA(0x072f70FF)));
 		}
 		
 		ImGui::PushID(i);
