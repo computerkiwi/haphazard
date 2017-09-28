@@ -161,6 +161,7 @@
     <ClCompile Include="src\Engine\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
+    <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
