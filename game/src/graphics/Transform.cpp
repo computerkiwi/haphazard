@@ -7,15 +7,15 @@
 // Transform
 ///
 
-Graphics::Transform::Transform()
+Transform::Transform()
 	: scale{ glm::vec3(1,1,1) }
 { }
 
-Graphics::Transform::Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale)
+Transform::Transform(glm::vec3 pos, glm::vec3 rotDegrees, glm::vec3 modelScale)
 	: position{ pos }, rotation{ rotDegrees }, scale{ modelScale }
 { }
 
-glm::mat4 Graphics::Transform::GetMatrix()
+glm::mat4 Transform::GetMatrix()
 {
 	if (isDirty)
 	{
@@ -31,25 +31,25 @@ glm::mat4 Graphics::Transform::GetMatrix()
 	return matrix;
 }
 
-void Graphics::Transform::SetPosition(glm::vec3 pos)
+void Transform::SetPosition(glm::vec3 pos)
 {
 	position = pos;
 	isDirty = true;
 }
 
-void Graphics::Transform::SetRotation(glm::vec3 rotDegrees)
+void Transform::SetRotation(glm::vec3 rotDegrees)
 {
 	rotation = rotDegrees;
 	isDirty = true;
 }
 
-void Graphics::Transform::SetScale(glm::vec3 scl)
+void Transform::SetScale(glm::vec3 scl)
 {
 	scale = scl;
 	isDirty = true;
 }
 
-void Graphics::Transform::SetPosition(float x, float y, float z)
+void Transform::SetPosition(float x, float y, float z)
 {
 	position.x = x;
 	position.y = y;
@@ -57,7 +57,7 @@ void Graphics::Transform::SetPosition(float x, float y, float z)
 	isDirty = true;
 }
 
-void Graphics::Transform::SetRotation(float x, float y, float z)
+void Transform::SetRotation(float x, float y, float z)
 {
 	rotation.x = x;
 	rotation.y = y;
@@ -65,7 +65,7 @@ void Graphics::Transform::SetRotation(float x, float y, float z)
 	isDirty = true;
 }
 
-void Graphics::Transform::SetScale(float x, float y, float z)
+void Transform::SetScale(float x, float y, float z)
 {
 	scale.x = x;
 	scale.y = y;

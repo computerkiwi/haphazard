@@ -3,21 +3,15 @@
 #include "Mesh.h"
 #include "meta/meta.h"
 
-namespace Graphics
+class SpriteComponent : public Mesh
 {
-
-	class SpriteComponent : public Graphics::Mesh
+public:
+	SpriteComponent(Texture* t = NULL);
+	SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps);
+	
+	META_REGISTER(SpriteComponent)
 	{
-	public:
-		SpriteComponent(Graphics::Texture* t = NULL);
+		META_DefineType(SpriteComponent);
+	}
 
-		META_NAMESPACE(::Graphics)
-		META_REGISTER(SpriteComponent)
-		{
-			META_DefineType(SpriteComponent);
-		}
-
-	};
-
-
-}
+};
