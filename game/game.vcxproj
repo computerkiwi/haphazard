@@ -173,6 +173,8 @@
     <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\Imgui\Editor.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
+    <ClCompile Include="src\Input\Gamepad.cpp" />
+    <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meta\BuiltInRegistration.h" />
     <ClCompile Include="src\meta\Registration.cpp" />
@@ -203,6 +205,9 @@
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\Transform.h" />
+    <ClInclude Include="src\Input\Gamepad.h" />
+    <ClInclude Include="src\Input\Input.h" />
+    <ClInclude Include="src\Input\KeyMap.h" />
     <ClInclude Include="src\meta\meta.h" />
     <ClInclude Include="src\meta\RegisterGLM.h" />
     <ClInclude Include="src\Imgui\Editor.h" />

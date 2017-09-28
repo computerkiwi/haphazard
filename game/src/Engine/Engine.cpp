@@ -34,6 +34,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Physics\RigidBody.h"
 #include "Physics\Collider2D.h"
 
+#include "input\Input.h"
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
@@ -68,6 +70,9 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 
 	// Initialize the system.
 	m_space.Init();
+
+  // TEMPORARY IDK where to put this
+  Input::Init(m_window);
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
@@ -133,6 +138,11 @@ void Engine::Update()
 	m_dt = CalculateDt();
 	
 	m_space.Update(m_dt);
+
+  Input::Update();
+
+  // Checks 'A' key state
+  Input::Input_Debug(Key::B);
 
 	Audio::Update();
 	
