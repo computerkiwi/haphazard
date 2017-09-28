@@ -262,24 +262,9 @@ void Editor::OnClick()
 			const glm::vec3& scale = transform.Get()->Scale();
 			const glm::vec3& pos = transform.Get()->Position();
 
-			if (mouse.x > pos.x + scale.x)
+			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
 			{
-				if (mouse.y > pos.y + scale.y)
-				{
-					m_selected_object = transform.GetGameObject();
-				}
-				else if (mouse.y < pos.y - scale.y)
-				{
-					m_selected_object = transform.GetGameObject();
-				}
-			}
-			else if (mouse.x < pos.x - scale.x)
-			{
-				if (mouse.y > pos.y + scale.y)
-				{
-					m_selected_object = transform.GetGameObject();
-				}
-				else if (mouse.y < pos.y - scale.y)
+				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
 				{
 					m_selected_object = transform.GetGameObject();
 				}
