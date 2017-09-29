@@ -19,10 +19,17 @@ Copyright � 2017 DigiPen (USA) Corporation.
 class TestA
 {
 public:
-	TestA() : x(0) {}
+	TestA() : m_x(0) {}
 
-	int x;
-	void increase() { ++x; std::cout << "Increasing x to " << x << std::endl; }
+	void increase() { ++m_x; std::cout << "Increasing x to " << m_x << std::endl; }
+
+	int getX() { return m_x; }
+
+	void setX(int val) { m_x = val; }
+
+
+private:
+	int m_x;
 };
 
 class TestB
@@ -40,17 +47,20 @@ public:
 	}
 };
 
+#include "Scripting\LuaScript.h"
+#include "Scripting\ScriptingUtil.h"
+
 int main()
 {
-
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
+
+	SetupEnvironmentTable(L);
 
 	luabridge::getGlobalNamespace(L)
 
 		.beginClass<TestA>("TestA")
 		.addConstructor<void(*)(void)>()
-		.addData<int>("x", &TestA::x, true)
 		.addFunction("increase", &TestA::increase)
 		.endClass()
 
@@ -58,35 +68,13 @@ int main()
 		.addFunction("get", &TestB::get)
 		.endClass();
 
-	int result = luaL_dofile(L, "luatest.lua");
-	std::cout << "Back in C++" << std::endl;
+	LuaScript sandbox1(L, "sandboxtest.lua");
+	LuaScript sandbox2(L, "sandboxtest.lua");
 
-	if (result != 0)
-	{
-		std::cout << lua_tostring(L, result) << std::endl;
-	}
+	
 
-	TestA luaCreatedTest = luabridge::getGlobal(L, "MakeTestA")(5);
-	std::cout << "luaCreatedTest.x : " << luaCreatedTest.x << std::endl;
-
-	TestA testObject;
-
-	testObject.x = 5;
-	testObject.increase();
-	testObject.increase();
-
-	TestB testB(testObject);
-
-	//luabridge::push(L, &testObject);
-	//lua_setglobal(L, "testObject");
-
-	luabridge::push(L, testB);
-	lua_setglobal(L, "testB");
-
-	int someData = 5;
-
-	//testObject = luabridge::getGlobal(L, "testObject").cast<TestA>();
-	std::cout << testObject.x << std::endl;
+	lua_pushvalue(L, LUA_REGISTRYINDEX);
+	lua_getfield(L, -1, SCRIPT_ENVIRONMENT_TABLE);
 
 	std::cin.ignore();
 
