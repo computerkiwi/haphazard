@@ -45,13 +45,11 @@ GLFWwindow* WindowInit();
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
-	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
-
+	Logging::Init();
 
 	// Load Shaders
 	Shaders::Init();
 
-	Logging::Init();
 	Audio::Init();
 	meta::Init();
 

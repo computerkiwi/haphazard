@@ -27,8 +27,18 @@ class Editor
 
 
 	std::string m_line;
-	std::vector<std::pair<std::string, std::function<void()>>> m_commands;
-	std::vector<std::string> m_log_history;
+
+	struct Command
+	{
+		Command(const char *cmd, size_t len, std::function<void()> f) : command(cmd), cmd_length(len), func(f) {}
+
+		const char * command = nullptr;
+		size_t cmd_length = 0;
+		std::function<void()> func = std::function<void()>();
+	};
+
+	std::vector<Command> m_commands = std::vector<Command>(20);
+	std::vector<const char *> m_log_history;
 
 
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);

@@ -16,6 +16,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
+#include "Engine\Physics\RigidBody.h"
 
 #include "Util\Logging.h"
 
@@ -129,30 +130,35 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 		
 		for (auto& cmd : m_commands)
 		{
-			Editor::Internal_Log("     - %s \n", cmd.first.c_str());
+			Editor::Internal_Log("     - %s \n", cmd.command);
 		}
 	};
-	RegisterCommand("help", help);
 	RegisterCommand("?", help);
-	RegisterCommand("log", 
-	[this]()
-	{
-		Logging::Log(m_line.substr(strlen("log")).c_str());
-	});
+	RegisterCommand("help", help);
+
+	RegisterCommand("create", [this]() { CreateGameObject(); });
+	RegisterCommand("clear", [this]() { Clear(); });
+	RegisterCommand("cls", [this]() { Clear(); });
+
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
-	RegisterCommand("history", 
+
+	RegisterCommand("history",
 	[this]()
 	{
 		Editor::Internal_Log("    Command History: \n");
 
 		for (auto& history : m_log_history)
 		{
-			Editor::Internal_Log("     - %s \n", history.c_str());
+			Editor::Internal_Log("     - %s \n", history);
 		}
 	});
-	RegisterCommand("create", [this]() { CreateGameObject(); });
-	RegisterCommand("clear", [this]() { Clear(); });
-	RegisterCommand("cls", [this]() { Clear(); });
+
+	RegisterCommand("log", 
+	[this]()
+	{
+		Logging::Log(m_line.substr(strlen("log")).c_str());
+	});
+
 	RegisterCommand("objects",
 	[this]()
 	{
@@ -162,6 +168,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 			Editor::Internal_Log("     - %d \n", object.Getid());
 		}
 	});
+
 	RegisterCommand("select",
 	[this]()
 	{
@@ -187,8 +194,8 @@ Editor::~Editor()
 
 void Editor::Update()
 {
-	//if (m_show_editor)
-	//{
+	if (m_show_editor)
+	{
 		OnClick();
 		ImGui_ImplGlfwGL3_NewFrame();
 
@@ -198,13 +205,13 @@ void Editor::Update()
 		ImGui_GameObject(&m_selected_object);
 
 		ImGui::Render();
-	//}
+	}
 }
 
 
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	m_commands.emplace_back(command, f);
+	m_commands.emplace_back(Command(command, strlen(command), f));
 }
 
 
@@ -269,10 +276,6 @@ void Editor::OnClick()
 					m_selected_object = transform.GetGameObject();
 				}
 			}
-			else
-			{
-				m_selected_object = GameObject(-1, nullptr);
-			}
 		}
 	}
 }
@@ -305,9 +308,9 @@ void Editor::ObjectsList()
 
 void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
 {
-	memmove(data->Buf, m_commands[entryIndex].first.c_str(), m_commands[entryIndex].first.length());
-	data->Buf[m_commands[entryIndex].first.size()] = '\0';
-	data->BufTextLen = static_cast<int>(m_commands[entryIndex].first.size());
+	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
+	data->Buf[m_commands[entryIndex].cmd_length] = '\0';
+	data->BufTextLen = static_cast<int>(m_commands[entryIndex].cmd_length);
 	data->BufDirty = true;
 }
 
@@ -396,7 +399,7 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		}
 		
 		ImGui::PushID(i);
-		if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
+		if (ImGui::Selectable(m_commands[i].command, m_state.activeIndex))
 		{
 			m_state.clickedIndex = i;
 		}
@@ -512,15 +515,15 @@ void Editor::Console()
 
 		if (m_state.m_popUp && m_state.clickedIndex != -1)
 		{
-			memmove(command_buffer, m_commands[m_state.activeIndex].first.c_str(), m_commands[m_state.activeIndex].first.size());
+			memmove(command_buffer, m_commands[m_state.activeIndex].command, m_commands[m_state.activeIndex].cmd_length);
 		}
 		else
 		{
 			for (auto& cmd : m_commands)
 			{
-				if (cmd.first == command)
+				if (cmd.command == command)
 				{
-					cmd.second();
+					cmd.func();
 					break;
 				}
 			}
@@ -641,3 +644,8 @@ void ImGui_Transform(TransformComponent *transform)
 	}
 }
 
+
+void ImGui_Float()
+{
+
+}
