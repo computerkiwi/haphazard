@@ -174,7 +174,7 @@ void Screen::Draw()
 		result = source; // Save outcome colorbuffer (would be target, but they are swapped at the end of each loop)
 	}
 	
-	//Raindrop::DrawToScreen(result);
+	Raindrop::DrawToScreen(result);
 
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -31,9 +31,11 @@ void main()
 
 	r[0] = vec4(cos(angle), sin(angle),0,0); // Col 1
 	r[1] = vec4(-sin(angle), cos(angle),0,0); // Col 1
-	r[2][2] = r[3][3] = 1;
+	r[2] = vec4(0,0,1,0);
+	r[3] = vec4(0,0,0,1);
 	
 	mat4 model = t * r * s;
+
 
     mat4 PVM = proj * view * model;
 	vs_out.Offsets[0] = PVM * vec4(-0.5, -0.5, 0.0, 1.0);
