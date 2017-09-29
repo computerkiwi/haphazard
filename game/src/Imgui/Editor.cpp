@@ -17,6 +17,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem\GameSpace.h"
 #include "Engine\Physics\RigidBody.h"
+#include "graphics\SpriteComponent.h"
+#include "Engine\Physics\Collider2D.h"
 
 #include "Util\Logging.h"
 
@@ -32,15 +34,6 @@ Copyright © 2017 DigiPen (USA) Corporation.
 void ImGui_GameObject(GameObject *object);
 void ImGui_Transform(TransformComponent *transform);
 
-// Enter Hex code not including the 0x
-#define HexVecA(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
-	                 (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
-	                 (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
-	                 (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
-
-#define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
-	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
-	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(true), m_objects(), m_state{ false, -1, -1, false }
 {
@@ -133,6 +126,10 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 			Editor::Internal_Log("     - %s \n", cmd.command);
 		}
 	};
+	
+	// Pre Allocate the Command Data
+	m_commands.reserve(32);
+	
 	RegisterCommand("?", help);
 	RegisterCommand("help", help);
 
@@ -201,6 +198,7 @@ void Editor::Update()
 
 		m_objects = m_engine->GetSpace()->CollectGameObjects();
 		Console();
+		ImGui::ShowTestWindow();
 		ObjectsList();
 		ImGui_GameObject(&m_selected_object);
 
@@ -260,7 +258,7 @@ void Editor::SetGameObject(GameObject& new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::MOUSE_1))
+	if (Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
 	{
 		const glm::vec2& mouse = Input::GetMousePos();
 
@@ -563,89 +561,3 @@ void Editor::Clear()
 	m_log_buffer.clear();
 }
 
-
-void ImGui_GameObject(GameObject *object)
-{
-	if (object && object->GetSpace())
-	{
-		std::string name("GameObject - ");
-		name += std::to_string(object->Getid());
-
-		ImGui::SetNextWindowSize(ImVec2(325, 400));
-		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
-		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
-
-		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
-		if (ImGui::Button("Duplicate"))
-		{
-			object->Duplicate<dummy>();
-		}
-		ImGui::PopStyleColor(3);
-		ImGui::SameLine();
-		if (ImGui::Button("Delete"))
-		{
-			object->Delete<dummy>();
-			object->SetSpace<dummy>(nullptr);
-			ImGui::End();
-			return;
-		}
-
-		// if object - > component
-		// ImGui_Component(ComponetType *component);
-		if (object->GetComponent<TransformComponent>().Get())
-		{
-			ImGui_Transform(object->GetComponent<TransformComponent>().Get());
-		}
-
-		ImGui::End();
-	}
-	else
-	{
-		std::string name("GameObject - ");
-		name += "No Object Selected";
-
-		ImGui::SetNextWindowSize(ImVec2(325, 400));
-		ImGui::SetNextWindowPos(ImVec2(15, 35), ImGuiCond_Once);
-		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
-		ImGui::End();
-	}
-}
-
-
-void ImGui_Transform(TransformComponent *transform)
-{
-	if (ImGui::CollapsingHeader("Transform Component"))
-	{
-		if (ImGui::CollapsingHeader("Position"))
-		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X", &transform->Position().x);
-			ImGui::InputFloat(" Y", &transform->Position().y);
-			ImGui::PopItemWidth();
-		}
-		if (ImGui::CollapsingHeader("Scale"))
-		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X ", &transform->Scale().x);
-			ImGui::InputFloat(" Y ", &transform->Scale().y);
-			ImGui::PopItemWidth();
-			ImGui::Separator();
-		}
-
-		ImGui::PushItemWidth(120);
-		ImGui::SliderFloat("", &transform->Rotation(), 0, 360); 
-		ImGui::SameLine();
-		ImGui::PopItemWidth();
-		ImGui::PushItemWidth(100);
-		ImGui::InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2); 
-		ImGui::PopItemWidth();
-	}
-}
-
-
-void ImGui_Float()
-{
-
-}
