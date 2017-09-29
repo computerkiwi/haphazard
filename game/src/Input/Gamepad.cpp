@@ -26,7 +26,7 @@ void Gamepad::SetGamepadButton(unsigned char const & buttons)
 
 void Gamepad::SetGamepadAxis(float const & axes)
 {
-  axes_ = axes;
+  axes_ = (int)axes;
 }
 
 // ID of the gamepad

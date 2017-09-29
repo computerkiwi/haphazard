@@ -18,6 +18,6 @@ void Timer::waitUntil(__int64 time)
 	__int64 sleepTime = (time - (currTime - m_startTime)) / 1000;
 	if (sleepTime > 0)
 	{
-		Sleep(sleepTime);
+		Sleep((DWORD)sleepTime);
 	}
 }

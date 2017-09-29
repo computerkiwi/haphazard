@@ -55,7 +55,7 @@ public:
 
 	void BindVAO() { glBindVertexArray(vaoID); }
 	void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
-	int NumVerts() { return vertices.size(); }
+	int NumVerts() { return (int)vertices.size(); }
 	
 	GLuint GetRenderTextureID(); // Returns texture id that will be rendered. Returns default texture is no texture is set.
 

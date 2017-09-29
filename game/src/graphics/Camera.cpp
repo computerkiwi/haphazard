@@ -37,7 +37,7 @@ void Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
 
 void Camera::SetRotation(float degrees)
 {
-	float r = degrees / 180.0f * 3.1416;
+	float r = degrees / 180.0f * 3.1416f;
 	glm::mat4 rotation;
 	rotation = glm::rotate(rotation, r, glm::vec3(0, 0, 1));
 	mUp = rotation * glm::vec4(0,1,0,1);
