@@ -84,7 +84,6 @@ void RenderSystem::Update(float dt)
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 
-	glLineWidth(10);
 	DebugGraphic::DrawAll();
 	Screen::GetView().Draw();
 }

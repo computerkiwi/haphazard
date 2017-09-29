@@ -42,3 +42,8 @@ void DebugGraphic::DebugGraphic::DrawAll()
 
 	shapeData.clear();
 }
+
+void DebugGraphic::SetLineWidth(float size)
+{
+	glLineWidth(size);
+}
