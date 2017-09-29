@@ -81,10 +81,16 @@ void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 
 	glEnableVertexAttribArray(index);
 
-	if(type == GL_INT)
-		glVertexAttribIPointer(index, size, type, stride, *((void**)(&start)) );
+	if (type == GL_INT)
+	{
+		#pragma warning(suppress: 4312)
+		glVertexAttribIPointer(index, size, type, stride, (void*)(start) );
+	}
 	else
-		glVertexAttribPointer(index, size, type, normalized, stride, *((void**)(&start)));
+	{
+		#pragma warning(suppress: 4312)
+		glVertexAttribPointer(index, size, type, normalized, stride, (void*)start);
+	}
 
 	glVertexAttribDivisor(index, instanced);
 }
