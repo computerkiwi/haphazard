@@ -57,10 +57,24 @@ LuaScript::LuaScript(lua_State * L, const char * filename) : m_L(L)
 	{
 		std::cout << lua_tostring(L, -1) << std::endl;
 	}
-
 	// STACK: *EMPTY*
 }
 
-void LuaScript::RunFunction(const char * functionName, int args, int returns)
+void LuaScript::RunFunction(const char *functionName, int args, int returns)
 {
+	GetScriptEnvironment();
+
+	// Get the function out of the environment and clear the environment from the stack.
+	lua_getfield(m_L, -1, functionName);
+	lua_remove(m_L, -2);
+
+	// Put the function under the arguments on the stack.
+	lua_insert(m_L, -1 - args);
+}
+
+void LuaScript::GetScriptEnvironment()
+{
+	lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
+	lua_rawgeti(m_L, -1, m_environmentID);
+	lua_remove(m_L, -2);
 }

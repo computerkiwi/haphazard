@@ -30,9 +30,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/TransformComponent.h"
 #include "graphics\SpriteComponent.h"
 #include "graphics\Texture.h"
-#include "graphics\RenderSystem.h"
 #include "Physics\RigidBody.h"
 #include "Physics\Collider2D.h"
+#include "Scripting\ScriptComponent.h"
 
 #include "input\Input.h"
 
@@ -41,6 +41,7 @@ GLFWwindow* WindowInit();
 // Systems to register.
 #include "graphics\RenderSystem.h"
 #include "Physics\PhysicsSystem.h"
+#include "Scripting\ScriptSystem.h"
 
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
@@ -63,10 +64,12 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	m_space.RegisterComponentType<StaticCollider2DComponent>();
 	m_space.RegisterComponentType<DynamicCollider2DComponent>();
 	m_space.RegisterComponentType<SpriteComponent>();
+	m_space.RegisterComponentType<ScriptComponent>();
 
 	// Register the systems.
 	m_space.RegisterSystem(new PhysicsSystem);
 	m_space.RegisterSystem(new RenderSystem());
+	m_space.RegisterSystem(new ScriptSystem());
 
 	// Initialize the system.
 	m_space.Init();

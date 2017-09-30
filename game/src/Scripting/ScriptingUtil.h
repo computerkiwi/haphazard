@@ -16,13 +16,6 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Pops the top value from the stack.
 void LuaSetUpValue(lua_State *L, const char *upValueName, int index);
 
-// TODO[Kieran]: Put this somewhere better.
-inline void SetupEnvironmentTable(lua_State *L)
-{
-	lua_newtable(L);
-	lua_setfield(L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
-}
-
 // Nice Lua debugging stuff.
 __declspec(dllexport) void Lua_PrintTable(lua_State *L, int index);
 __declspec(dllexport) void PrintIndent();

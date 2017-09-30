@@ -181,8 +181,10 @@
     <ClCompile Include="src\meta\Registration.cpp" />
     <ClCompile Include="src\meta\Type.cpp" />
     <ClCompile Include="src\Scripting\GoodLuaDebugging.cpp" />
+    <ClCompile Include="src\Scripting\LuaEngine.cpp" />
     <ClCompile Include="src\Scripting\LuaScript.cpp" />
     <ClCompile Include="src\Scripting\ScriptingUtil.cpp" />
+    <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
     <ClCompile Include="src\Util\FrameCap.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
   </ItemGroup>
@@ -216,8 +218,11 @@
     <ClInclude Include="src\meta\RegisterGLM.h" />
     <ClInclude Include="src\Imgui\Editor.h" />
     <ClInclude Include="src\Imgui\imgui-setup.h" />
+    <ClInclude Include="src\Scripting\LuaEngine.h" />
     <ClInclude Include="src\Scripting\LuaScript.h" />
+    <ClInclude Include="src\Scripting\ScriptComponent.h" />
     <ClInclude Include="src\Scripting\ScriptingUtil.h" />
+    <ClInclude Include="src\Scripting\ScriptSystem.h" />
     <ClInclude Include="src\Universal.h" />
     <ClInclude Include="src\Util\FrameCap.h" />
     <ClInclude Include="src\Util\Logging.h" />
