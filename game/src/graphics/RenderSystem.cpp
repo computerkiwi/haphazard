@@ -26,6 +26,10 @@ void RenderSystem::Init()
 	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
 
 	mainCamera->SetZoom(3);
+
+	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
+	Screen::GetView().AddEffect(FX::BLOOM);
+	Screen::GetView().SetBlurAmount(0.9f);
 }
 
 // Called each frame.
