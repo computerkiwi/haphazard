@@ -49,103 +49,73 @@ void ImGui_GameObject(GameObject *object)
 		}
 		SameLine();
 
+		bool add_popup = false;
+
 		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (Button("Add"))
 		{
-			if (BeginPopup("Components"))
-			{
-				if (Button("Transform"))
-				{
-
-				}
-				else if (Button("Sprite"))
-				{
-
-				}
-				else if (Button("RigidBody"))
-				{
-
-				}
-				else if (Button("Dynamic Collider"))
-				{
-
-				}
-				else if (Button("Static Collider"))
-				{
-
-				}
-			}
+			// TODO[SWEET]:: Fix this pop bs
+			add_popup = false;
 		}
 		PopStyleColor(3);
-		SameLine();
 
-		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
-		if (Button("Remove"))
+		if (add_popup)
 		{
-			if (BeginPopup("Components"))
+			BeginPopup("Components");
+
+			if (Button("Transform"))
 			{
-				if (object->GetComponent<TransformComponent>().IsValid())
-				{
-					if (Button("Transform"))
-					{
 
-					}
-				}
-				if (object->GetComponent<RigidBodyComponent>().IsValid())
-				{
-					if (Button("RigidBody"))
-					{
-
-					}
-				}
-				if (object->GetComponent<DynamicCollider2DComponent>().IsValid())
-				{
-					if (Button("Dynamic Collider"))
-					{
-
-					}
-				}
-				if (object->GetComponent<StaticCollider2DComponent>().IsValid())
-				{
-					if (Button("Static Collider"))
-					{
-
-					}
-				}
 			}
+			else if (Button("Sprite"))
+			{
+
+			}
+			else if (Button("RigidBody"))
+			{
+
+			}
+			else if (Button("Dynamic Collider"))
+			{
+
+			}
+			else if (Button("Static Collider"))
+			{
+
+			}
+
+			EndPopup();
 		}
-		PopStyleColor(3);
+
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
 		if (object->GetComponent<TransformComponent>().IsValid())
 		{
-			ImGui_Transform(object->GetComponent<TransformComponent>().Get());
+			ImGui_Transform(object->GetComponent<TransformComponent>().Get(), object);
 		}
 
 		if (object->GetComponent<RigidBodyComponent>().IsValid())
 		{
-			ImGui_RigidBody(object->GetComponent<RigidBodyComponent>().Get());
+			ImGui_RigidBody(object->GetComponent<RigidBodyComponent>().Get(), object);
 
 			if (object->GetComponent<DynamicCollider2DComponent>().IsValid())
 			{
-				ImGui_Collider2D(&object->GetComponent<DynamicCollider2DComponent>().Get()->ColliderData());
+				ImGui_Collider2D(&object->GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
 			}
 		}
 		else if (object->GetComponent<StaticCollider2DComponent>().IsValid())
 		{
-			ImGui_Collider2D(&object->GetComponent<StaticCollider2DComponent>().Get()->ColliderData());
+			ImGui_Collider2D(&object->GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
 		}
 
 		
 
 		if (object->GetComponent<SpriteComponent>().IsValid())
 		{
-			ImGui_Sprite(object->GetComponent<SpriteComponent>().Get());
+			ImGui_Sprite(object->GetComponent<SpriteComponent>().Get(), object);
 		}
 
 		End();
@@ -155,22 +125,25 @@ void ImGui_GameObject(GameObject *object)
 		const char *name = "GameObject - No Object Selected###GAMEOBJECT_ID";
 
 		SetNextWindowSize(GAMEOBJECT_WINDOW_SIZE);
-		SetNextWindowPos(GAMEOBJECT_WINDOW_POS);
-		Begin(name, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove);
+		SetNextWindowPos(GAMEOBJECT_WINDOW_POS, ImGuiCond_Once);
+		Begin(name, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 		End();
 	}
 }
 
 
-void ImGui_Transform(TransformComponent *transform)
+void ImGui_Transform(TransformComponent *transform, GameObject *object)
 {
 	if (CollapsingHeader("Transform"))
 	{
 		if (TreeNode("Position"))
 		{
-			PushItemWidth(120);
-			InputFloat(" X##position", &transform->Position().x);
-			InputFloat(" Y##position", &transform->Position().y);
+			PushItemWidth(80);
+			DragFloat("X##position_drag", &transform->Position().x, 0, 5); SameLine();
+			InputFloat("X##position", &transform->Position().x);
+
+			DragFloat("Y##position_drag", &transform->Position().y, 0, 5); SameLine();
+			InputFloat("Y##position", &transform->Position().y);
 			PopItemWidth();
 			TreePop();
 			Separator();
@@ -178,15 +151,15 @@ void ImGui_Transform(TransformComponent *transform)
 		if (TreeNode("Scale"))
 		{
 			PushItemWidth(120);
-			InputFloat(" X##scale", &transform->Scale().x);
-			InputFloat(" Y##scale", &transform->Scale().y);
+			InputFloat("X##scale", &transform->Scale().x);
+			InputFloat("Y##scale", &transform->Scale().y);
 			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 
 		PushItemWidth(120);
-		DragFloat("", &transform->Rotation(), 0, 360);
+		DragFloat("##rotation_drag", &transform->Rotation(), 0, 360);
 		SameLine();
 		PopItemWidth();
 		PushItemWidth(100);
@@ -196,11 +169,16 @@ void ImGui_Transform(TransformComponent *transform)
 }
 
 
-void ImGui_RigidBody(RigidBodyComponent *rb)
+void ImGui_RigidBody(RigidBodyComponent *rb, GameObject *object)
 {
 	float mass = 1 / rb->Mass();
 	if (CollapsingHeader("RigidBody"))
 	{
+		if (Button("Remove"))
+		{
+			object->DeleteComponent<RigidBodyComponent>();
+		}
+
 		if (TreeNode("Acceleration"))
 		{
 			PushItemWidth(120);
@@ -234,10 +212,14 @@ void ImGui_RigidBody(RigidBodyComponent *rb)
 }
 
 
-void ImGui_Sprite(SpriteComponent *sprite)
+void ImGui_Sprite(SpriteComponent *sprite, GameObject *object)
 {
 	if (CollapsingHeader("Sprite"))
 	{
+		if (Button("Remove"))
+		{
+			object->DeleteComponent<SpriteComponent>();
+		}
 		char buffer[2048] = { 0 };
 		if (InputText("Image Source", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
 		{
@@ -247,10 +229,16 @@ void ImGui_Sprite(SpriteComponent *sprite)
 }
 
 
-void ImGui_Collider2D(Collider2D *collider)
+void ImGui_Collider2D(Collider2D *collider, GameObject *object)
 {
 	if (CollapsingHeader("Collider"))
 	{
+		if (Button("Remove"))
+		{
+			// Static or Dynamic
+			// object->DeleteComponent<Static or Dynamic Collider>();
+		}
+
 		if (TreeNode("Dimensions"))
 		{
 			PushItemWidth(120);

@@ -80,6 +80,12 @@ public:
 		m_gameSpace = space;
 	}
 
+	template <typename T>
+	void DeleteComponent()
+	{
+		m_gameSpace->DeleteComponent<T>(m_objID);
+	}
+
 private:
 	GameObject_ID m_objID;
 	GameSpace *m_gameSpace;

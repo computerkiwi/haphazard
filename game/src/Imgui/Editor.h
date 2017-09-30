@@ -40,6 +40,7 @@ class Editor
 
 	std::string m_line;
 
+	friend bool Command_StrCmp(const char *str1, const char *str2);
 	struct Command
 	{
 		Command() : command(nullptr), cmd_length(0), func(std::function<void()>()) {}
@@ -52,7 +53,7 @@ class Editor
 
 	std::vector<Command> m_commands;
 	std::vector<const char *> m_log_history;
-
+	ImVector<const char *> m_matches;
 
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
 	struct State 
@@ -66,6 +67,7 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
+	
 
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
