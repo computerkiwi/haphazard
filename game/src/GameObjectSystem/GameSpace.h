@@ -314,18 +314,14 @@ public:
 		}
 	}
 
-	std::vector<GameObject_ID> CollectGameObjects()
+	void CollectGameObjects(std::vector<GameObject_ID>& objects)
 	{
-		std::vector<GameObject_ID> objects;
-		objects.reserve(30);
 		auto *map = GetComponentMap<TransformComponent>();
 
 		for (auto& transform : *map)
 		{
 			objects.emplace_back(transform.GetGameObject_ID());
 		}
-
-		return move(objects);
 	}
 
 private:
@@ -396,6 +392,15 @@ public:
 	inline GameSpace *operator[](std::size_t index)
 	{
 		return &m_spaces[index];
+	}
+
+	void CollectAllObjects(std::vector<GameObject_ID>& objects)
+	{
+		objects.clear();
+		for (int i = 0; i < m_spaces.size(); ++i)
+		{
+			m_spaces[i].CollectGameObjects(objects);
+		}
 	}
 
 	void Update(float dt)

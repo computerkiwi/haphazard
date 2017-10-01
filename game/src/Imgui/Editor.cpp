@@ -36,6 +36,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(true), m_objects(), m_state{ false, -1, -1, false }
 {
+	m_objects.reserve(256);
+
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
 
@@ -213,7 +215,7 @@ void Editor::Update()
 
 		// Get all the active gameobjects
 		// TODO[NOAH]:: Make it collect all GameObjects
-		m_objects = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->CollectGameObjects();
+		m_engine->GetSpaceManager()->CollectAllObjects(m_objects);
 
 		// Render the console
 		Console();
@@ -326,18 +328,15 @@ void Editor::ObjectsList()
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
 	// Get all the names of the objects
-	std::string name("GameObject - ");
+	char name_buffer[128] = { 0 };
 	for (auto& object : m_objects)
 	{
-		name += std::to_string(GameObject(object).Getid());
-		if (Selectable(name.c_str()))
+		snprintf(name_buffer, sizeof(name_buffer), "GameObject - %d : %d", GameObject(object).Getid(), GameObject(object).GetIndex());
+		if (Selectable(name_buffer))
 		{
 			SetGameObject(object);
 			break;
 		}
-
-		name.clear();
-		name = "GameObject - ";
 	}
 
 	End();
@@ -450,7 +449,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 					int length = static_cast<int>(word_end - word_start);
 
 					// Check for length on matches
-					while (true)
+					while (length)
 					{
 						char character = 0;
 						bool all_matches_made = true;
@@ -479,6 +478,8 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 					}
 				}
 			}
+
+			// Get the clicked indexed item and reset the popup state
 			if (editor->m_state.clickedIndex != -1)
 			{
 				editor->SetActive(data, editor->m_state.clickedIndex);

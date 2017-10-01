@@ -35,6 +35,7 @@ public:
 	float Dt() const;
 	lua_State * GetLua();
 
+	GameSpaceManagerID *GetSpaceManager() { return &m_spaces; }
 	GameSpace *GetSpace(std::size_t index) { return m_spaces[index]; }
 
 	Editor *GetEditor() { return &m_editor; }
