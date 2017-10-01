@@ -50,7 +50,7 @@ public:
 	void AdjustRotationOffset(float rotationAdjustment);
 
 private:
-	friend void ImGui_Collider2D(Collider2D *collider, GameObject *object);
+	friend void ImGui_Collider2D(Collider2D *collider, GameObject object);
 	colliderType m_colliderType;
 	glm::vec3 m_dimensions;
 	glm::vec3 m_offset;

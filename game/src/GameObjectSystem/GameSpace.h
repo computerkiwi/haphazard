@@ -266,11 +266,10 @@ public:
 	template <typename T>
 	void DeleteComponent(GameObject_ID id)
 	{
-		reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()).get())->DeleteComponent(id);
+		reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()))->DeleteComponent(id);
 	}
 
-	GameObject GetGameObject(GameObject_ID id)
-	GameObject_ID GetGameObject(GameObject_ID id) const
+	GameObject_ID GetGameObject() const
 	{
 		return GenerateID() & (m_index << 56);
 	}
@@ -378,7 +377,14 @@ class GameSpaceManagerID
 public:
 	void AddSpace()
 	{
-		m_spaces.emplace_back(GameSpace(m_spaces.size() - 1));
+		if (m_spaces.size())
+		{
+			m_spaces.emplace_back(GameSpace(m_spaces.size() - 1));
+		}
+		else
+		{
+			m_spaces.emplace_back(GameSpace(0));
+		}
 	}
 
 	inline GameSpace *Get(std::size_t index)

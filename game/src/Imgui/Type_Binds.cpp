@@ -12,20 +12,21 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "Engine\Physics\Collider2D.h"
+#include "GameObjectSystem/GameObject.h"
 
 using namespace ImGui;
 
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
 #define GAMEOBJECT_WINDOW_POS  ImVec2(0, 0)
 
-void ImGui_GameObject(GameObject *object)
+void ImGui_GameObject(GameObject object)
 {
 	// Check if a nullptr was passed
-	if (object && object->GetSpace())
+	if (object && object.GetSpace())
 	{
 		// Display the object's id
 		std::string name("GameObject - ");
-		name += std::to_string(object->Getid());
+		name += std::to_string(object.Getid());
 		name += "###GAMEOBJECT_ID";
 
 
@@ -39,14 +40,14 @@ void ImGui_GameObject(GameObject *object)
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (Button("Duplicate"))
 		{
-			object->Duplicate<dummy>();
+			object.Duplicate<dummy>();
 		}
 		PopStyleColor(3);
 		SameLine();
 		if (Button("Delete"))
 		{
-			object->Delete<dummy>();
-			object->SetSpace<dummy>(nullptr);
+			object.Delete<dummy>();
+			object.SetSpace<dummy>(0);
 			End();
 			return;
 		}
@@ -96,31 +97,31 @@ void ImGui_GameObject(GameObject *object)
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
-		if (object->GetComponent<TransformComponent>().IsValid())
+		if (object.GetComponent<TransformComponent>().IsValid())
 		{
-			ImGui_Transform(object->GetComponent<TransformComponent>().Get(), object);
+			ImGui_Transform(object.GetComponent<TransformComponent>().Get(), object);
 		}
 
 		// Check for RigidBody OR Static Collider, can only have one
-		if (object->GetComponent<RigidBodyComponent>().IsValid())
+		if (object.GetComponent<RigidBodyComponent>().IsValid())
 		{
-			ImGui_RigidBody(object->GetComponent<RigidBodyComponent>().Get(), object);
+			ImGui_RigidBody(object.GetComponent<RigidBodyComponent>().Get(), object);
 
-			if (object->GetComponent<DynamicCollider2DComponent>().IsValid())
+			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 			{
-				ImGui_Collider2D(&object->GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
+				ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
 			}
 		}
-		else if (object->GetComponent<StaticCollider2DComponent>().IsValid())
+		else if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 		{
-			ImGui_Collider2D(&object->GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
+			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
 		}
 
 		
 
-		if (object->GetComponent<SpriteComponent>().IsValid())
+		if (object.GetComponent<SpriteComponent>().IsValid())
 		{
-			ImGui_Sprite(object->GetComponent<SpriteComponent>().Get(), object);
+			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object);
 		}
 
 		End();
@@ -142,7 +143,7 @@ void ImGui_GameObject(GameObject *object)
 // Component ImGui stuff
 // ----------------------
 
-void ImGui_Transform(TransformComponent *transform, GameObject *object)
+void ImGui_Transform(TransformComponent *transform, GameObject object)
 {
 	if (CollapsingHeader("Transform"))
 	{
@@ -179,14 +180,14 @@ void ImGui_Transform(TransformComponent *transform, GameObject *object)
 }
 
 
-void ImGui_RigidBody(RigidBodyComponent *rb, GameObject *object)
+void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 {
 	float mass = 1 / rb->Mass();
 	if (CollapsingHeader("RigidBody"))
 	{
 		if (Button("Remove"))
 		{
-			object->DeleteComponent<RigidBodyComponent>();
+			object.DeleteComponent<RigidBodyComponent>();
 		}
 
 		if (TreeNode("Acceleration"))
@@ -222,13 +223,13 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject *object)
 }
 
 
-void ImGui_Sprite(SpriteComponent *sprite, GameObject *object)
+void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
 {
 	if (CollapsingHeader("Sprite"))
 	{
 		if (Button("Remove"))
 		{
-			object->DeleteComponent<SpriteComponent>();
+			object.DeleteComponent<SpriteComponent>();
 		}
 		char buffer[2048] = { 0 };
 		if (InputText("Image Source", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -239,14 +240,14 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject *object)
 }
 
 
-void ImGui_Collider2D(Collider2D *collider, GameObject *object)
+void ImGui_Collider2D(Collider2D *collider, GameObject object)
 {
 	if (CollapsingHeader("Collider"))
 	{
 		if (Button("Remove"))
 		{
 			// Static or Dynamic
-			// object->DeleteComponent<Static or Dynamic Collider>();
+			// object.DeleteComponent<Static or Dynamic Collider>();
 		}
 
 		if (TreeNode("Dimensions"))

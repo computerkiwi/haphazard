@@ -12,6 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 Engine engine;
 
+
 int main()
 {
 	engine.LoggingInit();

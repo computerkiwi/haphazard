@@ -96,8 +96,10 @@ public:
 	template <typename T>
 	void DeleteComponent()
 	{
-		m_gameSpace->DeleteComponent<T>(m_objID);
+		GetSpace()->DeleteComponent<T>(m_objID);
 	}
+
+	operator bool() const { return m_objID; }
 
 private:
 	GameObject_ID m_objID;

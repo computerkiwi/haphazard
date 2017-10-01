@@ -212,7 +212,7 @@ void Editor::Update()
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		// Get all the active gameobjects
-		m_objects = m_engine->GetSpace()->CollectGameObjects();
+		m_objects = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->CollectGameObjects();
 
 		// Render the console
 		Console();
@@ -223,7 +223,7 @@ void Editor::Update()
 		ObjectsList();
 
 		// Pass the current object in the editor
-		ImGui_GameObject(&m_selected_object);
+		ImGui_GameObject(GameObject(m_selected_object));
 
 		ImGui::Render();
 	}
@@ -298,18 +298,18 @@ void Editor::OnClick()
 				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
 				{
 					// Save the GameObject data
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 			}
 			else if (mouse.x < pos.x - scale.x)
 			{
 				if (mouse.y > pos.y + scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 				else if (mouse.y < pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 			}
 		}
