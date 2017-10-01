@@ -44,7 +44,7 @@ void Screen::AddEffect(FX fx)
 	mFXList.push_back(fx);
 }
 
-void Screen::SetBlurAmount(float amt)
+void Screen::SetBlurAmount(int amt)
 {
 	blurAmount = amt;
 	Shaders::ScreenShader::Blur->SetVariable("Intensity", amt);
@@ -174,7 +174,7 @@ void Screen::Draw()
 		result = source; // Save outcome colorbuffer (would be target, but they are swapped at the end of each loop)
 	}
 	
-	//Raindrop::DrawToScreen(result);
+	Raindrop::DrawToScreen(result);
 
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -361,8 +361,8 @@ Screen::Raindrop::Raindrop()
 	float h = (w + rand() % 100 / (100.0f / (sizeMax.y - w))) * Settings::ScreenWidth() / Settings::ScreenHeight();
 	transform.SetScale(w, -h, rand() % 100 / (100.0f / sizeMax.z) + sizeMin.z);
 
-	life += rand() % 10 / 10 - 0.5;
-	speed = rand() % 100 / ((w / sizeMax.x) * 50.0f) + 0.1;
+	life += rand() % 10 / 10 - 0.5f;
+	speed = rand() % 100 / ((w / sizeMax.x) * 50.0f) + 0.1f;
 
 	drops->SetClearColor(0, 0, 0, 0);
 }

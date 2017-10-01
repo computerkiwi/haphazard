@@ -10,6 +10,7 @@ public:
 	static void DrawShape(glm::vec2 pos, glm::vec2 scale = glm::vec2(1, 1), float rotationRadians = 0, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 
 	static void DrawAll();
+	static void SetLineWidth(float size);
 private:
 
 	static std::vector<float> shapeData;

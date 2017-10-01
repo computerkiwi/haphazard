@@ -96,8 +96,6 @@ void Mesh::UseBlendMode(BlendMode bm)
 
 void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 {
-	float tex[4];
-  
 	if (animatedTexture)
 	{
 		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
@@ -182,7 +180,7 @@ void Mesh::UpdateAnimatedTexture(float dt)
 		if (AT_timer > 1.0f / AT_fps)
 		{
 			// Not adding by 1 prevents skipped frames in low framerates
-			AT_frame += AT_timer / (1.0f / AT_fps);
+			AT_frame += (int)(AT_timer / (1.0f / AT_fps));
 			AT_timer = 0;
 
 			if (AT_frame >= animatedTexture->GetMaxFrame())

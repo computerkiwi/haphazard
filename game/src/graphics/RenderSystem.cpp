@@ -31,9 +31,8 @@ void RenderSystem::Init()
 // Called each frame.
 void RenderSystem::Update(float dt)
 {
-	glEnableVertexAttribArray(0);
 	Screen::GetView().Use();
-	Screen::UpdateRaindrops(dt);
+	//Screen::UpdateRaindrops(dt);
 	////Start Loop
 
 	//Screen::GetView().ResizeScreen(1920, 1080);
@@ -42,9 +41,8 @@ void RenderSystem::Update(float dt)
 
 	std::vector<float> data;
 	std::vector<int> tex;
-  int numMeshes = 0;
-  int numVerts = 0;
-
+	int numMeshes = 0;
+	int numVerts = 0;
 
 	Shaders::defaultShader->Use();
 
@@ -68,7 +66,7 @@ void RenderSystem::Update(float dt)
 
 		//Stuff happens here
 	}
-		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14 / 4, glm::vec4(1, 0, 1, 1));
+		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14f / 4, glm::vec4(1, 0, 1, 1));
 
 	Mesh::BindTextureVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
@@ -87,11 +85,7 @@ void RenderSystem::Update(float dt)
 	glBlendFunc(GL_ONE, GL_ZERO);
 
 	DebugGraphic::DrawAll();
-
 	Screen::GetView().Draw();
-
-	glDisableVertexAttribArray(0);
-	//data.clear();
 }
 
 void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int width, int height)

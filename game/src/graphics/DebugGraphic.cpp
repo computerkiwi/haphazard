@@ -38,7 +38,12 @@ void DebugGraphic::DebugGraphic::DrawAll()
 	Shaders::debugShader->Use();
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * shapeData.size(), shapeData.data(), GL_STATIC_DRAW);
-	glDrawArraysInstanced(GL_POINTS, 0, shapeData.size(), shapeData.size());
+	glDrawArraysInstanced(GL_POINTS, 0, 9, (GLsizei)shapeData.size() / 9);
 
 	shapeData.clear();
+}
+
+void DebugGraphic::SetLineWidth(float size)
+{
+	glLineWidth(size);
 }
