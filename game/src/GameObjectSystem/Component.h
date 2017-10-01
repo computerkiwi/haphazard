@@ -6,7 +6,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-#include "GameObject.h"
+typedef std::size_t GameObject_ID;
 
 // Forward declaration.
 class GameSpace;
@@ -44,9 +44,9 @@ public:
 		return *m_gameSpace->GetInternalComponent<T>(m_objID);
 	}
 
-	GameObject GetGameObject()
+	GameObject_ID GetGameObject_ID() const
 	{
-		return GameObject(m_objID, m_gameSpace);
+		return m_objID;
 	}
 
 	template <typename T>
@@ -64,7 +64,7 @@ public:
 	}
 
 	// Returns true if this is a valid component.
-	bool IsValid()
+	bool IsValid() const
 	{
 		return m_isValid;
 	}

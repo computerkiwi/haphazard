@@ -26,6 +26,8 @@ class Engine
 public:
 	Engine();
 
+	static void LoggingInit();
+
 	void MainLoop();
 
 	void Update();
@@ -33,7 +35,7 @@ public:
 	float Dt() const;
 	lua_State * GetLua();
 
-	GameSpace *GetSpace() { return &m_space; }
+	GameSpace *GetSpace(std::size_t index) { return m_spaces[index]; }
 
 	Editor *GetEditor() { return &m_editor; }
 
@@ -46,9 +48,8 @@ private:
 	bool m_running = true;
 	lua_State * L = luaL_newstate();
 	GLFWwindow *m_window;
-	GameSpace m_space;
+	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
 };
 
 void RegisterComponents(lua_State * L);
-

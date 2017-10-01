@@ -10,9 +10,10 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <vector>
 #include <map>
 #include <functional>
-#include "GameObjectSystem/GameObject.h"
 #include <glm/detail/type_vec2.hpp>
 
+
+typedef std::size_t GameObject_ID;
 
 class Engine;
 struct GLFWwindow;
@@ -22,8 +23,8 @@ class Editor
 	Engine * m_engine;
 	bool m_show_editor;
 
-	GameObject m_selected_object = GameObject(0, nullptr);
-	std::vector<GameObject> m_objects;
+	GameObject_ID m_selected_object = 0;
+	std::vector<GameObject_ID> m_objects;
 
 
 	std::string m_line;
@@ -64,7 +65,7 @@ public:
 	void Log(const char *log_message, ...);
 	void Clear();
 
-	void SetGameObject(GameObject& new_object);
+	void SetGameObject(GameObject_ID new_object);
 	
 
 	void Console();

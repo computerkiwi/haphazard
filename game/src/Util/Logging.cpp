@@ -162,11 +162,11 @@ void Logging::Exit()
 
 void Logging::Log(const char *message, Logging::Channel channel, Priority priority)
 {
-	if (m_logToFile)
+	if (!m_logToFile)
 	{
 		LogToFile(message, channel, priority);
 	}
-	if (m_logToConsole)
+	if (!m_logToConsole)
 	{
 		LogToConsole(message, channel, priority);
 	}

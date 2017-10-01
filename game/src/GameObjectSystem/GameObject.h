@@ -6,49 +6,54 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Engine/Engine.h"
+
 class GameSpace;
+
+// GameObject ID Gen
+GameObject_ID GenerateID();
+
 
 template <typename T>
 class ComponentHandle;
-
+class Engine;
+extern Engine engine;
 
 typedef std::size_t GameObject_ID;
+typedef std::size_t GameSpaceIndex;
 typedef int    dummy;
 
 class GameObject
 {
 public:
-	GameObject(GameObject_ID id, GameSpace *gameSpace) : m_objID(id), m_gameSpace(gameSpace)
+	GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << 56))
+	{
+	}
+
+	explicit GameObject(GameObject_ID id) : m_objID(id)
 	{
 	}
 
 	template <typename T, typename... Args>
 	void AddComponent(Args&&... args)
 	{
-		m_gameSpace->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
+		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
 	template <typename T>
 	ComponentHandle<T> GetComponent()
 	{
 		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
+		if (GetSpace()->GetInternalComponent<T>(m_objID) != nullptr)
 		{
 			// Why the hell does constructing a ComponentHandle work?
 			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
-			return ComponentHandle<T>(m_objID, m_gameSpace);
+			return ComponentHandle<T>(m_objID, GetSpace());
 		}
 		else
 		{
 			return ComponentHandle<T>(0, nullptr, false);
 		}
-	}
-
-	static GameObject_ID GenerateID()
-	{
-		static GameObject_ID lastGeneratedID = 0;
-
-		return lastGeneratedID++;
 	}
 
 	GameObject_ID Getid() const
@@ -58,29 +63,34 @@ public:
 
 	// Dummy Template param since GameSpace are forward delcared here
 	template <typename dummy>
-	GameObject Duplicate()
+	GameObject_ID Duplicate() const
 	{
-		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
+		return GetSpace()->Duplicate(m_objID, GetSpace()->NewGameObject());
 	}
 
 	template <typename dummy>
 	void Delete()
 	{
-		m_gameSpace->Delete(m_objID);
+		GetSpace()->Delete(m_objID);
+		m_objID = 0;
 	}
 
-	const GameSpace *GetSpace() const
+	GameSpace *GetSpace() const
 	{
-		return m_gameSpace;
+		return engine.GetSpace((0xFF00000000 & m_objID) >> 56);
+	}
+
+	GameSpaceIndex GetIndex() const
+	{
+		return m_objID & 0xFF00000000000000;
 	}
 
 	template <typename AVOID>
-	void SetSpace(GameSpace *space)
+	void SetSpace(GameSpaceIndex index)
 	{
-		m_gameSpace = space;
+		(m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << 56);
 	}
 
 private:
 	GameObject_ID m_objID;
-	GameSpace *m_gameSpace;
 };

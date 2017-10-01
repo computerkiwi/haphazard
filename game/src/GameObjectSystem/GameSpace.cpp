@@ -13,3 +13,11 @@ ComponentType GenerateComponentTypeID()
 {
 	return lastID++;
 }
+
+
+GameObject_ID GenerateID()
+{
+	static GameObject_ID lastGeneratedID = 0;
+
+	return lastGeneratedID++;
+}

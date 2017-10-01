@@ -17,10 +17,16 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Component.h"
 #include "TransformComponent.h"
+#include <iostream>
 
 
 // Forward declare.
 class GameSpace;
+class Engine;
+extern Engine engine;
+
+// GameObject ID Gen
+GameObject_ID GenerateID();
 
 // Required interface for systems.
 class SystemBase
@@ -32,6 +38,10 @@ public:
 	}
 
 	SystemBase() : m_space(nullptr)
+	{
+	}
+
+	virtual ~SystemBase()
 	{
 	}
 
@@ -54,7 +64,8 @@ private:
 };
 
 // ID used as key to component containers.
-typedef size_t ComponentType;
+typedef std::size_t ComponentType;
+typedef std::size_t GameSpaceIndex;
 
 ComponentType GenerateComponentTypeID();
 
@@ -209,6 +220,10 @@ class GameSpace
 	friend class GameObject;
 
 public:
+
+	GameSpace() {}
+	explicit GameSpace(GameSpaceIndex index) : m_index(index) {}
+
 	template <typename T>
 	void RegisterComponentType()
 	{
@@ -218,25 +233,15 @@ public:
 		std::cout << "Registering component type" << GetComponentType<T>::func() << std::endl;
 	}
 
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
+	void RegisterSystem(SystemBase *newSystem, std::size_t priority)
 	{
 		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 		newSystem->RegisterGameSpace(this);
-		m_systems.insert(std::make_pair(priority, std::move(newSystem)));
+		m_systems.insert(std::make_pair(priority, newSystem));
 	}
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem)
-	{
-		RegisterSystem(std::move(newSystem), newSystem->DefaultPriority());
-	}
-
 	void RegisterSystem(SystemBase *newSystem)
 	{
-		RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
-	}
-
-	void RegisterSystem(SystemBase *newSystem, std::size_t priority)
-	{
-		RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
+		RegisterSystem(newSystem, newSystem->DefaultPriority());
 	}
 
 	// Returns a component HANDLE.
@@ -249,18 +254,18 @@ public:
 	template <typename T>
 	ComponentMap<T> *GetComponentMap()
 	{
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 		return static_cast<ComponentMap<T> *>(baseMap);
 	}
 
-	GameObject GetGameObject(GameObject_ID id)
+	GameObject_ID GetGameObject(GameObject_ID id) const
 	{
-		return GameObject(id, this);
+		return GenerateID() & (m_index << 56);
 	}
 
-	GameObject NewGameObject()
+	GameObject_ID NewGameObject() const
 	{
-		return GameObject(GameObject::GenerateID(), this);
+		return GenerateID() & (m_index << 56);
 	}
 
 	void Init()
@@ -279,14 +284,14 @@ public:
 		}
 	}
 
-	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
+	GameObject_ID Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
 	{
 		for (auto& c_map : m_componentMaps)
 		{
 			c_map.second->Duplicate(originalObject, newObject);
 		}
 
-		return GameObject(newObject, this);
+		return newObject;
 	}
 
 	void Delete(GameObject_ID object)
@@ -297,18 +302,18 @@ public:
 		}
 	}
 
-	std::vector<GameObject> CollectGameObjects()
+	std::vector<GameObject_ID> CollectGameObjects()
 	{
-		std::vector<GameObject> objects;
+		std::vector<GameObject_ID> objects;
 		objects.reserve(30);
 		auto *map = GetComponentMap<TransformComponent>();
 
 		for (auto& transform : *map)
 		{
-			objects.emplace_back(transform.GetGameObject());
+			objects.emplace_back(transform.GetGameObject_ID());
 		}
 
-		return std::move(objects);
+		return move(objects);
 	}
 
 private:
@@ -317,7 +322,7 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 		return compMap->get(id);
@@ -328,27 +333,61 @@ private:
 	{
 		// TODO[Kieran]: Cast individual components instead of the maps.
 
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 		compMap->emplaceComponent(id, std::forward<Args>(args)...);
 	}
-
-	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
-	std::map<std::size_t, std::unique_ptr<SystemBase>> m_systems;
+	GameSpaceIndex m_index = 0;
+	std::unordered_map<ComponentType, ComponentMapBase *> m_componentMaps;
+	std::map<std::size_t, SystemBase *> m_systems;
 };
 
 
 constexpr unsigned long hash(const char *str)
 {
 	unsigned long hash = 5381;
-	int c = 0;
+	int c = *str;
 
-	while (c = *str++)
+	while (c)
+	{
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+		c = *str++;
+	}
 
 	return hash;
 }
+
+
+class GameSpaceManagerID
+{
+	std::vector<GameSpace> m_spaces;
+
+public:
+	void AddSpace()
+	{
+		m_spaces.emplace_back(GameSpace(m_spaces.size() - 1));
+	}
+
+	inline GameSpace *Get(std::size_t index)
+	{
+		return &m_spaces[index];
+	}
+
+	inline GameSpace *operator[](std::size_t index)
+	{
+		return &m_spaces[index];
+	}
+
+	void Update(float dt)
+	{
+
+		for (auto& sys : m_spaces)
+		{
+			sys.Update(dt);
+		}
+	}
+};
 
 
 class GameSpaceManager

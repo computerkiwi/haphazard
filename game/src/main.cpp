@@ -10,10 +10,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Engine/Engine.h"
 
+Engine engine;
+
 int main()
 {
-	Engine engine;
-
+	engine.LoggingInit();
 	engine.MainLoop();
 	// We shouldn't get past MainLoop at this point.
 

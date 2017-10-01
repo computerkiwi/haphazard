@@ -16,6 +16,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
+#include "GameObjectSystem/GameObject.h"
 
 #include "Util\Logging.h"
 
@@ -27,7 +28,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <ctype.h>
 
 
-void ImGui_GameObject(GameObject *object);
+void ImGui_GameObject(GameObject object);
 void ImGui_Transform(TransformComponent *transform);
 
 // Enter Hex code not including the 0x
@@ -156,9 +157,9 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	[this]()
 	{
 		Editor::Internal_Log("    Current Objects: \n");
-		for (auto& object : m_objects)
+		for (auto object : m_objects)
 		{
-			Editor::Internal_Log("     - %d \n", object.Getid());
+			Editor::Internal_Log("     - %d \n", object);
 		}
 	});
 	RegisterCommand("select",
@@ -166,9 +167,9 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	{
 		int seleted_id = atoi(m_line.substr(strlen("select ")).c_str());
 
-		for (auto& object : m_objects)
+		for (auto object : m_objects)
 		{
-			if (object.Getid() == seleted_id)
+			if (object == seleted_id)
 			{
 				m_selected_object = object;
 				break;
@@ -191,10 +192,10 @@ void Editor::Update()
 		OnClick();
 		ImGui_ImplGlfwGL3_NewFrame();
 
-		m_objects = m_engine->GetSpace()->CollectGameObjects();
+		m_objects = move(m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->CollectGameObjects());
 		Console();
 		ObjectsList();
-		ImGui_GameObject(&m_selected_object);
+		ImGui_GameObject(GameObject(m_selected_object));
 
 		ImGui::Render();
 	}
@@ -237,13 +238,13 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
 {
-	GameObject object = m_engine->GetSpace()->NewGameObject();
-	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 0), glm::vec3(size.x, size.y, 1));
+	GameObject_ID object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject();
+	GameObject(object).AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
 	m_selected_object = object;
 }
 
 
-void Editor::SetGameObject(GameObject& new_object)
+void Editor::SetGameObject(GameObject_ID new_object)
 {
 	m_selected_object = new_object;
 }
@@ -256,7 +257,7 @@ void Editor::OnClick()
 	{
 		ImVec2 mouse = ImGui::GetCursorPos();
 
-		for (auto& transform : *m_engine->GetSpace()->GetComponentMap<TransformComponent>())
+		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
 		{
 			const glm::vec3& scale = transform.Get()->Scale();
 			const glm::vec3& pos = transform.Get()->Position();
@@ -265,22 +266,22 @@ void Editor::OnClick()
 			{
 				if (mouse.y > pos.y + scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 				else if (mouse.y < pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 			}
 			else if (mouse.x < pos.x - scale.x)
 			{
 				if (mouse.y > pos.y + scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 				else if (mouse.y < pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject();
+					m_selected_object = transform.GetGameObject_ID();
 				}
 			}
 
@@ -301,7 +302,7 @@ void Editor::ObjectsList()
 	std::string name("GameObject - ");
 	for (auto& object : m_objects)
 	{
-		name += std::to_string(object.Getid());
+		name += std::to_string(GameObject(object).Getid());
 		if (Selectable(name.c_str()))
 		{
 			SetGameObject(object);
@@ -574,12 +575,12 @@ void Editor::Clear()
 }
 
 
-void ImGui_GameObject(GameObject *object)
+void ImGui_GameObject(GameObject object)
 {
-	if (object && object->GetSpace())
+	if (object.Getid() && object.GetSpace())
 	{
 		std::string name("GameObject - ");
-		name += std::to_string(object->Getid());
+		name += std::to_string(object.Getid());
 
 		ImGui::SetNextWindowSize(ImVec2(325, 400));
 		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
@@ -590,23 +591,23 @@ void ImGui_GameObject(GameObject *object)
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (ImGui::Button("Duplicate"))
 		{
-			object->Duplicate<dummy>();
+			object.Duplicate<dummy>();
 		}
 		ImGui::PopStyleColor(3);
 		ImGui::SameLine();
 		if (ImGui::Button("Delete"))
 		{
-			object->Delete<dummy>();
-			object->SetSpace<dummy>(nullptr);
+			object.Delete<dummy>();
+			object.SetSpace<dummy>(0);
 			ImGui::End();
 			return;
 		}
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
-		if (object->GetComponent<TransformComponent>().Get())
+		if (object.GetComponent<TransformComponent>().Get())
 		{
-			ImGui_Transform(object->GetComponent<TransformComponent>().Get());
+			ImGui_Transform(object.GetComponent<TransformComponent>().Get());
 		}
 
 		ImGui::End();
