@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "lua.hpp"
 #include "LuaBridge.h"
+#include "LuaEngine.h"
 
 #include "ScriptSystem.h"
 #include "ScriptComponent.h"
@@ -26,7 +27,9 @@ void ScriptSystem::Update(float dt)
 	{
 		for (LuaScript script : scriptComp->scripts)
 		{
-			script.RunFunction("update", 0, 0);
+			luabridge::push(script.GetLuaState(), scriptComp.GetGameObject());
+			luabridge::push(script.GetLuaState(), dt);
+			script.RunFunction("update", 2, 0);
 		}
 	}
 }

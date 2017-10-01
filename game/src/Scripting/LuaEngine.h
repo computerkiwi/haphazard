@@ -8,4 +8,4 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 struct lua_State;
 
-lua_State *GetLuaState();
+lua_State *GetGlobalLuaState();

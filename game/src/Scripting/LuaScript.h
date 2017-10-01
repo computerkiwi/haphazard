@@ -12,7 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 class LuaScript
 {
 public:
-	LuaScript(lua_State *L, const char *filename);
+	LuaScript(const char *filename);
 
 	void RunFunction(const char *functionName, int args, int returns);
 

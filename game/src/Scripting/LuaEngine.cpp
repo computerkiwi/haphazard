@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "LuaEngine.h"
 #include "lua.hpp"
 #include "ScriptingUtil.h"
+#include "LuaRegistration.h"
 
 namespace
 {
@@ -26,11 +27,13 @@ namespace
 
 		SetupEnvironmentTable(L);
 
+		RegisterLua(L);
+
 		return L;
 	}
 }
 
-lua_State *GetLuaState()
+lua_State *GetGlobalLuaState()
 {
 	static lua_State *L = InitNewLuaState();
 

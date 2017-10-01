@@ -182,6 +182,7 @@
     <ClCompile Include="src\meta\Type.cpp" />
     <ClCompile Include="src\Scripting\GoodLuaDebugging.cpp" />
     <ClCompile Include="src\Scripting\LuaEngine.cpp" />
+    <ClCompile Include="src\Scripting\LuaRegistration.cpp" />
     <ClCompile Include="src\Scripting\LuaScript.cpp" />
     <ClCompile Include="src\Scripting\ScriptingUtil.cpp" />
     <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="src\Imgui\Editor.h" />
     <ClInclude Include="src\Imgui\imgui-setup.h" />
     <ClInclude Include="src\Scripting\LuaEngine.h" />
+    <ClInclude Include="src\Scripting\LuaRegistration.h" />
     <ClInclude Include="src\Scripting\LuaScript.h" />
     <ClInclude Include="src\Scripting\ScriptComponent.h" />
     <ClInclude Include="src\Scripting\ScriptingUtil.h" />
@@ -231,6 +233,7 @@
     <ClInclude Include="src\Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="PlayerController.lua" />
     <None Include="shaders\debug.fragshader" />
     <None Include="shaders\debug.geoshader" />
     <None Include="shaders\debug.vertshader" />

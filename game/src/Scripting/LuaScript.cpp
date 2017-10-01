@@ -8,12 +8,13 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 #include "LuaScript.h"
 #include "ScriptingUtil.h"
+#include "LuaEngine.h"
 
 #include <iostream>
 
 
 
-LuaScript::LuaScript(lua_State * L, const char * filename) : m_L(L)
+LuaScript::LuaScript(const char * filename) : m_L(GetGlobalLuaState())
 {
 	// Create a table representing the script's environment.
 	lua_newtable(m_L);
@@ -31,7 +32,11 @@ LuaScript::LuaScript(lua_State * L, const char * filename) : m_L(L)
 	// STACK: EnvTable
 
 	// Load the function and set its environment upvalue.
-	luaL_loadfile(m_L, filename);
+	int result = luaL_loadfile(m_L, filename);
+	if (result != 0)
+	{
+		Logging::Log(Logging::CORE, Logging::HIGH_PRIORITY, "Lua couldn't load script file: ", lua_tostring(m_L, -1));
+	}
 	lua_pushvalue(m_L, -2);
 	LuaSetUpValue(m_L, "_ENV", -2);
 	
@@ -39,7 +44,7 @@ LuaScript::LuaScript(lua_State * L, const char * filename) : m_L(L)
 
 	// Get the script environment table and register the environment in it.
 	lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
-	assert(lua_istable(L, -1));
+	assert(lua_istable(m_L, -1));
 	lua_pushvalue(m_L, -3);
 	m_environmentID = luaL_ref(m_L, -2);
 	
@@ -52,10 +57,10 @@ LuaScript::LuaScript(lua_State * L, const char * filename) : m_L(L)
 	// STACK: FileFunc
 
 	// Run the file in the environment.
-	int result = lua_pcall(m_L, 0, 0, 0);
+	result = lua_pcall(m_L, 0, 0, 0);
 	if (result != 0)
 	{
-		std::cout << lua_tostring(L, -1) << std::endl;
+		std::cout << lua_tostring(m_L, -1) << std::endl;
 	}
 	// STACK: *EMPTY*
 }
@@ -70,6 +75,12 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 
 	// Put the function under the arguments on the stack.
 	lua_insert(m_L, -1 - args);
+
+	int result = lua_pcall(m_L, args, returns, 0);
+	if (result != 0)
+	{
+		std::cout << lua_tostring(m_L, -1) << std::endl;
+	}
 }
 
 void LuaScript::GetScriptEnvironment()
