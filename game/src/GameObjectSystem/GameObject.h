@@ -12,7 +12,7 @@ template <typename T>
 class ComponentHandle;
 
 
-typedef std::size_t GameObject_ID;
+typedef size_t GameObject_ID;
 typedef int    dummy;
 
 class GameObject

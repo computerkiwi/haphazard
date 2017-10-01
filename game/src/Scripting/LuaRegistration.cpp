@@ -17,6 +17,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine/Physics/RigidBody.h"
 #include "GameObjectSystem/GameObject.h"
 #include "GameObjectSystem/Component.h"
+#include "Input/Input.h"
 
 //-----------
 // TRANSFORM
@@ -84,11 +85,17 @@ RigidBodyComponent *GameObjectGetRigidBody(GameObject &gObject)
 }
 
 
+//-------
+// Input
+//-------
+bool LuaIsPressed(int val)
+{
+	return Input::IsPressed(static_cast<Key>(val));
+}
+
+
 void RegisterLua(lua_State * L)
 {
-
-	glm::vec3 thing;
-
 	luabridge::getGlobalNamespace(L)
 
 		.beginClass<glm::vec3>("vec3")
@@ -111,6 +118,8 @@ void RegisterLua(lua_State * L)
 		.beginClass<GameObject>("GameObject")
 		.addStaticFunction("GetTransform", &GameObjectGetTransform)
 		.addStaticFunction("GetRigidBody", &GameObjectGetRigidBody)
-		.endClass();
+		.endClass()
+
+		.addFunction("IsPressed", &LuaIsPressed);
 		
 }

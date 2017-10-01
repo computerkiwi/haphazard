@@ -81,6 +81,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	GameObject obj = m_space.NewGameObject();
 	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
 	obj.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
+	obj.AddComponent<RigidBodyComponent>();
 	obj.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
 
 	GameObject obj2 = m_space.NewGameObject();
