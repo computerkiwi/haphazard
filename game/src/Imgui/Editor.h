@@ -52,7 +52,7 @@ class Editor
 	};
 
 	std::vector<Command> m_commands;
-	std::vector<const char *> m_log_history;
+	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
@@ -90,7 +90,7 @@ public:
 	void Clear();
 
 	void SetGameObject(GameObject& new_object);
-	
+	void ToggleEditor();
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
