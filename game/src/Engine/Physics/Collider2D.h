@@ -11,13 +11,20 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "glm/glm.hpp"
 #include "../../GameObjectSystem/GameSpace.h"
 
+constexpr char *collider_types[] =
+{
+	"Box"
+};
+
 class Collider2D
 {
 public:
 	// different types(shapes) of colliders
 	enum class colliderType
 	{
-		colliderBox = 0
+		colliderBox = 0,
+
+		collider_max // Used by the editor
 	};
 
 	// constructor
@@ -43,6 +50,7 @@ public:
 	void AdjustRotationOffset(float rotationAdjustment);
 
 private:
+	friend void ImGui_Collider2D(Collider2D *collider, GameObject *object);
 	colliderType m_colliderType;
 	glm::vec3 m_dimensions;
 	glm::vec3 m_offset;

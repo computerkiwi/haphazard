@@ -189,9 +189,6 @@ void Screen::Draw()
 	result.BindColorBuffer();
 	mFullscreen.DrawTris();
 	glEnable(GL_DEPTH_TEST);
-
-	mView.Clear();
-	mFX.Clear();
 }
 
 void Screen::ResizeScreen(int width, int height)

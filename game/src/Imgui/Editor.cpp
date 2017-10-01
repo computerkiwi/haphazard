@@ -2,12 +2,13 @@
 FILE: Editor.cpp
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 
 // http://www.ariel.com/images/animated-messages-small2.gif
 
 #include "Editor.h"
+#include "Type_Binds.h"
 
 #include <string>
 #include <sstream>
@@ -17,37 +18,31 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem\GameSpace.h"
 #include "GameObjectSystem/GameObject.h"
+#include "Engine\Physics\RigidBody.h"
+#include "graphics\SpriteComponent.h"
+#include "Engine\Physics\Collider2D.h"
 
 #include "Util\Logging.h"
 
 #include "Engine\Engine.h"
 
+#include "Input\Input.h"
 
 #include <iomanip>
 #include <locale>
 #include <ctype.h>
 
 
-void ImGui_GameObject(GameObject object);
-void ImGui_Transform(TransformComponent *transform);
 
-// Enter Hex code not including the 0x
-#define HexVecA(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
-	                 (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
-	                 (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
-	                 (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
-
-#define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
-	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
-	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
-
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(true), m_objects(), m_state{ false, -1, -1, false }
 {
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
 
+	// Setup the imgui data
 	ImGui_ImplGlfwGL3_Init(window, true);
 
+	// Window styles
 	style->WindowPadding = ImVec2(15, 15);
 	style->WindowRounding = 5.0f;
 	style->FramePadding = ImVec2(5, 5);
@@ -60,6 +55,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	style->GrabMinSize = 5.0f;
 	style->GrabRounding = 3.0f;
 
+	// Colors for all the different items
 	style->Colors[ImGuiCol_Text]         = ImVec4(HexVecA(0xCCCCD3FF));
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
 
@@ -129,30 +125,47 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 		
 		for (auto& cmd : m_commands)
 		{
-			Editor::Internal_Log("     - %s \n", cmd.first.c_str());
+			Editor::Internal_Log("     - %s \n", cmd.command);
 		}
 	};
-	RegisterCommand("help", help);
+
+	// Pre Allocate the Command Data
+	m_commands.reserve(32);
+	
+	// Help screen bs
 	RegisterCommand("?", help);
-	RegisterCommand("log", 
-	[this]()
-	{
-		Logging::Log(m_line.substr(strlen("log")).c_str());
-	});
+	RegisterCommand("help", help);
+
+	// Create gameobject
+	RegisterCommand("create", [this]() { CreateGameObject(); });
+	
+	// Clear the log
+	RegisterCommand("clear", [this]() { Clear(); });
+	RegisterCommand("cls", [this]() { Clear(); });
+
+	// Exit the game, probably should be editor?
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
-	RegisterCommand("history", 
+
+	// Display past commands
+	RegisterCommand("history",
 	[this]()
 	{
 		Editor::Internal_Log("    Command History: \n");
 
 		for (auto& history : m_log_history)
 		{
-			Editor::Internal_Log("     - %s \n", history.c_str());
+			Editor::Internal_Log("     - %s \n", history);
 		}
 	});
-	RegisterCommand("create", [this]() { CreateGameObject(); });
-	RegisterCommand("clear", [this]() { Clear(); });
-	RegisterCommand("cls", [this]() { Clear(); });
+
+	// Log something to the file
+	RegisterCommand("log", 
+	[this]()
+	{
+		Logging::Log(m_line.substr(strlen("log")).c_str());
+	});
+
+	// Display the current active objects
 	RegisterCommand("objects",
 	[this]()
 	{
@@ -162,6 +175,8 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 			Editor::Internal_Log("     - %d \n", object);
 		}
 	});
+
+	// Select an object
 	RegisterCommand("select",
 	[this]()
 	{
@@ -187,27 +202,40 @@ Editor::~Editor()
 
 void Editor::Update()
 {
+	// Check if Editor is being shown
 	if (m_show_editor)
 	{
+		// Check for click events
 		OnClick();
+
+		// Start a new frame in imgui
 		ImGui_ImplGlfwGL3_NewFrame();
 
-		m_objects = move(m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->CollectGameObjects());
+		// Get all the active gameobjects
+		m_objects = m_engine->GetSpace()->CollectGameObjects();
+
+		// Render the console
 		Console();
+
+		//ImGui::ShowTestWindow();
+
+		// Display
 		ObjectsList();
-		ImGui_GameObject(GameObject(m_selected_object));
+
+		// Pass the current object in the editor
+		ImGui_GameObject(&m_selected_object);
 
 		ImGui::Render();
 	}
 }
 
-
+// Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	m_commands.emplace_back(command, f);
+	m_commands.emplace_back(Command(command, strlen(command), f));
 }
 
-
+// External Log that displays date
 void Editor::Log(const char *log_message, ...)
 {
 	std::stringstream ss;
@@ -225,8 +253,11 @@ void Editor::Log(const char *log_message, ...)
 }
 
 
+// Log Data, works like printf
+// This internal log doesnt show datetime
 void Editor::Internal_Log(const char * log_message, ...)
 {
+	// Add to the log buffer
 	va_list args;
 	va_start(args, log_message);
 	m_log_buffer.appendv(log_message, args);
@@ -253,41 +284,35 @@ void Editor::SetGameObject(GameObject_ID new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (true)
+	if (Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
 	{
-		ImVec2 mouse = ImGui::GetCursorPos();
+		const glm::vec2& mouse = Input::GetMousePos();
 
 		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
 		{
 			const glm::vec3& scale = transform.Get()->Scale();
 			const glm::vec3& pos = transform.Get()->Position();
 
-			if (mouse.x > pos.x + scale.x)
+			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
 			{
-				if (mouse.y > pos.y + scale.y)
+				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject_ID();
-				}
-				else if (mouse.y < pos.y - scale.y)
-				{
-					m_selected_object = transform.GetGameObject_ID();
+					// Save the GameObject data
+					m_selected_object = transform.GetGameObject();
 				}
 			}
 			else if (mouse.x < pos.x - scale.x)
 			{
 				if (mouse.y > pos.y + scale.y)
 				{
-					m_selected_object = transform.GetGameObject_ID();
+					m_selected_object = transform.GetGameObject();
 				}
 				else if (mouse.y < pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject_ID();
+					m_selected_object = transform.GetGameObject();
 				}
 			}
-
-
 		}
-
 	}
 }
 
@@ -299,6 +324,7 @@ void Editor::ObjectsList()
 	SetNextWindowSize(ImVec2(225, 350));
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
+	// Get all the names of the objects
 	std::string name("GameObject - ");
 	for (auto& object : m_objects)
 	{
@@ -317,13 +343,40 @@ void Editor::ObjectsList()
 }
 
 
-void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
+void Editor::SetActive(ImGuiTextEditCallbackData *data, int entryIndex)
 {
-	memmove(data->Buf, m_commands[entryIndex].first.c_str(), m_commands[entryIndex].first.length());
-	data->Buf[m_commands[entryIndex].first.size()] = '\0';
-	data->BufTextLen = static_cast<int>(m_commands[entryIndex].first.size());
+	// Copy in the data  from the command
+	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
+
+	// Update the Buffer data
+	data->Buf[m_commands[entryIndex].cmd_length] = '\0';
+	data->BufTextLen = static_cast<int>(m_commands[entryIndex].cmd_length);
 	data->BufDirty = true;
 }
+
+
+bool Command_StrCmp(const char *str1, const char *str2)
+{
+	while (!(*str1 ^ *str2++))
+		if (!*str1++)
+			return true;
+
+	return false;
+}
+
+
+static int   Strnicmp(const char* str1, const char* str2, int n) 
+{ 
+	int d = 0; 
+	while (n > 0 && (d = toupper(*str2) - toupper(*str1)) == 0 && *str1) 
+	{ 
+		str1++; 
+		str2++;
+		n--; 
+	} 
+	return d; 
+}
+
 
 
 int Input_Editor(ImGuiTextEditCallbackData *data)
@@ -333,18 +386,12 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 	switch (data->EventFlag)
 	{
 	case ImGuiInputTextFlags_CallbackCompletion:
-			if (editor->m_state.m_popUp && editor->m_state.activeIndex != -1)
-			{
-				editor->SetActive(data, editor->m_state.activeIndex);
-			}
-			editor->m_state.m_popUp = false;
-			editor->m_state.activeIndex = -1;
-			editor->m_state.clickedIndex = -1;
 		
 		break;
 
+		// History based data
 	case ImGuiInputTextFlags_CallbackHistory:
-		editor->m_state.m_popUp = true;
+			editor->m_state.m_popUp = true;
 
 			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0)
 			{
@@ -360,6 +407,77 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 		break;
 
 	case ImGuiInputTextFlags_CallbackAlways:
+			// Clear the data in the matches vector, but dont free the alloc'd memory
+			editor->m_matches.clear_nofree();
+
+			// Make sure there is data to read from
+			if (data->Buf && data->BufTextLen > 0)
+			{
+				// If there is data then the popup needs to be drawn
+				editor->m_state.m_popUp = true;
+
+				// Get the word from the data
+				const char *word_end = data->Buf + data->CursorPos;
+				const char *word_start = word_end;
+
+				// Find the beginning and end of the word
+				while (word_start > data->Buf)
+				{
+					// Start at the last letter
+					const char c = word_start[-1];
+
+					// End of word
+					if (c == ' ' || c == '\t' || c == ',' || c == ';')
+						break;
+
+					// Move back a letter
+					--word_start;
+				}
+
+				// Check if the input matches any commands
+				for (int i = 0; i < editor->m_commands.size(); ++i)
+				{
+					// If there is some amount of match then add it to the vector
+					if (Strnicmp(editor->m_commands[i].command, word_start, (int)(word_end - word_start)) == 0)
+						editor->m_matches.push_back(editor->m_commands[i].command);
+				}
+
+				// Check if there were matches
+				if (editor->m_matches.Size)
+				{
+					// Get the length of the match
+					int length = static_cast<int>(word_end - word_start);
+
+					// Check for length on matches
+					while (true)
+					{
+						char character = 0;
+						bool all_matches_made = true;
+
+						for (int i = 0; i < editor->m_matches.Size && all_matches_made; ++i)
+						{
+							if (i == 0)
+							{
+								character = editor->m_matches[i][length];
+							}
+							else if (character == 0 || character != editor->m_matches[i][length])
+							{
+								all_matches_made = false;
+							}
+						}
+
+						if (!all_matches_made)
+							break;
+						length++;
+					}
+
+					if (length > 0)
+					{
+						data->DeleteChars(static_cast<int>(word_start - data->Buf), static_cast<int>(word_end - word_start));
+						data->InsertChars(data->CursorPos, editor->m_matches[0], editor->m_matches[0] + length);
+					}
+				}
+			}
 			if (editor->m_state.clickedIndex != -1)
 			{
 				editor->SetActive(data, editor->m_state.clickedIndex);
@@ -369,7 +487,6 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 			}
 		break;
 	case ImGuiInputTextFlags_CallbackCharFilter:
-		editor->m_state.m_popUp = true;
 		break;
 
 	default:
@@ -382,7 +499,8 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 {
-	if (!m_state.m_popUp)
+	// Make sure the popup needs to be seen
+	if (!m_state.m_popUp || !m_matches.size())
 		return false;
 
 	ImGuiWindowFlags flags = 
@@ -395,22 +513,26 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 
+	// Popup begin
 	ImGui::SetNextWindowPos(pos);
 	ImGui::SetNextWindowSize(size);
 	ImGui::Begin("console_popup", nullptr, flags);
 	
 	ImGui::PushAllowKeyboardFocus(false);
 
-	for (auto i = 0; i < m_commands.size(); ++i)
+	// Go through the matches found from the input text
+	for (auto i = 0; i < m_matches.size(); ++i)
 	{
+		// Check if the item is the hovered or active for colors
 		bool isActiveIndex = m_state.activeIndex == i;
 		if (isActiveIndex)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVecA(0x072f70FF)));
 		}
 		
+		// Display the options as a selectable text button
 		ImGui::PushID(i);
-		if (ImGui::Selectable(m_commands[i].first.c_str(), m_state.activeIndex))
+		if (ImGui::Selectable(m_matches[i], m_state.activeIndex))
 		{
 			m_state.clickedIndex = i;
 		}
@@ -465,16 +587,23 @@ void Editor::Console()
 	ImGui::SameLine();
 	m_log_filter.Draw("Filter", -100.0f);
 
+	// The log box itself
 	ImGui::BeginChild("scrolling", ImVec2(470, 285));
+
+	// Check if any filters are active and need to be applied
 	if (m_log_filter.IsActive())
 	{
-		const char* buf_begin = m_log_buffer.begin();
-		const char* line = buf_begin;
+		// Get the start of the data
+		const char *buf_begin = m_log_buffer.begin();
+		const char *line = buf_begin;
 
+		// Go through the data and 
 		for (int line_no = 0; line != NULL; line_no++)
 		{
-			const char* line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
+			// Get the data
+			const char *line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
 
+			// Filter the text
 			if (m_log_filter.PassFilter(line, line_end))
 			{
 				ImGui::TextUnformatted(line, line_end);
@@ -485,6 +614,7 @@ void Editor::Console()
 	}
 	else
 	{
+		// Put the text out without a filter
 		ImGui::TextUnformatted(m_log_buffer.begin());
 	}
 	ImGui::EndChild();
@@ -495,8 +625,7 @@ void Editor::Console()
 	ImGui::Text("Command: ");
 	ImGui::SameLine();
 
-	auto flags = ImGuiInputTextFlags_CtrlEnterForNewLine  |
-				 ImGuiInputTextFlags_EnterReturnsTrue     |
+	auto flags = ImGuiInputTextFlags_EnterReturnsTrue     |
 				 ImGuiWindowFlags_NoSavedSettings         |
 				 ImGuiInputTextFlags_CallbackAlways       |
 				 ImGuiInputTextFlags_CallbackCharFilter   |
@@ -505,44 +634,56 @@ void Editor::Console()
 
 	if (ImGui::InputText("", command_buffer, 512, flags, Input_Editor, this))
 	{
+		// Get the line data and save it for parameters
 		m_line = command_buffer;
-		auto first_of_not_space = m_line.find_first_not_of(' ');
-		
-		std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
 
-		std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-
-
-		if (first_of_not_space != std::string::npos)
+		// Make sure there is data in the line
+		if (m_line.size() > 0)
 		{
-			m_line = m_line.substr(first_of_not_space);
-			this->Log(m_line.c_str());
+			// Skip leading spaces
+			auto first_of_not_space = m_line.find_first_not_of(' ');
 
-			if (m_log_history.size() < 100)
+			std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
+
+			// Make Everything uppercase
+			std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+			// Log the command and display it on screen
+			if (first_of_not_space != std::string::npos)
 			{
-				m_log_history.emplace_back(m_line.c_str());
-			}
-		}
+				m_line = m_line.substr(first_of_not_space);
+				this->Log(m_line.c_str());
 
-		if (m_state.m_popUp && m_state.clickedIndex != -1)
-		{
-			memmove(command_buffer, m_commands[m_state.activeIndex].first.c_str(), m_commands[m_state.activeIndex].first.size());
-		}
-		else
-		{
-			for (auto& cmd : m_commands)
-			{
-				if (cmd.first == command)
+				// Save the command for history
+				if (m_log_history.size() < 100)
 				{
-					cmd.second();
-					break;
+					m_log_history.emplace_back(m_line.c_str());
 				}
 			}
-		}
 
-		m_state.m_popUp = false;
-		m_state.activeIndex = -1;
-		ImGui::SetKeyboardFocusHere(-1);
+			// Check if the popup was clicked and copy the data from the clicked item to here
+			if (m_state.m_popUp && m_state.clickedIndex != -1)
+			{
+				memmove(command_buffer, m_commands[m_state.activeIndex].command, m_commands[m_state.activeIndex].cmd_length);
+			}
+			else
+			{
+				// Parse the command
+				for (auto& cmd : m_commands)
+				{
+					if (cmd.command == command)
+					{
+						cmd.func();
+						break;
+					}
+				}
+			}
+
+			// Reset keyboard focus to the console input and reset the state of the popup
+			m_state.m_popUp = false;
+			m_state.activeIndex = -1;
+			ImGui::SetKeyboardFocusHere(-1);
+		}
 	}
 
 	if (m_state.clickedIndex != -1)
@@ -550,6 +691,9 @@ void Editor::Console()
 		ImGui::SetKeyboardFocusHere(-1);
 		m_state.m_popUp = false;
 	}
+
+	if ((ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+		ImGui::SetKeyboardFocusHere(-1);
 
 	// Draw PopUp
 	ImVec2 pop_pos(ImGui::GetItemRectMin());
@@ -571,87 +715,6 @@ void Editor::Console()
 
 void Editor::Clear()
 {
-	m_log_buffer.clear();
-}
-
-
-void ImGui_GameObject(GameObject object)
-{
-	if (object.Getid() && object.GetSpace())
-	{
-		std::string name("GameObject - ");
-		name += std::to_string(object.Getid());
-
-		ImGui::SetNextWindowSize(ImVec2(325, 400));
-		ImGui::SetNextWindowPos(ImVec2(15, 25), ImGuiCond_Once);
-		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
-
-		ImGui::PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
-		if (ImGui::Button("Duplicate"))
-		{
-			object.Duplicate<dummy>();
-		}
-		ImGui::PopStyleColor(3);
-		ImGui::SameLine();
-		if (ImGui::Button("Delete"))
-		{
-			object.Delete<dummy>();
-			object.SetSpace<dummy>(0);
-			ImGui::End();
-			return;
-		}
-
-		// if object - > component
-		// ImGui_Component(ComponetType *component);
-		if (object.GetComponent<TransformComponent>().Get())
-		{
-			ImGui_Transform(object.GetComponent<TransformComponent>().Get());
-		}
-
-		ImGui::End();
-	}
-	else
-	{
-		std::string name("GameObject - ");
-		name += "No Object Selected";
-
-		ImGui::SetNextWindowSize(ImVec2(325, 400));
-		ImGui::SetNextWindowPos(ImVec2(15, 35), ImGuiCond_Once);
-		ImGui::Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize);
-		ImGui::End();
-	}
-}
-
-
-void ImGui_Transform(TransformComponent *transform)
-{
-	if (ImGui::CollapsingHeader("Transform Component"))
-	{
-		if (ImGui::CollapsingHeader("Position"))
-		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X", &transform->Position().x);
-			ImGui::InputFloat(" Y", &transform->Position().y);
-			ImGui::PopItemWidth();
-		}
-		if (ImGui::CollapsingHeader("Scale"))
-		{
-			ImGui::PushItemWidth(120);
-			ImGui::InputFloat(" X ", &transform->Scale().x);
-			ImGui::InputFloat(" Y ", &transform->Scale().y);
-			ImGui::PopItemWidth();
-			ImGui::Separator();
-		}
-
-		ImGui::PushItemWidth(120);
-		ImGui::SliderFloat("", &transform->Rotation(), 0, 360); 
-		ImGui::SameLine();
-		ImGui::PopItemWidth();
-		ImGui::PushItemWidth(100);
-		ImGui::InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2); 
-		ImGui::PopItemWidth();
-	}
+	m_log_buffer.clear_nofree();
 }
 

@@ -207,6 +207,11 @@ public:
 		m_components.emplace(id, T(std::forward<Args>(args)...));
 	}
 
+	void DeleteComponent(GameObject_ID id)
+	{
+		m_components.erase(id);
+	}
+
 private:
 	std::unordered_map<GameObject_ID, T> m_components;
 	GameSpace *m_space;
@@ -258,6 +263,13 @@ public:
 		return static_cast<ComponentMap<T> *>(baseMap);
 	}
 
+	template <typename T>
+	void DeleteComponent(GameObject_ID id)
+	{
+		reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()).get())->DeleteComponent(id);
+	}
+
+	GameObject GetGameObject(GameObject_ID id)
 	GameObject_ID GetGameObject(GameObject_ID id) const
 	{
 		return GenerateID() & (m_index << 56);

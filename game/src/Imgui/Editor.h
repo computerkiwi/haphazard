@@ -18,6 +18,18 @@ typedef std::size_t GameObject_ID;
 class Engine;
 struct GLFWwindow;
 
+// These Macros allow for hex color codes
+// Enter Hex code not including the 0x
+#define HexVecA(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
+	                 (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
+	                 (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00), \
+	                 (static_cast<float>(0x000000FF & HEX) / 0x000000FF)
+
+#define HexVec(HEX) (static_cast<float>(0xFF000000 & HEX) / 0xFF000000), \
+	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
+	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
+
+
 class Editor
 {
 	Engine * m_engine;
@@ -28,9 +40,21 @@ class Editor
 
 
 	std::string m_line;
-	std::vector<std::pair<std::string, std::function<void()>>> m_commands;
-	std::vector<std::string> m_log_history;
 
+	friend bool Command_StrCmp(const char *str1, const char *str2);
+	struct Command
+	{
+		Command() : command(nullptr), cmd_length(0), func(std::function<void()>()) {}
+		Command(const char *cmd, size_t len, std::function<void()> f) : command(cmd), cmd_length(len), func(f) {}
+
+		const char * command = nullptr;
+		size_t cmd_length = 0;
+		std::function<void()> func = std::function<void()>();
+	};
+
+	std::vector<Command> m_commands;
+	std::vector<const char *> m_log_history;
+	ImVector<const char *> m_matches;
 
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
 	struct State 
@@ -44,6 +68,7 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
+	
 
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);

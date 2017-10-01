@@ -10,6 +10,9 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "Input.h"
 #include <iostream>
 
+#include <imgui.h>
+#include "Imgui\imgui-setup.h"
+
 // Command-based: jump, left, right, attack
 // Keep binding in mind
 
@@ -195,6 +198,7 @@ namespace Input
 
           std::cout << "KEY " << key << " released" << std::endl;
       }
+	  ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
     }
   }
 

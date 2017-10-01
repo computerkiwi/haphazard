@@ -68,6 +68,7 @@ public:
 		return GetSpace()->Duplicate(m_objID, GetSpace()->NewGameObject());
 	}
 
+	// Templated to avoid errors
 	template <typename dummy>
 	void Delete()
 	{
@@ -85,10 +86,17 @@ public:
 		return m_objID & 0xFF00000000000000;
 	}
 
+	// Templated to avoid errors
 	template <typename AVOID>
 	void SetSpace(GameSpaceIndex index)
 	{
 		(m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << 56);
+	}
+
+	template <typename T>
+	void DeleteComponent()
+	{
+		m_gameSpace->DeleteComponent<T>(m_objID);
 	}
 
 private:
