@@ -20,8 +20,10 @@ using namespace ImGui;
 
 void ImGui_GameObject(GameObject *object)
 {
+	// Check if a nullptr was passed
 	if (object && object->GetSpace())
 	{
+		// Display the object's id
 		std::string name("GameObject - ");
 		name += std::to_string(object->Getid());
 		name += "###GAMEOBJECT_ID";
@@ -31,6 +33,7 @@ void ImGui_GameObject(GameObject *object)
 		SetNextWindowPos(GAMEOBJECT_WINDOW_POS, ImGuiCond_Once);
 		Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 
+		// Setup style for buttons
 		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
@@ -61,6 +64,7 @@ void ImGui_GameObject(GameObject *object)
 		}
 		PopStyleColor(3);
 
+		// Add Component Buttons
 		if (add_popup)
 		{
 			BeginPopup("Components");
@@ -97,6 +101,7 @@ void ImGui_GameObject(GameObject *object)
 			ImGui_Transform(object->GetComponent<TransformComponent>().Get(), object);
 		}
 
+		// Check for RigidBody OR Static Collider, can only have one
 		if (object->GetComponent<RigidBodyComponent>().IsValid())
 		{
 			ImGui_RigidBody(object->GetComponent<RigidBodyComponent>().Get(), object);
@@ -122,6 +127,7 @@ void ImGui_GameObject(GameObject *object)
 	}
 	else
 	{
+		// No Object was selected so display a default
 		const char *name = "GameObject - No Object Selected###GAMEOBJECT_ID";
 
 		SetNextWindowSize(GAMEOBJECT_WINDOW_SIZE);
@@ -131,6 +137,10 @@ void ImGui_GameObject(GameObject *object)
 	}
 }
 
+
+//
+// Component ImGui stuff
+// ----------------------
 
 void ImGui_Transform(TransformComponent *transform, GameObject *object)
 {

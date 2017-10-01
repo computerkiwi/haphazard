@@ -38,8 +38,10 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	// Style information
 	ImGuiStyle * style = &ImGui::GetStyle();
 
+	// Setup the imgui data
 	ImGui_ImplGlfwGL3_Init(window, true);
 
+	// Window styles
 	style->WindowPadding = ImVec2(15, 15);
 	style->WindowRounding = 5.0f;
 	style->FramePadding = ImVec2(5, 5);
@@ -127,15 +129,21 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	// Pre Allocate the Command Data
 	m_commands.reserve(32);
 	
+	// Help screen bs
 	RegisterCommand("?", help);
 	RegisterCommand("help", help);
 
+	// Create gameobject
 	RegisterCommand("create", [this]() { CreateGameObject(); });
+	
+	// Clear the log
 	RegisterCommand("clear", [this]() { Clear(); });
 	RegisterCommand("cls", [this]() { Clear(); });
 
+	// Exit the game, probably should be editor?
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
 
+	// Display past commands
 	RegisterCommand("history",
 	[this]()
 	{
@@ -147,12 +155,14 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 		}
 	});
 
+	// Log something to the file
 	RegisterCommand("log", 
 	[this]()
 	{
 		Logging::Log(m_line.substr(strlen("log")).c_str());
 	});
 
+	// Display the current active objects
 	RegisterCommand("objects",
 	[this]()
 	{
@@ -163,6 +173,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 		}
 	});
 
+	// Select an object
 	RegisterCommand("select",
 	[this]()
 	{
@@ -188,30 +199,40 @@ Editor::~Editor()
 
 void Editor::Update()
 {
+	// Check if Editor is being shown
 	if (m_show_editor)
 	{
+		// Check for click events
 		OnClick();
+
+		// Start a new frame in imgui
 		ImGui_ImplGlfwGL3_NewFrame();
 
+		// Get all the active gameobjects
 		m_objects = m_engine->GetSpace()->CollectGameObjects();
-		ImGui_GameObject(&m_selected_object);
+
+		// Render the console
 		Console();
-		
-		// ImGui::ShowTestWindow();
-		
+
+		//ImGui::ShowTestWindow();
+
+		// Display
 		ObjectsList();
+
+		// Pass the current object in the editor
+		ImGui_GameObject(&m_selected_object);
 
 		ImGui::Render();
 	}
 }
 
-
+// Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
 	m_commands.emplace_back(Command(command, strlen(command), f));
 }
 
-
+// External Log that displays date
 void Editor::Log(const char *log_message, ...)
 {
 	std::stringstream ss;
@@ -229,8 +250,11 @@ void Editor::Log(const char *log_message, ...)
 }
 
 
+// Log Data, works like printf
+// This internal log doesnt show datetime
 void Editor::Internal_Log(const char * log_message, ...)
 {
+	// Add to the log buffer
 	va_list args;
 	va_start(args, log_message);
 	m_log_buffer.appendv(log_message, args);
@@ -242,6 +266,7 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
 {
+	// Create a basic GameObject
 	GameObject object = m_engine->GetSpace()->NewGameObject();
 	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 0), glm::vec3(size.x, size.y, 1));
 	m_selected_object = object;
@@ -261,6 +286,7 @@ void Editor::OnClick()
 	{
 		const glm::vec2& mouse = Input::GetMousePos();
 
+		// Check if the mouse is in a bounding box around the object
 		for (auto& transform : *m_engine->GetSpace()->GetComponentMap<TransformComponent>())
 		{
 			const glm::vec3& scale = transform.Get()->Scale();
@@ -270,6 +296,7 @@ void Editor::OnClick()
 			{
 				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
 				{
+					// Save the GameObject data
 					m_selected_object = transform.GetGameObject();
 				}
 			}
@@ -285,6 +312,7 @@ void Editor::ObjectsList()
 	SetNextWindowSize(ImVec2(225, 350));
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
+	// Get all the names of the objects
 	std::string name("GameObject - ");
 	for (auto& object : m_objects)
 	{
@@ -303,9 +331,12 @@ void Editor::ObjectsList()
 }
 
 
-void Editor::SetActive(ImGuiTextEditCallbackData* data, int entryIndex)
+void Editor::SetActive(ImGuiTextEditCallbackData *data, int entryIndex)
 {
+	// Copy in the data  from the command
 	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
+
+	// Update the Buffer data
 	data->Buf[m_commands[entryIndex].cmd_length] = '\0';
 	data->BufTextLen = static_cast<int>(m_commands[entryIndex].cmd_length);
 	data->BufDirty = true;
@@ -346,8 +377,9 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 		
 		break;
 
+		// History based data
 	case ImGuiInputTextFlags_CallbackHistory:
-		editor->m_state.m_popUp = true;
+			editor->m_state.m_popUp = true;
 
 			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0)
 			{
@@ -363,40 +395,48 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 		break;
 
 	case ImGuiInputTextFlags_CallbackAlways:
-			editor->m_matches.clear();
+			// Clear the data in the matches vector, but dont free the alloc'd memory
+			editor->m_matches.clear_nofree();
+
+			// Make sure there is data to read from
 			if (data->Buf && data->BufTextLen > 0)
 			{
+				// If there is data then the popup needs to be drawn
 				editor->m_state.m_popUp = true;
 
+				// Get the word from the data
 				const char *word_end = data->Buf + data->CursorPos;
 				const char *word_start = word_end;
 
+				// Find the beginning and end of the word
 				while (word_start > data->Buf)
 				{
+					// Start at the last letter
 					const char c = word_start[-1];
+
+					// End of word
 					if (c == '\t' || c == ',' || c == ';')
 						break;
+
+					// Move back a letter
 					--word_start;
 				}
 
-
+				// Check if the input matches any commands
 				for (int i = 0; i < editor->m_commands.size(); ++i)
 				{
+					// If there is some amount of match then add it to the vector
 					if (Strnicmp(editor->m_commands[i].command, word_start, (int)(word_end - word_start)) == 0)
 						editor->m_matches.push_back(editor->m_commands[i].command);
 				}
 
-				if (!editor->m_matches.Size)
+				// Check if there were matches
+				if (editor->m_matches.Size)
 				{
-
-				}
-				else if (editor->m_matches.Size == 1)
-				{
-
-				}
-				else
-				{
+					// Get the length of the match
 					int length = static_cast<int>(word_end - word_start);
+
+					// Check for length on matches
 					while (true)
 					{
 						char character = 0;
@@ -453,6 +493,7 @@ void Editor::ToggleEditor()
 
 bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 {
+	// Make sure the popup needs to be seen
 	if (!m_state.m_popUp || !m_matches.size())
 		return false;
 
@@ -466,20 +507,24 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 
+	// Popup begin
 	ImGui::SetNextWindowPos(pos);
 	ImGui::SetNextWindowSize(size);
 	ImGui::Begin("console_popup", nullptr, flags);
 	
 	ImGui::PushAllowKeyboardFocus(false);
 
+	// Go through the matches found from the input text
 	for (auto i = 0; i < m_matches.size(); ++i)
 	{
+		// Check if the item is the hovered or active for colors
 		bool isActiveIndex = m_state.activeIndex == i;
 		if (isActiveIndex)
 		{
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVecA(0x072f70FF)));
 		}
 		
+		// Display the options as a selectable text button
 		ImGui::PushID(i);
 		if (ImGui::Selectable(m_matches[i], m_state.activeIndex))
 		{
@@ -536,16 +581,23 @@ void Editor::Console()
 	ImGui::SameLine();
 	m_log_filter.Draw("Filter", -100.0f);
 
+	// The log box itself
 	ImGui::BeginChild("scrolling", ImVec2(470, 285));
+
+	// Check if any filters are active and need to be applied
 	if (m_log_filter.IsActive())
 	{
-		const char* buf_begin = m_log_buffer.begin();
-		const char* line = buf_begin;
+		// Get the start of the data
+		const char *buf_begin = m_log_buffer.begin();
+		const char *line = buf_begin;
 
+		// Go through the data and 
 		for (int line_no = 0; line != NULL; line_no++)
 		{
-			const char* line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
+			// Get the data
+			const char *line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
 
+			// Filter the text
 			if (m_log_filter.PassFilter(line, line_end))
 			{
 				ImGui::TextUnformatted(line, line_end);
@@ -556,6 +608,7 @@ void Editor::Console()
 	}
 	else
 	{
+		// Put the text out without a filter
 		ImGui::TextUnformatted(m_log_buffer.begin());
 	}
 	ImGui::EndChild();
@@ -575,33 +628,41 @@ void Editor::Console()
 
 	if (ImGui::InputText("", command_buffer, 512, flags, Input_Editor, this))
 	{
+		// Get the line data and save it for parameters
 		m_line = command_buffer;
+
+		// Make sure there is data in the line
 		if (m_line.size() > 0)
 		{
+			// Skip leading spaces
 			auto first_of_not_space = m_line.find_first_not_of(' ');
 
 			std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
 
+			// Make Everything uppercase
 			std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
-
+			// Log the command and display it on screen
 			if (first_of_not_space != std::string::npos)
 			{
 				m_line = m_line.substr(first_of_not_space);
 				this->Log(m_line.c_str());
 
+				// Save the command for history
 				if (m_log_history.size() < 100)
 				{
 					m_log_history.emplace_back(m_line.c_str());
 				}
 			}
 
+			// Check if the popup was clicked and copy the data from the clicked item to here
 			if (m_state.m_popUp && m_state.clickedIndex != -1)
 			{
 				memmove(command_buffer, m_commands[m_state.activeIndex].command, m_commands[m_state.activeIndex].cmd_length);
 			}
 			else
 			{
+				// Parse the command
 				for (auto& cmd : m_commands)
 				{
 					if (cmd.command == command)
@@ -612,6 +673,7 @@ void Editor::Console()
 				}
 			}
 
+			// Reset keyboard focus to the console input and reset the state of the popup
 			m_state.m_popUp = false;
 			m_state.activeIndex = -1;
 			ImGui::SetKeyboardFocusHere(-1);
@@ -647,5 +709,5 @@ void Editor::Console()
 
 void Editor::Clear()
 {
-	m_log_buffer.clear();
+	m_log_buffer.clear_nofree();
 }
