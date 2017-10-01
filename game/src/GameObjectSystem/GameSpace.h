@@ -27,6 +27,7 @@ extern Engine engine;
 
 // GameObject ID Gen
 GameObject_ID GenerateID();
+#define EXTRACTION_SHIFT (8 * 7)
 
 // Required interface for systems.
 class SystemBase
@@ -271,12 +272,12 @@ public:
 
 	GameObject_ID GetGameObject() const
 	{
-		return GenerateID() & (m_index << 56);
+		return GenerateID() | (m_index << EXTRACTION_SHIFT);
 	}
 
 	GameObject_ID NewGameObject() const
 	{
-		return GenerateID() & (m_index << 56);
+		return GenerateID() | (m_index << EXTRACTION_SHIFT);
 	}
 
 	void Init()
@@ -379,7 +380,7 @@ public:
 	{
 		if (m_spaces.size())
 		{
-			m_spaces.emplace_back(GameSpace(m_spaces.size() - 1));
+			m_spaces.emplace_back(GameSpace(m_spaces.size()));
 		}
 		else
 		{

@@ -35,7 +35,7 @@ class Editor
 	Engine * m_engine;
 	bool m_show_editor;
 
-	GameObject_ID m_selected_object = 0;
+	GameObject_ID m_selected_object = 1;
 	std::vector<GameObject_ID> m_objects;
 
 

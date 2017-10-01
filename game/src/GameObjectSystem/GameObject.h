@@ -13,6 +13,8 @@ class GameSpace;
 // GameObject ID Gen
 GameObject_ID GenerateID();
 
+#define EXTRACTION_SHIFT (8 * 7)
+
 
 template <typename T>
 class ComponentHandle;
@@ -26,7 +28,7 @@ typedef int    dummy;
 class GameObject
 {
 public:
-	GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << 56))
+	GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << EXTRACTION_SHIFT))
 	{
 	}
 
@@ -78,7 +80,7 @@ public:
 
 	GameSpace *GetSpace() const
 	{
-		return engine.GetSpace((0xFF00000000 & m_objID) >> 56);
+		return engine.GetSpace((0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT);
 	}
 
 	GameSpaceIndex GetIndex() const
@@ -90,7 +92,7 @@ public:
 	template <typename AVOID>
 	void SetSpace(GameSpaceIndex index)
 	{
-		(m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << 56);
+		(m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << EXTRACTION_SHIFT);
 	}
 
 	template <typename T>

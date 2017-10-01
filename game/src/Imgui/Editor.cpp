@@ -212,6 +212,7 @@ void Editor::Update()
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		// Get all the active gameobjects
+		// TODO[NOAH]:: Make it collect all GameObjects
 		m_objects = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->CollectGameObjects();
 
 		// Render the console
