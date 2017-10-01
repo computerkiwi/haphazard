@@ -16,16 +16,15 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "../Imgui/imgui-setup.h"
 
-#include "GameObjectSystem\GameSpace.h"
-#include "Engine\Physics\RigidBody.h"
-#include "graphics\SpriteComponent.h"
-#include "Engine\Physics\Collider2D.h"
+#include "GameObjectSystem/GameSpace.h"
+#include "Engine/Physics/RigidBody.h"
+#include "graphics/SpriteComponent.h"
 
-#include "Util\Logging.h"
+#include "Util/Logging.h"
 
-#include "Engine\Engine.h"
+#include "Engine/Engine.h"
 
-#include "Input\Input.h"
+#include "Input/Input.h"
 
 #include <iomanip>
 #include <locale>
@@ -444,7 +443,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 						for (int i = 0; i < editor->m_matches.Size && all_matches_made; ++i)
 						{
-							if (i == 0)
+							if (i == 0 && length < editor->m_matches.Size)
 							{
 								character = editor->m_matches[i][length];
 							}
