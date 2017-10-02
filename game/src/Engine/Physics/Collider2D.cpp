@@ -9,9 +9,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 
 // getters
-Collider2D::colliderType Collider2D::GetColliderType()
+int Collider2D::GetColliderType()
 {
-	return m_colliderType;
+	return m_colliderType & ~(colliderType::staticCollider);
 }
 
 glm::vec3 Collider2D::GetDimensions()
@@ -69,6 +69,11 @@ void Collider2D::ScaleDimensions(float xScale, float yScale)
 void Collider2D::AdjustRotationOffset(float rotationAdjustment)
 {
 	m_rotationOffset += rotationAdjustment;
+}
+
+bool Collider2D::isStatic()
+{
+	return m_colliderType & colliderType::staticCollider;
 }
 
 Collider2D& StaticCollider2DComponent::ColliderData()
