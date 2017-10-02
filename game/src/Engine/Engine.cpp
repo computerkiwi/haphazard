@@ -46,13 +46,11 @@ GLFWwindow* WindowInit();
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
-	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
-
+	Logging::Init();
 
 	// Load Shaders
 	Shaders::Init();
 
-	Logging::Init();
 	Audio::Init();
 	meta::Init();
 
@@ -137,14 +135,15 @@ void Engine::Update()
 	
 	m_space.Update(m_dt);
 
-  Input::Update();
+	Input::Update();
 
-  // Checks 'A' key state
-  Input::Input_Debug(Key::B);
+	// Checks 'A' key state
+	Input::Input_Debug(Key::B);
 
 	Audio::Update();
 	
-	
+	if (Input::IsPressed(Key::GRAVE_ACCENT))
+		m_editor.ToggleEditor();
 	m_editor.Update();
 	
 	glfwSwapBuffers(m_window);

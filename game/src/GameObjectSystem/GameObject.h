@@ -63,6 +63,7 @@ public:
 		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
 	}
 
+	// Templated to avoid errors
 	template <typename dummy>
 	void Delete()
 	{
@@ -74,10 +75,17 @@ public:
 		return m_gameSpace;
 	}
 
+	// Templated to avoid errors
 	template <typename AVOID>
 	void SetSpace(GameSpace *space)
 	{
 		m_gameSpace = space;
+	}
+
+	template <typename T>
+	void DeleteComponent()
+	{
+		m_gameSpace->DeleteComponent<T>(m_objID);
 	}
 
 private:

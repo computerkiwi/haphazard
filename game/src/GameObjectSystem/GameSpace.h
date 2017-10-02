@@ -54,7 +54,7 @@ private:
 };
 
 // ID used as key to component containers.
-typedef size_t ComponentType;
+typedef std::size_t ComponentType;
 
 ComponentType GenerateComponentTypeID();
 
@@ -196,6 +196,11 @@ public:
 		m_components.emplace(id, T(std::forward<Args>(args)...));
 	}
 
+	void DeleteComponent(GameObject_ID id)
+	{
+		m_components.erase(id);
+	}
+
 private:
 	std::unordered_map<GameObject_ID, T> m_components;
 	GameSpace *m_space;
@@ -251,6 +256,12 @@ public:
 	{
 		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
 		return static_cast<ComponentMap<T> *>(baseMap);
+	}
+
+	template <typename T>
+	void DeleteComponent(GameObject_ID id)
+	{
+		reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()).get())->DeleteComponent(id);
 	}
 
 	GameObject GetGameObject(GameObject_ID id)
