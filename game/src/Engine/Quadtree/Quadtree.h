@@ -6,6 +6,9 @@ Definition for QuadTrees
 
 Copyright � 2017 DigiPen (USA) Corporation.
 */
+
+class GameObject;
+
 #pragma once
 #if 0
 #include <glm/detail/type_vec2.hpp>

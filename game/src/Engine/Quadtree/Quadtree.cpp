@@ -7,6 +7,8 @@ Contents the implementation for the QuadTrees
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 #include "Quadtree.h"
+#include "../../GameObjectSystem/TransformComponent.h"
+#include "GameObjectSystem\GameObject.h"
 #include <array>
 
 constexpr std::size_t Max_Leaves(int depth)
@@ -23,7 +25,6 @@ constexpr std::size_t Max_Leaves(int depth)
 	}
 	return total;
 }
-
 
 
 
@@ -99,7 +100,7 @@ void QuadTree::Clear()
 }
 
 
-const Array<GameObject_ID, max_objects> & QuadTree::GetObjectList() const
+const Array<GameObject *, max_objects> & QuadTree::GetObjectList() const
 {
 	return m_objects;
 }
@@ -138,7 +139,7 @@ void QuadTree::AddChildern()
 		GameObject * object = m_objects[i];
 		if (object)
 		{
-			FileToChildren(object, object->GetComponent<Transform>().GetPosition());
+			FileToChildren(object, object->GetComponent<TransformComponent>().GetPosition());
 			m_objects[i] = nullptr;
 		}
 	}
@@ -171,7 +172,7 @@ int QuadTree::CollectObjects(Array<GameObject *, max_objects> & list)
 	{
 		for (auto i = 0; i < m_objects.m_size; ++i)
 		{
-			AddToEnd(m_objects[i]);
+			list.Push(m_objects[i]);
 		}
 	}
 	return newNum;
@@ -250,7 +251,7 @@ void QuadTree::AddToEnd(GameObject * object)
 
 void QuadTree::FileToChildren(GameObject * object, const glm::vec2 & pos)
 {
-	glm::vec2 objectSize = object->GetComponent<Transform>().GetScale(); //!?!? Replace with HitBox
+	glm::vec2 objectSize = object->GetComponent<TransformComponent>().GetScale(); //!?!? Replace with HitBox
 	objectSize.x /= 2;
 	objectSize.y /= 2;
 
@@ -374,5 +375,4 @@ void QuadTree::FileToChildren(GameObject * object, const glm::vec2 & pos)
 		}
 	}
 }
-
 #endif
