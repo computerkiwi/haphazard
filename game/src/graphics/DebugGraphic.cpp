@@ -33,12 +33,13 @@ void DebugGraphic::DebugGraphic::DrawAll()
 		Graphics::Shaders::debugShader->ApplyAttributes();
 	}
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	Graphics::Shaders::debugShader->Use();
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * shapeData.size(), shapeData.data(), GL_STATIC_DRAW);
-	glDrawArraysInstanced(GL_POINTS, 0, shapeData.size(), shapeData.size());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * shapeData.size(), shapeData.data(), GL_DYNAMIC_DRAW);
+	glDrawArraysInstanced(GL_POINTS, 0, 9, shapeData.size());
 
 	shapeData.clear();
 }

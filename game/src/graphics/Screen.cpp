@@ -195,6 +195,9 @@ void Graphics::Screen::Draw()
 	glDisable(GL_DEPTH_TEST); // Dont want to lose screen to near clipping
 	result.BindColorBuffer();
 	mFullscreen.DrawTris();
+
+	mView.Clear();
+	mFX.Clear();
 }
 
 
