@@ -6,13 +6,21 @@ Handles Movement, Colliders, Collision Detection, and Collision Resolution
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
 
 #include "PhysicsSystem.h"
 #include "RigidBody.h"
 #include "Collider2D.h"
+#include "../../graphics/DebugGraphic.h"
 
+bool debugShowHitboxes = true;
+
+void debugDisplayHitboxes(bool hitboxesShown)
+{
+	debugShowHitboxes = hitboxesShown;
+}
 
 class ColliderBox
 {
@@ -111,11 +119,12 @@ glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transfo
 		}
 	}
 
+	// if the resolution needs to be primarily along the x axis
 	if (abs(minValue.x) < abs(minValue.y))
 	{
 		escapeVector.x = minValue.x;
 	}
-	else
+	else // if the resolution needs to be primarily along the y axis
 	{
 		escapeVector.y = minValue.y;
 	}
@@ -123,46 +132,124 @@ glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transfo
 	return escapeVector;
 }
 
+void printAMatrix(glm::mat3 matrix)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			std::cout << matrix[i][j] << "   ";
+		}
+		std::cout << "\n";
+	}
 
-void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<DynamicCollider2DComponent> collider2)
+}
+
+void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<TransformComponent> transform1, ComponentHandle<DynamicCollider2DComponent> collider2, ComponentHandle<TransformComponent> transform2)
 {
 	ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 	ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
 	// make sure rigidbodies were successfully retrieved
 	assert(rigidBody1.IsValid() && rigidBody2.IsValid() && "Rigidbody(s) invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+	glm::vec3 resolutionVector = *collisionData;
+	glm::vec3 dividingVector((*collisionData).y, -(*collisionData).x, 0);
+
+	//std::cout << dividingVector.x << " " << dividingVector.y << "\n";
+
+	float a = dividingVector.x;
+	float b = dividingVector.y;
+	float a2 = dividingVector.x * dividingVector.x;
+	float b2 = dividingVector.y * dividingVector.y;
+
+	// get the matrix for reflecting over dividing vector
+	glm::mat3 refMtrx(1-((2*b2)/(a2+b2)), (2*a*b)/(a2+b2), 0,
+					 ((2*a*b)/(a2+b2)), ((2*b2)/(a2+b2)) - 1, 0,
+					 0, 0, 1
+					 );
+
+	printAMatrix(refMtrx);
+
+	// check to see if the objects are moving in the same direction
+	float xCompare = rigidBody1->Velocity().x / rigidBody2->Velocity().x;
+	float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
+
+	// if they are not going in the same direction
+	if (xCompare < 0 || yCompare < 0)
+	{
+		/*std::cout << "Before:\n";
+		std::cout << rigidBody1->Velocity().x << ", " << rigidBody1->Velocity().y << std::endl;
+		std::cout << rigidBody2->Velocity().x << ", " << rigidBody2->Velocity().y << std::endl;*/
+
+		rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
+		rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
+
+		/*std::cout << "After:\n";
+		std::cout << rigidBody1->Velocity().x << ", " << rigidBody1->Velocity().y << std::endl;
+		std::cout << rigidBody2->Velocity().x << ", " << rigidBody2->Velocity().y << std::endl;*/
+	}
+	else // if they are going in the same direction
+	{
+		float obj1SquaredMagnitude = (rigidBody1->Velocity().x * rigidBody1->Velocity().x) + (rigidBody1->Velocity().y * rigidBody1->Velocity().y);
+		float obj2SquaredMagnitude = (rigidBody2->Velocity().x * rigidBody2->Velocity().x) + (rigidBody2->Velocity().y * rigidBody2->Velocity().y);
+
+		if (obj1SquaredMagnitude < obj2SquaredMagnitude)
+		{
+			rigidBody1->SetVelocity(rigidBody1->Velocity());
+			rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
+		}
+		else
+		{
+			rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
+			rigidBody2->SetVelocity(rigidBody2->Velocity());
+		}
+	}
 }
 
 void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<StaticCollider2DComponent> collider2)
 {
 	ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
-	ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
 	// make sure rigidbodies were successfully retrieved
-	assert(rigidBody1.IsValid() && transform1.IsValid() && "Rigidbody/Transform invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
+	assert(rigidBody1.IsValid() && "Rigidbody/Transform invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
 
 	glm::vec3 resolutionVector = *collisionData;
 
-	transform1->Position() += rigidBody1->Velocity() - resolutionVector;
+	//rigidBody1->Velocity() -= resolutionVector;
 
 	if (resolutionVector.x)
 	{
-		rigidBody1->SetVelocity(glm::vec3(0, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
-		rigidBody1->SetAcceleration(glm::vec3(0, rigidBody1->Acceleration().y, rigidBody1->Acceleration().z));
+		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x - resolutionVector.x, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
 	}
 	if (resolutionVector.y)
 	{
-		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, 0, rigidBody1->Velocity().z));
-		rigidBody1->SetAcceleration(glm::vec3(rigidBody1->Acceleration().x, 0, rigidBody1->Acceleration().z));
+		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, 0/*rigidBody1->Velocity().y - resolutionVector.y*/, rigidBody1->Velocity().z));
 	}
-	
 }
-
 
 void UpdateMovementData(ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
 	transform->Position() += velocity;
-	rigidBody->AddVelocity(acceleration + rigidBody->Gravity());
+	rigidBody->AddVelocity(acceleration);
+
 }
 
+void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders)
+{
+	for (auto tDynamiColliderHandle : *allDynamicColliders)
+	{
+		ComponentHandle<TransformComponent> transform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
+		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
+
+		DebugGraphic::DrawShape(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(1, 0, 1, 1));
+	}
+	for (auto tStaticColliderHandle : *allStaticColliders)
+	{
+		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
+		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
+
+		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(1, 0, 1, 1));
+	}
+}
 
 void PhysicsSystem::Init()
 {
@@ -174,6 +261,18 @@ void PhysicsSystem::Update(float dt)
 	// get all rigid bodies
 	ComponentMap<RigidBodyComponent> *rigidBodies = GetGameSpace()->GetComponentMap<RigidBodyComponent>();
 
+	// get all dynamic colliders
+	ComponentMap<DynamicCollider2DComponent> *allDynamicColliders = GetGameSpace()->GetComponentMap<DynamicCollider2DComponent>();
+
+	// get all static colliders
+	ComponentMap<StaticCollider2DComponent> *allStaticColliders = GetGameSpace()->GetComponentMap<StaticCollider2DComponent>();
+
+	if (debugShowHitboxes)
+	{
+		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
+	}
+
+
 	for (auto tRigidBodyHandle : *rigidBodies)
 	{
 		// get the transform from the same gameobject, and leave the loop if it isn't valid
@@ -184,8 +283,9 @@ void PhysicsSystem::Update(float dt)
 		if (transform.IsValid() && dynamicCollider.IsValid())
 		{
 			glm::vec3 resolutionVector(0);
-			// get all dynamic colliders
-			ComponentMap<DynamicCollider2DComponent> *allDynamicColliders = GetGameSpace()->GetComponentMap<DynamicCollider2DComponent>();
+
+			glm::vec3 collidedAcceleration = tRigidBodyHandle->Acceleration();
+
 			// loop through all dynamic colliders
 			for (auto tDynamiColliderHandle : *allDynamicColliders)
 			{
@@ -194,17 +294,19 @@ void PhysicsSystem::Update(float dt)
 					continue;
 				}
 
-				resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), tDynamiColliderHandle.GetSiblingComponent<TransformComponent>(), tDynamiColliderHandle->ColliderData());
+				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
+				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
+
+				// check for collision
+				resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
 			
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
 				{
-					ResolveDynDynCollision(&resolutionVector, dynamicCollider, tDynamiColliderHandle);
+					ResolveDynDynCollision(&resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
 				}
 			}
 
-			// get all static colliders
-			ComponentMap<StaticCollider2DComponent> *allStaticColliders = GetGameSpace()->GetComponentMap<StaticCollider2DComponent>();
 			// loop through all static colliders
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
@@ -220,7 +322,7 @@ void PhysicsSystem::Update(float dt)
 			// update position, velocity, and acceleration using stored values
 			UpdateMovementData(transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());	
 		}
-		// if transform is valid and dynamic collider isnt, only update movement !?!? test this!
+		// if transform is valid and dynamic collider isnt, only update movement
 		else if (transform.IsValid() && !dynamicCollider.IsValid())
 		{
 			// update position, velocity, and acceleration using stored values
