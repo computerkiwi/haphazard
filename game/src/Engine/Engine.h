@@ -46,8 +46,8 @@ private:
 	bool m_running = true;
 	lua_State * L = luaL_newstate();
 	GLFWwindow *m_window;
-	GameSpace m_space;
 	Editor   m_editor;
+	GameSpace m_space;
 };
 
 void RegisterComponents(lua_State * L);

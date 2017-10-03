@@ -48,6 +48,7 @@ public:
 	static void Exit();
 
 	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
+	static void Log_StartUp(const char *message, Logging::Channel channel, Priority priority);
 
 	template <typename... Args>
 	static void Log(Logging::Channel channel, Priority priority, Args&&... args)
@@ -55,6 +56,14 @@ public:
 		std::stringstream str;
 		ConstructVariadicLogString(str, std::forward<Args>(args)...);
 		Log(str.str().c_str(), channel, priority);
+	}
+
+	template <typename... Args>
+	static void Log_Editor(Logging::Channel channel, Priority priority, Args&&... args)
+	{
+		std::stringstream str;
+		ConstructVariadicLogString(str, std::forward<Args>(args)...);
+		Log_StartUp(str.str().c_str(), channel, priority);
 	}
 
 private:

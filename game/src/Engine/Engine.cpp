@@ -173,7 +173,7 @@ lua_State * Engine::GetLua()
 
 GLFWwindow* WindowInit()
 {
-	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Initializing glfw...");
+	Logging::Log_StartUp("Initializing glfw...", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 
 	if (glfwInit() == false)
 	{
@@ -182,7 +182,7 @@ GLFWwindow* WindowInit()
 		exit(1);
 	}
 
-	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Initialized glfw");
+	Logging::Log_StartUp("Initialized glfw", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 
 	glfwWindowHint(GLFW_SAMPLES, 4); //4 MSAA
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -191,12 +191,12 @@ GLFWwindow* WindowInit()
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
 
-	Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "Window created");
+	Logging::Log_StartUp("Window created", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 
 	if (!window)
 	{
 		glfwTerminate();
-		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not create window");
+		Logging::Log_StartUp("Could not create window", Logging::GRAPHICS, Logging::CRITICAL_PRIORITY);
 		exit(1);
 	}
 
@@ -206,7 +206,7 @@ GLFWwindow* WindowInit()
 	if (glewInit() != GLEW_OK)
 	{
 		glfwTerminate();
-		Logging::Log(Logging::GRAPHICS, Logging::CRITICAL_PRIORITY, "Could not init GLEW");
+		Logging::Log_StartUp("Could not init GLEW", Logging::GRAPHICS, Logging::CRITICAL_PRIORITY);
 		exit(1);
 	}
 

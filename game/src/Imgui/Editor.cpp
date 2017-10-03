@@ -233,18 +233,21 @@ void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 // External Log that displays date
 void Editor::Log(const char *log_message, ...)
 {
-	std::stringstream ss;
+	char time_buffer[64];
+	char buffer[512];
+	va_list args;
+	va_start(args, log_message);
 
 	auto t = std::time(nullptr);
 	
 	#pragma warning(disable : 4996)
-	ss << std::put_time(std::localtime(&t), "[%H:%M:%S]") << " - " << log_message << std::endl;
+	strftime(time_buffer, 64, "[%H:%M:%S]", std::localtime(&t));
 
-	va_list args;
-	va_start(args, log_message);
-	m_log_buffer.appendv(ss.str().c_str(), args);
+	vsnprintf(buffer, 512, log_message, args);
+	m_log_buffer.append("%s - %s", time_buffer, buffer);
 	va_end(args);
 	m_offsets.push_back(m_log_buffer.size() - 1);
+	Logging::Log_Editor(Logging::Channel::CORE, Logging::Priority::MEDIUM_PRIORITY, buffer);
 }
 
 
