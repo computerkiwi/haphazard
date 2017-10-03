@@ -75,7 +75,6 @@ private:
 	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
-	void Internal_Log(const char *log_message, ...);
 
 	void OnClick();
 
@@ -87,6 +86,9 @@ public:
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
+	
+	// No timestamp
+	void Internal_Log(const char *log_message, ...);
 	void Clear();
 
 	void SetGameObject(GameObject& new_object);

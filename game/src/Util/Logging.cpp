@@ -12,12 +12,15 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <sstream>
 #include <locale>
 #include <codecvt>
+#include <cstdarg>
 
 // Windows filesystem stuff.
 #include <Windows.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
+
+#include "Engine\Engine.h"
 
 // Anonymous namespace for helper functions.
 namespace
@@ -103,10 +106,10 @@ std::string Logging::m_readBufferConsole;
 std::string Logging::m_writeBufferFile;
 std::string Logging::m_readBufferFile;
 
-
-void Logging::Init()
+static Engine *engine = nullptr;
+void Logging::Init(Engine *e_engine)
 {
-
+	engine = e_engine;
 
 	m_loggingthread = std::thread([]()
 	{
@@ -162,6 +165,7 @@ void Logging::Exit()
 
 void Logging::Log(const char *message, Logging::Channel channel, Priority priority)
 {
+	engine->GetEditor()->Internal_Log(message);
 	if (m_logToFile)
 	{
 		LogToFile(message, channel, priority);
@@ -170,6 +174,18 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 	{
 		LogToConsole(message, channel, priority);
 	}
+}
+
+
+int Logging::vprintf(Logging::Channel channel, Priority priority, const char *format, ...)
+{
+	char buffer[4096];
+	// Add to the log buffer
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+	Logging::Log(buffer);
 }
 
 

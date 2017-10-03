@@ -41,7 +41,7 @@ public:
 		#undef LOGGING_CHANNEL
 	};
 
-	static void Init();
+	static void Init(Engine *engine);
 	static void Exit();
 
 	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
@@ -80,6 +80,8 @@ private:
 	static void LogToFile(const char *message, Channel channel, Priority priority);
 
 	static bool TryOpenLogFile();
+
+	static int vprintf(Logging::Channel channel, Priority priority, const char *format, ...);
 
 	template <typename T, typename... Args>
 	static void ConstructVariadicLogString(std::stringstream& str, const T& value, Args&&... args)
