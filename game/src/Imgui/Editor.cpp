@@ -708,5 +708,6 @@ void Editor::Console()
 
 void Editor::Clear()
 {
-	m_log_buffer.clear_nofree();
+	if (m_log_buffer.size())
+		m_log_buffer.clear_nofree();
 }
