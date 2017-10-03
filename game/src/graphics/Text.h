@@ -1,5 +1,6 @@
 #include "glm\glm.hpp"
 #include <string>
+#include <vector>
 
 typedef unsigned int GLuint;
 
@@ -7,19 +8,20 @@ class Font
 {
 public:
 	void InitFonts();
-	void BindFont();
 	glm::vec2 CharLocation(char c)
 	{
 		c -= '!'; // First character = !
-		return glm::vec2(c % m_CharsWide * m_CharSize.x, c / m_CharsWide * m_CharSize.y);
+		m_Texture->GetFrameCoords(c);
 	}
 private:
 	Font(const char* path, int fontSize, int numCharsX);
 
-	GLuint m_TextureID;
+	AnimatedTexture* m_Texture;
 	int m_Width, m_Height;
 	glm::vec2 m_CharSize;
 	int m_CharsWide;
+
+	GLuint m_VBO;
 };
 
 namespace Fonts
@@ -27,16 +29,22 @@ namespace Fonts
 	extern Font* arial;
 }
 
-//   "Important things are `this` color. Pickups are ``this`` color. ", WHITE, RED, PURPLE
-
 class Text
 {
 public:
 	Text(std::string string, Font* font, glm::vec4 colors);
+	void GetDrawData(float* data);
 
 private:
+	static GLuint m_CharVBO;
+	static float m_VertData[8];
+
+	std::vector<float> m_CharData;
 
 	std::string m_String;
 	Font* m_Font;
 	glm::vec4 m_Color;
+
+	static GLuint m_VAO;
+	static GLuint m_VertexVBO;
 };

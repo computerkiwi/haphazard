@@ -23,6 +23,7 @@ namespace Shaders
 	void Unload();
 
 	extern ShaderProgram* defaultShader;
+	extern ShaderProgram* textShader;
 
 	extern ShaderProgram* debugShader;
 

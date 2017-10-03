@@ -231,6 +231,7 @@ namespace Shaders
 {
 	//Shader Declaration
 	ShaderProgram* defaultShader;
+	ShaderProgram* textShader;
 	ShaderProgram* debugShader;
 
 	ShaderProgram* ScreenShader::Raindrop;
@@ -264,6 +265,31 @@ namespace Shaders
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
 		if (!defaultShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadDefaultShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		// Vertex
+		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 5, 0));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 5, 3));
+
+		// Font
+		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(float), false, 1, 0));
+
+		//Character
+		attribs.push_back(ShaderProgram::Attribute("texBox", 2, GL_FLOAT, sizeof(float), false, 22, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 22, 2, true));
+		// Model matrix
+		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 22, 6, true));
+		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 22, 10, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 22, 14, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 22, 18, true));
+
+		textShader = LoadShaders(path + "text.vertshader", path + "text.fragshader", attribs);
+
+		if (!textShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -350,6 +376,7 @@ namespace Shaders
 	void Init()
 	{
 		LoadDefaultShader();
+		LoadTextShader();
 		LoadDebugShader();
 		LoadScreenShaders();
 

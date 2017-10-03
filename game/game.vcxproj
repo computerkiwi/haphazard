@@ -228,6 +228,8 @@
     <None Include="shaders\debug.vertshader" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\text.fragshader" />
+    <None Include="shaders\text.vertshader" />
     <None Include="src\meta\.gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
