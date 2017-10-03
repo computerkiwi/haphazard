@@ -56,7 +56,6 @@ namespace Input
     }
     else
     {
-      std::cout << "No input window set" << std::endl;
     }
 
   }
@@ -91,8 +90,6 @@ namespace Input
         gamepads[i]->SetAxes(axes);
 
 
-        std::cout << "ID: " << gamepads[i]->GetGamepadID() << std::endl;
-        std::cout << "AXES: " << gamepads[i]->GetGamepadAxis() << std::endl;
       }
     } */
 
@@ -184,9 +181,6 @@ namespace Input
       //    std::cout << "KEY " << key << " pressed" << std::endl;
           break;
 
-        // Key was held down
-        case GLFW_REPEAT:
-          triggerMap[static_cast<Key>(key)] = Keytate::heldDown;
 
        //   std::cout << "KEY " << key << " held down" << std::endl;
           break;
@@ -195,8 +189,6 @@ namespace Input
         case GLFW_RELEASE:
 
           triggerMap[static_cast<Key>(key)] = Keytate::released;
-
-          std::cout << "KEY " << key << " released" << std::endl;
       }
 	  ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
     }
@@ -212,8 +204,6 @@ namespace Input
 
     cursorPos.x = (float)xpos;
     cursorPos.y = (float)ypos;
-
-    std::cout << "CURSOR POSITION: x = " << cursorPos.x << ", y = " << cursorPos.y << std::endl;
   }
 
   // Stores mouse button input information
@@ -223,7 +213,6 @@ namespace Input
     {
       triggerMap[static_cast<Key>(button)] = Keytate::pressed;
 
-      std::cout << "MOUSE BUTTON " << button << " was pressed" << std::endl;
     }
   }
 
@@ -233,7 +222,6 @@ namespace Input
     // Joystick connected
     if (event == GLFW_CONNECTED)
     {
-      std::cout << "Gamepad connected" << std::endl;
 
       // Add gamepad ID to player list
       gamepads.push_back(new Gamepad(joy));
@@ -244,7 +232,6 @@ namespace Input
     // Joystick disconnected
     else if (event == GLFW_DISCONNECTED)
     {
-      std::cout << "Gamepad disconnected" << std::endl;
     }
   }
 }

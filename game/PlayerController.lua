@@ -1,7 +1,9 @@
 
 timer = 0
 
-speed = 0.15
+speed = 0.05
+
+jumpSpeed = 0.03
 
 function dumpTable(tab)
 	for k,v in pairs(tab) do print(tostring(k) .. " - " .. type(v)) end
@@ -20,6 +22,11 @@ function update(gameObject, dt)
 		tempVel.x = -speed
 	else
 		tempVel.x = 0
+	end
+	
+	if (IsPressed(87)) -- W
+	then
+		tempVel.y = jumpSpeed
 	end
 	
 	rBody.velocity = tempVel

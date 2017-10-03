@@ -76,39 +76,43 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
   Input::Init(m_window);
 
 	// TEMPORARY - Creating some GameObjects.
-	GameObject obj = m_space.NewGameObject();
-	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
-	obj.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
-	obj.AddComponent<RigidBodyComponent>();
-	obj.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
+	GameObject player = m_space.NewGameObject();
+	player.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
+	player.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
+	player.AddComponent<RigidBodyComponent>();
+	player.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 0.8, 0));
+	player.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
 	obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 
-	GameObject obj3 = m_space.NewGameObject();
-	obj3.AddComponent<SpriteComponent>(nullptr);
+	for (size_t i = 0; i < 5; ++i)
+	{
 
-	// RigidBody and Collider Testing Objects
-	// object with velocity
-	GameObject Brett_obj1 = m_space.NewGameObject();
-	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
-	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
-	Brett_obj1.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.01f,0,0));
-	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+		// RigidBody and Collider Testing Objects
+		// object with velocity
+		GameObject Brett_obj1 = m_space.NewGameObject();
+		Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1 + 0.05 * i, 1), glm::vec3(.5f, .5f, 1));
+		Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
+		Brett_obj1.AddComponent<RigidBodyComponent>();
+		Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+		Brett_obj1.AddComponent<ScriptComponent>(LuaScript("PhysicsBird1.lua"));
 
-	// object with velocity
-	GameObject Brett_obj2 = m_space.NewGameObject();
-	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1, 1), glm::vec3(.5f, .5f, 1));
-	Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
-	Brett_obj2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.02f,0,0));
-	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+		// object with velocity
+		GameObject Brett_obj2 = m_space.NewGameObject();
+		Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1 + 0.05 * i, 1), glm::vec3(.5f, .5f, 1));
+		Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
+		Brett_obj2.AddComponent<RigidBodyComponent>();
+		Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+		Brett_obj2.AddComponent<ScriptComponent>(LuaScript("PhysicsBird2.lua"));
 
+	}
 	// static colliders: box of cats
 	GameObject Brett_obj3 = m_space.NewGameObject();
-	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(1.25, -1, -1), glm::vec3(2.5, 1, 1));
+	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(0, -2, -1), glm::vec3(4, 0.5f, 1));
 	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
-	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(2.5, 1, 0));
+	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(4, 0.5, 0));
 
 }
 
@@ -137,13 +141,16 @@ void Engine::Update()
 
 	Input::Update();
 
-	// Checks 'A' key state
-	Input::Input_Debug(Key::B);
-
 	Audio::Update();
 	
-	if (Input::IsPressed(Key::GRAVE_ACCENT))
+	if (Input::IsPressed(Key::GRAVE_ACCENT) && m_editor.m_show_editor)
+	{
 		m_editor.ToggleEditor();
+	}
+	else if(Input::IsPressed(Key::ONE) && !m_editor.m_show_editor)
+	{
+		m_editor.ToggleEditor();
+	}
 	m_editor.Update();
 	
 	glfwSwapBuffers(m_window);

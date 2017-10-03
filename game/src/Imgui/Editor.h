@@ -32,7 +32,6 @@ struct GLFWwindow;
 class Editor
 {
 	Engine * m_engine;
-	bool m_show_editor;
 
 	GameObject m_selected_object = GameObject(0, nullptr);
 	std::vector<GameObject> m_objects;
@@ -84,6 +83,7 @@ public:
 	~Editor();
 
 	void Update();
+	bool m_show_editor;
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
