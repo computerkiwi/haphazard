@@ -11,6 +11,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <thread>
 #include <mutex>
 
+class Engine;
+//typedef char va_list;
+
 class Logging
 {
 public:
@@ -81,7 +84,8 @@ private:
 
 	static bool TryOpenLogFile();
 
-	static int vprintf(Logging::Channel channel, Priority priority, const char *format, ...);
+	static int printf(Logging::Channel channel, Priority priority, const char *format, ...);
+	static int vprintf(Logging::Channel channel, Priority priority, const char *format, va_list vars_copy);
 
 	template <typename T, typename... Args>
 	static void ConstructVariadicLogString(std::stringstream& str, const T& value, Args&&... args)

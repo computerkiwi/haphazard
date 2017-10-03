@@ -27,7 +27,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Input/Input.h"
 
 #include <iomanip>
-#include <locale>
 #include <ctype.h>
 
 

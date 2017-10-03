@@ -177,15 +177,35 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 }
 
 
-int Logging::vprintf(Logging::Channel channel, Priority priority, const char *format, ...)
+int Logging::printf(Logging::Channel channel, Priority priority, const char *format, ...)
 {
 	char buffer[4096];
 	// Add to the log buffer
 	va_list args;
 	va_start(args, format);
-	vsnprintf(buffer, sizeof(buffer), format, args);
+	
+	int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+	
 	va_end(args);
+	
 	Logging::Log(buffer);
+	return ret;
+}
+
+
+int Logging::vprintf(Logging::Channel channel, Priority priority, const char *format, va_list args)
+{
+	char buffer[4096];
+	// Add to the log buffer
+	va_list args_copy;
+	va_copy(args_copy, args);
+	
+	int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+
+	va_end(args);
+	
+	Logging::Log(buffer);
+	return ret;
 }
 
 
