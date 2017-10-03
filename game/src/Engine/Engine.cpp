@@ -60,6 +60,9 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
+
+	Audio::LoadSound("examplesound.wav");
+
 	// Register the component types.
 	m_space.RegisterComponentType<TransformComponent>();
 	m_space.RegisterComponentType<RigidBodyComponent>();
@@ -133,6 +136,8 @@ void Engine::MainLoop()
 bool effect1 = false;
 bool effect2 = false;
 
+float soundTimer = 0;
+
 void Engine::Update()
 {
 	Timer frameCap;
@@ -175,6 +180,29 @@ void Engine::Update()
 		effect2 = false;
 	}
 
+	if (soundTimer <= 0)
+	{
+		float timer = 0.5f;
+		if (Input::IsPressed(Key::NUMPAD_0))
+		{
+			Audio::PlaySound("examplesound.wav", 1.0f, 1.0f);
+			soundTimer = timer;
+		}
+		else if (Input::IsPressed(Key::NUMPAD_2))
+		{
+			Audio::PlaySound("examplesound.wav", 1.0f, 0.8f);
+			soundTimer = timer;
+		}
+		else if (Input::IsPressed(Key::NUMPAD_1))
+		{
+			Audio::PlaySound("examplesound.wav", 1.0f, 2.0f);
+			soundTimer = timer;
+		}
+	}
+	else
+	{
+		soundTimer -= m_dt;
+	}
 	m_editor.Update();
 	
 	glfwSwapBuffers(m_window);
