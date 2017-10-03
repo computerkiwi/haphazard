@@ -21,6 +21,11 @@ public:
 	GameObject(GameObject_ID id, GameSpace *gameSpace) : m_objID(id), m_gameSpace(gameSpace)
 	{
 	}
+	
+	GameObject()
+	{
+
+	}
 
 	template <typename T, typename... Args>
 	void AddComponent(Args&&... args)

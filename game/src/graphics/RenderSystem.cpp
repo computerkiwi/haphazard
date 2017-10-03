@@ -46,6 +46,11 @@ void RenderSystem::Update(float dt)
 
 	Shaders::defaultShader->Use();
 
+	if (sprites->begin() == sprites->end())
+	{
+		return;
+	}
+
 	for (auto& spriteHandle : *sprites)
 	{
 		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();

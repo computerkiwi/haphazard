@@ -46,6 +46,52 @@ GLFWwindow* WindowInit();
 
 #include"graphics\Screen.h"
 
+GameObject player;
+GameObject ground;
+
+int demoStep = 0;
+
+GameSpace *space;
+
+void demo1()
+{
+	GameSpace& m_space = *space;
+
+	ground = m_space.NewGameObject();
+	ground.AddComponent<TransformComponent>(glm::vec3(0, -1.5, -1), glm::vec3(4, 0.5f, 1));
+	ground.AddComponent<SpriteComponent>(new Texture("red.png"));
+	ground.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(4, 0.5, 0));
+}
+void demo2()
+{
+	GameSpace& m_space = *space;
+
+	GameObject obj2 = m_space.NewGameObject();
+	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, -5));
+	obj2.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
+}
+void demo3()
+{
+	GameSpace& m_space = *space;
+
+	player = m_space.NewGameObject();
+	player.AddComponent<TransformComponent>(glm::vec3(0, 0, -1));
+	player.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
+	player.AddComponent<RigidBodyComponent>();
+	player.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 0.8, 0));
+	player.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
+}
+void demo4()
+{
+	GameSpace& m_space = *space;
+
+
+}
+
+typedef void (*demoFunc)();
+
+float demoTimer = 0;
+demoFunc demoFunctions[] = { demo1, demo2, demo3, demo4 };
 
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
@@ -79,47 +125,20 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	// Initialize the system.
 	m_space.Init();
 
+	space = &m_space;
+
+
+
+	for (int i = 0; i < 3; ++i)
+	{
+		ground = m_space.NewGameObject();
+		ground.AddComponent<TransformComponent>(glm::vec3(9999, -2, -1), glm::vec3(4, 0.5f, 1));
+		ground.AddComponent<SpriteComponent>(new Texture("red.png"));
+	}
+
   // TEMPORARY IDK where to put this
   Input::Init(m_window);
 
-	// TEMPORARY - Creating some GameObjects.
-	GameObject player = m_space.NewGameObject();
-	player.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
-	player.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
-	player.AddComponent<RigidBodyComponent>();
-	player.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 0.8, 0));
-	player.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
-
-	GameObject obj2 = m_space.NewGameObject();
-	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
-
-	for (size_t i = 0; i < 5; ++i)
-	{
-
-		// RigidBody and Collider Testing Objects
-		// object with velocity
-		GameObject Brett_obj1 = m_space.NewGameObject();
-		Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 0.6f * i, 1), glm::vec3(.5f, .5f, 1));
-		Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
-		Brett_obj1.AddComponent<RigidBodyComponent>();
-		Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
-		Brett_obj1.AddComponent<ScriptComponent>(LuaScript("PhysicsBird1.lua"));
-
-		// object with velocity
-		GameObject Brett_obj2 = m_space.NewGameObject();
-		Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 0.6f * i, 1), glm::vec3(.5f, .5f, 1));
-		Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
-		Brett_obj2.AddComponent<RigidBodyComponent>();
-		Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
-		Brett_obj2.AddComponent<ScriptComponent>(LuaScript("PhysicsBird2.lua"));
-
-	}
-	// static colliders: box of cats
-	GameObject Brett_obj3 = m_space.NewGameObject();
-	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(0, -2, -1), glm::vec3(4, 0.5f, 1));
-	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
-	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(4, 0.5, 0));
 
 }
 
@@ -137,6 +156,7 @@ bool effect1 = false;
 bool effect2 = false;
 
 float soundTimer = 0;
+float birdTimer = 0;
 
 void Engine::Update()
 {
@@ -152,6 +172,25 @@ void Engine::Update()
 	Input::Update();
 
 	Audio::Update();
+
+	if (demoTimer <= 0)
+	{
+		if (Input::IsPressed(Key::NUMPAD_ENTER))
+		{
+			float timer = 0.5f;
+
+			if (demoStep < sizeof(demoFunctions) / sizeof(demoFunctions[0]))
+			{
+				demoFunctions[demoStep]();
+				++demoStep;
+			}
+			demoTimer = timer;
+		}
+	}
+	else
+	{
+		demoTimer -= m_dt;
+	}
 
 	if (Input::IsPressed(Key::TAB) && m_editor.m_show_editor)
 	{
@@ -180,6 +219,35 @@ void Engine::Update()
 		effect2 = false;
 	}
 
+	if (birdTimer <= 0)
+	{
+		if (Input::IsPressed(Key::N))
+		{
+			float timer = 0.7f;
+			// RigidBody and Collider Testing Objects
+			// object with velocity
+			GameObject Brett_obj1 = m_space.NewGameObject();
+			Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 0.6f, 1), glm::vec3(.5f, .5f, 1));
+			Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
+			Brett_obj1.AddComponent<RigidBodyComponent>();
+			Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+			Brett_obj1.AddComponent<ScriptComponent>(LuaScript("PhysicsBird1.lua"));
+
+			// object with velocity
+			GameObject Brett_obj2 = m_space.NewGameObject();
+			Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 0.6f, 1), glm::vec3(.5f, .5f, 1));
+			Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
+			Brett_obj2.AddComponent<RigidBodyComponent>();
+			Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+			Brett_obj2.AddComponent<ScriptComponent>(LuaScript("PhysicsBird2.lua"));
+
+			birdTimer = timer;
+		}
+	}
+	else
+	{
+		birdTimer -= m_dt;
+	}
 	if (soundTimer <= 0)
 	{
 		float timer = 0.5f;
