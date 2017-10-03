@@ -43,6 +43,10 @@ GLFWwindow* WindowInit();
 #include "Physics\PhysicsSystem.h"
 #include "Scripting\ScriptSystem.h"
 
+
+#include"graphics\Screen.h"
+
+
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
@@ -93,7 +97,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 		// RigidBody and Collider Testing Objects
 		// object with velocity
 		GameObject Brett_obj1 = m_space.NewGameObject();
-		Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1 + 0.05 * i, 1), glm::vec3(.5f, .5f, 1));
+		Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 0.6f * i, 1), glm::vec3(.5f, .5f, 1));
 		Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
 		Brett_obj1.AddComponent<RigidBodyComponent>();
 		Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
@@ -101,7 +105,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 
 		// object with velocity
 		GameObject Brett_obj2 = m_space.NewGameObject();
-		Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1 + 0.05 * i, 1), glm::vec3(.5f, .5f, 1));
+		Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 0.6f * i, 1), glm::vec3(.5f, .5f, 1));
 		Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 		Brett_obj2.AddComponent<RigidBodyComponent>();
 		Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
@@ -126,7 +130,8 @@ void Engine::MainLoop()
 	Logging::Exit();
 }
 
-
+bool effect1 = false;
+bool effect2 = false;
 
 void Engine::Update()
 {
@@ -142,15 +147,34 @@ void Engine::Update()
 	Input::Update();
 
 	Audio::Update();
-	
-	if (Input::IsPressed(Key::GRAVE_ACCENT) && m_editor.m_show_editor)
+
+	if (Input::IsPressed(Key::TAB) && m_editor.m_show_editor)
 	{
 		m_editor.ToggleEditor();
 	}
-	else if(Input::IsPressed(Key::ONE) && !m_editor.m_show_editor)
+	else if (Input::IsPressed(Key::GRAVE_ACCENT) && !m_editor.m_show_editor)
 	{
 		m_editor.ToggleEditor();
 	}
+
+
+	if (Input::IsPressed(Key::ONE) && !effect1)
+	{
+		Screen::GetView().AddEffect((FX)(FX::EDGE_DETECTION));
+		effect1 = true;
+	}
+	if (Input::IsPressed(Key::TWO) && !effect2)
+	{
+		Screen::GetView().AddEffect((FX)(FX::SHARPEN));
+		effect2 = true;
+	}
+	else if (Input::IsPressed(Key::DELETE))
+	{
+		Screen::GetView().SetEffects(0, nullptr);
+		effect1 = false;
+		effect2 = false;
+	}
+
 	m_editor.Update();
 	
 	glfwSwapBuffers(m_window);
