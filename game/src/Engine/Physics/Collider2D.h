@@ -10,6 +10,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "glm/glm.hpp"
 #include "../../GameObjectSystem/GameSpace.h"
+#include "CollisionLayer.h"
 
 constexpr char *collider_types[] =
 {
@@ -29,8 +30,8 @@ public:
 	};
 
 	// constructor
-	Collider2D(int colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-			   m_colliderType(colliderType), m_dimensions(dimensions), m_offset(offset), m_rotationOffset(rotationOffset)
+	Collider2D(int colliderType, glm::vec3 dimensions, int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
+			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset)
 	{
 	}
 
@@ -39,12 +40,14 @@ public:
 	glm::vec3 GetDimensions();
 	glm::vec3 GetOffset();
 	float GetRotationOffset();
+	CollisionLayer GetCollisionLayer();
 
 	// setters
 	void SetColliderType(colliderType colliderType);
 	void SetDimensions(glm::vec3 newDimensions);
 	void SetOffset(glm::vec3 newOffset);
 	void SetRotationOffset(float newRotationOffset);
+	void SetCollisionLayer(CollisionLayer newLayer);
 
 	// methods
 	// Passed only one parameter, scales both axes by the same thing
@@ -56,6 +59,7 @@ private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject *object);
 	int m_colliderType;
 	glm::vec3 m_dimensions;
+	CollisionLayer m_collisionLayer;
 	glm::vec3 m_offset;
 	float m_rotationOffset;
 };
@@ -65,8 +69,8 @@ class StaticCollider2DComponent
 {
 public:
 	// constructor
-	StaticCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, offset, rotationOffset)
+	StaticCollider2DComponent(int colliderType, glm::vec3 dimensions, int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, collisionLayer, offset, rotationOffset)
 	{
 	}
 
@@ -82,8 +86,8 @@ class DynamicCollider2DComponent
 {
 public:
 	// constructor
-	DynamicCollider2DComponent(Collider2D::colliderType colliderType, glm::vec3 dimensions, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-							   m_colliderData(colliderType, dimensions, offset, rotationOffset)
+	DynamicCollider2DComponent(int colliderType, glm::vec3 dimensions, int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							   m_colliderData(colliderType, dimensions, collisionLayer, offset, rotationOffset)
 	{
 	}
 

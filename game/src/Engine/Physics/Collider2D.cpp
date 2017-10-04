@@ -29,6 +29,11 @@ float Collider2D::GetRotationOffset()
 	return m_rotationOffset;
 }
 
+CollisionLayer Collider2D::GetCollisionLayer()
+{
+	return m_collisionLayer;
+}
+
 // setters
 void Collider2D::SetColliderType(colliderType colliderType)
 {
@@ -48,6 +53,11 @@ void Collider2D::SetOffset(glm::vec3 newOffset)
 void Collider2D::SetRotationOffset(float newRotationOffset)
 {
 	m_rotationOffset = newRotationOffset;
+}
+
+void Collider2D::SetCollisionLayer(CollisionLayer newLayer)
+{
+	m_collisionLayer = newLayer;
 }
 
 // methods

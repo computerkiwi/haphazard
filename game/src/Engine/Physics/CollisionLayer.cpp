@@ -8,69 +8,75 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #include "CollisionLayer.h"
 
+/*
 enum collisionLayers
 {
-	noCollision = 1 << 0,  // Collides with nothing, even if the object is also on other layers
-	player = 1 << 1,
-	ground = 1 << 2,
-	enemy = 1 << 3,
+noCollision = 1 << 0,  // Collides with nothing
+allCollision = 1 << 1, // Collides with everything
+player = 1 << 2,
+ground = 1 << 3,
+enemy = 1 << 4,
+allyProjectile = 1 << 5,  // doesn't collide with other players
+decor = 1 << 6,
 
-	numLayers = 4
+numLayers = 7
 };
+*/
 
-enum class resolutionType
-{
-	noCollision = 0,
-	stop = 1,
-	bounce = 2
+int CollisionMasks[collisionLayers::numLayers] =
+{ // In order: decor allyProjectile enemy ground player allCollision noCollision
+	0b0000000,	// noCollision
+	0b1111111,	// allCollision
+	0b0011110,	// player     
+	0b1111110,	// ground     
+	0b0111110,	// enemy
+	0b0011010,	// allyProjectile
+	0b0001000	// decor
 };
-
-int CollisionInteraction[numLayers][numLayers];
 
 
 // conversion constructor
-CollisionLayer::CollisionLayer(int layers)
+CollisionLayer::CollisionLayer(int layers) : m_layer(layers)
 {
-
 }
 
-// checks if any layers collide, returning the layer on the second object onto which the first collided
-resolutionType CollisionLayer::anyLayersCollide(int layers1, int layers2) const
+CollisionLayer::CollisionLayer(CollisionLayer& layer) : m_layer(layer.m_layer)
 {
-
 }
 
-// checks if the set of layers contains a specific layer
-bool CollisionLayer::isOnLayer(collisionLayers layer) const
+// if both layers should collide with each other, return true, otherwise false
+bool CollisionLayer::LayersCollide(const CollisionLayer& other) const
 {
+	// to extract the necessar index into CollisionMasks
+	int thisIndex = 0;
+	int otherIndex = 0;
+	int thisLayer = m_layer;
+	int otherLayer = other.m_layer;
 
+	// extract the indices of the collision layer into the mask array
+	while (thisLayer > 1)
+	{
+		thisLayer >>= 1;
+		++thisIndex;
+	}
+
+	while (otherLayer > 1)
+	{
+		otherLayer >>= 1;
+		++otherIndex;
+	}
+
+	// make sure this object's layers collides with the other object's layer
+	int thisShouldCollide = m_layer & CollisionMasks[otherIndex];
+	// make sure the other object's layer collides with this object's layer
+	int otherShouldCollide = other.m_layer & CollisionMasks[thisIndex];
+
+	// if both layers should collide with each other, return true, otherwise false
+	return thisShouldCollide && otherShouldCollide;
 }
 
 // checks if two sets of collisionLayers are IDENTICAL. Will return false if one layer matches but another does not
-bool CollisionLayer::operator==(int layers)
+bool CollisionLayer::operator==(CollisionLayer& layer)
 {
-
-}
-
-// adds a layer to the set of layers, does nothing if set already contains the specified layer
-void CollisionLayer::operator+=(collisionLayers layer)
-{
-
-}
-// removes a layer from the set of layers, does nothing if set already doesn't contain the specified layer
-void CollisionLayer::operator-=(collisionLayers layer)
-{
-
-}
-
-// returns a set of layers where every layer in the passed set has been removed from the original
-int CollisionLayer::operator-(int layers) const
-{
-
-}
-
-// returns a set of layers where every layer in the passed set has been removed from the original
-int CollisionLayer::operator+(int layers) const
-{
-
+	return m_layer == layer.m_layer;
 }
