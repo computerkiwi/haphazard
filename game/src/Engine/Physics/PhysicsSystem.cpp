@@ -25,7 +25,7 @@ void debugDisplayHitboxes(bool hitboxesShown)
 class ColliderBox
 {
 public:
-	ColliderBox(const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
+	ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
 
 	friend std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox);
 
@@ -43,12 +43,12 @@ std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox)
 	return ostream;
 }
 
-ColliderBox::ColliderBox(const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
+ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
 {
 	glm::vec3 centerWithVelocity = center;
 	if (rigidBody.IsValid())
 	{
-		centerWithVelocity += rigidBody->Velocity();
+		centerWithVelocity += rigidBody->Velocity() * dt;
 	}
 
 	// if the box is axis-aligned, the calculation can be done ignoring angles
@@ -72,10 +72,10 @@ ColliderBox::ColliderBox(const glm::vec3& center, const glm::vec3& dimensions, C
 	}
 }
 
-glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
+glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	ColliderBox Box1(AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
-	ColliderBox Box2(AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
+	ColliderBox Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
+	ColliderBox Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
 
 	glm::vec3 escapeVector(0);
 	glm::vec3 minValue(0);
@@ -226,10 +226,10 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 	}
 }
 
-void UpdateMovementData(ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
+void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
-	transform->Position() += velocity;
-	rigidBody->AddVelocity(acceleration);
+	transform->Position() += velocity * dt;
+	rigidBody->AddVelocity(acceleration * dt);
 
 }
 
@@ -294,11 +294,16 @@ void PhysicsSystem::Update(float dt)
 					continue;
 				}
 
+				if(!dynamicCollider->ColliderData().GetCollisionLayer().LayersCollide(tDynamiColliderHandle->ColliderData().GetCollisionLayer()))
+				{
+					continue;
+				}
+
 				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
 				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
 
 				// check for collision
-				resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+				resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
 			
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
@@ -310,7 +315,7 @@ void PhysicsSystem::Update(float dt)
 			// loop through all static colliders
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
-				resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), tStaticColliderHandle.GetSiblingComponent<TransformComponent>(), tStaticColliderHandle->ColliderData());
+				resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), tStaticColliderHandle.GetSiblingComponent<TransformComponent>(), tStaticColliderHandle->ColliderData());
 
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
@@ -320,13 +325,13 @@ void PhysicsSystem::Update(float dt)
 			}
 
 			// update position, velocity, and acceleration using stored values
-			UpdateMovementData(transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());	
+			UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());	
 		}
 		// if transform is valid and dynamic collider isnt, only update movement
 		else if (transform.IsValid() && !dynamicCollider.IsValid())
 		{
 			// update position, velocity, and acceleration using stored values
-			UpdateMovementData(transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
+			UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
 		}
 	}
 }
