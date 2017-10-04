@@ -186,6 +186,8 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 			}
 		}
 	});
+
+	m_log_history.reserve(100);
 }
 
 
@@ -244,10 +246,11 @@ void Editor::Log(const char *log_message, ...)
 	strftime(time_buffer, 64, "[%H:%M:%S]", std::localtime(&t));
 
 	vsnprintf(buffer, 512, log_message, args);
-	m_log_buffer.append("%s - %s", time_buffer, buffer);
+	m_log_buffer.append("%s - %s\n", time_buffer, buffer);
 	va_end(args);
 	m_offsets.push_back(m_log_buffer.size() - 1);
 	Logging::Log_Editor(Logging::Channel::CORE, Logging::Priority::MEDIUM_PRIORITY, buffer);
+	m_scroll = true;
 }
 
 
@@ -261,6 +264,7 @@ void Editor::Internal_Log(const char * log_message, ...)
 	m_log_buffer.appendv(log_message, args);
 	va_end(args);
 	m_offsets.push_back(m_log_buffer.size() - 1);
+	m_scroll = true;
 }
 
 
@@ -356,6 +360,18 @@ void Editor::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
 }
 
 
+void SetInput_Blank(ImGuiTextEditCallbackData *data)
+{
+	// Copy in the data  from the command
+	// memmove(data->Buf, "", 0);
+
+	// Update the Buffer data
+	data->Buf[0] = '\0';
+	data->BufTextLen = 0;
+	data->BufDirty = true;
+}
+
+
 bool Command_StrCmp(const char *str1, const char *str2)
 {
 	while (!(*str1 ^ *str2++))
@@ -379,7 +395,6 @@ static int   Strnicmp(const char* str1, const char* str2, int n)
 }
 
 
-
 int Input_Editor(ImGuiTextEditCallbackData *data)
 {
 	Editor *editor = reinterpret_cast<Editor *>(data->UserData);
@@ -390,21 +405,28 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 	case ImGuiInputTextFlags_CallbackHistory:
 			// editor->m_state.m_popUp = true;
 
-			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0 && editor->m_log_history.size() > 0)
+			if (data->EventKey == ImGuiKey_UpArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
 			{
 				editor->m_state.activeIndex++;
-				editor->SetActive_History(data, editor->m_state.activeIndex);
+				editor->SetActive_History(data, static_cast<int>(editor->m_log_history.size() - editor->m_state.activeIndex) - 1);
 			}
-			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
+			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex > -1))
 			{
 				editor->m_state.activeIndex--;
-				editor->SetActive_History(data, editor->m_state.activeIndex);
+				if (editor->m_state.activeIndex == -1)
+				{
+					SetInput_Blank(data);
+				}
+				else
+				{
+					editor->SetActive_History(data, static_cast<int>(editor->m_log_history.size() - editor->m_state.activeIndex) - 1);
+				}
 			}
 		break;
 
 	case ImGuiInputTextFlags_CallbackAlways:
 			// Clear the data in the matches vector, but dont free the alloc'd memory
-			editor->m_matches.clear_nofree();
+			editor->m_matches.clear();
 
 			// Make sure there is data to read from
 			if (data->Buf && data->BufTextLen > 0)
@@ -439,7 +461,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 				}
 
 				// Check if there were matches
-				if (editor->m_matches.Size)
+				if (editor->m_matches.Data)
 				{
 					// Get the length of the match
 					int length = static_cast<int>(word_end - word_start);
@@ -570,7 +592,7 @@ void Editor::Console()
 	if (m_state.m_popUp)
 		winflags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
-	ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(800, 550), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Console", nullptr, winflags);
 
 	if (ImGui::Button("Clear Log"))
@@ -590,7 +612,8 @@ void Editor::Console()
 	m_log_filter.Draw("Filter", -100.0f);
 
 	// The log box itself
-	ImGui::BeginChild("scrolling", ImVec2(470, 285));
+	ImVec2 size = ImGui::GetWindowSize();
+	ImGui::BeginChild("scrolling", ImVec2(size.x * 0.95f, size.y * 0.8f));
 
 	// Check if any filters are active and need to be applied
 	if (m_log_filter.IsActive())
@@ -619,6 +642,9 @@ void Editor::Console()
 		// Put the text out without a filter
 		ImGui::TextUnformatted(m_log_buffer.begin());
 	}
+	if (m_scroll)
+		ImGui::SetScrollHere(1.0f);
+	m_scroll = false;
 	ImGui::EndChild();
 	ImGui::Separator();
 
@@ -717,6 +743,8 @@ void Editor::Console()
 
 void Editor::Clear()
 {
-	if (m_log_buffer.size())
-		m_log_buffer.clear_nofree();
+	if (!m_log_buffer.empty())
+	{
+		m_log_buffer.clear();
+	}
 }

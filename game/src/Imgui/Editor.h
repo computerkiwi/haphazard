@@ -51,6 +51,8 @@ class Editor
 		std::function<void()> func = std::function<void()>();
 	};
 
+
+	bool m_scroll = false;
 	std::vector<Command> m_commands;
 	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
