@@ -75,10 +75,10 @@ void demo3()
 	GameSpace& m_space = *space;
 
 	player = m_space.NewGameObject();
-	player.AddComponent<TransformComponent>(glm::vec3(0, 0, -1));
-	player.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
+	player.AddComponent<TransformComponent>(glm::vec3(0, -0.9f, -1));
+	player.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 128, 128, 2, 2), 5);
 	player.AddComponent<RigidBodyComponent>();
-	player.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 0.8, 0));
+	player.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(0.7, 0.7, 0));
 	player.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
 }
 void demo4()
@@ -223,22 +223,24 @@ void Engine::Update()
 	{
 		if (Input::IsPressed(Key::N))
 		{
+			float gnome_scale = 0.7f;
+
 			float timer = 0.7f;
 			// RigidBody and Collider Testing Objects
 			// object with velocity
 			GameObject Brett_obj1 = m_space.NewGameObject();
-			Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 0.6f, 1), glm::vec3(.5f, .5f, 1));
+			Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 0.6f, 1), glm::vec3(.5f * gnome_scale, 1.0f * gnome_scale, 1));
 			Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
 			Brett_obj1.AddComponent<RigidBodyComponent>();
-			Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+			Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.5f * gnome_scale, 1.0f * gnome_scale, 0));
 			Brett_obj1.AddComponent<ScriptComponent>(LuaScript("PhysicsBird1.lua"));
 
 			// object with velocity
 			GameObject Brett_obj2 = m_space.NewGameObject();
-			Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 0.6f, 1), glm::vec3(.5f, .5f, 1));
+			Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 0.6f, 1), glm::vec3(.5f * gnome_scale, 1.0f * gnome_scale, 1));
 			Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 			Brett_obj2.AddComponent<RigidBodyComponent>();
-			Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+			Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.5f * gnome_scale, 1.0f * gnome_scale, 0));
 			Brett_obj2.AddComponent<ScriptComponent>(LuaScript("PhysicsBird2.lua"));
 
 			birdTimer = timer;

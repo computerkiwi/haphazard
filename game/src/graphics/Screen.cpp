@@ -180,7 +180,7 @@ void Screen::Draw()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Convert HDR to LDR
-	Shaders::ScreenShader::HDR->Use(); 
+	Shaders::ScreenShader::Default->Use();
 
 
 	// Render final screen
