@@ -55,6 +55,7 @@ class Editor
 	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
+	void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
 	struct State 
 	{

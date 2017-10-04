@@ -344,6 +344,18 @@ void Editor::SetActive(ImGuiTextEditCallbackData *data, int entryIndex)
 }
 
 
+void Editor::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
+{
+	// Copy in the data  from the command
+	memmove(data->Buf, m_log_history[entryIndex].c_str(), m_log_history[entryIndex].size());
+
+	// Update the Buffer data
+	data->Buf[m_log_history[entryIndex].size()] = '\0';
+	data->BufTextLen = static_cast<int>(m_log_history[entryIndex].size());
+	data->BufDirty = true;
+}
+
+
 bool Command_StrCmp(const char *str1, const char *str2)
 {
 	while (!(*str1 ^ *str2++))
@@ -374,25 +386,20 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 	switch (data->EventFlag)
 	{
-	case ImGuiInputTextFlags_CallbackCompletion:
-		
-		break;
-
 		// History based data
 	case ImGuiInputTextFlags_CallbackHistory:
-			editor->m_state.m_popUp = true;
+			// editor->m_state.m_popUp = true;
 
-			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0)
-			{
-				editor->m_state.activeIndex--;
-				editor->m_state.m_selection_change = true;
-			}
-			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_commands.size() - 1)))
+			if (data->EventKey == ImGuiKey_UpArrow && editor->m_state.activeIndex > 0 && editor->m_log_history.size() > 0)
 			{
 				editor->m_state.activeIndex++;
-				editor->m_state.m_selection_change = true;
+				editor->SetActive_History(data, editor->m_state.activeIndex);
 			}
-
+			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
+			{
+				editor->m_state.activeIndex--;
+				editor->SetActive_History(data, editor->m_state.activeIndex);
+			}
 		break;
 
 	case ImGuiInputTextFlags_CallbackAlways:
