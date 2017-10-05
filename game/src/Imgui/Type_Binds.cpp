@@ -12,6 +12,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "Engine\Physics\Collider2D.h"
+#include "Scripting\ScriptComponent.h"
 
 using namespace ImGui;
 
@@ -54,44 +55,92 @@ void ImGui_GameObject(GameObject *object)
 
 		bool add_popup = false;
 
+		// Add Component Buttons
+		if (BeginPopup("Components"))
+		{
+
+			if (Button("Transform"))
+			{
+				if (object->GetComponent<TransformComponent>().Get())
+				{
+				}
+				else
+				{
+
+				}
+			}
+			else if (Button("Sprite"))
+			{
+				if (object->GetComponent<SpriteComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<SpriteComponent>();
+				}
+			}
+			else if (Button("RigidBody"))
+			{
+				if (object->GetComponent<RigidBodyComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<RigidBodyComponent>();
+				}
+			}
+			else if (Button("Dynamic Collider"))
+			{
+				if (object->GetComponent<DynamicCollider2DComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+				}
+			}
+			else if (Button("Static Collider"))
+			{
+				if (object->GetComponent<StaticCollider2DComponent>().Get())
+				{
+				}
+				else
+				{
+					if (object->GetComponent<DynamicCollider2DComponent>().Get() || object->GetComponent<RigidBodyComponent>().Get())
+					{
+						// Display a warning
+					}
+					else
+					{
+						object->AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+					}
+				}
+			}
+			else if (Button("Script"))
+			{
+				if (object->GetComponent<ScriptComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<ScriptComponent>();
+				}
+			}
+
+			EndPopup();
+		}
+
+
 		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (Button("Add"))
 		{
 			// TODO[SWEET]:: Fix this pop bs
-			add_popup = false;
+			OpenPopup("Components");
 		}
 		PopStyleColor(3);
 
-		// Add Component Buttons
-		if (add_popup)
-		{
-			BeginPopup("Components");
-
-			if (Button("Transform"))
-			{
-
-			}
-			else if (Button("Sprite"))
-			{
-
-			}
-			else if (Button("RigidBody"))
-			{
-
-			}
-			else if (Button("Dynamic Collider"))
-			{
-
-			}
-			else if (Button("Static Collider"))
-			{
-
-			}
-
-			EndPopup();
-		}
 
 
 		// if object - > component
@@ -122,9 +171,10 @@ void ImGui_GameObject(GameObject *object)
 			ImGui_Sprite(object->GetComponent<SpriteComponent>().Get(), object);
 		}
 
-		// Move thit to the editor
-		//auto& move_curse = object->GetComponent<TransformComponent>().Get()->Position();
-		// Draw_Curse(move_curse)
+		if (object->GetComponent<ScriptComponent>().IsValid())
+		{
+			ImGui_Script(object->GetComponent<ScriptComponent>().Get(), object);
+		}
 
 		End();
 	}
@@ -275,3 +325,32 @@ void ImGui_Collider2D(Collider2D *collider, GameObject *object)
 		collider->m_colliderType = index;
 	}
 }
+
+
+void ImGui_Script(ScriptComponent *script_c, GameObject *object)
+{
+	if (CollapsingHeader("Script"))
+	{
+		if (Button("Remove"))
+		{
+
+		}
+		char buffer[2048];
+		if (InputText("", buffer, 2048))
+		{
+			SameLine();
+			if (Button("Add##script"))
+			{
+				script_c->scripts.emplace_back(LuaScript(buffer));
+			}
+		}
+
+		for (auto& script : script_c->scripts)
+		{
+			(void)script;
+			Text("SomeDrive:/Folder/Wow/Harambe/scripts/die.lua");
+		}
+	}
+}
+
+

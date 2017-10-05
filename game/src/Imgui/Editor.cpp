@@ -25,7 +25,10 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Input/Input.h"
 
+#include <locale>
 #include <ctype.h>
+
+#include "graphics\DebugGraphic.h"
 
 
 
@@ -212,7 +215,15 @@ void Editor::Update()
 		// Render the console
 		Console();
 
-		//ImGui::ShowTestWindow();
+		// Move, Scale, Rotate
+		Tools();
+
+		if (Input::IsPressed(Key::Y))
+		{
+			m_tool = Editor::Tool::Translation;
+		}
+
+		ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
@@ -305,6 +316,32 @@ void Editor::OnClick()
 					m_selected_object = transform.GetGameObject();
 				}
 			}
+		}
+	}
+}
+
+
+void Editor::Tools()
+{
+	if (m_selected_object.GetSpace())
+	{
+		glm::vec3& pos = m_selected_object.GetComponent<TransformComponent>().Get()->Position();
+
+		switch (m_tool)
+		{
+		case Translation:
+			DebugGraphic::DrawShape(pos);
+			break;
+
+		case Scale:
+			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
+			break;
+
+		case Rotation:
+			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
+			break;
+		default:
+			break;
 		}
 	}
 }

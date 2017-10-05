@@ -37,6 +37,14 @@ class Editor
 	GameObject m_selected_object = GameObject(0, nullptr);
 	std::vector<GameObject> m_objects;
 
+	enum Tool
+	{
+		none,
+		Translation,
+		Scale,
+		Rotation
+	};
+	Tool m_tool = none;
 
 	std::string m_line;
 
@@ -96,6 +104,8 @@ public:
 
 	void SetGameObject(GameObject& new_object);
 	void ToggleEditor();
+
+	void Tools();
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
