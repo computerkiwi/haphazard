@@ -12,7 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "../../GameObjectSystem/TransformComponent.h"
 #include "../../GameObjectSystem/GameSpace.h"
 
-#define DEFAULT_GRAVITY glm::vec3(0, -.00098, 0)
+#define DEFAULT_GRAVITY glm::vec3(0, -3, 0)
 
 class RigidBodyComponent
 {
