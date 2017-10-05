@@ -6,7 +6,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-typedef std::size_t GameObject_ID;
+typedef int GameObject_ID;
 
 // Forward declaration.
 class GameSpace;

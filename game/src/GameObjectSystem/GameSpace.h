@@ -25,6 +25,8 @@ class GameSpace;
 class Engine;
 extern Engine engine;
 
+typedef int GameObject_ID;
+
 // GameObject ID Gen
 GameObject_ID GenerateID();
 #define EXTRACTION_SHIFT (8 * 7)

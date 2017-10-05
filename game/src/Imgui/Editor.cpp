@@ -272,8 +272,8 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
 {
-	GameObject_ID object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject();
-	GameObject(object).AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
+	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject();
+	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
 	m_selected_object = object;
 }
 

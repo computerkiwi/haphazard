@@ -13,7 +13,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <glm/detail/type_vec2.hpp>
 
 
-typedef std::size_t GameObject_ID;
+typedef int GameObject_ID;
 
 class Engine;
 struct GLFWwindow;

@@ -14,7 +14,7 @@ class GameSpace;
 GameObject_ID GenerateID();
 
 #define EXTRACTION_SHIFT (8 * 7)
-
+#define implicit
 
 template <typename T>
 class ComponentHandle;
@@ -32,7 +32,7 @@ public:
 	{
 	}
 
-	explicit GameObject(GameObject_ID id) : m_objID(id)
+	implicit GameObject(GameObject_ID id) : m_objID(id)
 	{
 	}
 
@@ -80,19 +80,21 @@ public:
 
 	GameSpace *GetSpace() const
 	{
-		return engine.GetSpace((0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT);
+		// (0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT
+		return engine.GetSpace(m_index);
 	}
 
 	GameSpaceIndex GetIndex() const
 	{
-		return m_objID & 0xFF00000000000000;
+		return m_index; // m_objID & 0xFF00000000000000;
 	}
 
 	// Templated to avoid errors
 	template <typename AVOID>
 	void SetSpace(GameSpaceIndex index)
 	{
-		(m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << EXTRACTION_SHIFT);
+		m_index = index;
+		// (m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << EXTRACTION_SHIFT);
 	}
 
 	template <typename T>
@@ -104,5 +106,13 @@ public:
 	operator bool() const { return m_objID; }
 
 private:
-	GameObject_ID m_objID;
+	union
+	{
+		struct
+		{
+			int m_id     : 24;
+			int m_index  : 8;
+		};
+		GameObject_ID m_objID;
+	};
 };
