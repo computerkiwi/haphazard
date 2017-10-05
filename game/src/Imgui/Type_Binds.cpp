@@ -108,7 +108,7 @@ void ImGui_GameObject(GameObject *object)
 				{
 					if (object->GetComponent<DynamicCollider2DComponent>().Get() || object->GetComponent<RigidBodyComponent>().Get())
 					{
-						// Display a warning
+						// Display an error
 					}
 					else
 					{

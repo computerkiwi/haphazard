@@ -59,7 +59,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.15f, 0.17f, 1.00f);
 	style->Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 
-	style->Colors[ImGuiCol_PopupBg] = ImVec4(0.20f, 0.29f, 0.37f, 0.50f);
+	style->Colors[ImGuiCol_PopupBg] = ImVec4(0.20f, 0.29f, 0.37f, 0.94f);
 
 	style->Colors[ImGuiCol_Border] = ImVec4(0.70f, 0.70f, 0.70f, 0.40f);
 	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
@@ -78,6 +78,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.40f, 0.40f, 0.80f, 0.30f);
 	style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.40f, 0.80f, 0.40f);
 	style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 0.40f);
+
 	style->Colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
 
 	style->Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.50f);
@@ -155,11 +156,11 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	});
 
 	// Log something to the file
-	RegisterCommand("log", 
-	[this]()
-	{
-		Logging::Log(m_line.substr(strlen("log")).c_str());
-	});
+	// RegisterCommand("log", 
+	// [this]()
+	// {
+	// 	Logging::Log(m_line.substr(strlen("log")).c_str());
+	// });
 
 	// Display the current active objects
 	RegisterCommand("objects",
@@ -223,7 +224,7 @@ void Editor::Update()
 			m_tool = Editor::Tool::Translation;
 		}
 
-		ImGui::ShowTestWindow();
+		// ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
