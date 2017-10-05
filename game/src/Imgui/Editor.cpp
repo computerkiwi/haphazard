@@ -11,7 +11,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Type_Binds.h"
 
 #include <string>
-#include <sstream>
 #include <algorithm>
 
 #include "../Imgui/imgui-setup.h"
@@ -26,7 +25,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Input/Input.h"
 
-#include <iomanip>
 #include <ctype.h>
 
 
@@ -226,11 +224,13 @@ void Editor::Update()
 	}
 }
 
+
 // Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
 	m_commands.emplace_back(Command(command, strlen(command), f));
 }
+
 
 // External Log that displays date
 void Editor::Log(const char *log_message, ...)

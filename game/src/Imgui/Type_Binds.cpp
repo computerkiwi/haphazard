@@ -116,12 +116,15 @@ void ImGui_GameObject(GameObject *object)
 			ImGui_Collider2D(&object->GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
 		}
 
-		
 
 		if (object->GetComponent<SpriteComponent>().IsValid())
 		{
 			ImGui_Sprite(object->GetComponent<SpriteComponent>().Get(), object);
 		}
+
+		// Move thit to the editor
+		//auto& move_curse = object->GetComponent<TransformComponent>().Get()->Position();
+		// Draw_Curse(move_curse)
 
 		End();
 	}
