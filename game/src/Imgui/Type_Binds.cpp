@@ -298,8 +298,14 @@ void ImGui_Collider2D(Collider2D *collider, GameObject *object)
 	{
 		if (Button("Remove"))
 		{
-			// Static or Dynamic
-			// object->DeleteComponent<Static or Dynamic Collider>();
+			if (collider->isStatic())
+			{
+				object->DeleteComponent<StaticCollider2DComponent>();
+			}
+			else
+			{
+				object->DeleteComponent<DynamicCollider2DComponent>();
+			}
 		}
 
 		if (TreeNode("Dimensions"))
