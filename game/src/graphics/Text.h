@@ -1,4 +1,5 @@
 #include "glm\glm.hpp"
+#include "Texture.h"
 #include <string>
 #include <vector>
 
@@ -7,21 +8,20 @@ typedef unsigned int GLuint;
 class Font
 {
 public:
-	void InitFonts();
+	static void InitFonts();
+
+	glm::vec2 GetFontSize() { return m_FontSize; }
+	GLuint GetTextureLayer() { return m_Texture->GetID(); }
 	glm::vec2 CharLocation(char c)
 	{
-		c -= '!'; // First character = !
-		m_Texture->GetFrameCoords(c);
+		c -= '!'-1; // First character = one before !
+		return m_Texture->GetFrameCoords(c);
 	}
 private:
-	Font(const char* path, int fontSize, int numCharsX);
-
+	Font(const char* path, int fontSize, int numCharsX, int numCharsY);
+	
 	AnimatedTexture* m_Texture;
-	int m_Width, m_Height;
-	glm::vec2 m_CharSize;
-	int m_CharsWide;
-
-	GLuint m_VBO;
+	glm::vec2 m_FontSize;
 };
 
 namespace Fonts
@@ -32,19 +32,25 @@ namespace Fonts
 class Text
 {
 public:
-	Text(std::string string, Font* font, glm::vec4 colors);
-	void GetDrawData(float* data);
+	Text(std::string string, Font* font, glm::vec4 color);
+	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
+	void Draw(glm::mat4& matrix);
 
 private:
-	static GLuint m_CharVBO;
-	static float m_VertData[8];
+	static void SetVertexBuffer();
+
+	void CompileText();
 
 	std::vector<float> m_CharData;
-
+	std::vector<int> m_FontData;
 	std::string m_String;
 	Font* m_Font;
 	glm::vec4 m_Color;
 
-	static GLuint m_VAO;
+	// Buffers
+	GLuint m_VAO;
+
 	static GLuint m_VertexVBO;
+	GLuint m_CharVBO = 0;
+	GLuint m_FontVBO = 0;
 };

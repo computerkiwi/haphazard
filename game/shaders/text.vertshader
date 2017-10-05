@@ -8,10 +8,11 @@ layout (location = 1) in vec2 texcoord;
 layout (location = 2) in int texLayer;
 
 // Character
-layout (location = 3) in vec4 texBox;
-layout (location = 4) in vec4 color;
-layout (location = 5) in mat4 model; 
-// location 5,6,7,8 used by model
+layout (location = 3) in vec2 charPos;
+layout (location = 4) in vec4 texBox;
+layout (location = 5) in vec4 color;
+layout (location = 6) in mat4 model; 
+// location 6,7,8,9 used by model
 
 layout (std140) uniform Matrices
 {
@@ -29,5 +30,5 @@ void main()
 	TexLayer = texLayer;
 
 	Color = color;
-	gl_Position = proj * view * model * vec4(pos, 1.0);
+	gl_Position = proj * view * model * vec4(pos.xy + charPos.xy, pos.z, 1.0);
 }

@@ -268,7 +268,7 @@ namespace Shaders
 			FailedCompile();
 	}
 
-	void LoadDefaultShader()
+	void LoadTextShader()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
 		// Vertex
@@ -276,16 +276,18 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 5, 3));
 
 		// Font
-		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(float), false, 1, 0));
+		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(float), false, 1, 0, true));
 
 		//Character
-		attribs.push_back(ShaderProgram::Attribute("texBox", 2, GL_FLOAT, sizeof(float), false, 22, 0, true));
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 22, 2, true));
+		attribs.push_back(ShaderProgram::Attribute("charPos", 2, GL_FLOAT, sizeof(float), false, 24, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("texBox", 2, GL_FLOAT, sizeof(float), false, 24, 2, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 24, 4, true));
+
 		// Model matrix
-		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 22, 6, true));
-		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 22, 10, true));
-		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 22, 14, true));
-		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 22, 18, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 24, 8, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 24, 12, true));
+		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 24, 16, true));
+		attribs.push_back(ShaderProgram::Attribute(9, 4, GL_FLOAT, sizeof(float), false, 24, 20, true));
 
 		textShader = LoadShaders(path + "text.vertshader", path + "text.fragshader", attribs);
 

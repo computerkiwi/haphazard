@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "Settings.h"
 #include "DebugGraphic.h"
+#include "Text.h"
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
@@ -18,8 +19,12 @@ RenderSystem::RenderSystem()
 
 static Camera* mainCamera;
 
+Text* t;
+
 void RenderSystem::Init()
 {
+	Font::InitFonts();
+
 	mainCamera = new Camera();
 	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
@@ -27,9 +32,10 @@ void RenderSystem::Init()
 
 	mainCamera->SetZoom(3);
 
-	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
-	Screen::GetView().AddEffect(FX::BLOOM);
-	Screen::GetView().SetBlurAmount(0.9f);
+//	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
+//	Screen::GetView().AddEffect(FX::BLOOM);
+//	Screen::GetView().SetBlurAmount(0.9f);
+	t = new Text("1", Fonts::arial, glm::vec4(1, 1, 1, 1));
 }
 
 // Called each frame.
@@ -39,16 +45,12 @@ void RenderSystem::Update(float dt)
 	//Screen::UpdateRaindrops(dt);
 	////Start Loop
 
-	//Screen::GetView().ResizeScreen(1920, 1080);
-
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
 	std::vector<float> data;
 	std::vector<int> tex;
 	int numMeshes = 0;
 	int numVerts = 0;
-
-	Shaders::defaultShader->Use();
 
 	for (auto& spriteHandle : *sprites)
 	{
@@ -69,9 +71,12 @@ void RenderSystem::Update(float dt)
 			numVerts = spriteHandle->NumVerts();
 
 		//Stuff happens here
+		t->Draw(transform->GetMatrix4());
 	}
-		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14f / 4, glm::vec4(1, 0, 1, 1));
 
+	Shaders::defaultShader->Use();
+	DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14f / 4, glm::vec4(1, 0, 1, 1));
+	
 	Mesh::BindTextureVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
 
@@ -84,7 +89,6 @@ void RenderSystem::Update(float dt)
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
 	
-
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 

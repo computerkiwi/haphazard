@@ -77,7 +77,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
 	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
-	obj.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
+	obj.AddComponent<SpriteComponent>(new AnimatedTexture("font.png", 24, 32, 16, 6), 5);
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
