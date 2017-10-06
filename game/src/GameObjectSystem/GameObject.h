@@ -6,35 +6,27 @@ Copyright � 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-#include "Engine/Engine.h"
-
 class GameSpace;
 
 // GameObject ID Gen
-GameObject_ID GenerateID();
+//GameObject_ID GenerateID();
 
-#define EXTRACTION_SHIFT (8 * 7)
 #define implicit
 
 template <typename T>
 class ComponentHandle;
-class Engine;
-extern Engine engine;
+
 
 typedef int GameObject_ID;
-typedef std::size_t GameSpaceIndex;
+typedef int GameSpaceIndex;
 typedef int    dummy;
 
 class GameObject
 {
 public:
-	GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << EXTRACTION_SHIFT))
-	{
-	}
+	GameObject(GameObject_ID id, GameSpaceIndex gameSpace);
 
-	implicit GameObject(GameObject_ID id) : m_objID(id)
-	{
-	}
+	implicit GameObject(GameObject_ID id);
 
 	template <typename T, typename... Args>
 	void AddComponent(Args&&... args)
@@ -54,48 +46,21 @@ public:
 		}
 		else
 		{
-			return ComponentHandle<T>(0, nullptr, false);
+			return ComponentHandle<T>(0, false);
 		}
 	}
 
-	GameObject_ID Getid() const
-	{
-		return m_objID;
-	}
+	GameObject_ID Getid() const;
 
-	// Dummy Template param since GameSpace are forward delcared here
-	template <typename dummy>
-	GameObject_ID Duplicate() const
-	{
-		return GetSpace()->Duplicate(m_objID, GetSpace()->NewGameObject());
-	}
+	GameObject_ID Duplicate() const;
 
-	// Templated to avoid errors
-	template <typename dummy>
-	void Delete()
-	{
-		GetSpace()->Delete(m_objID);
-		m_objID = 0;
-	}
+	void Delete();
 
-	GameSpace *GetSpace() const
-	{
-		// (0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT
-		return engine.GetSpace(m_index);
-	}
+	GameSpace *GetSpace() const;
 
-	GameSpaceIndex GetIndex() const
-	{
-		return m_index; // m_objID & 0xFF00000000000000;
-	}
+	GameSpaceIndex GetIndex() const;
 
-	// Templated to avoid errors
-	template <typename AVOID>
-	void SetSpace(GameSpaceIndex index)
-	{
-		m_index = index;
-		// (m_objID &= 0x00FFFFFFFFFFFFFF) &= (index << EXTRACTION_SHIFT);
-	}
+	void SetSpace(GameSpaceIndex index);
 
 	template <typename T>
 	void DeleteComponent()
@@ -111,7 +76,7 @@ private:
 		struct
 		{
 			int m_id     : 24;
-			int m_index  : 8;
+			int m_space  : 8;
 		};
 		GameObject_ID m_objID;
 	};

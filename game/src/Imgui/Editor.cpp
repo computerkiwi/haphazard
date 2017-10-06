@@ -137,7 +137,11 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	RegisterCommand("help", help);
 
 	// Create gameobject
-	RegisterCommand("create", [this]() { CreateGameObject(); });
+	RegisterCommand("create", [this]() 
+	{ 
+		std::string params = m_line.substr(strlen("create"), m_line.find_first_of(" ", strlen("create")));
+		CreateGameObject(); 
+	});
 	
 	// Clear the log
 	RegisterCommand("clear", [this]() { Clear(); });
@@ -268,9 +272,9 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 
 
-void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
+void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
 {
-	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject();
+	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
 	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
 	m_selected_object = object;
 }
@@ -327,9 +331,11 @@ void Editor::ObjectsList()
 
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
+	GameObject holder(0);
 	for (auto& object : m_objects)
 	{
-		snprintf(name_buffer, sizeof(name_buffer), "GameObject - %d : %d", GameObject(object).Getid(), GameObject(object).GetIndex());
+		holder = object;
+		snprintf(name_buffer, sizeof(name_buffer), "GameObject - %d : %d", holder.Getid(), holder.GetIndex());
 		if (Selectable(name_buffer))
 		{
 			SetGameObject(object);

@@ -14,10 +14,10 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <map>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include "Component.h"
-#include "TransformComponent.h"
-#include <iostream>
+#include "ObjectInfo.h"
 
 
 // Forward declare.
@@ -25,11 +25,9 @@ class GameSpace;
 class Engine;
 extern Engine engine;
 
-typedef int GameObject_ID;
-
 // GameObject ID Gen
 GameObject_ID GenerateID();
-#define EXTRACTION_SHIFT (8 * 7)
+#define EXTRACTION_SHIFT (8 * 3)
 
 // Required interface for systems.
 class SystemBase
@@ -68,11 +66,10 @@ private:
 
 // ID used as key to component containers.
 typedef std::size_t ComponentType;
-typedef std::size_t GameSpaceIndex;
+typedef int GameSpaceIndex;
 
 ComponentType GenerateComponentTypeID();
 
-#pragma optimize("", off)
 // Uses the address of the templated function as a unique ID.
 template <typename T>
 struct GetComponentType
@@ -84,7 +81,6 @@ struct GetComponentType
 		return cType;
 	}
 };
-#pragma optimize("", on)
 
 // Only exists so we can keep all of the component maps in one container.
 class ComponentMapBase
@@ -229,8 +225,8 @@ class GameSpace
 
 public:
 
-	GameSpace() {}
-	explicit GameSpace(GameSpaceIndex index) : m_index(index) {}
+	GameSpace() { RegisterComponentType<ObjectInfo>(); }
+	explicit GameSpace(GameSpaceIndex index) : m_index(index) { RegisterComponentType<ObjectInfo>(); }
 
 	template <typename T>
 	void RegisterComponentType()
@@ -277,9 +273,16 @@ public:
 		return GenerateID() | (m_index << EXTRACTION_SHIFT);
 	}
 
-	GameObject_ID NewGameObject() const
+	// GameObject_ID NewGameObject() const
+	// {
+	// 	return GenerateID() | (m_index << EXTRACTION_SHIFT);
+	// }
+
+	GameObject NewGameObject(const char *name) const
 	{
-		return GenerateID() | (m_index << EXTRACTION_SHIFT);
+		GameObject id = GenerateID() | (m_index << EXTRACTION_SHIFT);
+		id.AddComponent<ObjectInfo>(id, name);
+		return id;
 	}
 
 	void Init()
@@ -297,6 +300,19 @@ public:
 			iter->second->Update(dt);
 		}
 	}
+
+
+	GameObject_ID Duplicate(GameObject_ID originalObject)
+	{
+		GameObject newObject = NewGameObject(GetComponent<ObjectInfo>(originalObject)->m_name);
+		for (auto& c_map : m_componentMaps)
+		{
+			c_map.second->Duplicate(originalObject, newObject.Getid());
+		}
+
+		return newObject;
+	}
+
 
 	GameObject_ID Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
 	{
@@ -318,7 +334,7 @@ public:
 
 	void CollectGameObjects(std::vector<GameObject_ID>& objects)
 	{
-		auto *map = GetComponentMap<TransformComponent>();
+		auto *map = GetComponentMap<ObjectInfo>();
 
 		for (auto& transform : *map)
 		{
@@ -378,7 +394,7 @@ public:
 	{
 		if (m_spaces.size())
 		{
-			m_spaces.emplace_back(GameSpace(m_spaces.size()));
+			m_spaces.emplace_back(GameSpace(static_cast<int>(m_spaces.size())));
 		}
 		else
 		{

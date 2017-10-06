@@ -6,16 +6,17 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-typedef int GameObject_ID;
+#include "GameObjectSystem\GameObject.h"
 
 // Forward declaration.
 class GameSpace;
+#define EXTRACTION_SHIFT (8 * 3)
 
 template <typename T>
 class ComponentHandle
 {
 public:
-	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true) : m_objID(id), m_gameSpace(gameSpace), m_isValid(isValid)
+	ComponentHandle(GameObject_ID id, bool isValid = true) : m_objID(id), m_isValid(isValid)
 	{
 	}
 
@@ -31,12 +32,12 @@ public:
 
 	T *operator->()
 	{
-		return m_gameSpace->GetInternalComponent<T>(m_objID);
+		return GameObject(m_objID).GetSpace()->GetInternalComponent<T>(GameObject(m_objID).Getid());
 	}
 
 	T *Get()
 	{
-		return m_gameSpace ? operator->() : nullptr;
+		return GameObject(m_objID).GetSpace() ? operator->() : nullptr;
 	}
 
 	T& operator*()
@@ -44,22 +45,29 @@ public:
 		return *m_gameSpace->GetInternalComponent<T>(m_objID);
 	}
 
+	GameObject GetGameObject() const
+	{
+		return m_objID;
+	}
+
+
 	GameObject_ID GetGameObject_ID() const
 	{
 		return m_objID;
 	}
 
+
 	template <typename T>
 	ComponentHandle<T> GetSiblingComponent()
 	{
 		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
+		if (GameObject(m_objID).GetSpace()->GetInternalComponent<T>(GameObject(m_objID).Getid()) != nullptr)
 		{
-			return ComponentHandle<T>(m_objID, m_gameSpace);
+			return ComponentHandle<T>(m_objID);
 		}
 		else
 		{
-			return ComponentHandle<T>(0, nullptr, false);
+			return ComponentHandle<T>(0, false);
 		}
 	}
 
@@ -71,6 +79,5 @@ public:
 
 private:
 	GameObject_ID m_objID;
-	GameSpace *m_gameSpace;
 	bool m_isValid;
 };

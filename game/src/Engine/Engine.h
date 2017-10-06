@@ -53,4 +53,3 @@ private:
 	Editor   m_editor;
 };
 
-void RegisterComponents(lua_State * L);

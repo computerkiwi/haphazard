@@ -8,11 +8,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Editor.h"
 #include "Type_Binds.h"
 
+#include "GameObjectSystem/GameObject.h"
 #include "GameObjectSystem\GameSpace.h"
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "Engine\Physics\Collider2D.h"
-#include "GameObjectSystem/GameObject.h"
 
 using namespace ImGui;
 
@@ -40,14 +40,14 @@ void ImGui_GameObject(GameObject object)
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
 		if (Button("Duplicate"))
 		{
-			object.Duplicate<dummy>();
+			object.Duplicate();
 		}
 		PopStyleColor(3);
 		SameLine();
 		if (Button("Delete"))
 		{
-			object.Delete<dummy>();
-			object.SetSpace<dummy>(0);
+			object.Delete();
+			object.SetSpace(0);
 			End();
 			return;
 		}
@@ -94,6 +94,8 @@ void ImGui_GameObject(GameObject object)
 			EndPopup();
 		}
 
+
+		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
@@ -142,6 +144,16 @@ void ImGui_GameObject(GameObject object)
 //
 // Component ImGui stuff
 // ----------------------
+
+void ImGui_ObjectInfo(ObjectInfo *info)
+{
+	if (CollapsingHeader("Object Info"))
+	{
+		Text("ID: %d", info->m_id);
+		Text("Name: %s", info->m_name);
+	}
+}
+
 
 void ImGui_Transform(TransformComponent *transform, GameObject object)
 {

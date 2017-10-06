@@ -14,6 +14,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "RigidBody.h"
 #include "Collider2D.h"
 #include "../../graphics/DebugGraphic.h"
+#include "GameObjectSystem\GameObject.h"
 
 bool debugShowHitboxes = true;
 

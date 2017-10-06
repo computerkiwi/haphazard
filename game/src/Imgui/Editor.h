@@ -12,8 +12,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <functional>
 #include <glm/detail/type_vec2.hpp>
 
-
-typedef int GameObject_ID;
+#include "GameObjectSystem\GameObject.h"
 
 class Engine;
 struct GLFWwindow;
@@ -73,7 +72,7 @@ class Editor
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
-	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void CreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
 	void Internal_Log(const char *log_message, ...);

@@ -9,6 +9,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "glm/glm.hpp"
+#include "GameObjectSystem\GameObject.h"
 #include "../../GameObjectSystem/TransformComponent.h"
 #include "../../GameObjectSystem/GameSpace.h"
 
