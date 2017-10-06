@@ -2,7 +2,7 @@
 FILE: GameSpace.h
 PRIMARY AUTHOR: Kieran
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -87,119 +87,53 @@ public:
 private:
 };
 
+// Standard ComponentMap template
+// Any template specialization class must implement ALL of the functions in this class.
 template <typename T>
 class ComponentMap : public ComponentMapBase
 {
 public:
-	virtual ~ComponentMap()
-	{
-	}
+	virtual ~ComponentMap();
 
-	ComponentMap(GameSpace *space) : m_space(space)
-	{
-	}
+	ComponentMap(GameSpace *space);
 
 	// Returns nullptr if it's not found.
-	T *get(GameObject_ID id)
-	{
-		// Look for the object.
-		auto iter = m_components.find(id);
+	T *get(GameObject_ID id);
 
-		// If we couldn't find it, return nullptr. Else return pointer to it.
-		if (iter == m_components.end())
-		{
-			return nullptr;
-		}
-		else
-		{
-			return &iter->second;
-		}
-	}
+	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
 
-	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override
-	{
-		if (m_components.find(originalObject) != m_components.end())
-		{
-			m_components.emplace(newObject, T(m_components.find(originalObject)->second));
-		}
-	}
-
-	virtual void Delete(GameObject_ID object)
-	{
-		if (m_components.find(object) != m_components.end())
-		{
-			m_components.erase(object);
-		}
-	}
+	virtual void Delete(GameObject_ID object);
 
 	class iterator
 	{
 	public:
-		iterator(typename std::unordered_map<GameObject_ID, T>::iterator iterator, GameSpace *space) : m_iterator(iterator), m_space(space)
-		{
-		}
+		iterator(typename std::unordered_map<GameObject_ID, T>::iterator iterator, GameSpace *space);
 
-		iterator& operator++()
-		{
-			++m_iterator;
+		iterator& operator++();
 
-			return *this;
-		}
+		iterator operator++(int);
 
-		iterator operator++(int)
-		{
-			iterator temp = *this;
+		bool operator==(const iterator& other) const;
 
-			++m_iterator;
+		bool operator!=(const iterator& other) const;
 
-			return temp;
-		}
+		ComponentHandle<T> operator*();
 
-		bool operator==(const iterator& other) const
-		{
-			return (m_iterator == other.m_iterator) && (m_space == other.m_space);
-		}
-
-		bool operator!=(const iterator& other) const
-		{
-			return !(*this == other);
-		}
-
-		ComponentHandle<T> operator*()
-		{
-			return ComponentHandle<T>(m_iterator->first, m_space);
-		}
-
-		ComponentHandle<T> operator->()
-		{
-			return ComponentHandle<T>(m_iterator->first, m_space);
-		}
+		ComponentHandle<T> operator->();
 
 	private:
 		typename std::unordered_map<GameObject_ID, T>::iterator m_iterator;
 		GameSpace *m_space;
 	};
 
-	iterator begin()
-	{
-		return iterator(m_components.begin(), m_space);
-	}
+	iterator begin();
 
-	iterator end()
-	{
-		return iterator(m_components.end(), m_space);
-	}
+	iterator end();
 
 	template <typename... Args>
-	void emplaceComponent(GameObject_ID id, Args&&... args)
-	{
-		m_components.emplace(id, T(std::forward<Args>(args)...));
-	}
+	void emplaceComponent(GameObject_ID id, Args&&... args);
 
-	void DeleteComponent(GameObject_ID id)
-	{
-		m_components.erase(id);
-	}
+	void DeleteComponent(GameObject_ID id);
 
 private:
 	std::unordered_map<GameObject_ID, T> m_components;
@@ -215,135 +149,45 @@ class GameSpace
 
 public:
 	template <typename T>
-	void RegisterComponentType()
-	{
-		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering component type ", typeid(T).name());
-		m_componentMaps.emplace(GetComponentType<T>::func(), new ComponentMap<T>(this));
+	void RegisterComponentType();
 
-		std::cout << "Registering component type" << GetComponentType<T>::func() << std::endl;
-	}
+	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority);
+	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem);
 
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
-	{
-		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
-		newSystem->RegisterGameSpace(this);
-		m_systems.insert(std::make_pair(priority, std::move(newSystem)));
-	}
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem)
-	{
-		RegisterSystem(std::move(newSystem), newSystem->DefaultPriority());
-	}
+	void RegisterSystem(SystemBase *newSystem);
 
-	void RegisterSystem(SystemBase *newSystem)
-	{
-		RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
-	}
-
-	void RegisterSystem(SystemBase *newSystem, std::size_t priority)
-	{
-		RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
-	}
+	void RegisterSystem(SystemBase *newSystem, std::size_t priority);
 
 	// Returns a component HANDLE.
 	template <typename T>
-	ComponentHandle<T> GetComponent(GameObject_ID id)
-	{
-		return ComponentHandle<T>(id, this);
-	}
+	ComponentHandle<T> GetComponent(GameObject_ID id);
 
 	template <typename T>
-	ComponentMap<T> *GetComponentMap()
-	{
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
-		return static_cast<ComponentMap<T> *>(baseMap);
-	}
+	ComponentMap<T> *GetComponentMap();
 
 	template <typename T>
-	void DeleteComponent(GameObject_ID id)
-	{
-		reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()).get())->DeleteComponent(id);
-	}
+	void DeleteComponent(GameObject_ID id);
 
-	GameObject GetGameObject(GameObject_ID id)
-	{
-		return GameObject(id, this);
-	}
+	GameObject GetGameObject(GameObject_ID id);
 
-	GameObject NewGameObject()
-	{
-		return GameObject(GameObject::GenerateID(), this);
-	}
+	GameObject NewGameObject();
 
-	void Init()
-	{
-		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
-		{
-			iter->second->Init();
-		}
-	}
+	void Init();
 
-	void Update(float dt)
-	{
-		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter )
-		{
-			iter->second->Update(dt);
-		}
-	}
+	void Update(float dt);
 
-	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
-	{
-		for (auto& c_map : m_componentMaps)
-		{
-			c_map.second->Duplicate(originalObject, newObject);
-		}
+	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject);
 
-		return GameObject(newObject, this);
-	}
+	void Delete(GameObject_ID object);
 
-	void Delete(GameObject_ID object)
-	{
-		for (auto& c_map : m_componentMaps)
-		{
-			c_map.second->Delete(object);
-		}
-	}
-
-	std::vector<GameObject> CollectGameObjects()
-	{
-		std::vector<GameObject> objects;
-		objects.reserve(30);
-		auto *map = GetComponentMap<TransformComponent>();
-
-		for (auto& transform : *map)
-		{
-			objects.emplace_back(transform.GetGameObject());
-		}
-
-		return std::move(objects);
-	}
+	std::vector<GameObject> CollectGameObjects();
 
 private:
 	template <typename T>
-	T *GetInternalComponent(GameObject_ID id)
-	{
-		// TODO[Kieran]: Cast individual components instead of the maps.
-
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
-		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
-
-		return compMap->get(id);
-	}
+	T *GetInternalComponent(GameObject_ID id);
 
 	template <typename T, typename... Args>
-	void EmplaceComponent(GameObject_ID id, Args&&... args)
-	{
-		// TODO[Kieran]: Cast individual components instead of the maps.
-
-		ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
-		ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
-
-		compMap->emplaceComponent(id, std::forward<Args>(args)...);
-	}
+	void EmplaceComponent(GameObject_ID id, Args&&... args);
 
 	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
 	std::map<std::size_t, std::unique_ptr<SystemBase>> m_systems;
@@ -366,16 +210,10 @@ class GameSpaceManager
 {
 	std::unordered_map<std::size_t, GameSpace *> m_spaces;
 
-	GameSpace *GetInteral(std::size_t key)
-	{
-		return m_spaces.at(key);
-	}
+	GameSpace *GetInteral(std::size_t key);
 
 public:
-	void AddSpace(const char *name)
-	{
-		m_spaces.emplace(hash(name), new GameSpace());
-	}
+	void AddSpace(const char *name);
 
 	inline GameSpace *Get(const char *name)
 	{
@@ -387,13 +225,7 @@ public:
 		return GetInteral(hash(name));
 	}
 
-	void Update(float dt)
-	{
-
-		for (auto sys : m_spaces)
-		{
-			sys.second->Update(dt);
-		}
-	}
+	void Update(float dt);
 };
 
+#include "GameSpace.inl"

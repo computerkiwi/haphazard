@@ -141,6 +141,8 @@
     <None Include="shaders\debug.vertshader" />
     <None Include="src\meta\.gitignore" />
     <None Include="PlayerController.lua" />
+    <None Include="src\GameObjectSystem\Component.inl" />
+    <None Include="src\GameObjectSystem\GameSpace.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

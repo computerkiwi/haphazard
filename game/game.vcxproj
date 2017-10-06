@@ -243,6 +243,8 @@
     <None Include="shaders\debug.vertshader" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\GameObjectSystem\Component.inl" />
+    <None Include="src\GameObjectSystem\GameSpace.inl" />
     <None Include="src\meta\.gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

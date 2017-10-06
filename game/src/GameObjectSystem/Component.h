@@ -15,62 +15,30 @@ template <typename T>
 class ComponentHandle
 {
 public:
-	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true) : m_objID(id), m_gameSpace(gameSpace), m_isValid(isValid)
-	{
-	}
+	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true);
 
-	bool operator== (const ComponentHandle& other)
-	{
-		return m_objID == other.m_objID;
-	}
+	bool operator== (const ComponentHandle& other);
 
-	bool operator!=(const ComponentHandle& other)
-	{
-		return !(*this == other);
-	}
+	bool operator!=(const ComponentHandle& other);
 
-	T *operator->()
-	{
-		return m_gameSpace->GetInternalComponent<T>(m_objID);
-	}
+	T *operator->();
 
-	T *Get()
-	{
-		return m_gameSpace ? operator->() : nullptr;
-	}
+	T *Get();
 
-	T& operator*()
-	{
-		return *m_gameSpace->GetInternalComponent<T>(m_objID);
-	}
+	T& operator*();
 
-	GameObject GetGameObject()
-	{
-		return GameObject(m_objID, m_gameSpace);
-	}
+	GameObject GetGameObject();
 
-	template <typename T>
-	ComponentHandle<T> GetSiblingComponent()
-	{
-		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
-		{
-			return ComponentHandle<T>(m_objID, m_gameSpace);
-		}
-		else
-		{
-			return ComponentHandle<T>(0, nullptr, false);
-		}
-	}
+	template <typename ComponentType>
+	ComponentHandle<ComponentType> GetSiblingComponent();
 
 	// Returns true if this is a valid component.
-	bool IsValid()
-	{
-		return m_isValid;
-	}
+	bool IsValid();
 
 private:
 	GameObject_ID m_objID;
 	GameSpace *m_gameSpace;
 	bool m_isValid;
 };
+
+#include "Component.inl"
