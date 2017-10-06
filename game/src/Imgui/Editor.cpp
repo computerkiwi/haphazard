@@ -240,7 +240,7 @@ void Editor::Update()
 // Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	m_commands.emplace(Command(command, strlen(command), f));
+	m_commands.emplace(hash(command), Command(command, strlen(command), f));
 }
 
 
@@ -254,14 +254,20 @@ void Editor::Log(const char *log_message, ...)
 
 	auto t = std::time(nullptr);
 	
+	// This is the unsafe function warning
 	#pragma warning(disable : 4996)
 	strftime(time_buffer, 64, "[%H:%M:%S]", std::localtime(&t));
 
 	vsnprintf(buffer, 512, log_message, args);
+
 	m_log_buffer.append("%s - %s\n", time_buffer, buffer);
+
 	va_end(args);
+
 	m_offsets.push_back(m_log_buffer.size() - 1);
+
 	Logging::Log_Editor(Logging::Channel::CORE, Logging::Priority::MEDIUM_PRIORITY, buffer);
+
 	m_scroll = true;
 }
 
@@ -278,7 +284,6 @@ void Editor::Internal_Log(const char * log_message, ...)
 	m_offsets.push_back(m_log_buffer.size() - 1);
 	m_scroll = true;
 }
-
 
 
 void Editor::CreateGameObject(glm::vec2& pos, glm::vec2& size)
@@ -374,7 +379,7 @@ void Editor::ObjectsList()
 }
 
 
-void Editor::SetActive(ImGuiTextEditCallbackData *data, const char * entryIndex)
+void Editor::SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex)
 {
 	// Copy in the data  from the command
 	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
@@ -420,7 +425,7 @@ bool Command_StrCmp(const char *str1, const char *str2)
 }
 
 
-static int   Strnicmp(const char* str1, const char* str2, int n) 
+static int Strnicmp(const char* str1, const char* str2, int n) 
 { 
 	int d = 0; 
 	while (n > 0 && (d = toupper(*str2) - toupper(*str1)) == 0 && *str1) 
@@ -493,8 +498,10 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 				for (auto& command : editor->m_commands)
 				{
-					if (Strnicmp(command.first, word_start, (int)(word_end - word_start)) == 0)
-						editor->m_matches.push_back(command.first);
+					if (Strnicmp(command.second.command, word_start, (int)(word_end - word_start)) == 0)
+					{
+						editor->m_matches.push_back(command.second.command);
+					}
 				}
 
 
@@ -523,7 +530,9 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 						}
 
 						if (!all_matches_made)
+						{
 							break;
+						}
 						length++;
 					}
 
@@ -628,7 +637,9 @@ void Editor::Console()
 
 	auto winflags = 0;
 	if (m_state.m_popUp)
+	{
 		winflags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+	}
 
 	ImGui::SetNextWindowSize(ImVec2(800, 550), ImGuiSetCond_FirstUseEver);
 	ImGui::Begin("Console", nullptr, winflags);
@@ -681,8 +692,11 @@ void Editor::Console()
 		ImGui::TextUnformatted(m_log_buffer.begin());
 	}
 	if (m_scroll)
+	{
 		ImGui::SetScrollHere(1.0f);
+	}
 	m_scroll = false;
+
 	ImGui::EndChild();
 	ImGui::Separator();
 
@@ -691,7 +705,7 @@ void Editor::Console()
 	ImGui::Text("Command: ");
 	ImGui::SameLine();
 
-	auto flags = ImGuiInputTextFlags_EnterReturnsTrue     |
+	int flags = ImGuiInputTextFlags_EnterReturnsTrue     |
 				 ImGuiWindowFlags_NoSavedSettings         |
 				 ImGuiInputTextFlags_CallbackAlways       |
 				 ImGuiInputTextFlags_CallbackCharFilter   |
@@ -714,6 +728,9 @@ void Editor::Console()
 			// Make Everything uppercase
 			std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
+			// Get the hash of the command
+			size_t str_hash = hash(command.c_str());
+
 			// Log the command and display it on screen
 			if (first_of_not_space != std::string::npos)
 			{
@@ -730,13 +747,16 @@ void Editor::Console()
 			// Check if the popup was clicked and copy the data from the clicked item to here
 			if (m_state.m_popUp && m_state.clickedIndex != -1)
 			{
-				memmove(command_buffer, m_commands[m_state.activeIndex].command, m_commands[m_state.activeIndex].cmd_length);
+				if (m_commands.find(str_hash) != m_commands.end())
+				{
+					memmove(command_buffer, m_commands[str_hash].command, m_commands[str_hash].cmd_length);
+				}
 			}
 			else
 			{
-				if (m_commands.find(command.c_str()) != m_commands.end())
+				if (m_commands.find(str_hash) != m_commands.end())
 				{
-					m_commands.find(command.c_str())->second.func();
+					m_commands.find(str_hash)->second.func();
 				}
 			}
 
