@@ -40,6 +40,9 @@
     <ClCompile Include="src\Scripting\LuaRegistration.cpp" />
     <ClCompile Include="src\Imgui\Type_Binds.cpp" />
     <ClCompile Include="src\Engine\Physics\CollisionLayer.cpp" />
+    <ClCompile Include="src\meta\meta.cpp" />
+    <ClCompile Include="src\meta\MemberOffset.cpp" />
+    <ClCompile Include="src\meta\Any.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -143,6 +146,9 @@
     <None Include="PlayerController.lua" />
     <None Include="src\GameObjectSystem\Component.inl" />
     <None Include="src\GameObjectSystem\GameSpace.inl" />
+    <None Include="src\meta\meta.inl" />
+    <None Include="src\meta\MemberGetSet.inl" />
+    <None Include="src\meta\Any.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

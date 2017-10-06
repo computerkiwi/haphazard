@@ -179,7 +179,10 @@
     <ClCompile Include="src\Input\Gamepad.cpp" />
     <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\meta\Any.cpp" />
     <ClCompile Include="src\meta\BuiltInRegistration.h" />
+    <ClCompile Include="src\meta\MemberOffset.cpp" />
+    <ClCompile Include="src\meta\meta.cpp" />
     <ClCompile Include="src\meta\Registration.cpp" />
     <ClCompile Include="src\meta\Type.cpp" />
     <ClCompile Include="src\Scripting\GoodLuaDebugging.cpp" />
@@ -241,6 +244,9 @@
     <None Include="shaders\debug.fragshader" />
     <None Include="shaders\debug.geoshader" />
     <None Include="shaders\debug.vertshader" />
+    <None Include="src\meta\Any.inl" />
+    <None Include="src\meta\MemberGetSet.inl" />
+    <None Include="src\meta\meta.inl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\GameObjectSystem\Component.inl" />
