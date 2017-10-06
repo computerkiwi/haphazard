@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Brett Schiff
 
 Velocity, Acceleration, and Mass
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 

@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Contents the implementation for the QuadTrees
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "Quadtree.h"
 #include <array>

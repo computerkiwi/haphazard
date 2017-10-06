@@ -2,7 +2,7 @@
 FILE: Type.cpp
 PRIMARY AUTHOR: Kieran Williams
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "meta.h"
