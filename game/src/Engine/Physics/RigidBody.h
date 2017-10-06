@@ -12,13 +12,13 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "../../GameObjectSystem/TransformComponent.h"
 #include "../../GameObjectSystem/GameSpace.h"
 
-#define DEFAULT_GRAVITY glm::vec3(0, -.000002, 0)
+#define DEFAULT_GRAVITY glm::vec3(0, -3, 0)
 
 class RigidBodyComponent
 {
 public:
 	// constructors
-	RigidBodyComponent(glm::vec3 acceleration = glm::vec3(0), glm::vec3 velocity = glm::vec3(0), glm::vec3 gravity = DEFAULT_GRAVITY, float mass = 0) : m_acceleration(acceleration), m_velocity(velocity), m_gravity(gravity), m_inverseMass(mass)
+	RigidBodyComponent(glm::vec3 acceleration = glm::vec3(0), glm::vec3 velocity = glm::vec3(0), glm::vec3 gravity = DEFAULT_GRAVITY, float mass = 0) : m_acceleration(acceleration + gravity), m_velocity(velocity), m_gravity(gravity), m_inverseMass(mass)
 	{
 	}
 

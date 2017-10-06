@@ -268,7 +268,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 			TreePop();
 			Separator();
 		}
-		Collider2D::colliderType index = collider->m_colliderType;
+		int index = collider->m_colliderType;
 		Combo("Collider Type", reinterpret_cast<int *>(&index), collider_types, static_cast<int>(Collider2D::colliderType::collider_max));
 		collider->m_colliderType = index;
 	}

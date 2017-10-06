@@ -2,7 +2,7 @@
 FILE: GameObject.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -21,7 +21,7 @@ class ComponentHandle;
 class Engine;
 extern Engine engine;
 
-typedef std::size_t GameObject_ID;
+typedef int GameObject_ID;
 typedef std::size_t GameSpaceIndex;
 typedef int    dummy;
 

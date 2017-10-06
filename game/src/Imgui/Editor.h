@@ -2,7 +2,7 @@
 FILE: Editor.h
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -53,7 +53,7 @@ class Editor
 	};
 
 	std::vector<Command> m_commands;
-	std::vector<const char *> m_log_history;
+	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
 	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
@@ -91,7 +91,7 @@ public:
 	void Clear();
 
 	void SetGameObject(GameObject_ID new_object);
-	
+	void ToggleEditor();
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);

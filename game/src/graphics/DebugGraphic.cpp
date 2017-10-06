@@ -33,6 +33,7 @@ void DebugGraphic::DebugGraphic::DrawAll()
 		Shaders::debugShader->ApplyAttributes();
 	}
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	Shaders::debugShader->Use();
