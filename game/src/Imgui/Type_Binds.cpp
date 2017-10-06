@@ -96,7 +96,14 @@ void ImGui_GameObject(GameObject *object)
 				}
 				else
 				{
-					object->AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+					if (object->GetComponent<StaticCollider2DComponent>().Get())
+					{
+						// Display an error
+					}
+					else
+					{
+						object->AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+					}
 				}
 			}
 			else if (Button("Static Collider"))

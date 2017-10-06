@@ -61,12 +61,12 @@ class Editor
 
 
 	bool m_scroll = false;
-	std::vector<Command> m_commands;
+	std::map<const char *, Command> m_commands;
 	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
 	void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
-	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
+	void SetActive(ImGuiTextEditCallbackData *data, const char *entryIndex);
 	struct State 
 	{
 		bool m_popUp;

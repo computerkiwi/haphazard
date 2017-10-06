@@ -122,12 +122,12 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 		
 		for (auto& cmd : m_commands)
 		{
-			Editor::Internal_Log("     - %s \n", cmd.command);
+			Editor::Internal_Log("     - %s \n", cmd.second.command);
 		}
 	};
 
 	// Pre Allocate the Command Data
-	m_commands.reserve(32);
+	// m_commands.reserve(32);
 	
 	// Help screen bs
 	RegisterCommand("?", help);
@@ -215,14 +215,14 @@ void Editor::Update()
 
 		// Render the console
 		Console();
-
-		// Move, Scale, Rotate
-		Tools();
-
+		
 		if (Input::IsPressed(Key::Y))
 		{
 			m_tool = Editor::Tool::Translation;
 		}
+
+		// Move, Scale, Rotate
+		Tools();
 
 		// ImGui::ShowTestWindow();
 
@@ -240,7 +240,7 @@ void Editor::Update()
 // Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
-	m_commands.emplace_back(Command(command, strlen(command), f));
+	m_commands.emplace(Command(command, strlen(command), f));
 }
 
 
@@ -374,7 +374,7 @@ void Editor::ObjectsList()
 }
 
 
-void Editor::SetActive(ImGuiTextEditCallbackData *data, int entryIndex)
+void Editor::SetActive(ImGuiTextEditCallbackData *data, const char * entryIndex)
 {
 	// Copy in the data  from the command
 	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
@@ -490,13 +490,13 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 					--word_start;
 				}
 
-				// Check if the input matches any commands
-				for (int i = 0; i < editor->m_commands.size(); ++i)
+
+				for (auto& command : editor->m_commands)
 				{
-					// If there is some amount of match then add it to the vector
-					if (Strnicmp(editor->m_commands[i].command, word_start, (int)(word_end - word_start)) == 0)
-						editor->m_matches.push_back(editor->m_commands[i].command);
+					if (Strnicmp(command.first, word_start, (int)(word_end - word_start)) == 0)
+						editor->m_matches.push_back(command.first);
 				}
+
 
 				// Check if there were matches
 				if (editor->m_matches.Data)
@@ -661,10 +661,10 @@ void Editor::Console()
 		const char *line = buf_begin;
 
 		// Go through the data and 
-		for (int line_no = 0; line != NULL; line_no++)
+		for (int line_no = 0; line != nullptr; line_no++)
 		{
 			// Get the data
-			const char *line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : NULL;
+			const char *line_end = (line_no < m_offsets.Size) ? buf_begin + m_offsets[line_no] : nullptr;
 
 			// Filter the text
 			if (m_log_filter.PassFilter(line, line_end))
@@ -672,7 +672,7 @@ void Editor::Console()
 				ImGui::TextUnformatted(line, line_end);
 			}
 
-			line = line_end && line_end[1] ? line_end + 1 : NULL;
+			line = line_end && line_end[1] ? line_end + 1 : nullptr;
 		}
 	}
 	else
@@ -734,14 +734,9 @@ void Editor::Console()
 			}
 			else
 			{
-				// Parse the command
-				for (auto& cmd : m_commands)
+				if (m_commands.find(command.c_str()) != m_commands.end())
 				{
-					if (cmd.command == command)
-					{
-						cmd.func();
-						break;
-					}
+					m_commands.find(command.c_str())->second.func();
 				}
 			}
 
