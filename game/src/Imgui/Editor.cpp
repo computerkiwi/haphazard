@@ -723,6 +723,7 @@ void Editor::Console()
 			// Skip leading spaces
 			auto first_of_not_space = m_line.find_first_not_of(' ');
 
+			// Extract the command from the line
 			std::string command = m_line.substr(first_of_not_space, m_line.find_first_of(' '));
 
 			// Make Everything uppercase

@@ -53,23 +53,14 @@ void ImGui_GameObject(GameObject *object)
 		}
 		SameLine();
 
-		bool add_popup = false;
-
 		// Add Component Buttons
 		if (BeginPopup("Components"))
 		{
 
-			if (Button("Transform"))
-			{
-				if (object->GetComponent<TransformComponent>().Get())
-				{
-				}
-				else
-				{
-
-				}
-			}
-			else if (Button("Sprite"))
+			// Everything has a transform
+			// Everything is going to have a data component
+			
+			if (Button("Sprite"))
 			{
 				if (object->GetComponent<SpriteComponent>().Get())
 				{
