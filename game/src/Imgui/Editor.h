@@ -37,6 +37,14 @@ class Editor
 	GameObject_ID m_selected_object = 1;
 	std::vector<GameObject_ID> m_objects;
 
+	enum Tool
+	{
+		none,
+		Translation,
+		Scale,
+		Rotation
+	};
+	Tool m_tool = none;
 
 	std::string m_line;
 
@@ -51,11 +59,14 @@ class Editor
 		std::function<void()> func = std::function<void()>();
 	};
 
-	std::vector<Command> m_commands;
+
+	bool m_scroll = false;
+	std::map<std::size_t, Command> m_commands;
 	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
-	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
+	void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
+	void SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex);
 	struct State 
 	{
 		bool m_popUp;
@@ -75,7 +86,6 @@ private:
 	void CreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
-	void Internal_Log(const char *log_message, ...);
 
 	void OnClick();
 
@@ -87,10 +97,15 @@ public:
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
+	
+	// No timestamp
+	void Internal_Log(const char *log_message, ...);
 	void Clear();
 
 	void SetGameObject(GameObject_ID new_object);
 	void ToggleEditor();
+
+	void Tools();
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);

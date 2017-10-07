@@ -2,7 +2,7 @@
 FILE: Type_Binds.cpp
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 
 #include "Editor.h"
@@ -13,6 +13,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "Engine\Physics\Collider2D.h"
+#include "Scripting\ScriptComponent.h"
 
 using namespace ImGui;
 
@@ -53,42 +54,76 @@ void ImGui_GameObject(GameObject object)
 		}
 		SameLine();
 
-		bool add_popup = false;
-
-		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
-		if (Button("Add"))
-		{
-			// TODO[SWEET]:: Fix this pop bs
-			add_popup = false;
-		}
-		PopStyleColor(3);
-
 		// Add Component Buttons
-		if (add_popup)
+		if (BeginPopup("Components"))
 		{
-			BeginPopup("Components");
 
-			if (Button("Transform"))
+			// Everything has a transform
+			// Everything is going to have a data component
+			
+			if (Button("Sprite"))
 			{
-
-			}
-			else if (Button("Sprite"))
-			{
-
+				if (object->GetComponent<SpriteComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<SpriteComponent>();
+				}
 			}
 			else if (Button("RigidBody"))
 			{
-
+				if (object->GetComponent<RigidBodyComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<RigidBodyComponent>();
+				}
 			}
 			else if (Button("Dynamic Collider"))
 			{
-
+				if (object->GetComponent<DynamicCollider2DComponent>().Get())
+				{
+				}
+				else
+				{
+					if (object->GetComponent<StaticCollider2DComponent>().Get())
+					{
+						// Display an error
+					}
+					else
+					{
+						object->AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+					}
+				}
 			}
 			else if (Button("Static Collider"))
 			{
-
+				if (object->GetComponent<StaticCollider2DComponent>().Get())
+				{
+				}
+				else
+				{
+					if (object->GetComponent<DynamicCollider2DComponent>().Get() || object->GetComponent<RigidBodyComponent>().Get())
+					{
+						// Display an error
+					}
+					else
+					{
+						object->AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+					}
+				}
+			}
+			else if (Button("Script"))
+			{
+				if (object->GetComponent<ScriptComponent>().Get())
+				{
+				}
+				else
+				{
+					object->AddComponent<ScriptComponent>();
+				}
 			}
 
 			EndPopup();
@@ -96,6 +131,18 @@ void ImGui_GameObject(GameObject object)
 
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
+
+		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
+		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
+		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
+		if (Button("Add"))
+		{
+			// TODO[SWEET]:: Fix this pop bs
+			OpenPopup("Components");
+		}
+		PopStyleColor(3);
+
+
 
 		// if object - > component
 		// ImGui_Component(ComponetType *component);
@@ -119,11 +166,15 @@ void ImGui_GameObject(GameObject object)
 			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
 		}
 
-		
 
 		if (object.GetComponent<SpriteComponent>().IsValid())
 		{
 			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object);
+		}
+
+		if (object->GetComponent<ScriptComponent>().IsValid())
+		{
+			ImGui_Script(object->GetComponent<ScriptComponent>().Get(), object);
 		}
 
 		End();
@@ -258,8 +309,14 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 	{
 		if (Button("Remove"))
 		{
-			// Static or Dynamic
-			// object.DeleteComponent<Static or Dynamic Collider>();
+			if (collider->isStatic())
+			{
+				object->DeleteComponent<StaticCollider2DComponent>();
+			}
+			else
+			{
+				object->DeleteComponent<DynamicCollider2DComponent>();
+			}
 		}
 
 		if (TreeNode("Dimensions"))
@@ -285,3 +342,32 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 		collider->m_colliderType = index;
 	}
 }
+
+
+void ImGui_Script(ScriptComponent *script_c, GameObject *object)
+{
+	if (CollapsingHeader("Script"))
+	{
+		if (Button("Remove"))
+		{
+
+		}
+		char buffer[2048];
+		if (InputText("", buffer, 2048))
+		{
+			SameLine();
+			if (Button("Add##script"))
+			{
+				script_c->scripts.emplace_back(LuaScript(buffer));
+			}
+		}
+
+		for (auto& script : script_c->scripts)
+		{
+			(void)script;
+			Text("SomeDrive:/Folder/Wow/Harambe/scripts/die.lua");
+		}
+	}
+}
+
+

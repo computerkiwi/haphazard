@@ -11,6 +11,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <thread>
 #include <mutex>
 
+class Engine;
+//typedef char va_list;
+
 class Logging
 {
 public:
@@ -41,10 +44,11 @@ public:
 		#undef LOGGING_CHANNEL
 	};
 
-	static void Init();
+	static void Init(Engine *engine);
 	static void Exit();
 
 	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
+	static void Log_StartUp(const char *message, Logging::Channel channel, Priority priority);
 
 	template <typename... Args>
 	static void Log(Logging::Channel channel, Priority priority, Args&&... args)
@@ -52,6 +56,14 @@ public:
 		std::stringstream str;
 		ConstructVariadicLogString(str, std::forward<Args>(args)...);
 		Log(str.str().c_str(), channel, priority);
+	}
+
+	template <typename... Args>
+	static void Log_Editor(Logging::Channel channel, Priority priority, Args&&... args)
+	{
+		std::stringstream str;
+		ConstructVariadicLogString(str, std::forward<Args>(args)...);
+		Log_StartUp(str.str().c_str(), channel, priority);
 	}
 
 private:
@@ -80,6 +92,9 @@ private:
 	static void LogToFile(const char *message, Channel channel, Priority priority);
 
 	static bool TryOpenLogFile();
+
+	static int printf(Logging::Channel channel, Priority priority, const char *format, ...);
+	static int vprintf(Logging::Channel channel, Priority priority, const char *format, va_list vars_copy);
 
 	template <typename T, typename... Args>
 	static void ConstructVariadicLogString(std::stringstream& str, const T& value, Args&&... args)

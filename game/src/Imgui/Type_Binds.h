@@ -2,7 +2,7 @@
 FILE: Type_Binds.h
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 
 #pragma once
@@ -14,6 +14,7 @@ class TransformComponent;
 class RigidBodyComponent;
 class SpriteComponent;
 class Collider2D;
+struct ScriptComponent;
 
 void ImGui_GameObject(GameObject object);
 void ImGui_ObjectInfo(ObjectInfo *info);

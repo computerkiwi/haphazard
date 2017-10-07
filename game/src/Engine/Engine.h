@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Engine class data, no work really in here yet.
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -51,5 +51,6 @@ private:
 	GLFWwindow *m_window;
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
+	GameSpace m_space;
 };
 
