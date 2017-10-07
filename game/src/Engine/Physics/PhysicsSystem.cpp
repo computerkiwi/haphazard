@@ -22,19 +22,19 @@ void debugDisplayHitboxes(bool hitboxesShown)
 	debugShowHitboxes = hitboxesShown;
 }
 
-class ColliderBox
+class BoxCollider
 {
 public:
-	ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
+	BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
 
-	friend std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox);
+	friend std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox);
 
 	glm::vec3 m_topRight;
 	glm::vec3 m_botLeft;
 	float m_rotation;
 };
 
-std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox)
+std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
 {
 	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
 	ostream << "Bot Left  Corner: (" << colliderBox.m_botLeft.x << ", " << colliderBox.m_botLeft.y << ")" << std::endl;
@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox)
 	return ostream;
 }
 
-ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
+BoxCollider::BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
 {
 	glm::vec3 centerWithVelocity = center;
 	if (rigidBody.IsValid())
@@ -74,8 +74,8 @@ ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dim
 
 glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	ColliderBox Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
-	ColliderBox Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
+	BoxCollider Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
 
 	glm::vec3 escapeVector(0);
 	glm::vec3 minValue(0);

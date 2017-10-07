@@ -160,6 +160,7 @@
     <ClCompile Include="src\Engine\Physics\Collider2D.cpp" />
     <ClCompile Include="src\Engine\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Engine\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Engine\Physics\Raycast.cpp" />
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="src\Engine\Physics\Collider2D.h" />
     <ClInclude Include="src\Engine\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Engine\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Engine\Physics\Raycast.h" />
     <ClInclude Include="src\Engine\Physics\RigidBody.h" />
     <ClInclude Include="src\GameObjectSystem\Component.h" />
     <ClInclude Include="src\GameObjectSystem\GameObject.h" />
