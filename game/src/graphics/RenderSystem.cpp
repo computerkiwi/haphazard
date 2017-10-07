@@ -35,7 +35,7 @@ void RenderSystem::Init()
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
-	t = new Text("1", Fonts::arial, glm::vec4(1, 1, 1, 1));
+	t = new Text("~!@#?", Fonts::arial, glm::vec4(1, 1, 1, 1));
 }
 
 // Called each frame.

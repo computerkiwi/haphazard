@@ -17,8 +17,7 @@ SpriteComponent::SpriteComponent(Texture* t)
 	);
 	CompileMesh();
 
-	if(t)
-		SetTexture(t);
+	SetTexture(t);
 }
 
 SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)

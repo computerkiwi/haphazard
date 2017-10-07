@@ -10,18 +10,19 @@ class Font
 public:
 	static void InitFonts();
 
-	glm::vec2 GetFontSize() { return m_FontSize; }
+	float GetFontSpacing() { return 1; }
 	GLuint GetTextureLayer() { return m_Texture->GetID(); }
-	glm::vec2 CharLocation(char c)
+	glm::vec4 CharBox(char c)
 	{
 		c -= '!'-1; // First character = one before !
-		return m_Texture->GetFrameCoords(c);
+		return glm::vec4(m_Texture->GetFrameCoords(c), m_Texture->GetFrameCoords(c) + m_Texture->GetSpriteSize());
 	}
 private:
-	Font(const char* path, int fontSize, int numCharsX, int numCharsY);
+	Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY);
 	
 	AnimatedTexture* m_Texture;
 	glm::vec2 m_FontSize;
+
 };
 
 namespace Fonts
@@ -39,18 +40,14 @@ public:
 private:
 	static void SetVertexBuffer();
 
-	void CompileText();
+	void CompileText(std::string string);
 
 	std::vector<float> m_CharData;
-	std::vector<int> m_FontData;
-	std::string m_String;
 	Font* m_Font;
 	glm::vec4 m_Color;
 
 	// Buffers
-	GLuint m_VAO;
-
 	static GLuint m_VertexVBO;
+	GLuint m_VAO;
 	GLuint m_CharVBO = 0;
-	GLuint m_FontVBO = 0;
 };
