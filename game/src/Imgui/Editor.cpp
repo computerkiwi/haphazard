@@ -348,9 +348,9 @@ void Editor::OnClick()
 
 void Editor::Tools()
 {
-	if (m_selected_object.GetSpace())
+	if (GameObject(m_selected_object).GetSpace())
 	{
-		glm::vec3& pos = m_selected_object.GetComponent<TransformComponent>().Get()->Position();
+		glm::vec3& pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->Position();
 
 		switch (m_tool)
 		{

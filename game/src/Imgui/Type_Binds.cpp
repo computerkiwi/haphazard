@@ -63,66 +63,66 @@ void ImGui_GameObject(GameObject object)
 			
 			if (Button("Sprite"))
 			{
-				if (object->GetComponent<SpriteComponent>().Get())
+				if (object.GetComponent<SpriteComponent>().Get())
 				{
 				}
 				else
 				{
-					object->AddComponent<SpriteComponent>();
+					object.AddComponent<SpriteComponent>();
 				}
 			}
 			else if (Button("RigidBody"))
 			{
-				if (object->GetComponent<RigidBodyComponent>().Get())
+				if (object.GetComponent<RigidBodyComponent>().Get())
 				{
 				}
 				else
 				{
-					object->AddComponent<RigidBodyComponent>();
+					object.AddComponent<RigidBodyComponent>();
 				}
 			}
 			else if (Button("Dynamic Collider"))
 			{
-				if (object->GetComponent<DynamicCollider2DComponent>().Get())
+				if (object.GetComponent<DynamicCollider2DComponent>().Get())
 				{
 				}
 				else
 				{
-					if (object->GetComponent<StaticCollider2DComponent>().Get())
+					if (object.GetComponent<StaticCollider2DComponent>().Get())
 					{
 						// Display an error
 					}
 					else
 					{
-						object->AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+						object.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
 					}
 				}
 			}
 			else if (Button("Static Collider"))
 			{
-				if (object->GetComponent<StaticCollider2DComponent>().Get())
+				if (object.GetComponent<StaticCollider2DComponent>().Get())
 				{
 				}
 				else
 				{
-					if (object->GetComponent<DynamicCollider2DComponent>().Get() || object->GetComponent<RigidBodyComponent>().Get())
+					if (object.GetComponent<DynamicCollider2DComponent>().Get() || object.GetComponent<RigidBodyComponent>().Get())
 					{
 						// Display an error
 					}
 					else
 					{
-						object->AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+						object.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
 					}
 				}
 			}
 			else if (Button("Script"))
 			{
-				if (object->GetComponent<ScriptComponent>().Get())
+				if (object.GetComponent<ScriptComponent>().Get())
 				{
 				}
 				else
 				{
-					object->AddComponent<ScriptComponent>();
+					object.AddComponent<ScriptComponent>();
 				}
 			}
 
@@ -172,9 +172,9 @@ void ImGui_GameObject(GameObject object)
 			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object);
 		}
 
-		if (object->GetComponent<ScriptComponent>().IsValid())
+		if (object.GetComponent<ScriptComponent>().IsValid())
 		{
-			ImGui_Script(object->GetComponent<ScriptComponent>().Get(), object);
+			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object);
 		}
 
 		End();
@@ -311,11 +311,11 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 		{
 			if (collider->isStatic())
 			{
-				object->DeleteComponent<StaticCollider2DComponent>();
+				object.DeleteComponent<StaticCollider2DComponent>();
 			}
 			else
 			{
-				object->DeleteComponent<DynamicCollider2DComponent>();
+				object.DeleteComponent<DynamicCollider2DComponent>();
 			}
 		}
 
@@ -344,7 +344,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 }
 
 
-void ImGui_Script(ScriptComponent *script_c, GameObject *object)
+void ImGui_Script(ScriptComponent *script_c, GameObject object)
 {
 	if (CollapsingHeader("Script"))
 	{

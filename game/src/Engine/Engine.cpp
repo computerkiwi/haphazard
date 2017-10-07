@@ -49,7 +49,6 @@ GLFWwindow* WindowInit();
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
-	Logging::Init(this);
 
 	// Load Shaders
 	Shaders::Init();

@@ -44,7 +44,7 @@ public:
 		#undef LOGGING_CHANNEL
 	};
 
-	static void Init(Engine *engine);
+	static void Init();
 	static void Exit();
 
 	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);

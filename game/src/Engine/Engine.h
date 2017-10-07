@@ -26,7 +26,7 @@ class Engine
 public:
 	Engine();
 
-	static void LoggingInit();
+	void LoggingInit();
 
 	void MainLoop();
 

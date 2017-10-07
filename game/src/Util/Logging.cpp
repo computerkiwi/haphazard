@@ -106,11 +106,8 @@ std::string Logging::m_readBufferConsole;
 std::string Logging::m_writeBufferFile;
 std::string Logging::m_readBufferFile;
 
-static Engine *engine = nullptr;
-void Logging::Init(Engine *e_engine)
+void Logging::Init()
 {
-	engine = e_engine;
-
 	m_loggingthread = std::thread([]()
 	{
 		std::cout << "Side Thread: " << std::this_thread::get_id() << "\n";
@@ -165,8 +162,9 @@ void Logging::Exit()
 
 void Logging::Log(const char *message, Logging::Channel channel, Priority priority)
 {
-	engine->GetEditor()->Internal_Log(message);
-	engine->GetEditor()->Internal_Log("\n");
+	engine.GetEditor()->Internal_Log(message);
+	engine.GetEditor()->Internal_Log("\n");
+
 	if (m_logToFile)
 	{
 		LogToFile(message, channel, priority);
