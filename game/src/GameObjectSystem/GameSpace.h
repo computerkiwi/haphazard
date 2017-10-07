@@ -304,7 +304,7 @@ public:
 
 	GameObject_ID Duplicate(GameObject_ID originalObject)
 	{
-		GameObject newObject = NewGameObject(GetComponent<ObjectInfo>(originalObject)->m_name);
+		GameObject newObject = NewGameObject(GetComponent<ObjectInfo>(originalObject)->m_name.c_str());
 		for (auto& c_map : m_componentMaps)
 		{
 			c_map.second->Duplicate(originalObject, newObject.Getid());

@@ -16,7 +16,7 @@ typedef unsigned ObjectTag;
 class ObjectInfo
 {
 public:
-	const char *m_name;
+	std::string m_name;
 	GameObject_ID m_id;
 	std::vector<ObjectTag> m_tags;
 

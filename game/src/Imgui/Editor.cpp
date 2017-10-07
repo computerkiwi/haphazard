@@ -139,8 +139,8 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	// Create gameobject
 	RegisterCommand("create", [this]() 
 	{ 
-		std::string params = m_line.substr(strlen("create"), m_line.find_first_of(" ", strlen("create")));
-		CreateGameObject(); 
+		std::string name = m_line.substr(strlen("create"), m_line.find_first_of(" ", strlen("create")));
+		CreateGameObject(name.c_str()); 
 	});
 	
 	// Clear the log
