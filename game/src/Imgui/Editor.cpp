@@ -295,12 +295,14 @@ void Editor::Internal_Log(const char * log_message, ...)
 }
 
 
-
 void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
 {
 	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
+	
+	// Add a transform component
 	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
-	m_selected_object = object;
+
+	m_selected_object = object.Getid();
 }
 
 
@@ -433,9 +435,13 @@ void SetInput_Blank(ImGuiTextEditCallbackData *data)
 }
 
 
+// Alternative StrCmp
 bool Command_StrCmp(const char *str1, const char *str2)
 {
+	// Check if the current letters are the same
 	while (!(*str1 ^ *str2++))
+
+		// If end of str1 is reached, return true
 		if (!*str1++)
 			return true;
 
@@ -443,6 +449,7 @@ bool Command_StrCmp(const char *str1, const char *str2)
 }
 
 
+// This is from imgui, it returns how much alike two strings are
 static int Strnicmp(const char* str1, const char* str2, int n) 
 { 
 	int d = 0; 
@@ -465,15 +472,19 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 		// History based data
 	case ImGuiInputTextFlags_CallbackHistory:
 			// editor->m_state.m_popUp = true;
-
+			
+			// Check if arrow keys are pressed and if the current item is at the end
 			if (data->EventKey == ImGuiKey_UpArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
 			{
+				// Increase the active index and copy in the command
 				editor->m_state.activeIndex++;
 				editor->SetActive_History(data, static_cast<int>(editor->m_log_history.size() - editor->m_state.activeIndex) - 1);
 			}
 			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex > -1))
 			{
+				// Decrease the state and copy in "" if nothing is left, otherwise copy in the command
 				editor->m_state.activeIndex--;
+
 				if (editor->m_state.activeIndex == -1)
 				{
 					SetInput_Blank(data);

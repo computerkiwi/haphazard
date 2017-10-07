@@ -9,7 +9,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine\Engine.h"
 #include "GameObject.h"
 
-extern Engine engine;
+extern Engine *engine;
 
 
 GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << EXTRACTION_SHIFT))
@@ -31,7 +31,7 @@ GameObject_ID GameObject::Getid() const
 GameSpace *GameObject::GetSpace() const
 {
 	// (0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT
-	return engine.GetSpace(m_space);
+	return engine->GetSpace(m_space);
 }
 
 

@@ -23,7 +23,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 // Forward declare.
 class GameSpace;
 class Engine;
-extern Engine engine;
+extern Engine *engine;
 
 // GameObject ID Gen
 GameObject_ID GenerateID();
