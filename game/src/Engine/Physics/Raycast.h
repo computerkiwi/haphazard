@@ -13,6 +13,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 class Raycast
 {
+public:
 	// constructor with direction in degrees
 	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec3 startPoint, float direction, float range);
 	// constructor with direction along a vector
