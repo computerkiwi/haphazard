@@ -21,6 +21,12 @@ extern "C"
 
 struct GLFWwindow;
 
+class Init_EnginePointer
+{
+public:
+	Init_EnginePointer::Init_EnginePointer(Engine *e);
+};
+
 class Engine
 {
 public:
@@ -45,9 +51,11 @@ public:
 private:
 	float CalculateDt();
 
+	Init_EnginePointer m_init;
+
 	float m_dt = 0.0f;
 	bool m_running = true;
-	lua_State * L = luaL_newstate();
+
 	GLFWwindow *m_window;
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;

@@ -165,11 +165,11 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 	engine->GetEditor()->Internal_Log(message);
 	engine->GetEditor()->Internal_Log("\n");
 
-	if (!m_logToFile)
+	if (m_logToFile)
 	{
 		LogToFile(message, channel, priority);
 	}
-	if (!m_logToConsole)
+	if (m_logToConsole)
 	{
 		LogToConsole(message, channel, priority);
 	}
@@ -178,11 +178,11 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 
 void Logging::Log_StartUp(const char *message, Logging::Channel channel, Priority priority)
 {
-	if (!m_logToFile)
+	if (m_logToFile)
 	{
 		LogToFile(message, channel, priority);
 	}
-	if (!m_logToConsole)
+	if (m_logToConsole)
 	{
 		LogToConsole(message, channel, priority);
 	}

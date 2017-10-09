@@ -129,9 +129,6 @@ void ImGui_GameObject(GameObject object)
 			EndPopup();
 		}
 
-
-		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
-
 		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
 		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
@@ -142,6 +139,8 @@ void ImGui_GameObject(GameObject object)
 		}
 		PopStyleColor(3);
 
+
+		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
 
 
 		// if object - > component
@@ -201,7 +200,7 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	if (CollapsingHeader("Object Info"))
 	{
 		Text("ID: %d", info->m_id);
-		Text("Name: %s", info->m_name);
+		Text("Name: %s", info->m_name.c_str());
 	}
 }
 

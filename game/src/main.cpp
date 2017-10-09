@@ -16,7 +16,6 @@ int main()
 {
 	Engine sparrow;
 	sparrow.LoggingInit();
-	engine = &sparrow;
 
 
 	sparrow.MainLoop();

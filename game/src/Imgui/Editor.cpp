@@ -357,7 +357,7 @@ void Editor::Tools()
 		switch (m_tool)
 		{
 		case Translation:
-			DebugGraphic::DrawShape(pos);
+			DebugGraphic::DrawShape(pos, glm::vec2(5, 5));
 			break;
 
 		case Scale:
@@ -378,7 +378,7 @@ void Editor::ObjectsList()
 {
 	using namespace ImGui;
 
-	SetNextWindowSize(ImVec2(225, 350));
+	SetNextWindowSize(ImVec2(260, 400));
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
 	// Get all the names of the objects
@@ -387,7 +387,8 @@ void Editor::ObjectsList()
 	for (auto& object : m_objects)
 	{
 		holder = object;
-		snprintf(name_buffer, sizeof(name_buffer), "GameObject - %d : %d", holder.Getid(), holder.GetIndex());
+		snprintf(name_buffer, sizeof(name_buffer), 
+			     "%-5.8s... - %d : %d", holder.GetComponent<ObjectInfo>().Get()->m_name.c_str(), holder.Getid(), holder.GetIndex());
 		if (Selectable(name_buffer))
 		{
 			SetGameObject(object);

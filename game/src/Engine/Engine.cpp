@@ -46,10 +46,19 @@ GLFWwindow* WindowInit();
 #include "Physics\PhysicsSystem.h"
 #include "Scripting\ScriptSystem.h"
 
-				   // Init OpenGL and start window
-Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
-{
+extern Engine *engine;
 
+
+Init_EnginePointer::Init_EnginePointer(Engine *e)
+{
+	engine = e;
+}
+
+
+
+				   // Init OpenGL and start window
+Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window)
+{
 	// Load Shaders
 	Shaders::Init();
 
@@ -76,8 +85,8 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	// Initialize the system.
 	m_spaces[0]->Init();
 
-  // TEMPORARY IDK where to put this
-  Input::Init(m_window);
+	// TEMPORARY IDK where to put this
+	Input::Init(m_window);
 
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_spaces[0]->NewGameObject("Bird");
@@ -183,11 +192,6 @@ float Engine::Dt() const
 	return m_dt;
 }
 
-
-lua_State * Engine::GetLua()
-{
-	return L;
-}
 
 GLFWwindow* WindowInit()
 {
