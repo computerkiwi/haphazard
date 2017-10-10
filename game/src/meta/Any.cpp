@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "meta.h"
+#include "rapidjson/document.h"
 
 namespace meta
 {
@@ -47,6 +48,24 @@ namespace meta
 		else
 		{
 			m_type->moveConstructor(m_data, other.m_data);
+		}
+	}
+
+	// Deserialize constructor
+	Any::Any(rapidjson::Value& jsonValue)
+	{
+		Type *type = GetTypeByName(jsonValue["meta_type_name"].GetString());
+
+		if (type->GetSize() > MAX_SIZE)
+		{
+			m_dataPointer = new char[type->GetSize()];
+			type->DeserializeConstruct(m_dataPointer, jsonValue);
+			m_usesPointer = true;
+		}
+		else
+		{
+			type->DeserializeConstruct(m_dataPointer, jsonValue);
+			m_usesPointer = false;
 		}
 	}
 

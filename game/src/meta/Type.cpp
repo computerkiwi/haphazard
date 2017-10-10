@@ -46,7 +46,7 @@ namespace meta
 			std::string pointerName = "ptr to ";
 			pointerName += m_name;
 
-			m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, nullptr, this);
+			m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::DefaultConstructor<void *>, internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, nullptr, this);
 		}
 
 		return m_pointerType;
@@ -139,27 +139,49 @@ namespace meta
 
 		std::vector<Member *> members = GetMembers();
 
-		jsonObject.AddMember(rapidjson::StringRef("_meta_type_name"), rapidjson::Value().SetString(this->GetName().c_str(), allocator), allocator);
+		jsonObject.AddMember(rapidjson::StringRef("meta_type_name"), rapidjson::Value().SetString(this->GetName().c_str(), allocator), allocator);
+
+		rapidjson::Value jsonMembers;
+		jsonMembers.SetObject();
 
 		for (const auto& member : members)
 		{
 			Any memberObject = metaObject.GetMember(member);
 			std::string memberName = member->GetName();
 
-			jsonObject.AddMember(rapidjson::Value().SetString(memberName.c_str(), allocator), memberObject.Serialize(allocator), allocator);
+			jsonMembers.AddMember(rapidjson::Value().SetString(memberName.c_str(), allocator), memberObject.Serialize(allocator), allocator);
 		}
+
+		jsonObject.AddMember(rapidjson::StringRef("meta_members"), jsonMembers, allocator);
 
 		return jsonObject;
 	}
 
-	void Type::DeserializeConstruct(void *objectBuffer, rapidjson::Value jsonObject)
+	void Type::DeserializeConstruct(void *objectBuffer, rapidjson::Value& jsonObject)
 	{
-
+		defaultConstructor(objectBuffer);
+		DeserializeAssign(objectBuffer, jsonObject);
 	}
 
-	void Type::DeserializeAssign(void *object, rapidjson::Value jsonObject)
+	void Type::DeserializeAssign(void *object, rapidjson::Value& jsonObject)
 	{
+		// Make sure we have the right type.
+		assert(GetName() == jsonObject["meta_type_name"].GetString());
 
+		// Get the members from the object.
+		rapidjson::Value jsonMembers;
+		jsonMembers = jsonObject["meta_members"];
+
+		assert(jsonMembers.IsObject());
+
+		// Go through the members and deserialize each of them.
+		auto members = GetMembers();
+		for (const auto& member : members)
+		{
+			Any deserializedMember(jsonMembers[member->GetName().c_str()]);
+
+			member->Set(object, deserializedMember.GetDataPointer());
+		}
 	}
 }
 

@@ -6,6 +6,12 @@ namespace meta
 	namespace internal
 	{
 		template <typename T>
+		void DefaultConstructor(void *destination)
+		{
+			new (destination) T;
+		}
+
+		template <typename T>
 		void CopyConstructor(void *destination, const void *source)
 		{
 			const T *sourceObject = reinterpret_cast<const T *>(source);

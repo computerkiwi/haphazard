@@ -21,6 +21,9 @@ namespace meta
 	namespace internal
 	{
 		template <typename T>
+		void DefaultConstructor(void *destination);
+
+		template <typename T>
 		void CopyConstructor(void *destination, const void *source);
 
 		template <typename T>
@@ -40,6 +43,7 @@ namespace meta
 	{
 	public:
 
+		typedef void(*DefaultConstructorFunction)(void *destination);
 		typedef void(*CopyConstructorFunction)(void *destination, const void *source);
 		typedef void(*MoveConstructorFunction)(void *destination, void *source);
 		typedef void(*AssignmentFunction)(void *destination, const void *source);
@@ -49,10 +53,10 @@ namespace meta
 		typedef rapidjson::Value(*SerializeFunction)(const void *object, rapidjson::Document::AllocatorType& allocator);
 
 		Type(size_t size, const char *name,
-			CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, SerializeFunction sf,
+			DefaultConstructorFunction dcf, CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, SerializeFunction sf,
 			Type *dereferenceType)
 			: m_size(size), m_name(name),
-			copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), m_serializeFunction(sf),
+			defaultConstructor(dcf), copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), m_serializeFunction(sf),
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
 		}
@@ -91,6 +95,7 @@ namespace meta
 		// Returns nullptr if the member name doesn't exist.
 		Member *Type::GetMember(const char *name);
 
+		DefaultConstructorFunction defaultConstructor;
 		CopyConstructorFunction copyConstructor;
 		MoveConstructorFunction moveConstructor;
 		AssignmentFunction assignmentOperator;
@@ -104,9 +109,9 @@ namespace meta
 
 		rapidjson::Value Serialize(const void *object, rapidjson::Document::AllocatorType& allocator);
 
-		void DeserializeConstruct(void *objectBuffer, rapidjson::Value jsonObject);
+		void DeserializeConstruct(void *objectBuffer, rapidjson::Value& jsonObject);
 
-		void DeserializeAssign(void *object, rapidjson::Value jsonObject);
+		void DeserializeAssign(void *object, rapidjson::Value& jsonObject);
 
 	private:
 		size_t m_size;
@@ -222,6 +227,8 @@ namespace meta
 
 	class Any
 	{
+		friend class ::meta::Type;
+
 		// Size the type can be before we allocate dynamic memory for it.
 		static const size_t MAX_SIZE = sizeof(void *);
 	public:
@@ -233,6 +240,9 @@ namespace meta
 		Any(const Any& other);
 
 		Any(Any&& other);
+
+		// Deserialize constructor
+		Any(rapidjson::Value& jsonValue);
 
 		Any& operator=(const Any& other);
 
@@ -328,13 +338,25 @@ namespace meta
 	// Helpers for GetTypePointer
 	namespace internal
 	{
+		extern std::unordered_map<std::string, Type *> typeMap;
+
 		// For non-pointer types.
 		template <typename T>
 		struct TypeGetter
 		{
 			static Type *GetTypePointer(const char *typeName = nullptr)
 			{
-				static Type type(sizeof(T), typeName, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>, nullptr, nullptr);
+				static Type type(sizeof(T), typeName, internal::DefaultConstructor<T>, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>, nullptr, nullptr);
+				static bool firstCall = true;
+
+				// Register the type in the typeMap the first time we get called.
+				if (firstCall)
+				{
+					firstCall = false;
+
+					assert(typeName != nullptr);
+					typeMap.insert(std::make_pair<std::string, Type *>(typeName, &type));
+				}
 
 				return &type;
 			}
@@ -358,6 +380,11 @@ namespace meta
 	}
 
 	void Init();
+
+	inline Type *GetTypeByName(const char *typeName)
+	{
+		return internal::typeMap.at(typeName);
+	}
 
 }
 
