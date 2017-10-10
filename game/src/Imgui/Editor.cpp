@@ -2,7 +2,7 @@
 FILE: Editor.cpp
 PRIMARY AUTHOR: Sweet
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 // http://www.ariel.com/images/animated-messages-small2.gif

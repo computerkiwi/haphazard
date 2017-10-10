@@ -5,7 +5,7 @@ PRIMARY AUTHOR: Kieran
 Entry point into the program.
 Currently just a place to play around in.
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "Engine/Engine.h"

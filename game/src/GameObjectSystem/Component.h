@@ -2,7 +2,7 @@
 FILE: Component.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -16,68 +16,29 @@ template <typename T>
 class ComponentHandle
 {
 public:
-	ComponentHandle(GameObject_ID id, bool isValid = true) : m_objID(id), m_isValid(isValid)
-	{
-	}
+	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true);
 
-	bool operator== (const ComponentHandle& other)
-	{
-		return m_objID == other.m_objID;
-	}
+	bool operator== (const ComponentHandle& other);
 
-	bool operator!=(const ComponentHandle& other)
-	{
-		return !(*this == other);
-	}
+	bool operator!=(const ComponentHandle& other);
 
-	T *operator->()
-	{
-		return GameObject(m_objID).GetSpace()->GetInternalComponent<T>(GameObject(m_objID).Getid());
-	}
+	T *operator->();
 
-	T *Get()
-	{
-		return GameObject(m_objID).GetSpace() ? operator->() : nullptr;
-	}
+	T *Get();
 
-	T& operator*()
-	{
-		return *m_gameSpace->GetInternalComponent<T>(m_objID);
-	}
+	T& operator*();
 
-	GameObject GetGameObject() const
-	{
-		return m_objID;
-	}
+	GameObject GetGameObject();
 
-
-	GameObject_ID GetGameObject_ID() const
-	{
-		return m_objID;
-	}
-
-
-	template <typename T>
-	ComponentHandle<T> GetSiblingComponent()
-	{
-		// Make sure the component exists before we hand it off.
-		if (GameObject(m_objID).GetSpace()->GetInternalComponent<T>(GameObject(m_objID).Getid()) != nullptr)
-		{
-			return ComponentHandle<T>(m_objID);
-		}
-		else
-		{
-			return ComponentHandle<T>(0, false);
-		}
-	}
+	template <typename ComponentType>
+	ComponentHandle<ComponentType> GetSiblingComponent();
 
 	// Returns true if this is a valid component.
-	bool IsValid() const
-	{
-		return m_isValid;
-	}
+	bool IsValid();
 
 private:
 	GameObject_ID m_objID;
 	bool m_isValid;
 };
+
+#include "Component.inl"
