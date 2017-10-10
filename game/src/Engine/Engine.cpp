@@ -75,20 +75,6 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
   // TEMPORARY IDK where to put this
   Input::Init(m_window);
 
-	// TEMPORARY - Creating some GameObjects.
-	GameObject obj = m_space.NewGameObject();
-	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
-	obj.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
-	obj.AddComponent<RigidBodyComponent>();
-	obj.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
-
-	GameObject obj2 = m_space.NewGameObject();
-	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
-	obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
-
-	GameObject obj3 = m_space.NewGameObject();
-	obj3.AddComponent<SpriteComponent>(nullptr);
-
 	// RigidBody and Collider Testing Objects
 	// object with velocity
 	GameObject Brett_obj1 = m_space.NewGameObject();
@@ -102,7 +88,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1, 1), glm::vec3(.5f, .5f, 1));
 	Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-1.2f,0,0));
-	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
 
 	// object on a different collisionLayer
 	GameObject Brett_obj4 = m_space.NewGameObject();
@@ -156,7 +142,7 @@ void Engine::Update()
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
 
-	frameCap.waitUntil(16666);
+	frameCap.waitUntil(56666);
 }
 
 

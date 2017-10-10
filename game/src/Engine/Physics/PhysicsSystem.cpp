@@ -25,6 +25,11 @@ void debugDisplayHitboxes(bool hitboxesShown)
 	debugShowHitboxes = hitboxesShown;
 }
 
+void pDrawSmallBoxAtPosition(glm::vec2 position)
+{
+	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 1, 1, 1));
+}
+
 class BoxCollider
 {
 public:
@@ -275,14 +280,19 @@ void PhysicsSystem::Update(float dt)
 		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
 	}
 
-	float range = 30;
+	float range = 4;
+	glm::vec3 castPosition(-1, 0, 0);
+	
+	glm::vec3 normalizedDirection(2, -1.5f, 0);
 
-	Raycast testCast(allDynamicColliders, allStaticColliders, glm::vec3(0, 10, 0), glm::vec3(0, -1, 0), range);
+	normalizedDirection /= glm::length(normalizedDirection);
 
-	if (testCast.Length() != range)
-	{
-		std::cout << "Raycast Hit, Intersection: " << testCast.Intersection().x << ", " << testCast.Intersection().y << "\t\tLength: " << testCast.Length() << "\n";
-	}
+	Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, normalizedDirection, range);
+
+	pDrawSmallBoxAtPosition(castPosition);
+	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
+	pDrawSmallBoxAtPosition(testCast.Intersection());
+
 
 	for (auto tRigidBodyHandle : *rigidBodies)
 	{
