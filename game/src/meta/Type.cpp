@@ -9,6 +9,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <assert.h>
 #include <vector>
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+
 namespace meta
 {
 
@@ -43,7 +46,7 @@ namespace meta
 			std::string pointerName = "ptr to ";
 			pointerName += m_name;
 
-			m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, this);
+			m_pointerType = new Type(sizeof(void *), pointerName.c_str(), internal::CopyConstructor<void *>, internal::MoveConstructor<void *>, internal::Assignment<void *>, internal::MoveAssignment<void *>, internal::Destructor<void *>, nullptr, this);
 		}
 
 		return m_pointerType;
@@ -116,6 +119,47 @@ namespace meta
 		{
 			return memberIter->second;
 		}
+	}
+
+	//---------------
+	// Serialization
+	//---------------
+
+	rapidjson::Value Type::Serialize(const void *object, rapidjson::Document::AllocatorType& allocator)
+	{
+		if (m_serializeFunction != nullptr)
+		{
+			return m_serializeFunction(object, allocator);
+		}
+
+		Any metaObject(&object, this->GetPointerType());
+
+		rapidjson::Value jsonObject;
+		jsonObject.SetObject();
+
+		std::vector<Member *> members = GetMembers();
+
+		jsonObject.AddMember(rapidjson::StringRef("_meta_type_name"), rapidjson::Value().SetString(this->GetName().c_str(), allocator), allocator);
+
+		for (const auto& member : members)
+		{
+			Any memberObject = metaObject.GetMember(member);
+			std::string memberName = member->GetName();
+
+			jsonObject.AddMember(rapidjson::Value().SetString(memberName.c_str(), allocator), memberObject.Serialize(allocator), allocator);
+		}
+
+		return jsonObject;
+	}
+
+	void Type::DeserializeConstruct(void *objectBuffer, rapidjson::Value jsonObject)
+	{
+
+	}
+
+	void Type::DeserializeAssign(void *object, rapidjson::Value jsonObject)
+	{
+
 	}
 }
 

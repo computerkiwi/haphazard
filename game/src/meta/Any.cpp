@@ -210,6 +210,14 @@ namespace meta
 		return m_type;
 	}
 
+	//---------------
+	// Serialization
+	//---------------
+	rapidjson::Value Any::Serialize(rapidjson::Document::AllocatorType& allocator)
+	{
+		return m_type->Serialize(GetDataPointer(), allocator);
+	}
+
 	void *Any::GetDataPointer()
 	{
 		if (m_usesPointer)

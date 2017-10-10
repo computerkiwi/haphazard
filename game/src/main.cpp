@@ -9,8 +9,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "Engine/Engine.h"
+
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+#include <iostream>
+
 int main()
 {
+
 	Engine engine;
 
 	engine.MainLoop();

@@ -11,6 +11,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <unordered_map>
 #include <assert.h>
 
+#include "rapidjson/document.h"
+
 namespace meta
 {
 	class Member;
@@ -44,11 +46,13 @@ namespace meta
 		typedef void(*MoveAssignmentFunction)(void *destination, void *source);
 		typedef void(*DestructorFunction)(void *object);
 
+		typedef rapidjson::Value(*SerializeFunction)(const void *object, rapidjson::Document::AllocatorType& allocator);
+
 		Type(size_t size, const char *name,
-			CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df,
+			CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, SerializeFunction sf,
 			Type *dereferenceType)
 			: m_size(size), m_name(name),
-			copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df),
+			copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), m_serializeFunction(sf),
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
 		}
@@ -93,6 +97,17 @@ namespace meta
 		MoveAssignmentFunction moveAssignmentOperator;
 		DestructorFunction destructor;
 
+		void SetSerializeFunction(SerializeFunction func)
+		{
+			m_serializeFunction = func;
+		}
+
+		rapidjson::Value Serialize(const void *object, rapidjson::Document::AllocatorType& allocator);
+
+		void DeserializeConstruct(void *objectBuffer, rapidjson::Value jsonObject);
+
+		void DeserializeAssign(void *object, rapidjson::Value jsonObject);
+
 	private:
 		size_t m_size;
 		std::string m_name;
@@ -101,6 +116,8 @@ namespace meta
 		Type *m_dereferenceType;
 
 		std::unordered_map<std::string, Member *> m_members;
+
+		SerializeFunction m_serializeFunction;
 	};
 
 
@@ -285,6 +302,11 @@ namespace meta
 		//-----------------
 		Type *GetType() const;
 
+		//---------------
+		// Serialization
+		//---------------
+		rapidjson::Value Serialize(rapidjson::Document::AllocatorType& allocator);
+
 	private:
 		void *GetDataPointer();
 		const void *GetDataPointer() const;
@@ -312,7 +334,7 @@ namespace meta
 		{
 			static Type *GetTypePointer(const char *typeName = nullptr)
 			{
-				static Type type(sizeof(T), typeName, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>, nullptr);
+				static Type type(sizeof(T), typeName, internal::CopyConstructor<T>, internal::MoveConstructor<T>, internal::Assignment<T>, internal::MoveAssignment<T>, internal::Destructor<T>, nullptr, nullptr);
 
 				return &type;
 			}
@@ -342,6 +364,8 @@ namespace meta
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
 
 #define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)))
+
+#define META_DefineSerializeFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetSerializeFunction(FUNCTION_PTR))
 
 #define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 
