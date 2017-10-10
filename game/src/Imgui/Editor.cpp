@@ -329,18 +329,18 @@ void Editor::OnClick()
 				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
 				{
 					// Save the GameObject data
-					m_selected_object = transform.GetGameObject_ID();
+					m_selected_object = transform.GetGameObject().Getid();
 				}
 			}
 			else if (mouse.x < pos.x - scale.x)
 			{
 				if (mouse.y > pos.y + scale.y)
 				{
-					m_selected_object = transform.GetGameObject_ID();
+					m_selected_object = transform.GetGameObject().Getid();
 				}
 				else if (mouse.y < pos.y - scale.y)
 				{
-					m_selected_object = transform.GetGameObject_ID();
+					m_selected_object = transform.GetGameObject().Getid();
 				}
 			}
 		}

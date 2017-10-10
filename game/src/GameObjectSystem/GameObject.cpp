@@ -49,7 +49,7 @@ void GameObject::SetSpace(GameSpaceIndex index)
 
 GameObject_ID GameObject::Duplicate() const
 {
-	return GetSpace()->Duplicate(m_objID);
+	return GetSpace()->Duplicate(m_objID, GenerateID());
 }
 
 

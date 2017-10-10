@@ -48,14 +48,16 @@ void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 	RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
 }
 
-GameObject GameSpace::GetGameObject(GameObject_ID id)
+GameObject GameSpace::GetGameObject(GameObject_ID id) const
 {
-	return GameObject(id, this);
+	return GameObject(id, m_index);
 }
 
-GameObject GameSpace::NewGameObject()
+GameObject GameSpace::NewGameObject(const char *name) const
 {
-	return GameObject(GameObject::GenerateID(), this);
+	GameObject object(GenerateID() | (m_index << EXTRACTION_SHIFT));
+	object.AddComponent<ObjectInfo>(name);
+	return object;
 }
 
 void GameSpace::Init()
@@ -81,7 +83,7 @@ GameObject GameSpace::Duplicate(GameObject_ID originalObject, GameObject_ID newO
 		c_map.second->Duplicate(originalObject, newObject);
 	}
 
-	return GameObject(newObject, this);
+	return GameObject(newObject, m_index);
 }
 
 void GameSpace::Delete(GameObject_ID object)
@@ -92,18 +94,14 @@ void GameSpace::Delete(GameObject_ID object)
 	}
 }
 
-std::vector<GameObject> GameSpace::CollectGameObjects()
+void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 {
-	std::vector<GameObject> objects;
-	objects.reserve(30);
-	auto *map = GetComponentMap<TransformComponent>();
+	auto *map = GetComponentMap<ObjectInfo>();
 
 	for (auto& transform : *map)
 	{
 		objects.emplace_back(transform.GetGameObject());
 	}
-
-	return std::move(objects);
 }
 
 //------------------

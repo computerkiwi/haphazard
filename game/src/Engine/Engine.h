@@ -59,6 +59,5 @@ private:
 	GLFWwindow *m_window;
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
-	GameSpace m_space;
 };
 

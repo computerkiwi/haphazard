@@ -56,7 +56,7 @@ public:
 	virtual std::size_t DefaultPriority() = 0;
 
 protected:
-	GameSpace *GetGameSpace()
+	GameSpace *GetGameSpace() const
 	{
 		return m_space;
 	}
@@ -93,8 +93,6 @@ public:
 	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) = 0;
 
 	virtual void Delete(GameObject_ID object) = 0;
-
-private:
 };
 
 // Standard ComponentMap template
@@ -110,9 +108,9 @@ public:
 	// Returns nullptr if it's not found.
 	T *get(GameObject_ID id);
 
-	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
+	void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
 
-	virtual void Delete(GameObject_ID object);
+	void Delete(GameObject_ID object) override;
 
 	class iterator
 	{
@@ -182,9 +180,9 @@ public:
 	template <typename T>
 	void DeleteComponent(GameObject_ID id);
 
-	GameObject GetGameObject(GameObject_ID id);
+	GameObject GetGameObject(GameObject_ID id) const;
 
-	GameObject NewGameObject();
+	GameObject NewGameObject(const char *name) const;
 
 	void Init();
 
@@ -194,11 +192,13 @@ public:
 
 	void Delete(GameObject_ID object);
 
-	std::vector<GameObject> CollectGameObjects();
+	void CollectGameObjects(std::vector<GameObject_ID>& objects);
 
 private:
 	template <typename T>
 	T *GetInternalComponent(GameObject_ID id);
+
+	//GameSpaceIndex  m_index;
 
 	template <typename T, typename... Args>
 	void EmplaceComponent(GameObject_ID id, Args&&... args);
@@ -240,9 +240,9 @@ public:
 		}
 	}
 
-	inline GameSpace *Get(std::size_t index)
+	inline GameSpace &Get(std::size_t index)
 	{
-		return &m_spaces[index];
+		return m_spaces[index];
 	}
 
 	inline GameSpace *operator[](std::size_t index)
