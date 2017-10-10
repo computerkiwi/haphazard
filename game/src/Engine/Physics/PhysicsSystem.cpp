@@ -280,8 +280,8 @@ void PhysicsSystem::Update(float dt)
 		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
 	}
 
-	float range = 4;
-	glm::vec3 castPosition(-1, 0, 0);
+	float range = 5;
+	glm::vec3 castPosition(-2, 2, 0);
 	
 	glm::vec3 normalizedDirection(2, -1.5f, 0);
 

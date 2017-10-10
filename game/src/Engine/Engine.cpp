@@ -142,7 +142,7 @@ void Engine::Update()
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
 
-	frameCap.waitUntil(56666);
+	frameCap.waitUntil(16666);
 }
 
 
