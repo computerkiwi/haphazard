@@ -17,7 +17,12 @@ namespace meta
 		META_REGISTER(RegisterGLM)
 		{
 			META_DefineType(glm::vec2);
+
 			META_DefineType(glm::vec3);
+			META_DefineMember(glm::vec3, glm::vec3::x, "x");
+			META_DefineMember(glm::vec3, glm::vec3::y, "y");
+			META_DefineMember(glm::vec3, glm::vec3::z, "z");
+
 			META_DefineType(glm::vec4);
 
 			META_DefineType(glm::mat2);

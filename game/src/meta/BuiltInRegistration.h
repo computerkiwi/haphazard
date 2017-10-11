@@ -20,6 +20,15 @@ rapidjson::Value SerializeBasicType<TYPE>(const void *object, rapidjson::Documen
 	return val;\
 }
 
+#define DESERIALIZE_INTERGAL_TYPE_FUNCTION(TYPE)\
+template <>\
+void DeserializeAssignBasicType<TYPE>(void * objectPtr, rapidjson::Value& jsonObject)\
+{\
+	TYPE& object = *reinterpret_cast<TYPE *>(objectPtr);\
+\
+	object = static_cast<TYPE>(jsonObject.GetInt64());\
+}
+
 // Serialize functions.
 namespace
 {
@@ -55,9 +64,34 @@ namespace
 		return val;
 	}
 
+	template <typename T>
+	void DeserializeAssignBasicType(void *objectPtr, rapidjson::Value& jsonObject)
+	{
+		T& object = *reinterpret_cast<T *>(objectPtr);
+
+		object = jsonObject.Get<T>();
+	}
+
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(char)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(unsigned char)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(signed char)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(short)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(unsigned short)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(long)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(unsigned long)
+	DESERIALIZE_INTERGAL_TYPE_FUNCTION(wchar_t)
+
+	template <>
+	void DeserializeAssignBasicType<long double>(void *objectPtr, rapidjson::Value& jsonObject)
+	{
+		long double& object = *reinterpret_cast<long double *>(objectPtr);
+
+		object = static_cast<long double>(jsonObject.GetDouble());
+	}
+
 }
 
-#define DefineBasicType(TYPE) META_DefineType(TYPE); META_DefineSerializeFunction(TYPE, SerializeBasicType<TYPE>)
+#define DefineBasicType(TYPE) META_DefineType(TYPE); META_DefineSerializeFunction(TYPE, SerializeBasicType<TYPE>); META_DefineDeserializeAssignFunction(TYPE, DeserializeAssignBasicType<TYPE>)
 
 #define DefIntType(TYPE) DefineBasicType(TYPE); DefineBasicType(unsigned TYPE); DefineBasicType(signed TYPE)\
 

@@ -51,12 +51,14 @@ namespace meta
 		typedef void(*DestructorFunction)(void *object);
 
 		typedef rapidjson::Value(*SerializeFunction)(const void *object, rapidjson::Document::AllocatorType& allocator);
+		typedef void(*DeserializeAssignFunction)(void *object, rapidjson::Value& jsonObject);
 
 		Type(size_t size, const char *name,
 			DefaultConstructorFunction dcf, CopyConstructorFunction ccf, MoveConstructorFunction mcf, AssignmentFunction af, MoveAssignmentFunction maf, DestructorFunction df, SerializeFunction sf,
 			Type *dereferenceType)
 			: m_size(size), m_name(name),
-			defaultConstructor(dcf), copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), m_serializeFunction(sf),
+			defaultConstructor(dcf), copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), 
+			m_serializeFunction(sf), m_deserializeAssignFunction(nullptr),
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
 		}
@@ -106,6 +108,10 @@ namespace meta
 		{
 			m_serializeFunction = func;
 		}
+		void SetDeserializeAssignFunction(DeserializeAssignFunction func)
+		{
+			m_deserializeAssignFunction = func;
+		}
 
 		rapidjson::Value Serialize(const void *object, rapidjson::Document::AllocatorType& allocator);
 
@@ -123,6 +129,7 @@ namespace meta
 		std::unordered_map<std::string, Member *> m_members;
 
 		SerializeFunction m_serializeFunction;
+		DeserializeAssignFunction m_deserializeAssignFunction;
 	};
 
 
@@ -386,6 +393,14 @@ namespace meta
 		return internal::typeMap.at(typeName);
 	}
 
+	template <typename T>
+	rapidjson::Value Serialize(const T& object, rapidjson::Document::AllocatorType& allocator)
+	{
+		Type *type = GetTypePointer<T>();
+
+		return type->Serialize(&object, allocator);
+	}
+
 }
 
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
@@ -393,6 +408,7 @@ namespace meta
 #define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)))
 
 #define META_DefineSerializeFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetSerializeFunction(FUNCTION_PTR))
+#define META_DefineDeserializeAssignFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetDeserializeAssignFunction(FUNCTION_PTR))
 
 #define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 

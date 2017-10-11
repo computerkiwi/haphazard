@@ -54,17 +54,18 @@ namespace meta
 	// Deserialize constructor
 	Any::Any(rapidjson::Value& jsonValue)
 	{
-		Type *type = GetTypeByName(jsonValue["meta_type_name"].GetString());
+		assert(jsonValue.IsObject());
+		m_type = GetTypeByName(jsonValue["meta_type_name"].GetString());
 
-		if (type->GetSize() > MAX_SIZE)
+		if (m_type->GetSize() > MAX_SIZE)
 		{
-			m_dataPointer = new char[type->GetSize()];
-			type->DeserializeConstruct(m_dataPointer, jsonValue);
+			m_dataPointer = new char[m_type->GetSize()];
+			m_type->DeserializeConstruct(m_dataPointer, jsonValue);
 			m_usesPointer = true;
 		}
 		else
 		{
-			type->DeserializeConstruct(m_dataPointer, jsonValue);
+			m_type->DeserializeConstruct(m_data, jsonValue);
 			m_usesPointer = false;
 		}
 	}
