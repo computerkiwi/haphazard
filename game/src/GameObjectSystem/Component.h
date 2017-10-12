@@ -16,7 +16,7 @@ template <typename T>
 class ComponentHandle
 {
 public:
-	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true);
+	ComponentHandle(GameObject_ID id, bool isValid = true);
 
 	bool operator== (const ComponentHandle& other);
 

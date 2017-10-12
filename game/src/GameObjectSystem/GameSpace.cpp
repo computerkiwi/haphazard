@@ -26,26 +26,17 @@ GameObject_ID GenerateID()
 // GameSpace
 //-----------
 
-void GameSpace::RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
+void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 {
 	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 	newSystem->RegisterGameSpace(this);
-	m_systems.insert(std::make_pair(priority, std::move(newSystem)));
-}
-
-void GameSpace::RegisterSystem(std::unique_ptr<SystemBase>&& newSystem)
-{
-	RegisterSystem(std::move(newSystem), newSystem->DefaultPriority());
+	//m_systems.insert(std::make_pair(priority, std::move(*newSystem)));
+	m_systems.emplace(priority, newSystem);
 }
 
 void GameSpace::RegisterSystem(SystemBase *newSystem)
 {
-	RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
-}
-
-void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
-{
-	RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
+	RegisterSystem(newSystem, newSystem->DefaultPriority());
 }
 
 GameObject GameSpace::GetGameObject(GameObject_ID id) const
@@ -56,7 +47,7 @@ GameObject GameSpace::GetGameObject(GameObject_ID id) const
 GameObject GameSpace::NewGameObject(const char *name) const
 {
 	GameObject object(GenerateID() | (m_index << EXTRACTION_SHIFT));
-	object.AddComponent<ObjectInfo>(name);
+	object.AddComponent<ObjectInfo>(object.Getid(), name);
 	return object;
 }
 
@@ -98,9 +89,23 @@ void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 {
 	auto *map = GetComponentMap<ObjectInfo>();
 
-	for (auto& transform : *map)
+	for (auto& info : *map)
 	{
-		objects.emplace_back(transform.GetGameObject());
+		objects.emplace_back(info.GetGameObject().Getid());
+	}
+}
+
+
+GameSpace::~GameSpace()
+{
+	for (auto& sys : m_systems)
+	{
+		delete sys.second;
+	}
+
+	for (auto& componentMap : m_componentMaps)
+	{
+		delete componentMap.second;
 	}
 }
 

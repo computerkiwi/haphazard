@@ -274,7 +274,7 @@ void PhysicsSystem::Update(float dt)
 	}
 
 
-	for (auto tRigidBodyHandle : *rigidBodies)
+	for (auto& tRigidBodyHandle : *rigidBodies)
 	{
 		// get the transform from the same gameobject, and leave the loop if it isn't valid
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();

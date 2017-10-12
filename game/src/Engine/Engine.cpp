@@ -78,7 +78,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	m_spaces[0]->RegisterComponentType<ScriptComponent>();
 
 	// Register the systems.
-	m_spaces[0]->RegisterSystem(new PhysicsSystem);
+	m_spaces[0]->RegisterSystem(new PhysicsSystem());
 	m_spaces[0]->RegisterSystem(new RenderSystem());
 	m_spaces[0]->RegisterSystem(new ScriptSystem());
 

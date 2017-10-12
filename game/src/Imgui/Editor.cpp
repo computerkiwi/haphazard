@@ -129,9 +129,6 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 			Editor::Internal_Log("     - %s \n", cmd.second.command);
 		}
 	};
-
-	// Pre Allocate the Command Data
-	// m_commands.reserve(32);
 	
 	// Help screen bs
 	RegisterCommand("?", help);
@@ -175,9 +172,9 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	[this]()
 	{
 		Editor::Internal_Log("    Current Objects: \n");
-		for (auto object : m_objects)
+		for (auto& object : m_objects)
 		{
-			Editor::Internal_Log("     - %d \n", object);
+			Editor::Internal_Log("     - %d : %s \n", object, GameObject(object).GetComponent<ObjectInfo>().Get()->m_name.c_str());
 		}
 	});
 
@@ -424,6 +421,18 @@ void Editor::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
 }
 
 
+void Editor::SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex)
+{
+	// Copy in the data  from the command
+	memmove(data->Buf, m_matches[entryIndex], strlen(m_matches[entryIndex]));
+
+	// Update the Buffer data
+	data->Buf[strlen(m_matches[entryIndex])] = '\0';
+	data->BufTextLen = static_cast<int>(strlen(m_matches[entryIndex]));
+	data->BufDirty = true;
+}
+
+
 void SetInput_Blank(ImGuiTextEditCallbackData *data)
 {
 	// Copy in the data  from the command
@@ -470,7 +479,19 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 	switch (data->EventFlag)
 	{
-		// History based data
+		// When you hit tab
+	case ImGuiInputTextFlags_CallbackCompletion:
+		if (editor->m_matches.size())
+		{
+			// Delete the input buffer
+			data->DeleteChars(0, static_cast<int>(strlen(data->Buf)));
+
+			// Insert the command into the input buffer
+			data->InsertChars(data->CursorPos, editor->m_matches[0], editor->m_matches[0] + strlen(editor->m_matches[0]));
+		}
+		break;
+
+		// History based data, when you hit up or down arrow keys
 	case ImGuiInputTextFlags_CallbackHistory:
 			// editor->m_state.m_popUp = true;
 			
@@ -497,6 +518,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 			}
 		break;
 
+		// This happens all the time
 	case ImGuiInputTextFlags_CallbackAlways:
 			// Clear the data in the matches vector, but dont free the alloc'd memory
 			editor->m_matches.clear();
@@ -583,8 +605,10 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 				editor->m_state.m_popUp = false;
 			}
 		break;
-	case ImGuiInputTextFlags_CallbackCharFilter:
-		break;
+
+		// When you type a new character; here for possible future use
+	//case ImGuiInputTextFlags_CallbackCharFilter:
+		//break;
 
 	default:
 		break;

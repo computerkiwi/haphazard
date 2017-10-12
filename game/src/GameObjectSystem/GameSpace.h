@@ -148,6 +148,7 @@ private:
 	GameSpace *m_space;
 };
 
+
 // Contains a container for each component type.
 class GameSpace
 {
@@ -162,9 +163,6 @@ public:
 
 	template <typename T>
 	void RegisterComponentType();
-
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority);
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem);
 
 	void RegisterSystem(SystemBase *newSystem);
 
@@ -194,17 +192,19 @@ public:
 
 	void CollectGameObjects(std::vector<GameObject_ID>& objects);
 
+	~GameSpace();
+
 private:
 	template <typename T>
 	T *GetInternalComponent(GameObject_ID id);
 
-	//GameSpaceIndex  m_index;
+	GameSpaceIndex  m_index;
 
 	template <typename T, typename... Args>
 	void EmplaceComponent(GameObject_ID id, Args&&... args);
 
-	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
-	std::map<std::size_t, std::unique_ptr<SystemBase>> m_systems;
+	std::unordered_map<ComponentType, ComponentMapBase *> m_componentMaps;
+	std::map<std::size_t, SystemBase *> m_systems;
 };
 
 

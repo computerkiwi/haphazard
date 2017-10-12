@@ -197,9 +197,10 @@ void ImGui_GameObject(GameObject object)
 
 void ImGui_ObjectInfo(ObjectInfo *info)
 {
-	if (CollapsingHeader("Object Info"))
+	if (info)
 	{
-		Text("ID: %d", info->m_id);
+		Separator();
+		Text("ID: %d |", info->m_id); SameLine();
 		Text("Name: %s", info->m_name.c_str());
 	}
 }
