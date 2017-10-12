@@ -15,6 +15,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 #include "../../graphics/DebugGraphic.h"
 
+//TEMP
+#include "Raycast.h"
+
 bool debugShowHitboxes = true;
 
 void debugDisplayHitboxes(bool hitboxesShown)
@@ -22,28 +25,33 @@ void debugDisplayHitboxes(bool hitboxesShown)
 	debugShowHitboxes = hitboxesShown;
 }
 
-class ColliderBox
+void pDrawSmallBoxAtPosition(glm::vec2 position)
+{
+	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 1, 1, 1));
+}
+
+class BoxCollider
 {
 public:
-	ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
+	BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
 
-	friend std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox);
+	friend std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox);
 
-	glm::vec3 m_topRight;
-	glm::vec3 m_botLeft;
+	glm::vec3 m_corners0;
+	glm::vec3 m_corners2;
 	float m_rotation;
 };
 
-std::ostream& operator<<(std::ostream& ostream, const ColliderBox& colliderBox)
+std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
 {
-	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
-	ostream << "Bot Left  Corner: (" << colliderBox.m_botLeft.x << ", " << colliderBox.m_botLeft.y << ")" << std::endl;
+	ostream << "Top Right Corner: (" << colliderBox.m_corners0.x << ", " << colliderBox.m_corners0.y << ")" << std::endl;
+	ostream << "Bot Left  Corner: (" << colliderBox.m_corners2.x << ", " << colliderBox.m_corners2.y << ")" << std::endl;
 
 
 	return ostream;
 }
 
-ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
+BoxCollider::BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
 {
 	glm::vec3 centerWithVelocity = center;
 	if (rigidBody.IsValid())
@@ -54,8 +62,8 @@ ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dim
 	// if the box is axis-aligned, the calculation can be done ignoring angles
 	if (rotation == 0)
 	{
-		m_topRight = centerWithVelocity + (.5f * dimensions);
-		m_botLeft = centerWithVelocity - (.5f * dimensions);
+		m_corners0 = centerWithVelocity + (.5f * dimensions);
+		m_corners2 = centerWithVelocity - (.5f * dimensions);
 		m_rotation = 0;
 	}
 	else
@@ -63,59 +71,59 @@ ColliderBox::ColliderBox(float dt, const glm::vec3& center, const glm::vec3& dim
 		m_rotation = rotation;
 
 		// calculate the top right corner
-		m_topRight.x = centerWithVelocity.x + (dimensions.x * 0.5f * cos(m_rotation)) - (dimensions.y * 0.5f * sin(m_rotation));
-		m_topRight.y = centerWithVelocity.y + (dimensions.x * 0.5f * sin(m_rotation)) + (dimensions.y * 0.5f * cos(m_rotation));
+		m_corners0.x = centerWithVelocity.x + (dimensions.x * 0.5f * cos(m_rotation)) - (dimensions.y * 0.5f * sin(m_rotation));
+		m_corners0.y = centerWithVelocity.y + (dimensions.x * 0.5f * sin(m_rotation)) + (dimensions.y * 0.5f * cos(m_rotation));
 
 		// calculate the bottom left corner
-		m_botLeft.x = centerWithVelocity.x - (dimensions.x * 0.5f * cos(m_rotation)) + (dimensions.y * 0.5f * sin(m_rotation));
-		m_botLeft.y = centerWithVelocity.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
+		m_corners2.x = centerWithVelocity.x - (dimensions.x * 0.5f * cos(m_rotation)) + (dimensions.y * 0.5f * sin(m_rotation));
+		m_corners2.y = centerWithVelocity.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
 	}
 }
 
 glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	ColliderBox Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
-	ColliderBox Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
+	BoxCollider Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
 
 	glm::vec3 escapeVector(0);
 	glm::vec3 minValue(0);
 
-	if (Box1.m_topRight.x < Box2.m_botLeft.x)
+	if (Box1.m_corners0.x < Box2.m_corners2.x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.x = Box1.m_topRight.x - Box2.m_botLeft.x;
+		minValue.x = Box1.m_corners0.x - Box2.m_corners2.x;
 	}
-	if (Box1.m_topRight.y < Box2.m_botLeft.y)
+	if (Box1.m_corners0.y < Box2.m_corners2.y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.y = Box1.m_topRight.y - Box2.m_botLeft.y;
+		minValue.y = Box1.m_corners0.y - Box2.m_corners2.y;
 	}
-	if (Box1.m_botLeft.x > Box2.m_topRight.x)
+	if (Box1.m_corners2.x > Box2.m_corners0.x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_botLeft.x - Box2.m_topRight.x) < abs(minValue.x))
+		if (abs(Box1.m_corners2.x - Box2.m_corners0.x) < abs(minValue.x))
 		{
-			minValue.x = Box1.m_botLeft.x - Box2.m_topRight.x;
+			minValue.x = Box1.m_corners2.x - Box2.m_corners0.x;
 		}
 	}
-	if (Box1.m_botLeft.y > Box2.m_topRight.y)
+	if (Box1.m_corners2.y > Box2.m_corners0.y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_botLeft.y - Box2.m_topRight.y) < abs(minValue.y))
+		if (abs(Box1.m_corners2.y - Box2.m_corners0.y) < abs(minValue.y))
 		{
-			minValue.y = Box1.m_botLeft.y - Box2.m_topRight.y;
+			minValue.y = Box1.m_corners2.y - Box2.m_corners0.y;
 		}
 	}
 
@@ -271,6 +279,19 @@ void PhysicsSystem::Update(float dt)
 	{
 		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
 	}
+
+	float range = 5;
+	glm::vec3 castPosition(-2, 2, 0);
+	
+	glm::vec3 normalizedDirection(2, -1.5f, 0);
+
+	normalizedDirection /= glm::length(normalizedDirection);
+
+	Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, normalizedDirection, range);
+
+	pDrawSmallBoxAtPosition(castPosition);
+	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
+	pDrawSmallBoxAtPosition(testCast.Intersection());
 
 
 	for (auto tRigidBodyHandle : *rigidBodies)

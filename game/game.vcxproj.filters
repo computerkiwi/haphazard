@@ -40,6 +40,7 @@
     <ClCompile Include="src\Scripting\LuaRegistration.cpp" />
     <ClCompile Include="src\Imgui\Type_Binds.cpp" />
     <ClCompile Include="src\Engine\Physics\CollisionLayer.cpp" />
+    <ClCompile Include="src\Engine\Physics\Raycast.cpp" />
     <ClCompile Include="src\meta\meta.cpp" />
     <ClCompile Include="src\meta\MemberOffset.cpp" />
     <ClCompile Include="src\meta\Any.cpp" />
@@ -159,5 +160,6 @@
     <ClInclude Include="src\Scripting\LuaRegistration.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Engine\Physics\CollisionLayer.h" />
+    <ClInclude Include="src\Engine\Physics\Raycast.h" />
   </ItemGroup>
 </Project>
