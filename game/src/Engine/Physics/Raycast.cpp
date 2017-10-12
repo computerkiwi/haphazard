@@ -16,6 +16,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Raycast.h"
 #include "../../graphics/DebugGraphic.h"
 #include "../../GameObjectSystem/GameSpace.h"
+#include "GameObjectSystem\TransformComponent.h"
 
 #define DEGREES_PER_RADIAN 57.2957795131f
 

@@ -70,6 +70,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// Register the component types.
 	m_spaces.AddSpace();
 
+	m_spaces[0]->RegisterComponentType<ObjectInfo>();
 	m_spaces[0]->RegisterComponentType<TransformComponent>();
 	m_spaces[0]->RegisterComponentType<RigidBodyComponent>();
 	m_spaces[0]->RegisterComponentType<StaticCollider2DComponent>();

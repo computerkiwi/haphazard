@@ -42,7 +42,9 @@ public:
 		{
 			// Why the hell does constructing a ComponentHandle work?
 			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
-			return ComponentHandle<T>(m_objID, GetSpace());
+
+			// TEMPLATES -Sweet
+			return ComponentHandle<T>(m_objID);
 		}
 		else
 		{
