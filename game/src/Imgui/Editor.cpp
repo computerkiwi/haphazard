@@ -219,6 +219,9 @@ void Editor::Update()
 		// TODO[NOAH]:: Make it collect all GameObjects
 		m_engine->GetSpaceManager()->CollectAllObjects(m_objects);
 
+		// Top Bar
+		MenuBar();
+
 		// Render the console
 		Console();
 		
@@ -376,6 +379,7 @@ void Editor::ObjectsList()
 	using namespace ImGui;
 
 	SetNextWindowSize(ImVec2(260, 400));
+	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
 
 	// Get all the names of the objects
@@ -621,6 +625,29 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 void Editor::ToggleEditor()
 {
 	m_show_editor = !m_show_editor;
+}
+
+
+void Editor::MenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 }
 
 

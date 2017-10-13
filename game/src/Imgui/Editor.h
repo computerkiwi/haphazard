@@ -108,6 +108,7 @@ public:
 
 	void Tools();
 
+	void MenuBar();
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };
