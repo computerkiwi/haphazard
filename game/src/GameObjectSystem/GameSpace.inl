@@ -55,6 +55,11 @@ void ComponentMap<T>::Delete(GameObject_ID object)
 	}
 }
 
+template <typename T>
+meta::Any ComponentMap<T>::GetComponentPointerMeta(GameObject_ID object)
+{
+	return meta::Any(this->get(object));
+}
 	
 template <typename T>
 typename ComponentMap<T>::iterator ComponentMap<T>::begin()

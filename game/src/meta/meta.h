@@ -266,6 +266,8 @@ namespace meta
 		// Dereference operator.
 		Any operator*();
 
+		bool IsNullPtr();
+
 		//-----------------------
 		// Member Getter/Setters
 		//-----------------------

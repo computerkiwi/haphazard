@@ -8,6 +8,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Universal.h"
 
+#include "meta/meta.h"
+
 #include <typeinfo>
 
 #include <unordered_map>
@@ -84,6 +86,9 @@ public:
 
 	virtual void Delete(GameObject_ID object) = 0;
 
+	// This is a pointer, not a handle. It probably won't be valid very long.
+	virtual meta::Any GetComponentPointerMeta(GameObject_ID object) = 0;
+
 private:
 };
 
@@ -103,6 +108,8 @@ public:
 	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
 
 	virtual void Delete(GameObject_ID object);
+
+	virtual meta::Any GetComponentPointerMeta(GameObject_ID object);
 
 	class iterator
 	{
@@ -181,6 +188,9 @@ public:
 	void Delete(GameObject_ID object);
 
 	std::vector<GameObject> CollectGameObjects();
+
+	// These are pointers, not handles. They probably won't be valid very long.
+	std::vector<meta::Any> GetObjectComponentPointersMeta(GameObject_ID id);
 
 private:
 	template <typename T>

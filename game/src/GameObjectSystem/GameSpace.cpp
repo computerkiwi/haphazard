@@ -98,6 +98,24 @@ std::vector<GameObject> GameSpace::CollectGameObjects()
 	return std::move(objects);
 }
 
+// These are pointers, not handles. They probably won't be valid very long.
+std::vector<meta::Any> GameSpace::GetObjectComponentPointersMeta(GameObject_ID id)
+{
+	std::vector<meta::Any> components;
+
+	// Get the component from each map.
+	for (auto& mapPair : m_componentMaps)
+	{
+		meta::Any componentPtr = mapPair.second->GetComponentPointerMeta(id);
+		if (!componentPtr.IsNullPtr())
+		{
+			components.push_back(componentPtr);
+		}
+	}
+
+	return components;
+}
+
 //------------------
 // GameSpaceManager
 //------------------

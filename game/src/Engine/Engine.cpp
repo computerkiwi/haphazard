@@ -43,9 +43,28 @@ GLFWwindow* WindowInit();
 #include "Physics\PhysicsSystem.h"
 #include "Scripting\ScriptSystem.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+
+// Temporary.
+// TODO: delet this
+GameSpace *defaultGameSpacePtr = nullptr;
+#include <fstream>
+
+void SerializeGameObject(GameObject &obj, rapidjson::Document& doc)
+{
+	rapidjson::Value object;
+	object = meta::Serialize(obj, doc.GetAllocator());
+	doc.PushBack(object, doc.GetAllocator());
+}
+
 				   // Init OpenGL and start window
 Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 {
+	// This is temporary for current serialization issues.
+	// TODO: delet this
+	defaultGameSpacePtr = &m_space;
+
 	Logging::Init();
 
 	// Load Shaders
@@ -75,19 +94,27 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
   // TEMPORARY IDK where to put this
   Input::Init(m_window);
 
+
+	rapidjson::Document doc;
+	doc.SetArray();
+
 	// TEMPORARY - Creating some GameObjects.
 	GameObject obj = m_space.NewGameObject();
 	obj.AddComponent<TransformComponent>(glm::vec3(0,0,-1));
 	obj.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60);
 	obj.AddComponent<RigidBodyComponent>();
 	obj.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua"));
+	SerializeGameObject(obj, doc);
 
 	GameObject obj2 = m_space.NewGameObject();
 	obj2.AddComponent<TransformComponent>(glm::vec3(-1, 0, 0));
 	obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	SerializeGameObject(obj2, doc);
+
 
 	GameObject obj3 = m_space.NewGameObject();
 	obj3.AddComponent<SpriteComponent>(nullptr);
+	SerializeGameObject(obj3, doc);
 
 	// RigidBody and Collider Testing Objects
 	// object with velocity
@@ -96,6 +123,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj1.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.6f,0,0));
 	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+	SerializeGameObject(Brett_obj1, doc);
 
 	// object with velocity
 	GameObject Brett_obj2 = m_space.NewGameObject();
@@ -103,6 +131,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-1.2f,0,0));
 	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+	SerializeGameObject(Brett_obj2, doc);
 
 	// object on a different collisionLayer
 	GameObject Brett_obj4 = m_space.NewGameObject();
@@ -110,13 +139,21 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj4.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj4.AddComponent<RigidBodyComponent>();
 	Brett_obj4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::decor);
+	SerializeGameObject(Brett_obj4, doc);
 
 	// static colliders: box of cats
 	GameObject Brett_obj3 = m_space.NewGameObject();
 	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(1.25, -1, -1), glm::vec3(2.5, 1, 1));
 	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(2.5, 1, 0));
+	SerializeGameObject(Brett_obj3, doc);
 
+
+	rapidjson::StringBuffer s;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+	doc.Accept(writer);
+	std::ofstream os("output.json");
+	os << s.GetString() << std::endl;
 }
 
 void Engine::MainLoop()

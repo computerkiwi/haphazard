@@ -40,7 +40,7 @@ CollisionLayer::CollisionLayer(int layers) : m_layer(layers)
 {
 }
 
-CollisionLayer::CollisionLayer(CollisionLayer& layer) : m_layer(layer.m_layer)
+CollisionLayer::CollisionLayer(const CollisionLayer& layer) : m_layer(layer.m_layer)
 {
 }
 

@@ -6,11 +6,14 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "meta/meta.h"
+
 class GameSpace;
+
+extern GameSpace *defaultGameSpacePtr;
 
 template <typename T>
 class ComponentHandle;
-
 
 typedef size_t GameObject_ID;
 typedef int    dummy;
@@ -19,6 +22,12 @@ class GameObject
 {
 public:
 	GameObject(GameObject_ID id, GameSpace *gameSpace) : m_objID(id), m_gameSpace(gameSpace)
+	{
+	}
+
+	// This is temporary for current serialization issues.
+	// TODO: delet this
+	GameObject() : m_objID(GameObject::GenerateID()), m_gameSpace(defaultGameSpacePtr)
 	{
 	}
 
@@ -44,12 +53,9 @@ public:
 		}
 	}
 
-	static GameObject_ID GenerateID()
-	{
-		static GameObject_ID lastGeneratedID = 0;
+	static GameObject_ID GenerateID();
 
-		return lastGeneratedID++;
-	}
+	static void SetHighestID(GameObject_ID highestID);
 
 	GameObject_ID Getid() const
 	{
@@ -88,7 +94,21 @@ public:
 		m_gameSpace->DeleteComponent<T>(m_objID);
 	}
 
+	// These are pointers, not handles. They probably won't last long.
+	std::vector<meta::Any> GetComponentPointersMeta();
+
 private:
 	GameObject_ID m_objID;
 	GameSpace *m_gameSpace;
+
+	static GameObject_ID lastGeneratedID;
+
+	static rapidjson::Value GameObjectSerialize(const void *gameObjectPtr, rapidjson::Document::AllocatorType& allocator);
+	static void GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue);
+
+	META_REGISTER(GameObject)
+	{
+		META_DefineType(GameObject);
+		META_DefineSerializeFunction(GameObject, GameObject::GameObjectSerialize);
+	}
 };

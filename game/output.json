@@ -1,0 +1,536 @@
+[
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 0,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -1.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "RigidBodyComponent",
+                    "meta_object_data": {
+                        "acceleration": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -3.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "velocity": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "mass": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                },
+                {
+                    "meta_type_name": "ScriptComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 1,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -1.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 2,
+            "componentArray": [
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 3,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "RigidBodyComponent",
+                    "meta_object_data": {
+                        "acceleration": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -3.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "velocity": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.6000000238418579
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "mass": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "DynamicCollider2DComponent",
+                    "meta_object_data": {}
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 4,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 2.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "RigidBodyComponent",
+                    "meta_object_data": {
+                        "acceleration": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -3.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "velocity": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -1.2000000476837159
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "mass": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "DynamicCollider2DComponent",
+                    "meta_object_data": {}
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 5,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.5
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.2000000476837159
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.5
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "RigidBodyComponent",
+                    "meta_object_data": {
+                        "acceleration": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -3.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "velocity": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        "mass": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "DynamicCollider2DComponent",
+                    "meta_object_data": {}
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    },
+    {
+        "meta_type_name": "GameObject",
+        "meta_object_data": {
+            "objID": 6,
+            "componentArray": [
+                {
+                    "meta_type_name": "TransformComponent",
+                    "meta_object_data": {
+                        "position": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.25
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": -1.0
+                                }
+                            }
+                        },
+                        "scale": {
+                            "meta_type_name": "glm::vec3",
+                            "meta_object_data": {
+                                "x": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 2.5
+                                },
+                                "y": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "z": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        "rotation": {
+                            "meta_type_name": "float",
+                            "meta_object_data": 0.0
+                        }
+                    }
+                },
+                {
+                    "meta_type_name": "StaticCollider2DComponent",
+                    "meta_object_data": {}
+                },
+                {
+                    "meta_type_name": "SpriteComponent",
+                    "meta_object_data": {}
+                }
+            ]
+        }
+    }
+]

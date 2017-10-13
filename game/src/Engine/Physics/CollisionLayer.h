@@ -26,7 +26,7 @@ class CollisionLayer
 public:
 	// conversion constructors
 	explicit CollisionLayer(int layer);
-	CollisionLayer(CollisionLayer& layer);
+	CollisionLayer(const CollisionLayer& layer);
 
 	// if both layers should collide with each other, return true, otherwise false
 	bool LayersCollide(const CollisionLayer& other) const;

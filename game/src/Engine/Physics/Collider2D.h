@@ -35,6 +35,8 @@ public:
 	{
 	}
 
+	Collider2D(const Collider2D&) = default;
+
 	// getters
 	int GetColliderType();
 	glm::vec3 GetDimensions();
@@ -69,8 +71,12 @@ class StaticCollider2DComponent
 {
 public:
 	// constructor
-	StaticCollider2DComponent(int colliderType, glm::vec3 dimensions, int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+	StaticCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
 							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, collisionLayer, offset, rotationOffset)
+	{
+	}
+
+	StaticCollider2DComponent(const StaticCollider2DComponent& other) : m_colliderData(other.m_colliderData)
 	{
 	}
 
@@ -86,8 +92,12 @@ class DynamicCollider2DComponent
 {
 public:
 	// constructor
-	DynamicCollider2DComponent(int colliderType, glm::vec3 dimensions, int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+	DynamicCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1, 1, 1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
 							   m_colliderData(colliderType, dimensions, collisionLayer, offset, rotationOffset)
+	{
+	}
+
+	DynamicCollider2DComponent(const DynamicCollider2DComponent& other) : m_colliderData(other.m_colliderData)
 	{
 	}
 
@@ -97,4 +107,11 @@ public:
 private:
 	// the actual data of the collider
 	Collider2D m_colliderData;
+
+	META_REGISTER(DynamicCollider2DComponent)
+	{
+		// TODO[Kieran]: Fix Python script so we can put this in each.
+		META_DefineType(DynamicCollider2DComponent);
+		META_DefineType(StaticCollider2DComponent);
+	}
 };

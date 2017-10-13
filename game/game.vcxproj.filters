@@ -43,6 +43,7 @@
     <ClCompile Include="src\meta\meta.cpp" />
     <ClCompile Include="src\meta\MemberOffset.cpp" />
     <ClCompile Include="src\meta\Any.cpp" />
+    <ClCompile Include="src\GameObjectSystem\GameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">

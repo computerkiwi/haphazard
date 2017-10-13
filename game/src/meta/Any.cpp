@@ -146,6 +146,20 @@ namespace meta
 		return Any(dataPointer, m_type->GetDereferenceType());
 	}
 
+	bool Any::IsNullPtr()
+	{
+		// We can only be nullptr if we represent a pointer in the first place.
+		if (!m_type->IsPointerType())
+		{
+			return false;
+		}
+
+		// Get the actual pointer this Any represents.
+		void *pointer = *reinterpret_cast<void **>(GetDataPointer());
+
+		return (pointer == nullptr);
+	}
+
 	//-----------------------
 	// Member Getter/Setters
 	//-----------------------
@@ -235,7 +249,7 @@ namespace meta
 	//---------------
 	rapidjson::Value Any::Serialize(rapidjson::Document::AllocatorType& allocator)
 	{
-		return m_type->Serialize(GetDataPointer(), allocator);
+		return m_type->GetDeepestDereference()->Serialize(GetDeepestDataPointer(), allocator);
 	}
 
 	void *Any::GetDataPointer()
