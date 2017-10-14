@@ -94,16 +94,20 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject Brett_obj1 = m_spaces[0]->NewGameObject("Parent");
 	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
 	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
-	Brett_obj1.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.6f,0,0));
+	Brett_obj1.AddComponent<RigidBodyComponent>();
 	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+
+
 
 	// object with velocity
 	GameObject Brett_obj2 = m_spaces[0]->NewGameObject("Child");
-	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1, 1), glm::vec3(.5f, .5f, 1));
-	Brett_obj2.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60.0f);
-	Brett_obj2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-1.2f,0,0));
-	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
+	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
 	Brett_obj2.GetComponent<TransformComponent>()->SetParent(Brett_obj1);
+
+	Brett_obj2.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60.0f);
+	Brett_obj2.AddComponent<RigidBodyComponent>();
+	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
+
 
 
 	// static colliders: box of cats

@@ -646,6 +646,11 @@ void Editor::MenuBar()
 			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
 			ImGui::EndMenu();
 		}
+		if (ImGui::Button("Console"))
+		{
+
+		}
+
 		ImGui::EndMainMenuBar();
 	}
 }

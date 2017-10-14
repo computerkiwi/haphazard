@@ -200,8 +200,7 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	if (info)
 	{
 		Separator();
-		Text("ID: %d |", info->m_id); SameLine();
-		Text("Name: %s", info->m_name.c_str());
+		Text("ID: %d | %s", info->m_id, info->m_name.c_str());
 	}
 }
 
@@ -212,9 +211,30 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 	{
 		if (TreeNode("Position"))
 		{
-			DragFloat("X##position_drag", &transform->Position().x, 0, 5);
+			if (DragFloat("X##position_drag", &transform->Position().x, 0, 5))
+			{
+				if (object.GetComponent<RigidBodyComponent>().Get())
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
+				}
+				else
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(DEFAULT_GRAVITY);
+				}
+			}
 
-			DragFloat("Y##position_drag", &transform->Position().y, 0, 5);
+			if (DragFloat("Y##position_drag", &transform->Position().y, 0, 5))
+			{
+				if (object.GetComponent<RigidBodyComponent>().Get())
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
+				}
+				else
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(DEFAULT_GRAVITY);
+				}
+			}
+
 			TreePop();
 			Separator();
 		}
@@ -234,6 +254,12 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 		PushItemWidth(100);
 		InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2);
 		PopItemWidth();
+
+		if (transform->GetParent())
+		{
+			Separator();
+			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+		}
 	}
 }
 
