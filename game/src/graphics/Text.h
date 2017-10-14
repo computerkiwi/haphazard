@@ -30,10 +30,10 @@ namespace Fonts
 	extern Font* arial;
 }
 
-class Text
+class TextComponent
 {
 public:
-	Text(std::string string, Font* font, glm::vec4 color);
+	TextComponent(std::string string, Font* font, glm::vec4 color);
 	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
 	void Draw(glm::mat4& matrix);
 

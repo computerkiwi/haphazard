@@ -27,9 +27,9 @@ Font::Font(const char* path, int charWidth, int charHeight, int numCharsX, int n
 ///
 // Text
 ///
-GLuint Text::m_VertexVBO = 0;
+GLuint TextComponent::m_VertexVBO = 0;
 
-void Text::SetVertexBuffer()
+void TextComponent::SetVertexBuffer()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
 	float data[] =
@@ -46,7 +46,7 @@ void Text::SetVertexBuffer()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
 }
 
-Text::Text(std::string string, Font* font, glm::vec4 color)
+TextComponent::TextComponent(std::string string, Font* font, glm::vec4 color)
 	: m_Font { font }, m_Color{ color }
 {	
 	if (!m_VertexVBO)
@@ -67,7 +67,7 @@ Text::Text(std::string string, Font* font, glm::vec4 color)
 	CompileText(string);
 }
 
-void Text::SetText(std::string string, Font* font, glm::vec4* color)
+void TextComponent::SetText(std::string string, Font* font, glm::vec4* color)
 {
 	if (font)
 		m_Font = font;
@@ -77,7 +77,7 @@ void Text::SetText(std::string string, Font* font, glm::vec4* color)
 	CompileText(string);
 }
 
-void Text::CompileText(std::string string)
+void TextComponent::CompileText(std::string string)
 {
 	m_CharData.clear();
 	
@@ -107,7 +107,7 @@ void Text::CompileText(std::string string)
 	}
 }
 
-void Text::Draw(glm::mat4& matrix)
+void TextComponent::Draw(glm::mat4& matrix)
 {
 	Shaders::textShader->Use();
 	glBindVertexArray(m_VAO);

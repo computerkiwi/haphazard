@@ -13,29 +13,21 @@
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
 
+static bool resizeCameras = false;
+static int width;
+static int height;
+
 RenderSystem::RenderSystem()
 {
 }
-
-static Camera* mainCamera;
-
-Text* t;
 
 void RenderSystem::Init()
 {
 	Font::InitFonts();
 
-	mainCamera = new Camera();
-	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
-
-	mainCamera->SetZoom(3);
-
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
-	t = new Text("~!@#?", Fonts::arial, glm::vec4(1, 1, 1, 1));
 }
 
 // Called each frame.
@@ -44,6 +36,18 @@ void RenderSystem::Update(float dt)
 	Screen::GetView().Use();
 	//Screen::UpdateRaindrops(dt);
 	////Start Loop
+
+	if (resizeCameras)
+	{
+		ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
+
+		for (auto& camera : *cameras)
+		{
+			camera->SetAspectRatio(width / (float)height);
+		}
+
+		resizeCameras = false;
+	}
 
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
@@ -71,7 +75,7 @@ void RenderSystem::Update(float dt)
 			numVerts = spriteHandle->NumVerts();
 
 		//Stuff happens here
-		t->Draw(transform->GetMatrix4());
+		//t->Draw(transform->GetMatrix4());
 	}
 
 	Shaders::defaultShader->Use();
@@ -83,12 +87,23 @@ void RenderSystem::Update(float dt)
 	Mesh::BindInstanceVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
-	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 	// Bind first VAO, all VAOs should be the same until multiple shaders are used for sprites
 	sprites->begin()->BindVAO();
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
 	
+	ComponentMap<TextComponent> *text = GetGameSpace()->GetComponentMap<TextComponent>();
+
+	for (auto& textHandle : *text)
+	{
+		ComponentHandle<TransformComponent> transform = textHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+		textHandle->Draw(transform->GetMatrix4());
+	}
+
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
 
@@ -96,10 +111,13 @@ void RenderSystem::Update(float dt)
 	Screen::GetView().Draw();
 }
 
-void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int width, int height)
+void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int w, int h)
 {
+	width = w;
+	height = h;
+
 	Screen::GetView().ResizeScreen(width, height);
-	mainCamera->SetAspectRatio(width / (float)height);
+	resizeCameras = true;
 }
 
 // Simply returns the default priority for this system.

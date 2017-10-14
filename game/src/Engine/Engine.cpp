@@ -36,6 +36,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "input\Input.h"
 
+#include "graphics\Text.h"
+#include "graphics\Camera.h"
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
@@ -63,6 +66,8 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	m_space.RegisterComponentType<StaticCollider2DComponent>();
 	m_space.RegisterComponentType<DynamicCollider2DComponent>();
 	m_space.RegisterComponentType<SpriteComponent>();
+	m_space.RegisterComponentType<TextComponent>();
+	m_space.RegisterComponentType<Camera>();
 
 	// Register the systems.
 	m_space.RegisterSystem(new PhysicsSystem);
@@ -93,6 +98,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj1.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.000301,.000301,0));
 	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.1, .1, 0));
+	Brett_obj1.AddComponent<TextComponent>(" Bird!", Fonts::arial, glm::vec4(1, 1, 1, 1));
 
 	// static colliders: box of cats
 	GameObject Brett_obj3 = m_space.NewGameObject();
@@ -114,6 +120,13 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj6.AddComponent<TransformComponent>(glm::vec3(0, 1, -1), glm::vec3(1, 1, 1));
 	Brett_obj6.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj6.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+
+	GameObject MainCamera = m_space.NewGameObject();
+	MainCamera.AddComponent<Camera>();
+	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec3(0, 0, 2.0f));
+	MainCamera.GetComponent<Camera>()->SetZoom(3);
 }
 
 void Engine::MainLoop()
