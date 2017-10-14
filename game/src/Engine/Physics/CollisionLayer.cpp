@@ -25,13 +25,13 @@ numLayers = 7
 
 int CollisionMasks[collisionLayers::numLayers] =
 { // In order: decor allyProjectile enemy ground player allCollision noCollision
-	0b0000000,	// noCollision
+	0b0000010,	// noCollision
 	0b1111111,	// allCollision
 	0b0011110,	// player     
 	0b1111110,	// ground     
 	0b0111110,	// enemy
 	0b0011010,	// allyProjectile
-	0b0001000	// decor
+	0b0001010	// decor
 };
 
 

@@ -239,7 +239,6 @@ void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform,
 {
 	transform->Position() += velocity * dt;
 	rigidBody->AddVelocity(acceleration * dt);
-
 }
 
 void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders)

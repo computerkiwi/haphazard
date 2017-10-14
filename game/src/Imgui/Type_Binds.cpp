@@ -212,13 +212,9 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 	{
 		if (TreeNode("Position"))
 		{
-			PushItemWidth(80);
-			DragFloat("X##position_drag", &transform->Position().x, 0, 5); SameLine();
-			InputFloat("X##position", &transform->Position().x);
+			DragFloat("X##position_drag", &transform->Position().x, 0, 5);
 
-			DragFloat("Y##position_drag", &transform->Position().y, 0, 5); SameLine();
-			InputFloat("Y##position", &transform->Position().y);
-			PopItemWidth();
+			DragFloat("Y##position_drag", &transform->Position().y, 0, 5);
 			TreePop();
 			Separator();
 		}
@@ -227,7 +223,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 			PushItemWidth(120);
 			InputFloat("X##scale", &transform->Scale().x);
 			InputFloat("Y##scale", &transform->Scale().y);
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
