@@ -194,6 +194,7 @@
     <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
     <ClCompile Include="src\Util\FrameCap.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
+    <ClCompile Include="src\Util\Serialization.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Audio\AudioEngine.h" />
@@ -238,6 +239,7 @@
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />
     <ClInclude Include="src\Engine\Quadtree\Quadtree.h" />
+    <ClInclude Include="src\Util\Serialization.h" />
     <ClInclude Include="src\Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
