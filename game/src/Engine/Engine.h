@@ -48,6 +48,9 @@ public:
 
 	void Exit() { m_running = false; }
 
+	std::string StringSerialize();
+	void FileSerialize(const char *fileName);
+
 private:
 	float CalculateDt();
 
@@ -59,5 +62,28 @@ private:
 	GLFWwindow *m_window;
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
+
+	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
+	{
+		// Const cast away is fine because we're not really changing anything.
+		Engine& engine = *reinterpret_cast<Engine *>(const_cast<void *>(enginePtr));
+
+		// Setup the object to store the engine info in.
+		rapidjson::Value spaceArray;
+		spaceArray.SetArray();
+
+		for (GameSpace& space : engine.m_spaces.GetSpaces())
+		{
+			spaceArray.PushBack(meta::Serialize(space, allocator), allocator);
+		}
+
+		return spaceArray;
+	}
+
+	META_REGISTER(Engine)
+	{
+		META_DefineType(Engine);
+		META_DefineSerializeFunction(Engine, EngineSerializeFunction);
+	}
 };
 

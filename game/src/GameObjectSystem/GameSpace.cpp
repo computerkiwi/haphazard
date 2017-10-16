@@ -85,6 +85,23 @@ void GameSpace::Delete(GameObject_ID object)
 	}
 }
 
+std::vector<GameObject> GameSpace::
+CollectGameObjects()
+{
+	// Get the object ids.
+	std::vector<GameObject_ID> ids;
+	CollectGameObjects(ids);
+
+	// Make them into GameObjects.
+	std::vector<GameObject> objects;
+	for (GameObject_ID id : ids)
+	{
+		objects.emplace_back(id);
+	}
+
+	return objects;
+}
+
 void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 {
 	auto *map = GetComponentMap<ObjectInfo>();

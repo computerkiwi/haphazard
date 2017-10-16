@@ -14,6 +14,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Audio/AudioEngine.h"
 #include "meta/meta.h"
 #include "../Util/FrameCap.h"
+#include "Util/Serialization.h"
 
 // Graphics libraries
 #include "GL\glew.h"
@@ -53,8 +54,6 @@ Init_EnginePointer::Init_EnginePointer(Engine *e)
 {
 	engine = e;
 }
-
-
 
 				   // Init OpenGL and start window
 Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window)
@@ -131,6 +130,8 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(1.25, -1, -1), glm::vec3(2.5, 1, 1));
 	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(2.5, 1, 0));
+
+	this->FileSerialize("test_out.json");
 }
 
 void Engine::MainLoop()
@@ -173,6 +174,24 @@ void Engine::Update()
 	frameCap.waitUntil(16666);
 }
 
+
+std::string Engine::StringSerialize()
+{
+	// Make a document for the allocator.
+	// TODO: Figure out how to get an allocator without bothering with a whole document.
+	rapidjson::Document doc;
+
+	return JsonToPrettyString(meta::Serialize(*this, doc.GetAllocator()));
+}
+
+void Engine::FileSerialize(const char *fileName)
+{
+	// Make a document for the allocator.
+	// TODO: Figure out how to get an allocator without bothering with a whole document.
+	rapidjson::Document doc;
+
+	return JsonToPrettyFile(meta::Serialize(*this, doc.GetAllocator()), fileName);
+}
 
 float Engine::CalculateDt()
 {

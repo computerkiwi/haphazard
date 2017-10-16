@@ -199,6 +199,7 @@ public:
 
 	void Delete(GameObject_ID object);
 
+	std::vector<GameObject> CollectGameObjects();
 	void CollectGameObjects(std::vector<GameObject_ID>& objects);
 
 	~GameSpace();
@@ -217,6 +218,32 @@ private:
 
 	std::unordered_map<ComponentType, ComponentMapBase *> m_componentMaps;
 	std::map<std::size_t, SystemBase *> m_systems;
+
+	static rapidjson::Value GameSpaceSerialize(const void *gameSpacePtr, rapidjson::Document::AllocatorType& allocator)
+	{
+		// Const cast away is fine because we're not really changing anything.
+		GameSpace& gameSpace = *reinterpret_cast<GameSpace *>(const_cast<void *>(gameSpacePtr));
+
+		// Setup the array to put the objects into.
+		rapidjson::Value gameObjectArray;
+		gameObjectArray.SetArray();
+
+		// Get all the GameObjects.
+		std::vector<GameObject> objects = gameSpace.CollectGameObjects();
+		// Put the objects in the json array.
+		for (const auto& gameObject : objects)
+		{
+			gameObjectArray.PushBack(meta::Serialize(gameObject, allocator), allocator);
+		}
+
+		return gameObjectArray;
+	}
+
+	META_REGISTER(GameSpace)
+	{
+		META_DefineType(GameSpace);
+		META_DefineSerializeFunction(GameSpace, GameSpaceSerialize);
+	}
 };
 
 
@@ -240,6 +267,11 @@ class GameSpaceManagerID
 	std::vector<GameSpace> m_spaces;
 
 public:
+	inline std::vector<GameSpace>& GetSpaces()
+	{
+		return m_spaces;
+	}
+
 	void AddSpace()
 	{
 		if (m_spaces.size())

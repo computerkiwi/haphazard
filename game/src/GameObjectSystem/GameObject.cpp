@@ -98,7 +98,6 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	assert(jsonValue.IsObject());
 	assert(jsonValue.HasMember("objID"));
 	assert(jsonValue.HasMember("componentArray"));
-
 }
 
 std::vector<meta::Any> GameObject::GetComponentPointersMeta()
