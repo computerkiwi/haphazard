@@ -78,12 +78,14 @@ void ParticleSystem::UpdateParticles(float dt)
 	glBeginTransformFeedback(GL_POINTS);
 
 	// Check for first update time 
-	if (m_isFirst) {
+	if (m_isFirst) 
+	{
 		// Need to give the transform feedback loop a frame of reference for number of verts it will create
 		glDrawArrays(GL_POINTS, 0, 1);
 		m_isFirst = false;
 	}
-	else {
+	else 
+	{
 		// Update particles (without drawing to screen)
 		glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currVB]);
 	}
@@ -95,5 +97,17 @@ void ParticleSystem::UpdateParticles(float dt)
 
 void ParticleSystem::RenderParticles()
 {
+	// Set state (texture, ect) here
 
+	// Enable rendering
+	glDisable(GL_RASTERIZER_DISCARD);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
+
+	// Only need position from Particle struct, so enable that one variable, but set correct stride
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (const GLvoid*)4);
+
+	// Render it
+	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
 }
