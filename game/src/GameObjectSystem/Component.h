@@ -2,20 +2,21 @@
 FILE: Component.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-#include "GameObject.h"
+#include "GameObjectSystem\GameObject.h"
 
 // Forward declaration.
 class GameSpace;
+#define EXTRACTION_SHIFT (8 * 3)
 
 template <typename T>
 class ComponentHandle
 {
 public:
-	ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true);
+	ComponentHandle(GameObject_ID id, bool isValid = true);
 
 	bool operator== (const ComponentHandle& other);
 
@@ -37,7 +38,6 @@ public:
 
 private:
 	GameObject_ID m_objID;
-	GameSpace *m_gameSpace;
 	bool m_isValid;
 };
 

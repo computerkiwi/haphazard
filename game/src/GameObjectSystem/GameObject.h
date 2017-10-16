@@ -2,7 +2,7 @@
 FILE: GameObject.h
 PRIMARY AUTHOR: Kieran
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -12,97 +12,87 @@ class GameSpace;
 
 extern GameSpace *defaultGameSpacePtr;
 
+#define implicit
+
 template <typename T>
 class ComponentHandle;
 
-typedef size_t GameObject_ID;
+
+typedef int GameObject_ID;
+typedef int GameSpaceIndex;
 typedef int    dummy;
+
+const GameObject_ID INVALID_GAMEOBJECT_ID = -1;
 
 class GameObject
 {
 public:
-	GameObject(GameObject_ID id, GameSpace *gameSpace) : m_objID(id), m_gameSpace(gameSpace)
-	{
-	}
+	GameObject();
 
-	// This is temporary for current serialization issues.
-	// TODO: delet this
-	GameObject() : m_objID(GameObject::GenerateID()), m_gameSpace(defaultGameSpacePtr)
-	{
-	}
+	GameObject(GameObject_ID id, GameSpaceIndex gameSpace);
+
+	implicit GameObject(GameObject_ID id);
 
 	template <typename T, typename... Args>
 	void AddComponent(Args&&... args)
 	{
-		m_gameSpace->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
+		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
 	template <typename T>
 	ComponentHandle<T> GetComponent()
 	{
+		assert(IsValid());
+
 		// Make sure the component exists before we hand it off.
-		if (m_gameSpace->GetInternalComponent<T>(m_objID) != nullptr)
+		if (GetSpace()->GetInternalComponent<T>(m_objID) != nullptr)
 		{
 			// Why the hell does constructing a ComponentHandle work?
 			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
-			return ComponentHandle<T>(m_objID, m_gameSpace);
+
+			// TEMPLATES -Sweet
+			return ComponentHandle<T>(m_objID);
 		}
 		else
 		{
-			return ComponentHandle<T>(0, nullptr, false);
+			return ComponentHandle<T>(0, false);
 		}
 	}
 
-	static GameObject_ID GenerateID();
+	GameObject_ID Getid() const;
 
-	static void SetHighestID(GameObject_ID highestID);
+	GameObject_ID Duplicate() const;
 
-	GameObject_ID Getid() const
-	{
-		return m_objID;
-	}
+	void Delete();
 
-	// Dummy Template param since GameSpace are forward delcared here
-	template <typename dummy>
-	GameObject Duplicate()
-	{
-		return m_gameSpace->Duplicate(m_objID, m_gameSpace->NewGameObject().m_objID);
-	}
+	GameSpace *GetSpace() const;
 
-	// Templated to avoid errors
-	template <typename dummy>
-	void Delete()
-	{
-		m_gameSpace->Delete(m_objID);
-	}
+	GameSpaceIndex GetIndex() const;
 
-	const GameSpace *GetSpace() const
-	{
-		return m_gameSpace;
-	}
-
-	// Templated to avoid errors
-	template <typename AVOID>
-	void SetSpace(GameSpace *space)
-	{
-		m_gameSpace = space;
-	}
+	void SetSpace(GameSpaceIndex index);
 
 	template <typename T>
 	void DeleteComponent()
 	{
-		m_gameSpace->DeleteComponent<T>(m_objID);
+		GetSpace()->DeleteComponent<T>(m_objID);
 	}
+
+	operator bool() const { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();
 
+	bool IsValid() const;
 private:
-	GameObject_ID m_objID;
-	GameSpace *m_gameSpace;
-
-	static GameObject_ID lastGeneratedID;
-
+	union
+	{
+		struct
+		{
+			int m_id     : 24;
+			int m_space  : 8;
+		};
+		GameObject_ID m_objID;
+	};
 	static rapidjson::Value GameObjectSerialize(const void *gameObjectPtr, rapidjson::Document::AllocatorType& allocator);
 	static void GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue);
 

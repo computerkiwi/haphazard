@@ -160,14 +160,14 @@ ComponentHandle<T> GameSpace::GetComponent(GameObject_ID id)
 template <typename T>
 ComponentMap<T> *GameSpace::GetComponentMap()
 {
-	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 	return static_cast<ComponentMap<T> *>(baseMap);
 }
 
 template <typename T>
 void GameSpace::DeleteComponent(GameObject_ID id)
 {
-	reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()).get())->DeleteComponent(id);
+	reinterpret_cast<ComponentMap<T> *>(m_componentMaps.at(GetComponentType<T>::func()))->DeleteComponent(id);
 }
 
 template <typename T>
@@ -175,7 +175,7 @@ T *GameSpace::GetInternalComponent(GameObject_ID id)
 {
 	// TODO[Kieran]: Cast individual components instead of the maps.
 
-	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 	ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 	return compMap->get(id);
@@ -186,7 +186,7 @@ void GameSpace::EmplaceComponent(GameObject_ID id, Args&&... args)
 {
 	// TODO[Kieran]: Cast individual components instead of the maps.
 
-	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func()).get();
+	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 	ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
 
 	compMap->emplaceComponent(id, std::forward<Args>(args)...);

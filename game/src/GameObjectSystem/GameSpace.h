@@ -16,13 +16,20 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <map>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include "Component.h"
-#include "TransformComponent.h"
+#include "ObjectInfo.h"
 
 
 // Forward declare.
 class GameSpace;
+class Engine;
+extern Engine *engine;
+
+// GameObject ID Gen
+GameObject_ID GenerateID();
+#define EXTRACTION_SHIFT (8 * 3)
 
 // Required interface for systems.
 class SystemBase
@@ -37,6 +44,10 @@ public:
 	{
 	}
 
+	virtual ~SystemBase()
+	{
+	}
+
 	// Called as the space initializes. Useful vs the constructor for timing purposes.
 	virtual void Init() = 0;
 
@@ -47,7 +58,7 @@ public:
 	virtual std::size_t DefaultPriority() = 0;
 
 protected:
-	GameSpace *GetGameSpace()
+	GameSpace *GetGameSpace() const
 	{
 		return m_space;
 	}
@@ -57,10 +68,10 @@ private:
 
 // ID used as key to component containers.
 typedef std::size_t ComponentType;
+typedef int GameSpaceIndex;
 
 ComponentType GenerateComponentTypeID();
 
-#pragma optimize("", off)
 // Uses the address of the templated function as a unique ID.
 template <typename T>
 struct GetComponentType
@@ -72,7 +83,6 @@ struct GetComponentType
 		return cType;
 	}
 };
-#pragma optimize("", on)
 
 // Only exists so we can keep all of the component maps in one container.
 class ComponentMapBase
@@ -105,9 +115,9 @@ public:
 	// Returns nullptr if it's not found.
 	T *get(GameObject_ID id);
 
-	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
+	void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
 
-	virtual void Delete(GameObject_ID object);
+	void Delete(GameObject_ID object) override;
 
 	virtual meta::Any GetComponentPointerMeta(GameObject_ID object);
 
@@ -147,6 +157,7 @@ private:
 	GameSpace *m_space;
 };
 
+
 // Contains a container for each component type.
 class GameSpace
 {
@@ -155,11 +166,12 @@ class GameSpace
 	friend class GameObject;
 
 public:
+
+	GameSpace() { RegisterComponentType<ObjectInfo>(); }
+	explicit GameSpace(GameSpaceIndex index) : m_index(index) { RegisterComponentType<ObjectInfo>(); }
+
 	template <typename T>
 	void RegisterComponentType();
-
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority);
-	void RegisterSystem(std::unique_ptr<SystemBase>&& newSystem);
 
 	void RegisterSystem(SystemBase *newSystem);
 
@@ -175,9 +187,9 @@ public:
 	template <typename T>
 	void DeleteComponent(GameObject_ID id);
 
-	GameObject GetGameObject(GameObject_ID id);
+	GameObject GetGameObject(GameObject_ID id) const;
 
-	GameObject NewGameObject();
+	GameObject NewGameObject(const char *name) const;
 
 	void Init();
 
@@ -187,7 +199,9 @@ public:
 
 	void Delete(GameObject_ID object);
 
-	std::vector<GameObject> CollectGameObjects();
+	void CollectGameObjects(std::vector<GameObject_ID>& objects);
+
+	~GameSpace();
 
 	// These are pointers, not handles. They probably won't be valid very long.
 	std::vector<meta::Any> GetObjectComponentPointersMeta(GameObject_ID id);
@@ -196,24 +210,76 @@ private:
 	template <typename T>
 	T *GetInternalComponent(GameObject_ID id);
 
+	GameSpaceIndex  m_index;
+
 	template <typename T, typename... Args>
 	void EmplaceComponent(GameObject_ID id, Args&&... args);
 
-	std::unordered_map<ComponentType, std::unique_ptr<ComponentMapBase>> m_componentMaps;
-	std::map<std::size_t, std::unique_ptr<SystemBase>> m_systems;
+	std::unordered_map<ComponentType, ComponentMapBase *> m_componentMaps;
+	std::map<std::size_t, SystemBase *> m_systems;
 };
 
 
 constexpr unsigned long hash(const char *str)
 {
 	unsigned long hash = 5381;
-	int c = 0;
+	int c = *str;
 
-	while (c = *str++)
+	while (c)
+	{
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+		c = *str++;
+	}
 
 	return hash;
 }
+
+
+class GameSpaceManagerID
+{
+	std::vector<GameSpace> m_spaces;
+
+public:
+	void AddSpace()
+	{
+		if (m_spaces.size())
+		{
+			m_spaces.emplace_back(GameSpace(static_cast<int>(m_spaces.size())));
+		}
+		else
+		{
+			m_spaces.emplace_back(GameSpace(0));
+		}
+	}
+
+	inline GameSpace &Get(std::size_t index)
+	{
+		return m_spaces[index];
+	}
+
+	inline GameSpace *operator[](std::size_t index)
+	{
+		return &m_spaces[index];
+	}
+
+	void CollectAllObjects(std::vector<GameObject_ID>& objects)
+	{
+		objects.clear();
+		for (int i = 0; i < m_spaces.size(); ++i)
+		{
+			m_spaces[i].CollectGameObjects(objects);
+		}
+	}
+
+	void Update(float dt)
+	{
+
+		for (auto& sys : m_spaces)
+		{
+			sys.Update(dt);
+		}
+	}
+};
 
 
 class GameSpaceManager

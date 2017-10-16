@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Brett Schiff
 
 Collider2D components and System(Collision Checking)
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -58,7 +58,7 @@ public:
 	bool isStatic();
 
 private:
-	friend void ImGui_Collider2D(Collider2D *collider, GameObject *object);
+	friend void ImGui_Collider2D(Collider2D *collider, GameObject object);
 	int m_colliderType;
 	glm::vec3 m_dimensions;
 	CollisionLayer m_collisionLayer;

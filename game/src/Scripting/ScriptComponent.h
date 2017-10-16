@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "Universal.h"
-
+#include "meta\meta.h"
 #include <vector>
 
 #include "LuaScript.h"

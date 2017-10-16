@@ -10,16 +10,15 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Engine/Engine.h"
 
-#include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
-#include <iostream>
+Engine *engine;
 
 int main()
 {
+	Engine sparrow;
+	sparrow.LoggingInit();
 
-	Engine engine;
 
-	engine.MainLoop();
+	sparrow.MainLoop();
 	// We shouldn't get past MainLoop at this point.
 
 	return 0;

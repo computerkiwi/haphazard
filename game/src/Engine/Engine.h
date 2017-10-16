@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Engine class data, no work really in here yet.
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -21,10 +21,18 @@ extern "C"
 
 struct GLFWwindow;
 
+class Init_EnginePointer
+{
+public:
+	Init_EnginePointer::Init_EnginePointer(Engine *e);
+};
+
 class Engine
 {
 public:
 	Engine();
+
+	void LoggingInit();
 
 	void MainLoop();
 
@@ -33,7 +41,8 @@ public:
 	float Dt() const;
 	lua_State * GetLua();
 
-	GameSpace *GetSpace() { return &m_space; }
+	GameSpaceManagerID *GetSpaceManager() { return &m_spaces; }
+	GameSpace *GetSpace(std::size_t index) { return m_spaces[index]; }
 
 	Editor *GetEditor() { return &m_editor; }
 
@@ -42,13 +51,13 @@ public:
 private:
 	float CalculateDt();
 
+	Init_EnginePointer m_init;
+
 	float m_dt = 0.0f;
 	bool m_running = true;
-	lua_State * L = luaL_newstate();
+
 	GLFWwindow *m_window;
-	GameSpace m_space;
+	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
 };
-
-void RegisterComponents(lua_State * L);
 

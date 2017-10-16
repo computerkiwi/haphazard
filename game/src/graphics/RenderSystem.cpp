@@ -2,6 +2,7 @@
 #include "GameObjectSystem\GameSpace.h"
 #include "graphics\SpriteComponent.h"
 #include "GameObjectSystem\TransformComponent.h"
+#include "GameObjectSystem\GameObject.h"
 #include "Transform.h"
 #include "Screen.h"
 #include "GLFW\glfw3.h"

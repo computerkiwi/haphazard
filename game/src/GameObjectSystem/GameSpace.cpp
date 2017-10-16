@@ -14,40 +14,41 @@ ComponentType GenerateComponentTypeID()
 	return lastID++;
 }
 
+
+GameObject_ID GenerateID()
+{
+	static GameObject_ID lastGeneratedID = 1;
+
+	return lastGeneratedID++;
+}
+
 //-----------
 // GameSpace
 //-----------
 
-void GameSpace::RegisterSystem(std::unique_ptr<SystemBase>&& newSystem, std::size_t priority)
+void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 {
 	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
 	newSystem->RegisterGameSpace(this);
-	m_systems.insert(std::make_pair(priority, std::move(newSystem)));
-}
-
-void GameSpace::RegisterSystem(std::unique_ptr<SystemBase>&& newSystem)
-{
-	RegisterSystem(std::move(newSystem), newSystem->DefaultPriority());
+	//m_systems.insert(std::make_pair(priority, std::move(*newSystem)));
+	m_systems.emplace(priority, newSystem);
 }
 
 void GameSpace::RegisterSystem(SystemBase *newSystem)
 {
-	RegisterSystem(std::unique_ptr<SystemBase>(newSystem));
+	RegisterSystem(newSystem, newSystem->DefaultPriority());
 }
 
-void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
+GameObject GameSpace::GetGameObject(GameObject_ID id) const
 {
-	RegisterSystem(std::unique_ptr<SystemBase>(newSystem), priority);
+	return GameObject(id, m_index);
 }
 
-GameObject GameSpace::GetGameObject(GameObject_ID id)
+GameObject GameSpace::NewGameObject(const char *name) const
 {
-	return GameObject(id, this);
-}
-
-GameObject GameSpace::NewGameObject()
-{
-	return GameObject(GameObject::GenerateID(), this);
+	GameObject object(GenerateID() | (m_index << EXTRACTION_SHIFT));
+	object.AddComponent<ObjectInfo>(object.Getid(), name);
+	return object;
 }
 
 void GameSpace::Init()
@@ -73,7 +74,7 @@ GameObject GameSpace::Duplicate(GameObject_ID originalObject, GameObject_ID newO
 		c_map.second->Duplicate(originalObject, newObject);
 	}
 
-	return GameObject(newObject, this);
+	return GameObject(newObject, m_index);
 }
 
 void GameSpace::Delete(GameObject_ID object)
@@ -84,18 +85,28 @@ void GameSpace::Delete(GameObject_ID object)
 	}
 }
 
-std::vector<GameObject> GameSpace::CollectGameObjects()
+void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 {
-	std::vector<GameObject> objects;
-	objects.reserve(30);
-	auto *map = GetComponentMap<TransformComponent>();
+	auto *map = GetComponentMap<ObjectInfo>();
 
-	for (auto& transform : *map)
+	for (auto& info : *map)
 	{
-		objects.emplace_back(transform.GetGameObject());
+		objects.emplace_back(info.GetGameObject().Getid());
+	}
+}
+
+
+GameSpace::~GameSpace()
+{
+	for (auto& sys : m_systems)
+	{
+		delete sys.second;
 	}
 
-	return std::move(objects);
+	for (auto& componentMap : m_componentMaps)
+	{
+		delete componentMap.second;
+	}
 }
 
 // These are pointers, not handles. They probably won't be valid very long.

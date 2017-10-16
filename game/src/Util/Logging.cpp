@@ -2,7 +2,7 @@
 FILE: Logging.h
 PRIMARY AUTHOR: Kieran Williams, Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #include "Logging.h"
 
@@ -12,12 +12,15 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <sstream>
 #include <locale>
 #include <codecvt>
+#include <cstdarg>
 
 // Windows filesystem stuff.
 #include <Windows.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
+
+#include "Engine\Engine.h"
 
 // Anonymous namespace for helper functions.
 namespace
@@ -103,11 +106,8 @@ std::string Logging::m_readBufferConsole;
 std::string Logging::m_writeBufferFile;
 std::string Logging::m_readBufferFile;
 
-
 void Logging::Init()
 {
-
-
 	m_loggingthread = std::thread([]()
 	{
 		std::cout << "Side Thread: " << std::this_thread::get_id() << "\n";
@@ -162,6 +162,9 @@ void Logging::Exit()
 
 void Logging::Log(const char *message, Logging::Channel channel, Priority priority)
 {
+	engine->GetEditor()->Internal_Log(message);
+	engine->GetEditor()->Internal_Log("\n");
+
 	if (m_logToFile)
 	{
 		LogToFile(message, channel, priority);
@@ -170,6 +173,51 @@ void Logging::Log(const char *message, Logging::Channel channel, Priority priori
 	{
 		LogToConsole(message, channel, priority);
 	}
+}
+
+
+void Logging::Log_StartUp(const char *message, Logging::Channel channel, Priority priority)
+{
+	if (m_logToFile)
+	{
+		LogToFile(message, channel, priority);
+	}
+	if (m_logToConsole)
+	{
+		LogToConsole(message, channel, priority);
+	}
+}
+
+
+int Logging::printf(Logging::Channel channel, Priority priority, const char *format, ...)
+{
+	char buffer[4096];
+	// Add to the log buffer
+	va_list args;
+	va_start(args, format);
+	
+	int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+	
+	va_end(args);
+	
+	Logging::Log(buffer);
+	return ret;
+}
+
+
+int Logging::vprintf(Logging::Channel channel, Priority priority, const char *format, va_list args)
+{
+	char buffer[4096];
+	// Add to the log buffer
+	va_list args_copy;
+	va_copy(args_copy, args);
+	
+	int ret = vsnprintf(buffer, sizeof(buffer), format, args);
+
+	va_end(args);
+	
+	Logging::Log(buffer);
+	return ret;
 }
 
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "GameObjectSystem\GameSpace.h"
 
 struct GLFWwindow;

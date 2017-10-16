@@ -2,7 +2,7 @@
 FILE: Editor.h
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -10,9 +10,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <vector>
 #include <map>
 #include <functional>
-#include "GameObjectSystem/GameObject.h"
 #include <glm/detail/type_vec2.hpp>
 
+#include "GameObjectSystem\GameObject.h"
 
 class Engine;
 struct GLFWwindow;
@@ -34,9 +34,17 @@ class Editor
 	Engine * m_engine;
 	bool m_show_editor;
 
-	GameObject m_selected_object = GameObject(0, nullptr);
-	std::vector<GameObject> m_objects;
+	GameObject_ID m_selected_object = 1;
+	std::vector<GameObject_ID> m_objects;
 
+	enum Tool
+	{
+		none,
+		Translation,
+		Scale,
+		Rotation
+	};
+	Tool m_tool = none;
 
 	std::string m_line;
 
@@ -51,11 +59,15 @@ class Editor
 		std::function<void()> func = std::function<void()>();
 	};
 
-	std::vector<Command> m_commands;
+
+	bool m_scroll = false;
+	std::map<std::size_t, Command> m_commands;
 	std::vector<std::string> m_log_history;
 	ImVector<const char *> m_matches;
 
-	void SetActive(ImGuiTextEditCallbackData* data, int entryIndex);
+	void SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex);
+	void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
+	void SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex);
 	struct State 
 	{
 		bool m_popUp;
@@ -72,10 +84,9 @@ class Editor
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
-	void CreateGameObject(glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void CreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
-	void Internal_Log(const char *log_message, ...);
 
 	void OnClick();
 
@@ -87,10 +98,15 @@ public:
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
+	
+	// No timestamp
+	void Internal_Log(const char *log_message, ...);
 	void Clear();
 
-	void SetGameObject(GameObject& new_object);
+	void SetGameObject(GameObject_ID new_object);
 	void ToggleEditor();
+
+	void Tools();
 
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);

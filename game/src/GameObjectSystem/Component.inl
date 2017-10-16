@@ -7,7 +7,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 template <typename T>
-ComponentHandle<T>::ComponentHandle(GameObject_ID id, GameSpace *gameSpace, bool isValid = true) : m_objID(id), m_gameSpace(gameSpace), m_isValid(isValid)
+ComponentHandle<T>::ComponentHandle(GameObject_ID id, bool isValid = true) : m_objID(id), m_isValid(isValid)
 {
 }
 
@@ -26,25 +26,25 @@ bool ComponentHandle<T>::operator!=(const ComponentHandle& other)
 template <typename T>
 T *ComponentHandle<T>::operator->()
 {
-	return m_gameSpace->GetInternalComponent<T>(m_objID);
+	return GameObject(m_objID).GetSpace()->GetInternalComponent<T>(m_objID);
 }
 
 template <typename T>
 T *ComponentHandle<T>::Get()
 {
-	return m_gameSpace ? operator->() : nullptr;
+	return GameObject(m_objID).GetSpace() ? operator->() : nullptr;
 }
 
 template <typename T>
 T& ComponentHandle<T>::operator*()
 {
-	return *m_gameSpace->GetInternalComponent<T>(m_objID);
+	return *GameObject(m_objID).GetSpace()->GetInternalComponent<T>(m_objID);
 }
 
 template <typename T>
 GameObject ComponentHandle<T>::GetGameObject()
 {
-	return GameObject(m_objID, m_gameSpace);
+	return GameObject(m_objID);
 }
 
 template <typename T>
@@ -52,13 +52,13 @@ template <typename ComponentType>
 ComponentHandle<ComponentType> ComponentHandle<T>::GetSiblingComponent()
 {
 	// Make sure the component exists before we hand it off.
-	if (m_gameSpace->GetInternalComponent<ComponentType>(m_objID) != nullptr)
+	if (GameObject(m_objID).GetSpace()->GetInternalComponent<ComponentType>(m_objID) != nullptr)
 	{
-		return ComponentHandle<ComponentType>(m_objID, m_gameSpace);
+		return ComponentHandle<ComponentType>(m_objID);
 	}
 	else
 	{
-		return ComponentHandle<ComponentType>(0, nullptr, false);
+		return ComponentHandle<ComponentType>(0, false);
 	}
 }
 

@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem\GameSpace.h"
 
+
 struct lua_State;
 
 class ScriptSystem : public SystemBase

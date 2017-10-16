@@ -13,6 +13,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "ScriptSystem.h"
 #include "ScriptComponent.h"
 #include "ScriptingUtil.h"
+#include "GameObjectSystem\GameObject.h"
 
 void ScriptSystem::Init()
 {
