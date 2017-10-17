@@ -46,27 +46,9 @@ float vectorToDirection(glm::vec2& dirVector)
 	return atan2(dirVector.y, dirVector.x);
 }
 
-class BoxCollider
+BoxCorners::BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, float rotation)
 {
-public:
-
-	enum corner
-	{
-		topRight = 0,
-		topLeft = 1,
-		botLeft = 2,
-		botRight = 3
-	};
-
-	BoxCollider(const glm::vec2& center, const glm::vec2& dimensions, float rotation);
-
-	// the corners of the box in this order: topRight, topLeft, botLeft, botRight
-	glm::vec2 m_corners[4];
-};
-
-BoxCollider::BoxCollider(const glm::vec2& center, const glm::vec2& dimensions, float rotation)
-{
-	glm::vec2 centerWithVelocity = center;
+	glm::vec2 boxCenter = center;
 
 	// if the box is axis-aligned, the calculation can be done ignoring angles
 	if (rotation == 0)
@@ -74,16 +56,16 @@ BoxCollider::BoxCollider(const glm::vec2& center, const glm::vec2& dimensions, f
 		float xOffset = (.5f * dimensions.x);
 		float yOffset = (.5f * dimensions.y);
 
-		m_corners[0] = centerWithVelocity + (.5f * dimensions);
+		m_corners[0] = boxCenter + (.5f * dimensions);
 
-		m_corners[1].x = centerWithVelocity.x - xOffset;
-		m_corners[1].y = centerWithVelocity.y + yOffset;
+		m_corners[1].x = boxCenter.x - xOffset;
+		m_corners[1].y = boxCenter.y + yOffset;
 
-		m_corners[2] = centerWithVelocity - (.5f * dimensions);
+		m_corners[2] = boxCenter - (.5f * dimensions);
 
 
-		m_corners[3].x = centerWithVelocity.x + xOffset;
-		m_corners[3].y = centerWithVelocity.y - yOffset;
+		m_corners[3].x = boxCenter.x + xOffset;
+		m_corners[3].y = boxCenter.y - yOffset;
 	}
 	else
 	{
@@ -94,20 +76,20 @@ BoxCollider::BoxCollider(const glm::vec2& center, const glm::vec2& dimensions, f
 		float yOffsetFromVertical = (dimensions.y * 0.5f * cos(rotation));
 
 		// calculate the top right corner
-		m_corners[0].x = centerWithVelocity.x + xOffsetFromHorizontal - xOffsetFromVertical;
-		m_corners[0].y = centerWithVelocity.y + yOffsetFromHorizontal + yOffsetFromVertical;
+		m_corners[0].x = boxCenter.x + xOffsetFromHorizontal - xOffsetFromVertical;
+		m_corners[0].y = boxCenter.y + yOffsetFromHorizontal + yOffsetFromVertical;
 
 		// calculate the top left corner
-		m_corners[1].x = centerWithVelocity.x - xOffsetFromHorizontal - xOffsetFromVertical;
-		m_corners[1].y = centerWithVelocity.y - yOffsetFromHorizontal + yOffsetFromVertical;
+		m_corners[1].x = boxCenter.x - xOffsetFromHorizontal - xOffsetFromVertical;
+		m_corners[1].y = boxCenter.y - yOffsetFromHorizontal + yOffsetFromVertical;
 
 		// calculate the bottom left corner
-		m_corners[2].x = centerWithVelocity.x - xOffsetFromHorizontal + xOffsetFromVertical;
-		m_corners[2].y = centerWithVelocity.y - yOffsetFromHorizontal - yOffsetFromVertical;
+		m_corners[2].x = boxCenter.x - xOffsetFromHorizontal + xOffsetFromVertical;
+		m_corners[2].y = boxCenter.y - yOffsetFromHorizontal - yOffsetFromVertical;
 
 		// calculate the bottom right corner
-		m_corners[3].x = centerWithVelocity.x + xOffsetFromHorizontal + xOffsetFromVertical;
-		m_corners[3].y = centerWithVelocity.y + yOffsetFromHorizontal - yOffsetFromVertical;
+		m_corners[3].x = boxCenter.x + xOffsetFromHorizontal + xOffsetFromVertical;
+		m_corners[3].y = boxCenter.y + yOffsetFromHorizontal - yOffsetFromVertical;
 	}
 }
 
@@ -128,7 +110,7 @@ public:
 
 	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData);
 
-	void CalculateCastBox(BoxCollider& box);
+	void CalculateCastBox(BoxCorners& box);
 
 	glm::vec2 m_startPoint;
 	glm::vec2 m_direction;
@@ -148,7 +130,7 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 		float rotation = transform->Rotation() + colliderData.GetRotationOffset();
 		glm::vec2 boxDimenions = colliderData.GetDimensions();
 
-		BoxCollider corners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
+		BoxCorners corners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
 
 		// if the collider has an offset from the object, take it into account
 		if (colliderOffset.x || colliderOffset.y)
@@ -161,13 +143,13 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 			else
 			{
 				// calculate the center using the rotated offset
-				glm::vec2 botLeftCorner = corners.m_corners[BoxCollider::corner::botLeft];
-				glm::vec2 topRightCorner = corners.m_corners[BoxCollider::corner::topRight];
+				glm::vec2 botLeftCorner = corners.m_corners[BoxCorners::corner::botLeft];
+				glm::vec2 topRightCorner = corners.m_corners[BoxCorners::corner::topRight];
 
 				boxCenter = botLeftCorner + (.5f * (topRightCorner - botLeftCorner));
 			}
 
-			corners = BoxCollider(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
+			corners = BoxCorners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
 		}
 
 		// circle collision to quickly eliminate far away objects
@@ -207,7 +189,7 @@ float CrossP(glm::vec2 vec1, glm::vec2 vec2)
 	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
 }
 
-void RayCastCalculator::CalculateCastBox(BoxCollider& box)
+void RayCastCalculator::CalculateCastBox(BoxCorners& box)
 {
 	// check each side
 	for (int i = 0; i < 4; i++)

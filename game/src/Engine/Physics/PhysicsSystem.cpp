@@ -14,9 +14,10 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "RigidBody.h"
 #include "Collider2D.h"
 #include "../../graphics/DebugGraphic.h"
-
-//TEMP
 #include "Raycast.h"
+
+#define MIN x
+#define MAX y
 
 bool debugShowHitboxes = true;
 
@@ -29,6 +30,30 @@ void pDrawSmallBoxAtPosition(glm::vec2 position)
 {
 	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 1, 1, 1));
 }
+
+struct MinMax
+{
+	float min;
+	float max;
+
+	// see if two sets of min/max intersect
+	bool Intersects(const MinMax& other)
+	{
+		return min < other.max && max > other.min;
+	}
+
+	float Overlap(const MinMax& other)
+	{
+		if (max > other.max)
+		{
+			return other.max - min;
+		}
+		else
+		{
+			return max - other.min;
+		}
+	}
+};
 
 class BoxCollider
 {
@@ -79,6 +104,103 @@ BoxCollider::BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dim
 		m_corners2.y = centerWithVelocity.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
 	}
 }
+
+MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis)
+{
+	float firstDot = glm::dot(axis, m_corners[0]);
+	// we only care about the min and max values
+	MinMax minMax = {firstDot, firstDot};
+
+	// project each of the four points onto the axis and record the extrema
+	for (int i = 1; i < 4; ++i)
+	{
+		float dotP = glm::dot(axis, m_corners[i]);
+		if (dotP < minMax.min)
+		{
+			minMax.min = dotP;
+		}
+		else if (dotP > minMax.max)
+		{
+			minMax.max = dotP;
+		}
+	}
+
+	return minMax;
+}
+
+glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform1, Collider2D& collider1, ComponentHandle<TransformComponent>& transform2, Collider2D& collider2)
+{
+	const int num_projections = 4;
+	float smallestOverlap = -1;
+	glm::vec2 smallestAxis;
+
+	glm::vec2 obj1Center = transform1->GetPosition();
+	glm::vec2 obj1Dimensions = collider1.GetDimensions();
+	float obj1Rotation = transform1->Rotation() + collider1.GetRotationOffset();
+
+	glm::vec2 obj2Center = transform2->GetPosition();
+	glm::vec2 obj2Dimensions = collider2.GetDimensions();
+	float obj2Rotation = transform2->Rotation() + collider2.GetRotationOffset();
+
+	// get the corners of each of the objects
+	BoxCorners Box1(obj1Center, obj1Dimensions, obj1Rotation);
+	BoxCorners Box2(obj2Center, obj2Dimensions, obj2Rotation);
+
+	std::cout << "Box top right: " << Box2.m_corners[BoxCorners::corner::topRight].y << std::endl;
+	std::cout << "Box top left : " << Box2.m_corners[BoxCorners::corner::topLeft].y << std::endl;
+	std::cout << "Box bot left : " << Box2.m_corners[BoxCorners::corner::botLeft].y << std::endl;
+	std::cout << "Box bot right: " << Box2.m_corners[BoxCorners::corner::botRight].y << std::endl << std::endl;
+
+	//!?!? do an optimized AABB check to first rule out distant collisions
+
+	// the vectors onto which each shape will be projected
+	glm::vec2 edgeNormals[num_projections] = { {0,0} };
+
+	// since these are boxes, we only have to check two of the four side since the rest are parallel, and they are already perpindicular to each other
+	edgeNormals[0] = Box1.m_corners[BoxCorners::topRight] - Box1.m_corners[BoxCorners::topLeft];
+	edgeNormals[1] = Box1.m_corners[BoxCorners::topRight] - Box1.m_corners[BoxCorners::botRight];
+	edgeNormals[2] = Box2.m_corners[BoxCorners::topRight] - Box2.m_corners[BoxCorners::topLeft];
+	edgeNormals[3] = Box2.m_corners[BoxCorners::topRight] - Box2.m_corners[BoxCorners::botRight];
+
+	for (int i = 0; i < num_projections; ++i)
+	{
+		edgeNormals[i] = glm::normalize(edgeNormals[i]);
+	}
+
+	// project shapes onto the vectors
+	for (int i = 0; i < num_projections; ++i)
+	{
+		// the axis onto which we will project
+		glm::vec2 axis = edgeNormals[i];
+
+		// project corners onto the axis
+		MinMax proj1 = Box1.ProjectOntoAxis(axis);
+		MinMax proj2 = Box2.ProjectOntoAxis(axis);
+
+		// if the projections are not intersecting, the shapes are not intersecting
+		if (!proj1.Intersects(proj2))
+		{
+			return glm::vec3(0, 0, 0);
+		}
+		else // else we need to check the overlap for being the smallest escape vector
+		{
+			float overlap = proj1.Overlap(proj2);
+
+			// if this overlap is less than the last recorded one
+			if (overlap < smallestOverlap || smallestOverlap == -1)
+			{
+				smallestOverlap = overlap;
+				smallestAxis = axis;
+			}
+		}
+	}
+
+	// if we get here it is guarunteed that there was a collision and all sides have been tested for the shortest overlap
+	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
+
+	return escapeVector;
+}
+
 
 glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
@@ -176,8 +298,6 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 					 0, 0, 1
 					 );
 
-	printAMatrix(refMtrx);
-
 	// check to see if the objects are moving in the same direction
 	float xCompare = rigidBody1->Velocity().x / rigidBody2->Velocity().x;
 	float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
@@ -255,7 +375,7 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
-		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(1, 0, 1, 1));
+		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(.1f, .5f, 1, 1));
 	}
 }
 
@@ -281,7 +401,7 @@ void PhysicsSystem::Update(float dt)
 	}
 
 	float range = 5;
-	glm::vec3 castPosition(-2, 2, 0);
+	glm::vec3 castPosition(-2, 2.5, 0);
 	
 	glm::vec3 normalizedDirection(2, -1.5f, 0);
 
@@ -323,9 +443,20 @@ void PhysicsSystem::Update(float dt)
 				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
 				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
 
-				// check for collision
-				resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
-			
+				float object1Rotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+				float object2Rotation = otherTransform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+
+				// check for collision on non-rotated objects
+				if (object1Rotation == 0 && object2Rotation == 0)
+				{
+					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+				}
+				else // check for collision on rotated objects
+				{
+					resolutionVector = Collision_SAT(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+				}
+
+
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
 				{
@@ -336,7 +467,21 @@ void PhysicsSystem::Update(float dt)
 			// loop through all static colliders
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
-				resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), tStaticColliderHandle.GetSiblingComponent<TransformComponent>(), tStaticColliderHandle->ColliderData());
+				ComponentHandle<TransformComponent> otherTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
+				assert(otherTransform.IsValid(), "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
+				
+				float object1Rotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+				float object2Rotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+
+				// check for collision on non-rotated objects
+				if (object1Rotation == 0 && object2Rotation == 0)
+				{
+					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
+				}
+				else
+				{
+					resolutionVector = Collision_SAT(dt, transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
+				}
 
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)

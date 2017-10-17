@@ -92,7 +92,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 
 	// object on a different collisionLayer
 	GameObject Brett_obj4 = m_space.NewGameObject();
-	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(1.5, 1.2, 1), glm::vec3(.5f, .5f, 1));
+	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(1.5, 1.2, 1), glm::vec3(.5f, .5f, 1), (3.1415f * 2));
 	Brett_obj4.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj4.AddComponent<RigidBodyComponent>();
 	Brett_obj4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::decor);
