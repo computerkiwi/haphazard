@@ -8,38 +8,30 @@ PROJECT:
 Copyright 2017 DigiPen (USA) Corporation.
 *******************************************************/
 #include "Input.h"
+#include "graphics\Screen.h"
 #include <iostream>
 
 // Command-based: jump, left, right, attack
 // Keep binding in mind
 
 
-/*Gamepad::Gamepad() : moveLeft_(GLFW_KEY_A), moveRight_(GLFW_KEY_D)
-                     , attack_(GLFW_KEY_RIGHT_ALT), jump_(GLFW_KEY_SPACE)
-{
-}
-
-Gamepad const & Gamepad::GetConfig() const
-{
-  return *this;
-} 
-
-Input::Input(GLFWwindow * window) : window_(window) //, keyMap_()
-{
-} */
-
 namespace Input
 {
-
-  typedef std::map<Key, Keytate> TriggerMap;
+  ////////// Defined Types //////////
+  // Key: key that was pressed; Keystate 1: previous state; Keystate 2: current state
+  typedef std::map<Key, std::pair<KeyState, KeyState>> TriggerMap;
 
   ////////// Static Variables //////////
-  static GLFWwindow * inputWindow;    // Window to detect input from
-  static TriggerMap triggerMap;       // 0 to 9, A to Z, special characters, modifiers, numpad
-  static glm::vec2 cursorPos;         // x, y cursor positions; top-left is origin
-  static std::vector<Gamepad *> gamepads; // TEMP: vector of gamepad objects
+  static GLFWwindow * inputWindow;           // Window to detect input from
+  static TriggerMap triggerMap;              // 0 to 9, A to Z, special characters, modifiers, numpad
+  static glm::vec2 cursorPos;                // x, y cursor positions; top-left is origin
+  static std::vector<Gamepad *> gamepads;    // TEMP: vector of gamepad objects
 
-//  static Gamepad * player1;
+  ////////// Static Callback Functions //////////
+  static void KeyCallback(GLFWwindow * window, int key, int scancode, int actions, int mods);
+  static void CursorCallback(GLFWwindow * window, double xpos, double ypos);
+  static void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod);
+  static void GamepadCallback(int joy, int event);
 
   // Initializes input window for detection
   void Init(GLFWwindow * window)
@@ -61,8 +53,8 @@ namespace Input
   // Calls GLFW functions to check and store input
   void Update()
   {
-      // Action: press, repeat, release
-      // Input mode (GLFW set input mode): sticky Key (makes sure a key is polled, event stays until handled)
+    // Action: press, repeat, release
+    // Input mode (GLFW set input mode): sticky Key (makes sure a key is polled, event stays until handled)
 
     glfwSetKeyCallback(inputWindow, KeyCallback);
     glfwSetCursorPosCallback(inputWindow, CursorCallback);
@@ -76,28 +68,19 @@ namespace Input
     {
       gamepads[0]->GamepadDebug();
     }
-    /*
+
+  }
+
+  void Exit()
+  {
+    // Free gamepads
     for (size_t i = 0; i < gamepads.size(); ++i)
     {
       if (gamepads[i] != NULL)
       {
-        int axes; // ???? Why do I need the address whyyy
-
-        glfwGetJoystickAxes(gamepads[i]->GetGamepadID(), &axes);
-
-        gamepads[i]->SetAxes(axes);
-
-
-        std::cout << "ID: " << gamepads[i]->GetGamepadID() << std::endl;
-        std::cout << "AXES: " << gamepads[i]->GetGamepadAxis() << std::endl;
+        delete gamepads[i];
       }
-    } */
-
-  }
-
-  glm::vec2 GetMousePos()
-  {
-    return cursorPos;
+    }
   }
 
   // Check if key is pressed; takes the key to check
@@ -105,7 +88,7 @@ namespace Input
   bool IsPressed(Key key)
   {
     // Key pressed
-    if (triggerMap[key] == Keytate::pressed)
+    if (triggerMap[key] == KeyState::pressed)
     {
       return true;
     }
@@ -119,7 +102,7 @@ namespace Input
   bool IsHeldDown(Key key)
   {
     // Key held down
-    if (triggerMap[key] == Keytate::heldDown)
+    if (triggerMap[key] == KeyState::heldDown)
     {
       return true;
     }
@@ -128,16 +111,17 @@ namespace Input
     return false;
   }
 
-  void Exit()
+  // Return mouse position
+  glm::vec2 GetMousePos()
   {
-    // Free gamepads
-    for (size_t i = 0; i < gamepads.size(); ++i)
-    {
-      if (gamepads[i] != NULL)
-      {
-        delete gamepads[i];
-      }
-    }
+    return cursorPos;
+  }
+
+
+  // Merp
+  glm::vec2 ScreenToWorld(glm::vec2 screen)
+  {
+    return cursorPos - screen;
   }
 
   void SetGamepad()
@@ -176,14 +160,14 @@ namespace Input
       {
         // Key was pressed
         case GLFW_PRESS:
-          triggerMap[static_cast<Key>(key)] = Keytate::pressed;
+          triggerMap[static_cast<Key>(key)].second = KeyState::heldDown;
 
       //    std::cout << "KEY " << key << " pressed" << std::endl;
           break;
 
         // Key was held down
         case GLFW_REPEAT:
-          triggerMap[static_cast<Key>(key)] = Keytate::heldDown;
+          triggerMap[static_cast<Key>(key)].second = KeyState::heldDown;
 
        //   std::cout << "KEY " << key << " held down" << std::endl;
           break;
@@ -191,7 +175,7 @@ namespace Input
         // Key was released
         case GLFW_RELEASE:
 
-          triggerMap[static_cast<Key>(key)] = Keytate::released;
+          triggerMap[static_cast<Key>(key)].second = KeyState::released;
 
           std::cout << "KEY " << key << " released" << std::endl;
       }
@@ -215,9 +199,9 @@ namespace Input
   // Stores mouse button input information
   void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod)
   {
-    if ((button >= 0) && (action == static_cast<int>(Keytate::pressed)))
+    if ((button >= 0) && (action == static_cast<int>(KeyState::pressed)))
     {
-      triggerMap[static_cast<Key>(button)] = Keytate::pressed;
+      triggerMap[static_cast<Key>(button)] = KeyState::pressed;
 
       std::cout << "MOUSE BUTTON " << button << " was pressed" << std::endl;
     }
@@ -243,4 +227,6 @@ namespace Input
       std::cout << "Gamepad disconnected" << std::endl;
     }
   }
+
+
 }
