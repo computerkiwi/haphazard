@@ -1,0 +1,19 @@
+#version 330 core
+
+layout (location = 0) in float type;
+layout (location = 1) in vec2 pos;
+layout (location = 2) in vec2 vel;
+layout (location = 3) in float life;
+
+out float PType;
+out vec2 PPos;
+out vec2 PVel;
+out float PLife;
+
+void main()
+{
+	PType = type;
+	PPos = pos;
+	PVel = vel;
+	PLife = life;
+}

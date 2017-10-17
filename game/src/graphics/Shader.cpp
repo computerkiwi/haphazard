@@ -77,7 +77,7 @@ ShaderProgram::Attribute::Attribute(GLuint loc, int numArgs, GLenum argType, siz
 void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 {
 	if(name)
-		index = glGetAttribLocation(program->id, name);
+		index = glGetAttribLocation(program->m_ID, name);
 
 	glEnableVertexAttribArray(index);
 
@@ -100,51 +100,51 @@ void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 ///
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::vector<Attribute> attribs)
-	: attributes{attribs}
+	: m_Attributes{attribs}
 {
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader.GetShaderID());
-	glAttachShader(id, fragmentShader.GetShaderID());
-	glLinkProgram(id);
+	m_ID = glCreateProgram();
+	glAttachShader(m_ID, vertexShader.GetShaderID());
+	glAttachShader(m_ID, fragmentShader.GetShaderID());
+	glLinkProgram(m_ID);
 
-	successfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
+	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
 }
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
-	: attributes{ attribs }
+	: m_Attributes{ attribs }
 {
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader.GetShaderID());
-	glAttachShader(id, geoShader.GetShaderID());
-	glAttachShader(id, fragmentShader.GetShaderID());
-	glLinkProgram(id);
+	m_ID = glCreateProgram();
+	glAttachShader(m_ID, vertexShader.GetShaderID());
+	glAttachShader(m_ID, geoShader.GetShaderID());
+	glAttachShader(m_ID, fragmentShader.GetShaderID());
+	glLinkProgram(m_ID);
 
-	successfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled();
+	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled();
 }
 
 ShaderProgram::~ShaderProgram()
 {
-	glDeleteProgram(id);
+	glDeleteProgram(m_ID);
 }
 
 bool ShaderProgram::wasCompiled()
 {
-	return successfulCompile;
+	return m_SuccessfulCompile;
 }
 
 GLuint ShaderProgram::GetProgramID()
 { 
-	return id; 
+	return m_ID; 
 }
 
 void ShaderProgram::Use()
 { 
-	glUseProgram(id); 
+	glUseProgram(m_ID); 
 }
 
 void ShaderProgram::ApplyAttributes()
 {
-	for (Attribute& attrib : attributes)
+	for (Attribute& attrib : m_Attributes)
 	{
 		attrib.Apply(this);
 	}
@@ -155,7 +155,7 @@ void ShaderProgram::ApplyAttributes(int start, int end)
 	Attribute* attrib;
 	for (int i = start; i < end; i++)
 	{
-		attrib = &attributes[i];
+		attrib = &m_Attributes[i];
 		attrib->Apply(this);
 	}
 }
@@ -232,6 +232,8 @@ namespace Shaders
 	//Shader Declaration
 	ShaderProgram* defaultShader;
 	ShaderProgram* textShader;
+	ShaderProgram* particleShader;
+
 	ShaderProgram* debugShader;
 
 	ShaderProgram* ScreenShader::Raindrop;
@@ -289,6 +291,50 @@ namespace Shaders
 		textShader = LoadShaders(path + "text.vertshader", path + "text.fragshader", attribs);
 
 		if (!textShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadParticleShaders()
+	{
+		// Particle Update Transform Feedback Shader Program
+		std::string vertShaderSource = LoadFileToString( (path + "particleUpdate.vertshader").c_str() ).c_str();
+		std::string fragShaderSource = LoadFileToString( (path + "particleUpdate.geoshader").c_str() ).c_str();
+		Shader vs_Up = Shader(GL_VERTEX_SHADER, vertShaderSource.c_str());
+		Shader gs_Up = Shader(GL_FRAGMENT_SHADER, fragShaderSource.c_str());
+
+		GLuint updateProgram = glCreateProgram();
+		glAttachShader(updateProgram, gs_Up.GetShaderID());
+		glAttachShader(updateProgram, gs_Up.GetShaderID());
+
+		const GLchar* TFVaryings[4];
+		TFVaryings[0] = "Type";
+		TFVaryings[1] = "Position";
+		TFVaryings[2] = "Velocity";
+		TFVaryings[3] = "Age";
+
+		glTransformFeedbackVaryings(updateProgram, 4, TFVaryings, GL_INTERLEAVED_ATTRIBS);
+
+		glLinkProgram(updateProgram);
+
+		if (!vs_Up.wasCompiled() || !gs_Up.wasCompiled())
+			FailedCompile();
+
+		particleUpdateShader = new ShaderProgram(updateProgram);
+
+		std::vector<ShaderProgram::Attribute> attribs;
+		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 6, 0));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 6, 1));
+		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 6, 3));
+		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 6, 5));
+		particleUpdateShader->SetAttributes(attribs);
+
+		// Particle Render Shader Program
+		attribs.clear();
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 3, 0));
+		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_FLOAT, sizeof(float), false, 3, 2));
+
+		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.fragshader", attribs);
+		if (!particleRenderShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -376,6 +422,7 @@ namespace Shaders
 	{
 		LoadDefaultShader();
 		LoadTextShader();
+		LoadParticleShaders();
 		LoadDebugShader();
 		LoadScreenShaders();
 
@@ -391,6 +438,7 @@ namespace Shaders
 	{
 		delete defaultShader;
 		delete debugShader;
+		delete textShader;
 		delete ScreenShader::Default;
 		delete ScreenShader::Blur;
 		delete ScreenShader::BlurCorners;
@@ -399,6 +447,7 @@ namespace Shaders
 		delete ScreenShader::Sharpen;
 		delete ScreenShader::HDR;
 		delete ScreenShader::Bloom;
+		delete ScreenShader::Raindrop;
 	}
 
 };

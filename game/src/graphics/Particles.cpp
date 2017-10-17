@@ -4,6 +4,7 @@ Some of the code below was influenced by the following resource:
 http://ogldev.atspace.co.uk/www/tutorial28/tutorial28.html
 */
 #include "Particles.h"
+#include "Shaders.h"
 
 #define MAX_PARTICLES 1000
 
@@ -64,6 +65,8 @@ void ParticleSystem::Render(float dt)
 
 void ParticleSystem::UpdateParticles(float dt)
 {
+	Shaders::particleUpdateShader->Use();
+
 	// Don't want particle updates to be rendered to the screen, just sent through the feedback transform
 	glEnable(GL_RASTERIZER_DISCARD);
 
@@ -71,8 +74,7 @@ void ParticleSystem::UpdateParticles(float dt)
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]);
 	glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);
 
-	// After shader is added::::::
-	// Shader->applyAttributes 
+	Shaders::particleUpdateShader->ApplyAttributes();
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
 	glBeginTransformFeedback(GL_POINTS);
@@ -97,16 +99,16 @@ void ParticleSystem::UpdateParticles(float dt)
 
 void ParticleSystem::RenderParticles()
 {
-	// Set state (texture, ect) here
+	Shaders::particleRenderShader->Use();
 
+	Shaders::particleRenderShader->SetVariable("")
+	
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
 
-	// Only need position from Particle struct, so enable that one variable, but set correct stride
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (const GLvoid*)4);
+	Shaders::particleRenderShader->ApplyAttributes();
 
 	// Render it
 	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);

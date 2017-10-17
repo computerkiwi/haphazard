@@ -1,0 +1,71 @@
+#version 330 core
+
+layout(points) in;
+layout(points) out;
+layout(max_vertices = 30) out;
+
+in float PType[];
+in vec2 PPos[];
+in vec2 PVel[];
+in float PLife[];
+
+out float Type;
+out vec2 Position;
+out vec2 Velocity;
+out float Life;
+
+uniform float dt;
+uniform float EmitterLifetime;
+uniform float ParticleLifetime;
+uniform float SubParticleLifetime;
+
+#define EMITTER_TYPE 0.0f
+#define PARTICLE_TYPE 1.0f
+#define SUB_PARTICLE_TYPE 2.0f
+
+void main()
+{
+	float currAge = PLife[0] + dt;
+
+	if(PType[0] == EMITTER_TYPE)
+	{
+		if (currAge >= EmitterLifetime) { // Emit new particle with the following info:
+            Type = PARTICLE_TYPE;
+            Position = PPos[0];
+            Velocity = vec2(1,1);
+            Age = 0.0f;
+
+            EmitVertex();
+            EndPrimitive();
+        }
+
+		// Emit this particle emitter
+        Type = EMITTER_TYPE;
+        Position = Pos[0];
+        Velocity = Vel[0];
+        Age = currAge;
+        EmitVertex();
+        EndPrimitive();
+	}
+	else // Handle particle or sub particle update
+	{
+		if(PType[0] == PARTICLE_TYPE)
+		{
+			if(currAge < ParticleLifetime) 
+			{
+				// Still alive, update then emit self
+				Type = PType[0];
+				Position = Pos[0];
+		        Velocity = Vel[0];
+		        Age = currAge;
+		        EmitVertex();
+			    EndPrimitive();
+			}
+			else
+			{
+				// Dead, emit sub emitter, or don't.
+			}
+		}
+	}
+
+}
