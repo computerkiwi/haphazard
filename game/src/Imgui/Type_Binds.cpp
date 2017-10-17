@@ -247,13 +247,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 			Separator();
 		}
 
-		PushItemWidth(120);
 		DragFloat("##rotation_drag", &transform->Rotation(), 0, 360);
-		SameLine();
-		PopItemWidth();
-		PushItemWidth(100);
-		InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2);
-		PopItemWidth();
 
 		if (transform->GetParent())
 		{

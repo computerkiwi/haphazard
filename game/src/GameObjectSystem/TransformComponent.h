@@ -40,25 +40,15 @@ public:
 	void SetParent(GameObject parent);
 	GameObject GetParent() const;
 
-	float& Rotation();
-
 	float GetRotation() const;
 
 	void SetRotation(const float& rotation);
 
-	glm::vec3& Position();
-
 	glm::vec3& GetRelativePosition();
 
-	glm::vec3 GetPosition() const;
+	glm::vec2 GetPosition() const;
 
 	void SetPosition(const glm::vec3& position);
-
-	glm::vec3 Position() const;
-
-	glm::vec2 GetPosition2D() const;
-
-	glm::vec3& Scale();
 
 	glm::vec3 GetScale() const;
 

@@ -111,7 +111,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 
 	// static colliders: box of cats
-	GameObject Brett_obj3 = m_spaces[0]->NewGameObject("Brett Test - Static Cats");
+	GameObject Brett_obj3 = m_spaces[0]->NewGameObject("Ground");
 	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(1.25, -1, -1), glm::vec3(2.5, 1, 1));
 	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, 1, 0));
