@@ -23,7 +23,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // TRANSFORM
 //-----------
 
-glm::vec3 TransformGetPosition(const TransformComponent *transform)
+glm::vec2 TransformGetPosition(const TransformComponent *transform)
 {
 	return transform->GetPosition();
 }

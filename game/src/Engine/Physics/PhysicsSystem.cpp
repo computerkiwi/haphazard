@@ -139,11 +139,11 @@ glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform
 
 	glm::vec2 obj1Center = transform1->GetPosition();
 	glm::vec2 obj1Dimensions = collider1.GetDimensions();
-	float obj1Rotation = transform1->Rotation() + collider1.GetRotationOffset();
+	float obj1Rotation = transform1->GetRotation() + collider1.GetRotationOffset();
 
 	glm::vec2 obj2Center = transform2->GetPosition();
 	glm::vec2 obj2Dimensions = collider2.GetDimensions();
-	float obj2Rotation = transform2->Rotation() + collider2.GetRotationOffset();
+	float obj2Rotation = transform2->GetRotation() + collider2.GetRotationOffset();
 
 	// get the corners of each of the objects
 	BoxCorners Box1(obj1Center, obj1Dimensions, obj1Rotation);
@@ -207,8 +207,8 @@ glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform
 
 glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	BoxCollider Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
+	BoxCollider Box1(dt, glm::vec3(AABB1Transform->GetPosition(), 0), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(dt, glm::vec3(AABB2Transform->GetPosition(), 0), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
 
 	glm::vec3 escapeVector(0);
 	glm::vec3 minValue(0);
@@ -359,7 +359,7 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 
 void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
-	transform->Position() += velocity * dt;
+	transform->GetPosition() += velocity * dt;
 	rigidBody->AddVelocity(acceleration * dt);
 }
 
@@ -470,7 +470,7 @@ void PhysicsSystem::Update(float dt)
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
 				ComponentHandle<TransformComponent> otherTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
-				assert(otherTransform.IsValid(), "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
+				assert(otherTransform.IsValid() && "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
 				
 				float object1Rotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();

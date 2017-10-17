@@ -321,8 +321,8 @@ void Editor::OnClick()
 
 		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
 		{
-			const glm::vec3& scale = transform.Get()->Scale();
-			const glm::vec3& pos = transform.Get()->Position();
+			const glm::vec2 scale = transform.Get()->GetScale();
+			const glm::vec2 pos = transform.Get()->GetPosition();
 
 			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
 			{
@@ -352,7 +352,7 @@ void Editor::Tools()
 {
 	if (GameObject(m_selected_object).GetSpace())
 	{
-		glm::vec3& pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->Position();
+		const glm::vec2 pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
 
 		switch (m_tool)
 		{

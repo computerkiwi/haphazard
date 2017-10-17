@@ -211,7 +211,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 	{
 		if (TreeNode("Position"))
 		{
-			if (DragFloat("X##position_drag", &transform->Position().x, 0, 5))
+			if (DragFloat("X##position_drag", &transform->GetRelativePosition().x, 0, 5))
 			{
 				if (object.GetComponent<RigidBodyComponent>().Get())
 				{
@@ -223,7 +223,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 				}
 			}
 
-			if (DragFloat("Y##position_drag", &transform->Position().y, 0, 5))
+			if (DragFloat("Y##position_drag", &transform->GetRelativePosition().y, 0, 5))
 			{
 				if (object.GetComponent<RigidBodyComponent>().Get())
 				{
@@ -241,13 +241,13 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 		if (TreeNode("Scale"))
 		{
 			PushItemWidth(120);
-			InputFloat("X##scale", &transform->Scale().x);
-			InputFloat("Y##scale", &transform->Scale().y);
+			InputFloat("X##scale", &transform->m_scale.x);
+			InputFloat("Y##scale", &transform->m_scale.y);
 			TreePop();
 			Separator();
 		}
 
-		DragFloat("##rotation_drag", &transform->Rotation(), 0, 360);
+		DragFloat("##rotation_drag", &transform->m_rotation, 0, 360);
 
 		if (transform->GetParent())
 		{

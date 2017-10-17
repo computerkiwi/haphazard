@@ -23,6 +23,7 @@ void TransformComponent::SetParent(GameObject parent)
 	m_parent = parent;
 }
 
+
 GameObject TransformComponent::GetParent() const
 {
 	return m_parent;
@@ -58,9 +59,21 @@ glm::vec2 TransformComponent::GetPosition() const
 }
 
 
-void TransformComponent::SetPosition(const glm::vec3& position)
+void TransformComponent::SetPosition(const glm::vec2& position)
 {
 	m_position = position;
+}
+
+
+float TransformComponent::GetZLayer() const
+{
+	return m_position.z;
+}
+
+
+void TransformComponent::SetZLayer(float layer)
+{
+	m_position.z = layer;
 }
 
 

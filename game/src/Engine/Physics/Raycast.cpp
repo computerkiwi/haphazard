@@ -126,9 +126,9 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 	// if the collider is a box
 	if (colliderData.GetColliderType() == Collider2D::colliderType::colliderBox)
 	{
-		glm::vec2 boxCenter = transform->Position();
+		glm::vec2 boxCenter = transform->GetPosition();
 		glm::vec2 colliderOffset = colliderData.GetOffset();
-		float rotation = transform->Rotation() + colliderData.GetRotationOffset();
+		float rotation = transform->GetRotation() + colliderData.GetRotationOffset();
 		glm::vec2 boxDimenions = colliderData.GetDimensions();
 
 		BoxCorners corners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
@@ -139,7 +139,7 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 			if (rotation == 0)
 			{
 				// add the offset to the center
-				boxCenter = static_cast<glm::vec2>(transform->Position()) + colliderOffset;
+				boxCenter = static_cast<glm::vec2>(transform->GetPosition()) + colliderOffset;
 			}
 			else
 			{

@@ -48,7 +48,10 @@ public:
 
 	glm::vec2 GetPosition() const;
 
-	void SetPosition(const glm::vec3& position);
+	void SetZLayer(float layer);
+	float GetZLayer() const;
+
+	void SetPosition(const glm::vec2& position);
 
 	glm::vec3 GetScale() const;
 
@@ -59,6 +62,8 @@ public:
 	glm::mat4 GetMatrix4() const;
 
 private:
+	friend void ImGui_Transform(TransformComponent *transform, GameObject object);
+
 	glm::vec3 m_position;
 	glm::vec3 m_scale;
 	float m_rotation; // Stored in degrees.
@@ -70,9 +75,11 @@ private:
 	{
 		META_DefineType(TransformComponent);
 
-		META_DefineGetterSetter(TransformComponent, glm::vec3, GetPosition, SetPosition, "position");
+		META_DefineGetterSetter(TransformComponent, glm::vec2, GetPosition, SetPosition, "position");
 
 		META_DefineGetterSetter(TransformComponent, glm::vec3, GetScale, SetScale, "scale");
+
+		META_DefineGetterSetter(TransformComponent, float, GetZLayer, SetZLayer, "z-layer");
 
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
 	}

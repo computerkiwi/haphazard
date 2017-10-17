@@ -12,6 +12,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 // forward declaration
 struct MinMax;
+class BoxCorners;
 
 class Raycast
 {
