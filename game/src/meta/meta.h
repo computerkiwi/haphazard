@@ -431,7 +431,7 @@ namespace meta
 #define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 
 #define META_NAMESPACE(NAMESPACE)
-#define META_REGISTER(TYPE) public: static void Meta__Register__##TYPE()
+#define META_REGISTER(TYPE) private: friend class ::meta::Type; public: static void Meta__Register__##TYPE()
 
 #include "meta.inl"
 #include "MemberGetSet.inl"

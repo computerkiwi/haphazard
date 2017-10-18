@@ -64,6 +64,22 @@ private:
 	CollisionLayer m_collisionLayer;
 	glm::vec3 m_offset;
 	float m_rotationOffset;
+
+	META_REGISTER(Collider2D)
+	{
+		// HACK: Do some safety registration.
+		META_DefineType(int);
+		META_DefineType(float);
+		META_DefineType(glm::vec3);
+		META_DefineType(CollisionLayer);
+
+		META_DefineType(Collider2D);
+		META_DefineMember(Collider2D, m_colliderType, "colliderType");
+		META_DefineMember(Collider2D, m_offset, "offset");
+		META_DefineMember(Collider2D, m_dimensions, "dimensions");
+		META_DefineMember(Collider2D, m_rotationOffset, "rotationOffset");
+		META_DefineMember(Collider2D, m_collisionLayer, "collisionLayer");
+	}
 };
 
 
@@ -86,6 +102,12 @@ public:
 private:
 	// the actual data of the collider
 	Collider2D m_colliderData;
+
+	META_REGISTER(StaticCollider2DComponent)
+	{
+		META_DefineType(StaticCollider2DComponent);
+		META_DefineMember(StaticCollider2DComponent, m_colliderData, "colliderData");
+	}
 };
 
 class DynamicCollider2DComponent
@@ -110,8 +132,8 @@ private:
 
 	META_REGISTER(DynamicCollider2DComponent)
 	{
-		// TODO[Kieran]: Fix Python script so we can put this in each.
 		META_DefineType(DynamicCollider2DComponent);
-		META_DefineType(StaticCollider2DComponent);
+		META_DefineMember(DynamicCollider2DComponent, m_colliderData, "colliderData");
+
 	}
 };

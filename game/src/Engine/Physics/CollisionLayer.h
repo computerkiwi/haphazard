@@ -8,6 +8,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "meta/meta.h"
+
 enum /*class */collisionLayers
 {
 	noCollision = 1 << 0,  // Collides with nothing
@@ -25,7 +27,7 @@ class CollisionLayer
 {
 public:
 	// conversion constructors
-	explicit CollisionLayer(int layer);
+	explicit CollisionLayer(int layer = noCollision);
 	CollisionLayer(const CollisionLayer& layer);
 
 	// if both layers should collide with each other, return true, otherwise false
@@ -36,4 +38,10 @@ public:
 
 private:
 	int m_layer;
+
+	META_REGISTER(CollisionLayer)
+	{
+		META_DefineType(CollisionLayer);
+		META_DefineMember(CollisionLayer, m_layer, "layer");
+	}
 };

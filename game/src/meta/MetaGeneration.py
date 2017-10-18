@@ -33,37 +33,57 @@ def ParseCommandLine():
 def GetHeaderFiles(sourceDir):
 	return glob.glob(sourceDir + "/**/*.h", recursive = True)
 
-# Returns the argument passed to a one-argument macro in a given cpp file represented as a string.
-def FindMacroValue(fileString, macro):
-	startIndex = fileString.find(macro)
+def FindMacroValueFromIndex(fileString, macro, index, outArray):
+	startIndex = fileString.find(macro, index)
 
 	if (startIndex == -1):
-		return None
+		return -1
 
 	# Make sure we're not picking up the initial definition of the macro.
 	DEFINE_SYNTAX = "#define "
 	if (fileString.find(DEFINE_SYNTAX + macro) != -1):
-		return None
+		return -1
 
 	openParenIndex  = fileString.find('(', startIndex)
 	closeParenIndex = fileString.find(')', openParenIndex)
 
-	return fileString[openParenIndex + 1 : closeParenIndex]
-	
+	outArray.append(fileString[openParenIndex + 1 : closeParenIndex])
+
+	return closeParenIndex
+
+# Returns the argument passed to a one-argument macro in a given cpp file represented as a string.
+def FindMacroValue(fileString, macro):
+	values = []
+
+	FindMacroValueFromIndex(fileString, macro, 0, values)
+
+	if (len(values) == 0):
+		return None
+	else:
+		return values[0]
+
+def FindMacroValues(fileString, macro):
+	index = 0
+	values = []
+
+	while(index >= 0):
+		index = FindMacroValueFromIndex(fileString, macro, index, values)
+
+	return values
 
 def ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHeadersList):
 	with open(fileName, 'r') as file:
 		fString = file.read()
 
-	namespace = FindMacroValue(fString, "META_NAMESPACE")
-	if (not (namespace is None)):
+	namespaces = FindMacroValues(fString, "META_NAMESPACE")
+	for namespace in namespaces:
 		outputNamespacesList.append(namespace)
 
-	typeName = FindMacroValue(fString, "META_REGISTER")
-	if (typeName is None):
-		return
-	else:
+	typeNames = FindMacroValues(fString, "META_REGISTER")
+	for typeName in typeNames:
 		outputTypesList.append(typeName)
+
+	if (len(typeNames) > 0):
 		outputHeadersList.append(fileName)
 
 def ParseHeaders(headerFilesList, outputTypesList, outputNamespacesList, outputHeadersList):
