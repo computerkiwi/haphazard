@@ -35,7 +35,7 @@ public:
 	}
 
 	template <typename T>
-	ComponentHandle<T> GetComponent()
+	ComponentHandle<T> GetComponent() const
 	{
 		// Make sure the component exists before we hand it off.
 		if (GetSpace()->GetInternalComponent<T>(m_objID) != nullptr)

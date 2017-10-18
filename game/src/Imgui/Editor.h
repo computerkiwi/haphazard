@@ -59,7 +59,7 @@ class Editor
 		std::function<void()> func = std::function<void()>();
 	};
 
-
+	bool m_show_console = false;
 	bool m_scroll = false;
 	std::map<std::size_t, Command> m_commands;
 	std::vector<std::string> m_log_history;
@@ -108,6 +108,7 @@ public:
 
 	void Tools();
 
+	void MenuBar();
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };

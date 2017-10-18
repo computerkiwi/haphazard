@@ -216,11 +216,16 @@ void Editor::Update()
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		// Get all the active gameobjects
-		// TODO[NOAH]:: Make it collect all GameObjects
 		m_engine->GetSpaceManager()->CollectAllObjects(m_objects);
 
+		// Top Bar
+		MenuBar();
+
 		// Render the console
-		Console();
+		if (m_show_console)
+		{
+			Console();
+		}
 		
 		if (Input::IsPressed(Key::Y))
 		{
@@ -230,13 +235,13 @@ void Editor::Update()
 		// Move, Scale, Rotate
 		Tools();
 
-		// ImGui::ShowTestWindow();
+		ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
 
 		// Pass the current object in the editor
-		ImGui_GameObject(GameObject(m_selected_object));
+		ImGui_GameObject(GameObject(m_selected_object), this);
 
 		ImGui::Render();
 	}
@@ -318,8 +323,8 @@ void Editor::OnClick()
 
 		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
 		{
-			const glm::vec3& scale = transform.Get()->Scale();
-			const glm::vec3& pos = transform.Get()->Position();
+			const glm::vec2 scale = transform.Get()->GetScale();
+			const glm::vec2 pos = transform.Get()->GetPosition();
 
 			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
 			{
@@ -347,9 +352,9 @@ void Editor::OnClick()
 
 void Editor::Tools()
 {
-	if (GameObject(m_selected_object).GetSpace())
+	if (m_selected_object && GameObject(m_selected_object).GetSpace())
 	{
-		glm::vec3& pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->Position();
+		const glm::vec2 pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
 
 		switch (m_tool)
 		{
@@ -376,7 +381,13 @@ void Editor::ObjectsList()
 	using namespace ImGui;
 
 	SetNextWindowSize(ImVec2(260, 400));
+	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
+
+	if (Button("Create"))
+	{
+		CreateGameObject("No Name");
+	}
 
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
@@ -621,6 +632,44 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 void Editor::ToggleEditor()
 {
 	m_show_editor = !m_show_editor;
+}
+
+
+void Editor::MenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save"))
+			{
+				
+			}
+
+			if (ImGui::MenuItem("Load"))
+			{
+
+			}
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			ImGui::EndMenu();
+		}
+		if (ImGui::Button("Console"))
+		{
+			m_show_console = !m_show_console;
+		}
+
+		ImGui::EndMainMenuBar();
+	}
 }
 
 
