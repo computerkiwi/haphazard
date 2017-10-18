@@ -227,6 +227,12 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 {
 	if (CollapsingHeader("Transform"))
 	{
+		if (transform->GetParent())
+		{
+			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+			Separator();
+		}
+
 		if (TreeNode("Position"))
 		{
 			if (DragFloat("X##position_drag", &transform->GetRelativePosition().x, 0, 5))
@@ -266,22 +272,17 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 		}
 
 		DragFloat("##rotation_drag", &transform->m_rotation, 0, 360);
-
-		if (transform->GetParent())
-		{
-			Separator();
-			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
-		}
 	}
 }
 
 
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 {
-	float mass = 1 / rb->Mass();
 	if (CollapsingHeader("RigidBody"))
 	{
-		if (Button("Remove"))
+		float mass = 1 / rb->Mass();
+
+		if (Button("Remove##rigidbody"))
 		{
 			object.DeleteComponent<RigidBodyComponent>();
 		}
@@ -323,7 +324,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
 {
 	if (CollapsingHeader("Sprite"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##sprite"))
 		{
 			object.DeleteComponent<SpriteComponent>();
 		}
@@ -340,7 +341,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 {
 	if (CollapsingHeader("Collider"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##collider"))
 		{
 			if (collider->isStatic())
 			{
@@ -381,12 +382,12 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object)
 {
 	if (CollapsingHeader("Script"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##script"))
 		{
-
+			object.DeleteComponent<ScriptComponent>();
 		}
 		char buffer[2048];
-		if (InputText("", buffer, 2048))
+		if (InputText("", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			SameLine();
 			if (Button("Add##script"))

@@ -118,6 +118,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 }
 
+
 void Engine::MainLoop()
 {
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Entering main loop. ");
@@ -127,7 +128,6 @@ void Engine::MainLoop()
 	}
 	Logging::Exit();
 }
-
 
 
 void Engine::Update()
@@ -179,7 +179,7 @@ float Engine::Dt() const
 }
 
 
-GLFWwindow* WindowInit()
+GLFWwindow *WindowInit()
 {
 	Logging::Log_StartUp("Initializing glfw...", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 
