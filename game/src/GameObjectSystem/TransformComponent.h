@@ -22,6 +22,8 @@ constexpr float DegToRad(float degrees)
 	return degrees * RADIANS_IN_CIRCLE / DEGREES_IN_CIRCLE;
 }
 
+class Editor;
+
 class TransformComponent
 {
 public:
@@ -62,7 +64,7 @@ public:
 	glm::mat4 GetMatrix4() const;
 
 private:
-	friend void ImGui_Transform(TransformComponent *transform, GameObject object);
+	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 
 	glm::vec3 m_position;
 	glm::vec3 m_scale;

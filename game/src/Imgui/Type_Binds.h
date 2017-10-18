@@ -19,7 +19,7 @@ struct ScriptComponent;
 
 void ImGui_GameObject(GameObject object, Editor *editor);
 void ImGui_ObjectInfo(ObjectInfo *info);
-void ImGui_Transform(TransformComponent *transform, GameObject object);
+void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object);
 void ImGui_Sprite(SpriteComponent *sprite, GameObject object);
 void ImGui_Collider2D(Collider2D *collider, GameObject object);

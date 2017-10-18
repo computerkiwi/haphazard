@@ -165,7 +165,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		// ImGui_Component(ComponetType *component);
 		if (object.GetComponent<TransformComponent>().IsValid())
 		{
-			ImGui_Transform(object.GetComponent<TransformComponent>().Get(), object);
+			ImGui_Transform(object.GetComponent<TransformComponent>().Get(), object, editor);
 		}
 
 		// Check for RigidBody OR Static Collider, can only have one
@@ -222,15 +222,53 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	}
 }
 
+#define SLIDER_STEP 0.01f
 
-void ImGui_Transform(TransformComponent *transform, GameObject object)
+void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
 	if (CollapsingHeader("Transform"))
 	{
 		if (transform->GetParent())
 		{
+			if (Button("Remove Parent"))
+			{
+				transform->SetParent(0);
+				return;
+			}
 			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
 			Separator();
+		}
+		else
+		{
+			if (Button("Add Parent"))
+			{
+				OpenPopup("Add Parent##add_parent_popup");
+			}
+
+			int parent_id = 0;
+			if (BeginPopup("Add Parent##add_parent_popup"))
+			{
+				char name_buffer[128] = { 0 };
+				for (auto& id : editor->m_objects)
+				{
+					GameObject object = id;
+
+					if (object.Getid() == editor->m_selected_object)
+					{
+						continue;
+					}
+
+					snprintf(name_buffer, sizeof(name_buffer),
+						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid(), object.GetIndex());
+
+					if (Selectable(name_buffer))
+					{
+						transform->SetParent(id);
+						break;
+					}
+				}
+				EndPopup();
+			}
 		}
 
 		if (TreeNode("Position"))
@@ -240,16 +278,13 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 				Text("X: %f", transform->GetPosition().x);
 				Text("Y: %f", transform->GetPosition().y);
 
-				DragFloat("X Offset##position_drag", &transform->m_position.x, 0, 5);
-
-				DragFloat("Y Offset##position_drag", &transform->m_position.y, 0, 5);
-
+				DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0);
+				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
 			}
 			else
 			{
-				DragFloat("X##position_drag", &transform->GetRelativePosition().x, 0, 5);
-
-				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, 0, 5);
+				DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0);
+				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, SLIDER_STEP, 0);
 			}
 
 			TreePop();
@@ -264,7 +299,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 			Separator();
 		}
 
-		DragFloat("##rotation_drag", &transform->m_rotation, 0, 360);
+		DragFloat("##rotation_drag", &transform->m_rotation, 1, 0);
 	}
 }
 

@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameObject.h"
 
 class Engine;
+class TransformComponent;
 struct GLFWwindow;
 
 // These Macros allow for hex color codes
@@ -31,6 +32,9 @@ struct GLFWwindow;
 
 class Editor
 {
+
+	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
+
 	Engine * m_engine;
 	bool m_show_editor;
 
