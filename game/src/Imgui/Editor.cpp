@@ -235,7 +235,7 @@ void Editor::Update()
 		// Move, Scale, Rotate
 		Tools();
 
-		ImGui::ShowTestWindow();
+		// ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
