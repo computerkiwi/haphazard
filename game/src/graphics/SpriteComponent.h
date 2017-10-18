@@ -11,6 +11,14 @@ public:
 	SpriteComponent(Texture* t = NULL);
 	SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps);
 	
+private:
+	Texture *GetDefaultTexture()
+	{
+		
+
+		return new Texture("default.png");
+	}
+
 	META_REGISTER(SpriteComponent)
 	{
 		META_DefineType(SpriteComponent);

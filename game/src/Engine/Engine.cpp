@@ -66,14 +66,17 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
+	// TEMPORARY IDK where to put this
+	Input::Init(m_window);
+
+#define GENERATE_SCENE
+#ifdef GENERATE_SCENE
+
 	// Make a space.
 	m_spaces.AddSpace();
 
 	// Initialize the system.
 	m_spaces[0]->Init();
-
-	// TEMPORARY IDK where to put this
-	Input::Init(m_window);
 
 
 	// TEMPORARY - Creating some GameObjects.
@@ -119,6 +122,10 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(2.5, 1, 0));
 
 	this->FileSave("test_out.json");
+#else
+	this->FileLoad("test_out.json");
+	m_spaces[0]->Init();
+#endif
 }
 
 void Engine::MainLoop()
