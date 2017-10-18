@@ -61,6 +61,8 @@ namespace meta
 			m_serializeFunction(sf), m_deserializeAssignFunction(nullptr),
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
+			// If this fails we're trying to access a type before properly registering it.
+			assert(name != nullptr);
 		}
 
 		Type(const Type&) = delete;
