@@ -35,12 +35,12 @@ GameObject_ID GenerateID();
 class SystemBase
 {
 public:
-	void RegisterGameSpace(GameSpace *space)
+	void RegisterGameSpace(GameSpaceIndex space)
 	{
 		m_space = space;
 	}
 
-	SystemBase() : m_space(nullptr)
+	SystemBase() : m_space(0)
 	{
 	}
 
@@ -57,13 +57,12 @@ public:
 	// Simply returns the default priority for this system.
 	virtual std::size_t DefaultPriority() = 0;
 
+	virtual SystemBase *NewDuplicate() = 0;
+
 protected:
-	GameSpace *GetGameSpace() const
-	{
-		return m_space;
-	}
+	GameSpace *GetGameSpace() const;
 private:
-	GameSpace *m_space;
+	GameSpaceIndex m_space;
 };
 
 // ID used as key to component containers.
@@ -99,8 +98,17 @@ public:
 	// This is a pointer, not a handle. It probably won't be valid very long.
 	virtual meta::Any GetComponentPointerMeta(GameObject_ID object) = 0;
 
-private:
+	virtual void UpdateSpaceIndex(GameSpaceIndex index) = 0;
+
+	virtual ComponentMapBase *NewDuplicateMap() = 0;
 };
+
+// Forward declare
+template <typename T>
+class ComponentMap;
+
+template <typename T>
+void StaticUpdateSpaceIndex(ComponentMap<T>& map, GameSpaceIndex index);
 
 // Standard ComponentMap template
 // Any template specialization class must implement ALL of the functions in this class.
@@ -152,10 +160,39 @@ public:
 
 	void DeleteComponent(GameObject_ID id);
 
+	friend void StaticUpdateSpaceIndex<ObjectInfo>(ComponentMap<ObjectInfo>& map, GameSpaceIndex index);
+
+	virtual void UpdateSpaceIndex(GameSpaceIndex index)
+	{
+		StaticUpdateSpaceIndex<T>(*this, index);
+	}
+
 private:
 	std::unordered_map<GameObject_ID, T> m_components;
 	GameSpace *m_space;
+
+	virtual ComponentMapBase *NewDuplicateMap() override
+	{
+		return new ComponentMap<T>(*this);
+	}
 };
+
+// UpdateSpaceIndex Functions
+// TODO: Make this use SFINAE to check if the component has an UpdateSpaceIndex function.
+template <typename T>
+static void StaticUpdateSpaceIndex(ComponentMap<T>& map, GameSpaceIndex index)
+{
+	// Most don't need to do anything.
+}
+
+template <>
+static void StaticUpdateSpaceIndex<ObjectInfo>(ComponentMap<ObjectInfo>& map, GameSpaceIndex index)
+{
+	for (auto& info : map)
+	{
+		info->m_id = GameObject::ConstructID(info->m_id, index);
+	}
+}
 
 
 // Contains a container for each component type.
@@ -167,8 +204,17 @@ class GameSpace
 
 public:
 
-	GameSpace() { RegisterComponentType<ObjectInfo>(); }
-	explicit GameSpace(GameSpaceIndex index) : m_index(index) { RegisterComponentType<ObjectInfo>(); }
+	GameSpace() { RegisterInitial(); }
+	explicit GameSpace(GameSpaceIndex index) : m_index(index) { RegisterInitial(); }
+	
+	GameSpace(const GameSpace& other);
+	GameSpace(GameSpace&& other);
+	GameSpace& operator=(const GameSpace& other);
+	GameSpace& operator=(GameSpace&& other);
+
+	~GameSpace();
+
+	void SetIndex(GameSpaceIndex index);
 
 	template <typename T>
 	void RegisterComponentType();
@@ -202,12 +248,15 @@ public:
 	std::vector<GameObject> CollectGameObjects();
 	void CollectGameObjects(std::vector<GameObject_ID>& objects);
 
-	~GameSpace();
+	// On the default engine.
+	static GameSpace *GetByIndex(GameSpaceIndex index);
 
 	// These are pointers, not handles. They probably won't be valid very long.
 	std::vector<meta::Any> GetObjectComponentPointersMeta(GameObject_ID id);
 
 private:
+	void RegisterInitial();
+
 	template <typename T>
 	T *GetInternalComponent(GameObject_ID id);
 
@@ -215,6 +264,8 @@ private:
 
 	template <typename T, typename... Args>
 	void EmplaceComponent(GameObject_ID id, Args&&... args);
+
+	void AddComponentMeta(GameObject_ID id, meta::Any& component);
 
 	std::unordered_map<ComponentType, ComponentMapBase *> m_componentMaps;
 	std::map<std::size_t, SystemBase *> m_systems;
@@ -239,10 +290,30 @@ private:
 		return gameObjectArray;
 	}
 
+	static void GameSpaceDeserializeAssign(void *spacePtr, rapidjson::Value& jsonSpace)
+	{
+		// Get the space.
+		GameSpace& gameSpace = *reinterpret_cast<GameSpace *>(spacePtr);
+
+		// The json space should be an array of GameObjects
+		assert(jsonSpace.IsArray());
+
+		// Deserialize each GameObject.
+		for (auto& jsonGameObject : jsonSpace.GetArray())
+		{
+			// Setup the gamespace to use and deserialize the object.
+			GameObject::SetDeserializeSpace(gameSpace.m_index);
+			meta::Any gameObject(jsonGameObject);
+
+			assert(gameObject.GetType() == meta::GetTypePointer<GameObject>());
+		}
+	}
+
 	META_REGISTER(GameSpace)
 	{
 		META_DefineType(GameSpace);
 		META_DefineSerializeFunction(GameSpace, GameSpaceSerialize);
+		META_DefineDeserializeAssignFunction(GameSpace, GameSpaceDeserializeAssign);
 	}
 };
 
@@ -274,14 +345,32 @@ public:
 
 	void AddSpace()
 	{
+		int index;
+
 		if (m_spaces.size())
 		{
-			m_spaces.emplace_back(GameSpace(static_cast<int>(m_spaces.size())));
+			index = static_cast<int>(m_spaces.size());
 		}
 		else
 		{
-			m_spaces.emplace_back(GameSpace(0));
+			index = 0;
 		}
+
+		m_spaces.push_back(GameSpace(index));
+	}
+
+	void AddSpace(GameSpace& gameSpace)
+	{
+		if (m_spaces.size())
+		{
+			gameSpace.SetIndex(static_cast<GameSpaceIndex>(m_spaces.size()));
+		}
+		else
+		{
+			gameSpace.SetIndex(0);
+		}
+
+		m_spaces.push_back(gameSpace);
 	}
 
 	inline GameSpace &Get(std::size_t index)
@@ -292,6 +381,11 @@ public:
 	inline GameSpace *operator[](std::size_t index)
 	{
 		return &m_spaces[index];
+	}
+
+	void ClearSpaces()
+	{
+		m_spaces.clear();
 	}
 
 	void CollectAllObjects(std::vector<GameObject_ID>& objects)

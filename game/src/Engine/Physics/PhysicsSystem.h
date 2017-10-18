@@ -22,4 +22,7 @@ class PhysicsSystem : public SystemBase
 	{
 		return 1;
 	}
+
+	// Inherited via SystemBase
+	virtual SystemBase *NewDuplicate() override;
 };

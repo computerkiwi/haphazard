@@ -6,6 +6,20 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "GameSpace.h"
+#include "Engine\Engine.h"
+
+// Component types to register.
+#include "GameObjectSystem/TransformComponent.h"
+#include "graphics\SpriteComponent.h"
+#include "graphics\Texture.h"
+#include "Engine\Physics\RigidBody.h"
+#include "Engine\Physics\Collider2D.h"
+#include "Scripting\ScriptComponent.h"
+
+// Systems to register.
+#include "graphics\RenderSystem.h"
+#include "Engine\Physics\PhysicsSystem.h"
+#include "Scripting\ScriptSystem.h"
 
 static ComponentType lastID = 0;
 
@@ -29,9 +43,19 @@ GameObject_ID GenerateID()
 void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 {
 	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
-	newSystem->RegisterGameSpace(this);
+	newSystem->RegisterGameSpace(m_index);
 	//m_systems.insert(std::make_pair(priority, std::move(*newSystem)));
 	m_systems.emplace(priority, newSystem);
+}
+
+void GameSpace::SetIndex(GameSpaceIndex index)
+{
+	m_index = index;
+
+	for (auto& mapPair : m_componentMaps)
+	{
+		mapPair.second->UpdateSpaceIndex(index);
+	}
 }
 
 void GameSpace::RegisterSystem(SystemBase *newSystem)
@@ -113,6 +137,65 @@ void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 }
 
 
+GameSpace *GameSpace::GetByIndex(GameSpaceIndex index)
+{
+	return engine->GetSpace(index);
+}
+
+GameSpace::GameSpace(const GameSpace& other) : m_index(other.m_index)
+{
+	for (auto& sysPair : other.m_systems)
+	{
+		m_systems.insert(std::make_pair(sysPair.first, sysPair.second->NewDuplicate()));
+	}
+
+	for (auto& componentMapPair : other.m_componentMaps)
+	{
+		m_componentMaps.insert(std::make_pair(componentMapPair.first, componentMapPair.second->NewDuplicateMap()));
+	}
+}
+
+GameSpace::GameSpace(GameSpace&& other) : m_index(other.m_index)
+{
+	std::swap(m_componentMaps, other.m_componentMaps);
+	std::swap(m_systems, other.m_systems);
+}
+
+GameSpace& GameSpace::operator=(const GameSpace& other)
+{
+	m_index = other.m_index;
+
+	// Clear out the current maps.
+	for (auto& sys : m_systems)
+	{
+		delete sys.second;
+	}
+	for (auto& componentMap : m_componentMaps)
+	{
+		delete componentMap.second;
+	}
+	// Copy values in.
+	for (auto& sysPair : other.m_systems)
+	{
+		m_systems.insert(std::make_pair(sysPair.first, sysPair.second->NewDuplicate()));
+	}
+	for (auto& componentMapPair : other.m_componentMaps)
+	{
+		m_componentMaps.insert(std::make_pair(componentMapPair.first, componentMapPair.second->NewDuplicateMap()));
+	}
+
+	return *this;
+}
+
+GameSpace& GameSpace::operator=(GameSpace && other)
+{
+	m_index = other.m_index;
+	std::swap(m_componentMaps, other.m_componentMaps);
+	std::swap(m_systems, other.m_systems);
+
+	return *this;
+}
+
 GameSpace::~GameSpace()
 {
 	for (auto& sys : m_systems)
@@ -144,6 +227,43 @@ std::vector<meta::Any> GameSpace::GetObjectComponentPointersMeta(GameObject_ID i
 	return components;
 }
 
+void GameSpace::RegisterInitial()
+{
+	RegisterComponentType<ObjectInfo>();
+	RegisterComponentType<TransformComponent>();
+	RegisterComponentType<RigidBodyComponent>();
+	RegisterComponentType<StaticCollider2DComponent>();
+	RegisterComponentType<DynamicCollider2DComponent>();
+	RegisterComponentType<SpriteComponent>();
+	RegisterComponentType<ScriptComponent>();
+
+	RegisterSystem(new PhysicsSystem());
+	RegisterSystem(new RenderSystem());
+	RegisterSystem(new ScriptSystem());
+}
+
+// Helper macro for GameSpace::AddComponentMeta
+#define IfAddComponent(TYPE)\
+if (type == meta::GetTypePointer<TYPE>())\
+{\
+	EmplaceComponent<TYPE>(id, component.GetData<TYPE>());\
+}\
+
+void GameSpace::AddComponentMeta(GameObject_ID id, meta::Any& component)
+{
+	meta::Type *type = component.GetType();
+
+	IfAddComponent(TransformComponent) else
+	IfAddComponent(SpriteComponent) else
+	IfAddComponent(RigidBodyComponent) else
+	IfAddComponent(Collider2D) else
+	IfAddComponent(ScriptComponent)
+	else
+	{
+		Logging::Log(Logging::Channel::META, Logging::CRITICAL_PRIORITY, "Found unkown component type \"", type->GetName(), "\" when adding an Any component to a space.");
+	}
+}
+
 //------------------
 // GameSpaceManager
 //------------------
@@ -165,4 +285,9 @@ void GameSpaceManager::Update(float dt)
 	{
 		sys.second->Update(dt);
 	}
+}
+
+GameSpace *SystemBase::GetGameSpace() const
+{
+	return GameSpace::GetByIndex(m_space);
 }

@@ -40,3 +40,8 @@ std::size_t ScriptSystem::DefaultPriority()
 	return 0;
 }
 
+SystemBase *ScriptSystem::NewDuplicate()
+{
+	return new ScriptSystem(*this);
+}
+

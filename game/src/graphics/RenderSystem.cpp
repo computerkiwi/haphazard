@@ -95,6 +95,11 @@ void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int width, int height)
 	mainCamera->SetAspectRatio(width / (float)height);
 }
 
+SystemBase *RenderSystem::NewDuplicate()
+{
+	return new RenderSystem(*this);
+}
+
 // Simply returns the default priority for this system.
 size_t RenderSystem::DefaultPriority()
 {

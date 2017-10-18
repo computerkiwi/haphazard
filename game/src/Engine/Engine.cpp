@@ -66,21 +66,8 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-	// Register the component types.
+	// Make a space.
 	m_spaces.AddSpace();
-
-	m_spaces[0]->RegisterComponentType<ObjectInfo>();
-	m_spaces[0]->RegisterComponentType<TransformComponent>();
-	m_spaces[0]->RegisterComponentType<RigidBodyComponent>();
-	m_spaces[0]->RegisterComponentType<StaticCollider2DComponent>();
-	m_spaces[0]->RegisterComponentType<DynamicCollider2DComponent>();
-	m_spaces[0]->RegisterComponentType<SpriteComponent>();
-	m_spaces[0]->RegisterComponentType<ScriptComponent>();
-
-	// Register the systems.
-	m_spaces[0]->RegisterSystem(new PhysicsSystem());
-	m_spaces[0]->RegisterSystem(new RenderSystem());
-	m_spaces[0]->RegisterSystem(new ScriptSystem());
 
 	// Initialize the system.
 	m_spaces[0]->Init();
@@ -131,7 +118,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(2.5, 1, 0));
 
-	this->FileSerialize("test_out.json");
+	this->FileSave("test_out.json");
 }
 
 void Engine::MainLoop()
@@ -175,7 +162,7 @@ void Engine::Update()
 }
 
 
-std::string Engine::StringSerialize()
+std::string Engine::StringSave()
 {
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
@@ -184,13 +171,26 @@ std::string Engine::StringSerialize()
 	return JsonToPrettyString(meta::Serialize(*this, doc.GetAllocator()));
 }
 
-void Engine::FileSerialize(const char *fileName)
+void Engine::FileSave(const char *fileName)
 {
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
 	rapidjson::Document doc;
 
 	return JsonToPrettyFile(meta::Serialize(*this, doc.GetAllocator()), fileName);
+}
+
+void Engine::StringLoad(const char *jsonString)
+{
+	rapidjson::Document doc;
+	doc.Parse(jsonString);
+}
+
+void Engine::FileLoad(const char *fileName)
+{
+	rapidjson::Document doc = LoadJsonFile(fileName);
+
+	meta::DeserializeAssign(*this, doc);
 }
 
 float Engine::CalculateDt()

@@ -18,4 +18,7 @@ public:
 	virtual size_t DefaultPriority();
 
 	static void ResizeWindowEvent(GLFWwindow* window, int width, int height);
+
+	// Inherited via SystemBase
+	virtual SystemBase * NewDuplicate() override;
 };

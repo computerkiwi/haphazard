@@ -23,6 +23,12 @@ implicit GameObject::GameObject(GameObject_ID id) : m_objID(id)
 {
 }
 
+// Tries to add a component by type.
+void GameObject::AddComponent(meta::Any& component)
+{
+	GetSpace()->AddComponentMeta(m_objID, component);
+}
+
 
 GameObject_ID GameObject::Getid() const
 {
@@ -90,14 +96,49 @@ rapidjson::Value GameObject::GameObjectSerialize(const void *gameObjectPtr, rapi
 	return jsonObject;
 }
 
+// This is very not threadsafe. Should probably be called before each deserialize.
+static GameSpaceIndex deserializeGameSpace = 0;
+void GameObject::SetDeserializeSpace(GameSpaceIndex index)
+{
+	deserializeGameSpace = 0;
+}
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
-	const GameObject& gameObject = *reinterpret_cast<const GameObject *>(gameObjectPtr);
+	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
+
+	// We should be assigning to an invalid GameObject.
+	assert(!gameObject.IsValid());
 
 	// Assertions saying we have the right type of value.
 	assert(jsonValue.IsObject());
 	assert(jsonValue.HasMember("objID"));
 	assert(jsonValue.HasMember("componentArray"));
+
+	// Get the id from the json.
+	rapidjson::Value jsonId;
+	jsonId = jsonValue["objID"];
+	assert(jsonId.IsInt64());
+	GameObject_ID id = jsonId.GetInt64();
+
+	// Setup the GameObject's id.
+	gameObject.m_objID = id;
+	gameObject.m_space = deserializeGameSpace; // From static function. Must be called before this.
+
+	// Get the array of components.
+	rapidjson::Value componentArray;
+	componentArray = jsonValue["componentArray"];
+	assert(componentArray.IsArray());
+
+	// Load each component.
+	for (auto& jsonComponent : componentArray.GetArray())
+	{
+		// Pull out the component and its type.
+		meta::Any anyComponent(jsonComponent);
+
+		// Add it to the space.
+		gameObject.AddComponent(anyComponent);
+	}
 }
 
 std::vector<meta::Any> GameObject::GetComponentPointersMeta()
@@ -108,6 +149,24 @@ std::vector<meta::Any> GameObject::GetComponentPointersMeta()
 bool GameObject::IsValid() const
 {
 	return (m_objID != INVALID_GAMEOBJECT_ID);
+}
+
+GameObject_ID GameObject::ConstructID(int id, GameSpaceIndex spaceIndex)
+{
+	// Set up the bitfields to make it easy.
+	union
+	{
+		struct
+		{
+			int id : 24;
+			int space : 8;
+		};
+		GameObject_ID objID;
+	} helper;
+
+	helper.id = id;
+	helper.space = spaceIndex;
+	return helper.objID;
 }
 
 

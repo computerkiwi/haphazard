@@ -403,6 +403,22 @@ namespace meta
 		return type->Serialize(&object, allocator);
 	}
 
+	template <typename T>
+	void DeserializeAssign(T& obj, rapidjson::Value& jsonVal)
+	{
+		Type *type = GetTypePointer<T>();
+
+		type->DeserializeAssign(&obj, jsonVal);
+	}
+
+	template <typename T>
+	T DeserializeConstruct(rapidjson::Value& jsonVal)
+	{
+		T obj;
+		DeserializeAssign(obj, jsonVal);
+		return obj;
+	}
+
 }
 
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))

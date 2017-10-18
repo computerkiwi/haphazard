@@ -357,3 +357,8 @@ void PhysicsSystem::Update(float dt)
 		}
 	}
 }
+
+SystemBase *PhysicsSystem::NewDuplicate()
+{
+	return new PhysicsSystem(*this);
+}

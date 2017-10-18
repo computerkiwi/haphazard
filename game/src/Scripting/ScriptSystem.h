@@ -17,4 +17,7 @@ public:
 	virtual void Init() override;
 	virtual void Update(float dt) override;
 	virtual std::size_t DefaultPriority() override;
+
+	// Inherited via SystemBase
+	virtual SystemBase * NewDuplicate() override;
 };

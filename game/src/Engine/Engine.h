@@ -48,8 +48,11 @@ public:
 
 	void Exit() { m_running = false; }
 
-	std::string StringSerialize();
-	void FileSerialize(const char *fileName);
+	std::string StringSave();
+	void FileSave(const char *fileName);
+
+	void StringLoad(const char *jsonString);
+	void FileLoad(const char *fileName);
 
 private:
 	float CalculateDt();
@@ -80,10 +83,27 @@ private:
 		return spaceArray;
 	}
 
+	static void EngineDeserializeAssign(void *enginePtr, rapidjson::Value& jsonEngine)
+	{
+		// Get the engine.
+		Engine& engine = *reinterpret_cast<Engine *>(enginePtr);
+
+		// Get rid of all the gamespaces we have.
+		engine.m_spaces.ClearSpaces();
+
+		// We should be passed the array of spaces.
+		assert(jsonEngine.IsArray());
+		for (rapidjson::Value& jsonSpace : jsonEngine.GetArray())
+		{
+			engine.m_spaces.AddSpace(meta::DeserializeConstruct<GameSpace>(jsonSpace));
+		}
+	}
+
 	META_REGISTER(Engine)
 	{
 		META_DefineType(Engine);
 		META_DefineSerializeFunction(Engine, EngineSerializeFunction);
+		META_DefineDeserializeAssignFunction(Engine, EngineDeserializeAssign);
 	}
 };
 

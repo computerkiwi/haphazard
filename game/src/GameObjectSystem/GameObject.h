@@ -39,6 +39,8 @@ public:
 		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
+	void AddComponent(meta::Any& component);
+
 	template <typename T>
 	ComponentHandle<T> GetComponent()
 	{
@@ -83,6 +85,12 @@ public:
 	std::vector<meta::Any> GetComponentPointersMeta();
 
 	bool IsValid() const;
+
+	static GameObject_ID ConstructID(int id, GameSpaceIndex spaceIndex);
+
+	// Sets the space that GameObjects will be deserialized into.
+	// WARNING: THIS FUNCTION IS NOT THREADSAFE
+	static void SetDeserializeSpace(GameSpaceIndex index);
 private:
 	union
 	{
@@ -100,5 +108,6 @@ private:
 	{
 		META_DefineType(GameObject);
 		META_DefineSerializeFunction(GameObject, GameObject::GameObjectSerialize);
+		META_DefineDeserializeAssignFunction(GameObject, GameObject::GameObjectDeserializeAssign);
 	}
 };
