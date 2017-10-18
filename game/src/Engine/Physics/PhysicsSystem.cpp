@@ -7,7 +7,6 @@ Handles Movement, Colliders, Collision Detection, and Collision Resolution
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 #define _USE_MATH_DEFINES
-#define GLM_FORCE_SWIZZLE 
 #include <math.h>
 #include <iostream>
 

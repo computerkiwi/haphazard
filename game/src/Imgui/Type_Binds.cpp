@@ -20,7 +20,7 @@ using namespace ImGui;
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
 #define GAMEOBJECT_WINDOW_POS  ImVec2(15, 20)
 
-void ImGui_GameObject(GameObject object)
+void ImGui_GameObject(GameObject object, Editor *editor)
 {
 	// Check if a nullptr was passed
 	if (object && object.GetSpace())
@@ -49,9 +49,31 @@ void ImGui_GameObject(GameObject object)
 		{
 			object.Delete();
 			object.SetSpace(0);
+			editor->SetGameObject(0);
 			End();
 			return;
 		}
+
+		SameLine();
+
+		if (Button("Edit Name##name_button"))
+		{
+			OpenPopup("Edit Name###name_popup");
+		}
+
+		if (BeginPopup("Edit Name###name_popup"))
+		{
+			char name_buffer[128] = { 0 };
+			
+			if (InputText("Edit Name", name_buffer, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+			}
+
+			EndPopup();
+		}
+
+
 		SameLine();
 
 		// Add Component Buttons
@@ -129,15 +151,11 @@ void ImGui_GameObject(GameObject object)
 			EndPopup();
 		}
 
-		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
+
 		if (Button("Add"))
 		{
-			// TODO[SWEET]:: Fix this pop bs
 			OpenPopup("Components");
 		}
-		PopStyleColor(3);
 
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
@@ -352,8 +370,8 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 			TreePop();
 			Separator();
 		}
-		int index = collider->m_colliderType;
-		Combo("Collider Type", reinterpret_cast<int *>(&index), collider_types, static_cast<int>(Collider2D::colliderType::collider_max));
+		int index = collider->m_colliderType - 2;
+		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
 		collider->m_colliderType = index;
 	}
 }

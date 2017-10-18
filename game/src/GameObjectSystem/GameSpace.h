@@ -158,8 +158,8 @@ class GameSpace
 
 public:
 
-	GameSpace() { RegisterComponentType<ObjectInfo>(); }
-	explicit GameSpace(GameSpaceIndex index) : m_index(index) { RegisterComponentType<ObjectInfo>(); }
+	GameSpace() {  }
+	explicit GameSpace(GameSpaceIndex index) : m_index(index) {  }
 
 	template <typename T>
 	void RegisterComponentType();
