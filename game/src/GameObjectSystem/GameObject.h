@@ -91,6 +91,8 @@ public:
 	// Sets the space that GameObjects will be deserialized into.
 	// WARNING: THIS FUNCTION IS NOT THREADSAFE
 	static void SetDeserializeSpace(GameSpaceIndex index);
+	rapidjson::Value SerializeObject(rapidjson::Document::AllocatorType& allocator) const;
+	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
 private:
 	union
 	{
@@ -107,7 +109,6 @@ private:
 	META_REGISTER(GameObject)
 	{
 		META_DefineType(GameObject);
-		META_DefineSerializeFunction(GameObject, GameObject::GameObjectSerialize);
-		META_DefineDeserializeAssignFunction(GameObject, GameObject::GameObjectDeserializeAssign);
+		META_DefineMember(GameObject, m_objID, "id");
 	}
 };

@@ -83,5 +83,7 @@ private:
 		META_DefineGetterSetter(TransformComponent, float, GetZLayer, SetZLayer, "z-layer");
 
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
+
+		META_DefineMember(TransformComponent, m_parent, "parent");
 	}
 };

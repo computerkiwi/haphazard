@@ -103,6 +103,16 @@ void GameObject::SetDeserializeSpace(GameSpaceIndex index)
 	deserializeGameSpace = 0;
 }
 
+rapidjson::Value GameObject::SerializeObject(rapidjson::Document::AllocatorType& allocator) const
+{
+	return GameObjectSerialize(this, allocator);
+}
+
+void GameObject::DeserializeObject(rapidjson::Value& jsonValue)
+{
+	GameObjectDeserializeAssign(this, jsonValue);
+}
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);

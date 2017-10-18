@@ -20,6 +20,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Component.h"
 #include "ObjectInfo.h"
+#include "TransformComponent.h"
 
 
 // Forward declare.
@@ -194,6 +195,14 @@ static void StaticUpdateSpaceIndex<ObjectInfo>(ComponentMap<ObjectInfo>& map, Ga
 	}
 }
 
+template <>
+static void StaticUpdateSpaceIndex<TransformComponent>(ComponentMap<TransformComponent>& map, GameSpaceIndex index)
+{
+	for (auto& transform : map)
+	{
+		transform->SetParent(GameObject::ConstructID(transform->GetParent(), index));
+	}
+}
 
 // Contains a container for each component type.
 class GameSpace
@@ -284,7 +293,7 @@ private:
 		// Put the objects in the json array.
 		for (const auto& gameObject : objects)
 		{
-			gameObjectArray.PushBack(meta::Serialize(gameObject, allocator), allocator);
+			gameObjectArray.PushBack(gameObject.SerializeObject(allocator), allocator);
 		}
 
 		return gameObjectArray;
@@ -303,9 +312,8 @@ private:
 		{
 			// Setup the gamespace to use and deserialize the object.
 			GameObject::SetDeserializeSpace(gameSpace.m_index);
-			meta::Any gameObject(jsonGameObject);
-
-			assert(gameObject.GetType() == meta::GetTypePointer<GameObject>());
+			GameObject obj;
+			obj.DeserializeObject(jsonGameObject);
 		}
 	}
 
