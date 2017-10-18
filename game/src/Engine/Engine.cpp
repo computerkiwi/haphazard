@@ -78,21 +78,21 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	// RigidBody and Collider Testing Objects
 	// object with velocity
 	GameObject Brett_obj1 = m_space.NewGameObject();
-	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
+	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1), 45);
 	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj1.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.6f,0,0));
 	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
 
 	// object with velocity
 	GameObject Brett_obj2 = m_space.NewGameObject();
-	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1, 1), glm::vec3(.5f, .5f, 1));
+	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(2, 1, 1), glm::vec3(.5f, .5f, 1), 45);
 	Brett_obj2.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-1.2f,0,0));
 	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
 
 	// object on a different collisionLayer
 	GameObject Brett_obj4 = m_space.NewGameObject();
-	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(1.5, 1.2, 1), glm::vec3(.5f, .5f, 1), (3.1415f * 2));
+	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(1.5, 1.2, 1), glm::vec3(.5f, .5f, 1), 1);
 	Brett_obj4.AddComponent<SpriteComponent>(new Texture("bird.png"));
 	Brett_obj4.AddComponent<RigidBodyComponent>();
 	Brett_obj4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::decor);

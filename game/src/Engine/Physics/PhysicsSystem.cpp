@@ -9,6 +9,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 
 #include "PhysicsSystem.h"
 #include "RigidBody.h"
@@ -44,14 +45,10 @@ struct MinMax
 
 	float Overlap(const MinMax& other)
 	{
-		if (max > other.max)
-		{
-			return other.max - min;
-		}
-		else
-		{
-			return max - other.min;
-		}
+		float overlap1 = abs(other.max - min);
+		float overlap2 = abs(min - other.max);
+
+		return std::min(overlap1, overlap2);
 	}
 };
 
@@ -128,7 +125,14 @@ MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis)
 	return minMax;
 }
 
-glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform1, Collider2D& collider1, ComponentHandle<TransformComponent>& transform2, Collider2D& collider2)
+std::ostream& operator<<(std::ostream& lhs, glm::vec2 rhs)
+{
+	lhs << rhs.x << "\t" << rhs.y;
+
+	return lhs;
+}
+
+glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collider2D& collider1, ComponentHandle<TransformComponent>& transform2, Collider2D& collider2)
 {
 	const int num_projections = 4;
 	float smallestOverlap = -1;
@@ -146,10 +150,15 @@ glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform
 	BoxCorners Box1(obj1Center, obj1Dimensions, obj1Rotation);
 	BoxCorners Box2(obj2Center, obj2Dimensions, obj2Rotation);
 
-	std::cout << "Box top right: " << Box2.m_corners[BoxCorners::corner::topRight].y << std::endl;
-	std::cout << "Box top left : " << Box2.m_corners[BoxCorners::corner::topLeft].y << std::endl;
-	std::cout << "Box bot left : " << Box2.m_corners[BoxCorners::corner::botLeft].y << std::endl;
-	std::cout << "Box bot right: " << Box2.m_corners[BoxCorners::corner::botRight].y << std::endl << std::endl;
+	//std::cout << "Box top right: " << Box2.m_corners[BoxCorners::corner::topRight] << std::endl;
+	//std::cout << "Box top left : " << Box2.m_corners[BoxCorners::corner::topLeft] << std::endl;
+	//std::cout << "Box bot left : " << Box2.m_corners[BoxCorners::corner::botLeft] << std::endl;
+	//std::cout << "Box bot right: " << Box2.m_corners[BoxCorners::corner::botRight] << std::endl << std::endl;
+
+	//std::cout << "Box top right: " << Box1.m_corners[BoxCorners::corner::topRight] << std::endl;
+	//std::cout << "Box top left : " << Box1.m_corners[BoxCorners::corner::topLeft] << std::endl;
+	//std::cout << "Box bot left : " << Box1.m_corners[BoxCorners::corner::botLeft] << std::endl;
+	//std::cout << "Box bot right: " << Box1.m_corners[BoxCorners::corner::botRight] << std::endl << std::endl << std::endl;
 
 	//!?!? do an optimized AABB check to first rule out distant collisions
 
@@ -195,8 +204,13 @@ glm::vec3 Collision_SAT(float dt, ComponentHandle<TransformComponent>& transform
 		}
 	}
 
+	std::cout << Box1.m_corners[BoxCorners::botLeft].y - Box2.m_corners[BoxCorners::topRight].y << "\n\n";
+
 	// if we get here it is guarunteed that there was a collision and all sides have been tested for the shortest overlap
 	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
+
+	//std::cout << "smallestAxis: " << smallestAxis << std::endl;
+	//std::cout << "escapeVector: " << escapeVector << std::endl;
 
 	return escapeVector;
 }
@@ -338,19 +352,24 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 {
 	ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 	// make sure rigidbodies were successfully retrieved
-	assert(rigidBody1.IsValid() && "Rigidbody/Transform invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
+	assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
+
+	ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
+	assert(rigidBody1.IsValid() && "Transform is invalid. See REsolveDynStcCollision in PhysicsSystem.cpp\n");
+
+	glm::vec3 position = transform1->GetPosition();
 
 	glm::vec3 resolutionVector = *collisionData;
 
-	//rigidBody1->Velocity() -= resolutionVector;
-
 	if (resolutionVector.x)
 	{
-		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x - resolutionVector.x, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
+		transform1->SetPosition(glm::vec3(position.x + resolutionVector.x, position.y, position.z));
+		rigidBody1->SetVelocity(glm::vec3(0, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
 	}
 	if (resolutionVector.y)
 	{
-		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, 0/*rigidBody1->Velocity().y - resolutionVector.y*/, rigidBody1->Velocity().z));
+		transform1->SetPosition(glm::vec3(position.x, position.y + resolutionVector.y, position.z));
+		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, 0, rigidBody1->Velocity().z));
 	}
 }
 
@@ -368,14 +387,18 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 		ComponentHandle<TransformComponent> transform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
 		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
-		DebugGraphic::DrawShape(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(1, 0, 1, 1));
+		float rotation = transform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+
+		DebugGraphic::DrawShape(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(1, 0, 1, 1));
 	}
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
 		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
-		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), transform->GetRotation(), glm::vec4(.1f, .5f, 1, 1));
+		float rotation = transform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+
+		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(.1f, .5f, 1, 1));
 	}
 }
 
@@ -453,7 +476,7 @@ void PhysicsSystem::Update(float dt)
 				}
 				else // check for collision on rotated objects
 				{
-					resolutionVector = Collision_SAT(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+					resolutionVector = Collision_SAT(transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
 				}
 
 
@@ -480,7 +503,7 @@ void PhysicsSystem::Update(float dt)
 				}
 				else
 				{
-					resolutionVector = Collision_SAT(dt, transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
+					resolutionVector = Collision_SAT(transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
 				}
 
 				// if there was a collision, resolve it

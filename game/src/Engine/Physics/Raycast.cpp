@@ -9,7 +9,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 // WIP
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 
@@ -36,7 +36,12 @@ void DrawRay(glm::vec2 position, glm::vec2 direction)
 	DebugGraphic::DrawShape(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
 }
 
-float radiansToDegrees(float angleInRadians)
+float DegreesToRadians(float angleInDegrees)
+{
+	return angleInDegrees / DEGREES_PER_RADIAN;
+}
+
+float RadiansToDegrees(float angleInRadians)
 {
 	return angleInRadians * DEGREES_PER_RADIAN;
 }
@@ -69,11 +74,14 @@ BoxCorners::BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, flo
 	}
 	else
 	{
-		float xOffsetFromHorizontal = (dimensions.x * 0.5f * cos(rotation));
-		float xOffsetFromVertical = (dimensions.y * 0.5f * sin(rotation));
+		float cosRotation = cos(DegreesToRadians(rotation));
+		float sinRotation = sin(DegreesToRadians(rotation));
 
-		float yOffsetFromHorizontal = (dimensions.x * 0.5f * sin(rotation));
-		float yOffsetFromVertical = (dimensions.y * 0.5f * cos(rotation));
+		float xOffsetFromHorizontal = (dimensions.x * 0.5f * cosRotation);
+		float xOffsetFromVertical = (dimensions.y * 0.5f * sinRotation);
+
+		float yOffsetFromHorizontal = (dimensions.x * 0.5f * sinRotation);
+		float yOffsetFromVertical = (dimensions.y * 0.5f * cosRotation);
 
 		// calculate the top right corner
 		m_corners[0].x = boxCenter.x + xOffsetFromHorizontal - xOffsetFromVertical;
