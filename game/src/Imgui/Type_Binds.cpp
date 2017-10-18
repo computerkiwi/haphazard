@@ -235,28 +235,21 @@ void ImGui_Transform(TransformComponent *transform, GameObject object)
 
 		if (TreeNode("Position"))
 		{
-			if (DragFloat("X##position_drag", &transform->GetRelativePosition().x, 0, 5))
+			if (transform->GetParent())
 			{
-				if (object.GetComponent<RigidBodyComponent>().Get())
-				{
-					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
-				}
-				else
-				{
-					object.GetComponent<RigidBodyComponent>()->SetGravity(DEFAULT_GRAVITY);
-				}
-			}
+				Text("X: %f", transform->GetPosition().x);
+				Text("Y: %f", transform->GetPosition().y);
 
-			if (DragFloat("Y##position_drag", &transform->GetRelativePosition().y, 0, 5))
+				DragFloat("X Offset##position_drag", &transform->m_position.x, 0, 5);
+
+				DragFloat("Y Offset##position_drag", &transform->m_position.y, 0, 5);
+
+			}
+			else
 			{
-				if (object.GetComponent<RigidBodyComponent>().Get())
-				{
-					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
-				}
-				else
-				{
-					object.GetComponent<RigidBodyComponent>()->SetGravity(DEFAULT_GRAVITY);
-				}
+				DragFloat("X##position_drag", &transform->GetRelativePosition().x, 0, 5);
+
+				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, 0, 5);
 			}
 
 			TreePop();
