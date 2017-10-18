@@ -182,6 +182,10 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		{
 			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
 		}
+		else if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
+		{
+			ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
+		}
 
 
 		if (object.GetComponent<SpriteComponent>().IsValid())
