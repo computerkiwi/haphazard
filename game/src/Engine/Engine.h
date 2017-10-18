@@ -97,6 +97,7 @@ private:
 		{
 			GameSpaceIndex index = engine.m_spaces.AddSpace();
 			meta::DeserializeAssign(*engine.GetSpace(index), jsonSpace);
+			engine.m_spaces.Get(index).SetIndex(index);
 		}
 	}
 

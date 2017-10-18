@@ -69,7 +69,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// TEMPORARY IDK where to put this
 	Input::Init(m_window);
 
-//#define GENERATE_SCENE
+#define GENERATE_SCENE
 #ifdef GENERATE_SCENE
 
 	// Make a space.

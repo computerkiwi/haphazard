@@ -35,6 +35,7 @@ public:
 
 		META_DefineType(ObjectInfo);
 		META_DefineMember(ObjectInfo, ObjectInfo::m_name, "name");
+		META_DefineMember(ObjectInfo, m_id, "id");
 	}
 };
 
