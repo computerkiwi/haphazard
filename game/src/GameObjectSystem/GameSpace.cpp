@@ -256,7 +256,8 @@ void GameSpace::AddComponentMeta(GameObject_ID id, meta::Any& component)
 	IfAddComponent(TransformComponent) else
 	IfAddComponent(SpriteComponent) else
 	IfAddComponent(RigidBodyComponent) else
-	IfAddComponent(Collider2D) else
+	IfAddComponent(StaticCollider2DComponent) else
+	IfAddComponent(DynamicCollider2DComponent) else
 	IfAddComponent(ScriptComponent)
 	else
 	{

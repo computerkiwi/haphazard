@@ -343,7 +343,8 @@ public:
 		return m_spaces;
 	}
 
-	void AddSpace()
+	// Returns index of the new space.
+	GameSpaceIndex AddSpace()
 	{
 		int index;
 
@@ -357,6 +358,7 @@ public:
 		}
 
 		m_spaces.push_back(GameSpace(index));
+		return index;
 	}
 
 	void AddSpace(GameSpace& gameSpace)

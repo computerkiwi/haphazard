@@ -95,7 +95,8 @@ private:
 		assert(jsonEngine.IsArray());
 		for (rapidjson::Value& jsonSpace : jsonEngine.GetArray())
 		{
-			engine.m_spaces.AddSpace(meta::DeserializeConstruct<GameSpace>(jsonSpace));
+			GameSpaceIndex index = engine.m_spaces.AddSpace();
+			meta::DeserializeAssign(*engine.GetSpace(index), jsonSpace);
 		}
 	}
 
