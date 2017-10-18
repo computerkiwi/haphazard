@@ -6,6 +6,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include <string>
+
 #include "meta.h"
 
 #define SERIALIZE_INTERGAL_TYPE_FUNCTION(TYPE)\
@@ -89,6 +91,23 @@ namespace
 		object = static_cast<long double>(jsonObject.GetDouble());
 	}
 
+	// std::string
+	rapidjson::Value SerializeString(const void *object, rapidjson::Document::AllocatorType& allocator)
+	{
+		const std::string& string = *reinterpret_cast<const std::string *>(object);
+
+		rapidjson::Value jsonString;
+		jsonString.SetString(string.c_str(), allocator);
+
+		return jsonString;
+	}
+	void DeserializeAssignString(void *objectPtr, rapidjson::Value& jsonObject)
+	{
+		std::string& string = *reinterpret_cast<std::string *>(objectPtr);
+
+		assert(jsonObject.IsString());
+		string = jsonObject.GetString();
+	}
 }
 
 #define DefineBasicType(TYPE) META_DefineType(TYPE); META_DefineSerializeFunction(TYPE, SerializeBasicType<TYPE>); META_DefineDeserializeAssignFunction(TYPE, DeserializeAssignBasicType<TYPE>)
@@ -114,6 +133,10 @@ namespace meta
 			DefineBasicType(double);
 			DefineBasicType(long double);
 			DefineBasicType(wchar_t);
+
+			META_DefineType(std::string);
+			META_DefineSerializeFunction(std::string, SerializeString);
+			META_DefineDeserializeAssignFunction(std::string, DeserializeAssignString);
 		}
 	};
 }
