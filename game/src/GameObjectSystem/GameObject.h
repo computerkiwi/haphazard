@@ -42,7 +42,7 @@ public:
 	void AddComponent(meta::Any& component);
 
 	template <typename T>
-	ComponentHandle<T> GetComponent()
+	ComponentHandle<T> GetComponent() const
 	{
 		assert(IsValid());
 

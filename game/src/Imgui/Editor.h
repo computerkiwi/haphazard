@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameObject.h"
 
 class Engine;
+class TransformComponent;
 struct GLFWwindow;
 
 // These Macros allow for hex color codes
@@ -31,6 +32,9 @@ struct GLFWwindow;
 
 class Editor
 {
+
+	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
+
 	Engine * m_engine;
 	bool m_show_editor;
 
@@ -59,7 +63,7 @@ class Editor
 		std::function<void()> func = std::function<void()>();
 	};
 
-
+	bool m_show_console = false;
 	bool m_scroll = false;
 	std::map<std::size_t, Command> m_commands;
 	std::vector<std::string> m_log_history;
@@ -108,6 +112,7 @@ public:
 
 	void Tools();
 
+	void MenuBar();
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };

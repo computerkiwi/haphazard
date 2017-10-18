@@ -45,7 +45,7 @@
     <ClCompile Include="src\meta\meta.cpp" />
     <ClCompile Include="src\meta\MemberOffset.cpp" />
     <ClCompile Include="src\meta\Any.cpp" />
-    <ClCompile Include="src\GameObjectSystem\GameObject.cpp" />
+    <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
     <ClCompile Include="src\Util\Serialization.cpp" />
   </ItemGroup>
   <ItemGroup>

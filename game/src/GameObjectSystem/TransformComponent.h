@@ -1,5 +1,5 @@
 /*
-FILE: Transform.h
+FILE: TransformComponent.h
 PRIMARY AUTHOR: Kieran
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
@@ -10,6 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include <cmath>
+#include "GameObject.h"
 
 // TODO[Kieran] - Move this somewhere more general.
 constexpr float DegToRad(float degrees)
@@ -21,6 +22,8 @@ constexpr float DegToRad(float degrees)
 	return degrees * RADIANS_IN_CIRCLE / DEGREES_IN_CIRCLE;
 }
 
+class Editor;
+
 class TransformComponent
 {
 public:
@@ -28,94 +31,56 @@ public:
 	// Constructors
 	//--------------
 
-	TransformComponent(const glm::vec3& position = glm::vec3(0.0f), 
-	                   const glm::vec3& scale = glm::vec3(1.0f), 
-	                   float rotation = 0.0f) 
-	                 : m_position(position), m_scale(scale), m_rotation(rotation)
-	{
-	}
+	TransformComponent(const glm::vec3& position = glm::vec3(0.0f),
+					   const glm::vec3& scale = glm::vec3(1.0f),
+					   float rotation = 0.0f);
 
 	//---------
 	// Getters
 	//---------
 
-	float& Rotation()
-	{
-		return m_rotation;
-	}
+	void SetParent(GameObject parent);
+	GameObject GetParent() const;
 
-	float GetRotation() const
-	{
-		return m_rotation;
-	}
+	float GetRotation() const;
 
-	void SetRotation(const float& rotation)
-	{
-		m_rotation = rotation;
-	}
+	void SetRotation(const float& rotation);
 
-	glm::vec3& Position()
-	{
-		return m_position;
-	}
+	glm::vec3& GetRelativePosition();
 
-	glm::vec3 GetPosition() const
-	{
-		return m_position;
-	}
+	glm::vec2 GetPosition() const;
 
-	void SetPosition(const glm::vec3& position)
-	{
-		m_position = position;
-	}
+	void SetZLayer(float layer);
+	float GetZLayer() const;
 
-	glm::vec3 Position() const
-	{
-		return m_position;
-	}
+	void SetPosition(const glm::vec2& position);
 
-	glm::vec2 GetPosition2D() const
-	{
-		return m_position;
-	}
+	glm::vec3 GetScale() const;
 
-	glm::vec3& Scale()
-	{
-		return m_scale;
-	}
+	void SetScale(const glm::vec3& scale);
 
-	glm::vec3 GetScale() const
-	{
-		return m_scale;
-	}
+	glm::vec2 Scale2D() const;
 
-	void SetScale(const glm::vec3& scale)
-	{
-		m_scale = scale;
-	}
-
-	glm::vec2 Scale2D() const
-	{
-		return m_scale;
-	}
-
-	glm::mat4 GetMatrix4() const
-	{
-		return glm::translate(glm::mat4(),m_position) * glm::rotate(glm::mat4(), DegToRad(m_rotation), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
-	}
+	glm::mat4 GetMatrix4() const;
 
 private:
+	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
+
 	glm::vec3 m_position;
 	glm::vec3 m_scale;
 	float m_rotation; // Stored in degrees.
+
+	GameObject m_parent;
 
 	META_REGISTER(TransformComponent)
 	{
 		META_DefineType(TransformComponent);
 
-		META_DefineGetterSetter(TransformComponent, glm::vec3, GetPosition, SetPosition, "position");
+		META_DefineGetterSetter(TransformComponent, glm::vec2, GetPosition, SetPosition, "position");
 
 		META_DefineGetterSetter(TransformComponent, glm::vec3, GetScale, SetScale, "scale");
+
+		META_DefineGetterSetter(TransformComponent, float, GetZLayer, SetZLayer, "z-layer");
 
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
 	}

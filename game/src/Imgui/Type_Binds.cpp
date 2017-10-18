@@ -18,9 +18,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 using namespace ImGui;
 
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
-#define GAMEOBJECT_WINDOW_POS  ImVec2(0, 0)
+#define GAMEOBJECT_WINDOW_POS  ImVec2(15, 20)
 
-void ImGui_GameObject(GameObject object)
+void ImGui_GameObject(GameObject object, Editor *editor)
 {
 	// Check if a nullptr was passed
 	if (object && object.GetSpace())
@@ -49,9 +49,31 @@ void ImGui_GameObject(GameObject object)
 		{
 			object.Delete();
 			object.SetSpace(0);
+			editor->SetGameObject(0);
 			End();
 			return;
 		}
+
+		SameLine();
+
+		if (Button("Edit Name##name_button"))
+		{
+			OpenPopup("Edit Name###name_popup");
+		}
+
+		if (BeginPopup("Edit Name###name_popup"))
+		{
+			char name_buffer[128] = { 0 };
+			
+			if (InputText("Edit Name", name_buffer, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+			}
+
+			EndPopup();
+		}
+
+
 		SameLine();
 
 		// Add Component Buttons
@@ -129,15 +151,11 @@ void ImGui_GameObject(GameObject object)
 			EndPopup();
 		}
 
-		PushStyleColor(ImGuiCol_Button, static_cast<ImVec4>(ImColor(0.25f, 0.55f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor(0.0f, 0.45f, 0.9f)));
-		PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor(0.25f, 0.25f, 0.9f)));
+
 		if (Button("Add"))
 		{
-			// TODO[SWEET]:: Fix this pop bs
 			OpenPopup("Components");
 		}
-		PopStyleColor(3);
 
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
@@ -147,7 +165,7 @@ void ImGui_GameObject(GameObject object)
 		// ImGui_Component(ComponetType *component);
 		if (object.GetComponent<TransformComponent>().IsValid())
 		{
-			ImGui_Transform(object.GetComponent<TransformComponent>().Get(), object);
+			ImGui_Transform(object.GetComponent<TransformComponent>().Get(), object, editor);
 		}
 
 		// Check for RigidBody OR Static Collider, can only have one
@@ -163,6 +181,10 @@ void ImGui_GameObject(GameObject object)
 		else if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 		{
 			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
+		}
+		else if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
+		{
+			ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
 		}
 
 
@@ -200,55 +222,99 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	if (info)
 	{
 		Separator();
-		Text("ID: %d |", info->m_id); SameLine();
-		Text("Name: %s", info->m_name.c_str());
+		Text("ID: %d | %s", info->m_id, info->m_name.c_str());
 	}
 }
 
+#define SLIDER_STEP 0.01f
 
-void ImGui_Transform(TransformComponent *transform, GameObject object)
+void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
 	if (CollapsingHeader("Transform"))
 	{
+		if (transform->GetParent())
+		{
+			if (Button("Remove Parent"))
+			{
+				transform->SetParent(0);
+				return;
+			}
+			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+			Separator();
+		}
+		else
+		{
+			if (Button("Add Parent"))
+			{
+				OpenPopup("Add Parent##add_parent_popup");
+			}
+
+			int parent_id = 0;
+			if (BeginPopup("Add Parent##add_parent_popup"))
+			{
+				char name_buffer[128] = { 0 };
+				for (auto& id : editor->m_objects)
+				{
+					GameObject object = id;
+
+					if (object.Getid() == editor->m_selected_object)
+					{
+						continue;
+					}
+
+					snprintf(name_buffer, sizeof(name_buffer),
+						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid(), object.GetIndex());
+
+					if (Selectable(name_buffer))
+					{
+						transform->SetParent(id);
+						break;
+					}
+				}
+				EndPopup();
+			}
+		}
+
 		if (TreeNode("Position"))
 		{
-			PushItemWidth(80);
-			DragFloat("X##position_drag", &transform->Position().x, 0, 5); SameLine();
-			InputFloat("X##position", &transform->Position().x);
+			if (transform->GetParent())
+			{
+				Text("X: %f", transform->GetPosition().x);
+				Text("Y: %f", transform->GetPosition().y);
 
-			DragFloat("Y##position_drag", &transform->Position().y, 0, 5); SameLine();
-			InputFloat("Y##position", &transform->Position().y);
-			PopItemWidth();
+				DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0);
+				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
+			}
+			else
+			{
+				DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0);
+				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, SLIDER_STEP, 0);
+			}
+
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Scale"))
 		{
 			PushItemWidth(120);
-			InputFloat("X##scale", &transform->Scale().x);
-			InputFloat("Y##scale", &transform->Scale().y);
-			PopItemWidth();
+			InputFloat("X##scale", &transform->m_scale.x);
+			InputFloat("Y##scale", &transform->m_scale.y);
 			TreePop();
 			Separator();
 		}
 
-		PushItemWidth(120);
-		DragFloat("##rotation_drag", &transform->Rotation(), 0, 360);
-		SameLine();
-		PopItemWidth();
-		PushItemWidth(100);
-		InputFloat("Rotation", &transform->Rotation(), 0.0f, 0.0f, 2);
-		PopItemWidth();
+		DragFloat("##rotation_drag", &transform->m_rotation, 1, 0);
 	}
 }
 
 
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 {
-	float mass = 1 / rb->Mass();
 	if (CollapsingHeader("RigidBody"))
 	{
-		if (Button("Remove"))
+		float mass = 1 / rb->Mass();
+
+		if (Button("Remove##rigidbody"))
 		{
 			object.DeleteComponent<RigidBodyComponent>();
 		}
@@ -290,7 +356,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
 {
 	if (CollapsingHeader("Sprite"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##sprite"))
 		{
 			object.DeleteComponent<SpriteComponent>();
 		}
@@ -307,7 +373,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 {
 	if (CollapsingHeader("Collider"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##collider"))
 		{
 			if (collider->isStatic())
 			{
@@ -337,8 +403,8 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 			TreePop();
 			Separator();
 		}
-		int index = collider->m_colliderType;
-		Combo("Collider Type", reinterpret_cast<int *>(&index), collider_types, static_cast<int>(Collider2D::colliderType::collider_max));
+		int index = collider->m_colliderType - 2;
+		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
 		collider->m_colliderType = index;
 	}
 }
@@ -348,12 +414,12 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object)
 {
 	if (CollapsingHeader("Script"))
 	{
-		if (Button("Remove"))
+		if (Button("Remove##script"))
 		{
-
+			object.DeleteComponent<ScriptComponent>();
 		}
 		char buffer[2048];
-		if (InputText("", buffer, 2048))
+		if (InputText("", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			SameLine();
 			if (Button("Add##script"))
