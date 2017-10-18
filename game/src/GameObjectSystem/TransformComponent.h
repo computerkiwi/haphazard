@@ -69,7 +69,6 @@ private:
 	float m_rotation; // Stored in degrees.
 
 	GameObject m_parent;
-	glm::vec3 m_parenting_position;
 
 	META_REGISTER(TransformComponent)
 	{

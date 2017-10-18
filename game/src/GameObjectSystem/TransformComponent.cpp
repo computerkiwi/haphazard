@@ -52,7 +52,7 @@ glm::vec2 TransformComponent::GetPosition() const
 {
 	if (m_parent)
 	{
-		return m_position + m_parent.GetComponent<TransformComponent>()->m_position;;
+		return m_position + m_parent.GetComponent<TransformComponent>()->m_position;
 	}
 
 	return m_position;
@@ -61,7 +61,8 @@ glm::vec2 TransformComponent::GetPosition() const
 
 void TransformComponent::SetPosition(const glm::vec2& position)
 {
-	m_position = position;
+	m_position.x = position.x;
+	m_position.y = position.y;
 }
 
 

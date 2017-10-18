@@ -105,7 +105,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj2.GetComponent<TransformComponent>()->SetParent(Brett_obj1);
 
 	Brett_obj2.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60.0f);
-	Brett_obj2.AddComponent<RigidBodyComponent>();
+	// Brett_obj2.AddComponent<RigidBodyComponent>();
 	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
 
 

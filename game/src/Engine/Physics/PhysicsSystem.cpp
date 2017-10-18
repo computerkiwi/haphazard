@@ -7,6 +7,7 @@ Handles Movement, Colliders, Collision Detection, and Collision Resolution
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 #define _USE_MATH_DEFINES
+#define GLM_FORCE_SWIZZLE 
 #include <math.h>
 #include <iostream>
 
@@ -359,7 +360,7 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 
 void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
-	transform->GetPosition() += velocity * dt;
+	transform->SetPosition(glm::vec3(transform->GetPosition(), 0) + velocity * dt);
 	rigidBody->AddVelocity(acceleration * dt);
 }
 
