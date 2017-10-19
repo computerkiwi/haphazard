@@ -271,14 +271,13 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 					if (name.size() > 8)
 					{
 						snprintf(name_buffer, sizeof(name_buffer),
-							"%-8.8s... - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
+							"%-5.5s... - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
 					}
 					else
 					{
 						snprintf(name_buffer, sizeof(name_buffer),
-							"%-8.8s    - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
+							"%-8.8s - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
 					}
-
 					
 
 					if (Selectable(name_buffer))

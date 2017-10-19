@@ -107,7 +107,7 @@ public:
 	void Internal_Log(const char *log_message, ...);
 	void Clear();
 
-	void SetGameObject(GameObject_ID new_object);
+	void SetGameObject(GameObject new_object);
 	void ToggleEditor();
 
 	void Tools();
