@@ -27,7 +27,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 	{
 		// Display the object's id
 		std::string name("GameObject - ");
-		name += std::to_string(object.Getid());
+		name += std::to_string(object.GetObject_id());
 		name += "###GAMEOBJECT_ID";
 
 
@@ -222,11 +222,12 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	if (info)
 	{
 		Separator();
-		Text("ID: %d | %s", info->m_id, info->m_name.c_str());
+		Text("ID: %d | %s", info->m_id & 0xFFFFFF, info->m_name.c_str());
 	}
 }
 
 #define SLIDER_STEP 0.01f
+#define ID_MASK 0xFFFFFF
 
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
@@ -241,7 +242,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			else
 			{
 				SameLine();
-				Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+				Text("Parent Object: %d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
 			}
 		}
 		else
@@ -265,7 +266,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 					}
 
 					snprintf(name_buffer, sizeof(name_buffer),
-						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid(), object.GetIndex());
+						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
 
 					if (Selectable(name_buffer))
 					{

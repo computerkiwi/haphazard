@@ -24,7 +24,7 @@ typedef int    dummy;
 class GameObject
 {
 public:
-	GameObject(GameObject_ID id, GameSpaceIndex gameSpace);
+	GameObject(int id, GameSpaceIndex gameSpace);
 
 	implicit GameObject(GameObject_ID id);
 
@@ -51,6 +51,8 @@ public:
 			return ComponentHandle<T>(0, false);
 		}
 	}
+
+	GameObject_ID GetObject_id() const;
 
 	GameObject_ID Getid() const;
 

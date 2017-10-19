@@ -69,6 +69,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	// Register the component types.
 	m_spaces.AddSpace();
+	m_spaces.AddSpace();
 
 	m_spaces[0]->RegisterComponentType<ObjectInfo>();
 	m_spaces[0]->RegisterComponentType<TransformComponent>();
@@ -78,16 +79,37 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	m_spaces[0]->RegisterComponentType<SpriteComponent>();
 	m_spaces[0]->RegisterComponentType<ScriptComponent>();
 
+	m_spaces[1]->RegisterComponentType<ObjectInfo>();
+	m_spaces[1]->RegisterComponentType<TransformComponent>();
+	m_spaces[1]->RegisterComponentType<RigidBodyComponent>();
+	m_spaces[1]->RegisterComponentType<StaticCollider2DComponent>();
+	m_spaces[1]->RegisterComponentType<DynamicCollider2DComponent>();
+	m_spaces[1]->RegisterComponentType<SpriteComponent>();
+	m_spaces[1]->RegisterComponentType<ScriptComponent>();
+
 	// Register the systems.
 	m_spaces[0]->RegisterSystem(new PhysicsSystem());
 	m_spaces[0]->RegisterSystem(new RenderSystem());
 	m_spaces[0]->RegisterSystem(new ScriptSystem());
 
+	m_spaces[1]->RegisterSystem(new PhysicsSystem());
+	m_spaces[1]->RegisterSystem(new RenderSystem());
+	m_spaces[1]->RegisterSystem(new ScriptSystem());
+
 	// Initialize the system.
 	m_spaces[0]->Init();
+	m_spaces[1]->Init();
 
 	// TEMPORARY IDK where to put this
 	Input::Init(m_window);
+
+
+	GameObject obj_other_space = m_spaces[1]->NewGameObject("Parent");
+	obj_other_space.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
+	obj_other_space.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	obj_other_space.AddComponent<RigidBodyComponent>();
+	obj_other_space.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+
 
 	// RigidBody and Collider Testing Objects
 	// object with velocity
