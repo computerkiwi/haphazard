@@ -376,22 +376,41 @@ void Editor::ObjectsList()
 	if (Button("Create"))
 	{
 		CreateGameObject("No Name");
+	} SameLine();
+
+	if (Button("Add Space"))
+	{
+		engine->GetSpaceManager()->AddSpace();
 	}
 
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
 	GameObject holder(0);
+
+	ImGui::Columns(2, "object_list_columns");
+	ImGui::Separator();
+
+	ImGui::Text("Name"); ImGui::NextColumn();
+	ImGui::Text("ID");   ImGui::NextColumn();
+	ImGui::Separator();
+
 	for (auto& object : m_objects)
 	{
 		holder = object;
-		snprintf(name_buffer, sizeof(name_buffer), 
-			     "%-5.8s... - %d : %d", holder.GetComponent<ObjectInfo>().Get()->m_name.c_str(), holder.GetObject_id(), holder.GetIndex());
-		if (Selectable(name_buffer))
+
+		std::string& name = holder.GetComponent<ObjectInfo>().Get()->m_name;
+
+		if (ImGui::Selectable(name.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
 		{
 			SetGameObject(object);
 			break;
 		}
+		ImGui::NextColumn();
+		ImGui::Text("%d : %d", holder.GetObject_id(), holder.GetIndex());
+		ImGui::NextColumn();
+
 	}
+	ImGui::Columns(1);
 
 	End();
 }
