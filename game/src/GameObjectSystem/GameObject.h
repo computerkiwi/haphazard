@@ -61,6 +61,8 @@ public:
 		}
 	}
 
+	GameObject_ID GetObject_id() const;
+
 	GameObject_ID Getid() const;
 
 	GameObject_ID Duplicate() const;

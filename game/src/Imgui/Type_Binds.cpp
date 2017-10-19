@@ -27,7 +27,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 	{
 		// Display the object's id
 		std::string name("GameObject - ");
-		name += std::to_string(object.Getid());
+		name += std::to_string(object.GetObject_id());
 		name += "###GAMEOBJECT_ID";
 
 
@@ -222,11 +222,12 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 	if (info)
 	{
 		Separator();
-		Text("ID: %d | %s", info->m_id, info->m_name.c_str());
+		Text("ID: %d | %s", info->m_id & 0xFFFFFF, info->m_name.c_str());
 	}
 }
 
 #define SLIDER_STEP 0.01f
+#define ID_MASK 0xFFFFFF
 
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
@@ -234,13 +235,15 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	{
 		if (transform->GetParent())
 		{
-			if (Button("Remove Parent"))
+			if (Button("Remove Parent##remove_parent_button"))
 			{
 				transform->SetParent(0);
-				return;
 			}
-			Text("Parent Object: %d | %s", transform->GetParent().Getid(), transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
-			Separator();
+			else
+			{
+				SameLine();
+				Text("Parent Object: %d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+			}
 		}
 		else
 		{
@@ -263,7 +266,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 					}
 
 					snprintf(name_buffer, sizeof(name_buffer),
-						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid(), object.GetIndex());
+						"%-5.8s... - %d : %d", object.GetComponent<ObjectInfo>().Get()->m_name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
 
 					if (Selectable(name_buffer))
 					{
@@ -317,6 +320,7 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 		if (Button("Remove##rigidbody"))
 		{
 			object.DeleteComponent<RigidBodyComponent>();
+			return;
 		}
 
 		if (TreeNode("Acceleration"))
@@ -359,6 +363,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
 		if (Button("Remove##sprite"))
 		{
 			object.DeleteComponent<SpriteComponent>();
+			return;
 		}
 		char buffer[2048] = { 0 };
 		if (InputText("Image Source", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -383,6 +388,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 			{
 				object.DeleteComponent<DynamicCollider2DComponent>();
 			}
+			return;
 		}
 
 		if (TreeNode("Dimensions"))
@@ -417,6 +423,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object)
 		if (Button("Remove##script"))
 		{
 			object.DeleteComponent<ScriptComponent>();
+			return;
 		}
 		char buffer[2048];
 		if (InputText("", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))

@@ -334,17 +334,6 @@ void Editor::OnClick()
 					m_selected_object = transform.GetGameObject().Getid();
 				}
 			}
-			else if (mouse.x < pos.x - scale.x)
-			{
-				if (mouse.y > pos.y + scale.y)
-				{
-					m_selected_object = transform.GetGameObject().Getid();
-				}
-				else if (mouse.y < pos.y - scale.y)
-				{
-					m_selected_object = transform.GetGameObject().Getid();
-				}
-			}
 		}
 	}
 }
@@ -396,7 +385,7 @@ void Editor::ObjectsList()
 	{
 		holder = object;
 		snprintf(name_buffer, sizeof(name_buffer), 
-			     "%-5.8s... - %d : %d", holder.GetComponent<ObjectInfo>().Get()->m_name.c_str(), holder.Getid(), holder.GetIndex());
+			     "%-5.8s... - %d : %d", holder.GetComponent<ObjectInfo>().Get()->m_name.c_str(), holder.GetObject_id(), holder.GetIndex());
 		if (Selectable(name_buffer))
 		{
 			SetGameObject(object);

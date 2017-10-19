@@ -14,7 +14,7 @@ GameObject::GameObject() : m_objID(INVALID_GAMEOBJECT_ID)
 {
 }
 
-GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_objID(id & (gameSpace << EXTRACTION_SHIFT))
+GameObject::GameObject(int id, GameSpaceIndex gameSpace) : m_id(id), m_space(gameSpace)
 {
 }
 
@@ -27,6 +27,11 @@ implicit GameObject::GameObject(GameObject_ID id) : m_objID(id)
 void GameObject::AddComponent(meta::Any& component)
 {
 	GetSpace()->AddComponentMeta(m_objID, component);
+}
+
+GameObject_ID GameObject::GetObject_id() const
+{
+	return m_id;
 }
 
 
