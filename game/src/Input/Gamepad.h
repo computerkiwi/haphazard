@@ -16,7 +16,7 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include <iostream>
 #include <map>
 
-//typedef std::map<GamepadMap, Keytate> Gamepad;
+//typedef std::map<GamepadMap, KeyState> Gamepad;
 
 class Gamepad
 {

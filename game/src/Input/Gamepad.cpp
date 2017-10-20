@@ -47,7 +47,7 @@ int Gamepad::GetGamepadAxis()
 
 bool Gamepad::IsPressed(GamepadButton button)
 {
-  if (buttonsCurrState_[static_cast<int>(button)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(button)] == static_cast<int>(KeyState::pressed))
   {
     return true;
   }
@@ -56,7 +56,7 @@ bool Gamepad::IsPressed(GamepadButton button)
 
 bool Gamepad::IsHeldDown(GamepadButton button)
 {
-  if (buttonsCurrState_[static_cast<int>(button)] == static_cast<int>(Keytate::heldDown))
+  if (buttonsCurrState_[static_cast<int>(button)] == static_cast<int>(KeyState::heldDown))
   {
     return true;
   }
@@ -68,6 +68,11 @@ float Gamepad::GetGamepadSingleAxis(GamepadAxis axis)
   return axesCurrState_[static_cast<int>(axis)];
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//              Handle dead zone (sometimes joystick is static but isn't 0)
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Gamepad::GamepadDebug()
 {
@@ -107,151 +112,151 @@ void Gamepad::GamepadDebug()
 
   ////// Buttons /////////////////////////////
   // 'A' Button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::A)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::A)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Button A is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::A)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::A)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Button A is held down" << std::endl;
   }
 
   // 'B' Button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::B)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::B)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Button B is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::B)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::B)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Button B is held down" << std::endl;
   }
 
   // 'X' Button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::X)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::X)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Button X is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::X)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::X)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Button X is held down" << std::endl;
   }
 
   // 'Y' Button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::Y)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::Y)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Button Y is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::Y)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::Y)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Button Y is held down" << std::endl;
   }
 
   // Left Trigger
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_TRIGGER)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_TRIGGER)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Left Trigger is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_TRIGGER)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_TRIGGER)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Left Trigger is held down" << std::endl;
   }
 
   // Right Trigger
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_TRIGGER)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_TRIGGER)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Right Trigger is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_TRIGGER)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_TRIGGER)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Right Trigger is held down" << std::endl;
   }
 
   // Back button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::BACK)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::BACK)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Back button is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::BACK)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::BACK)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Back button is held down" << std::endl;
   }
 
   // Start Button
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::START)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::START)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Start button is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::START)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::START)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Start button is held down" << std::endl;
   }
 
   //// Guide Button
-  //if (buttonsCurrState_[8] == static_cast<int>(Keytate::pressed))
+  //if (buttonsCurrState_[8] == static_cast<int>(KeyState::pressed))
   //{
   //  std::cout << "Guide button is pressed" << std::endl;
   //}
-  //else if (buttonsCurrState_[8] == static_cast<int>(Keytate::heldDown))
+  //else if (buttonsCurrState_[8] == static_cast<int>(KeyState::heldDown))
   //{
   //  std::cout << "Guide button is held down" << std::endl;
   //}
 
   // Left Thumb
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_THUMB)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_THUMB)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Left Thumb is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_THUMB)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT_THUMB)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Left Thumb is held down" << std::endl;
   }
 
   // Right Thumb
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_THUMB)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_THUMB)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "Right Thumb is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_THUMB)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT_THUMB)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "Right Thumb is held down" << std::endl;
   }
 
   // Directional Pad Up
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::UP)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::UP)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "DPad UP is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::UP)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::UP)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "DPad UP is held down" << std::endl;
   }
 
   // Directional Pad Right
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "DPad RIGHT is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::RIGHT)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "DPad RIGHT is held down" << std::endl;
   }
 
   // Directional Pad Down
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::DOWN)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::DOWN)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "DPad DOWN is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::DOWN)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::DOWN)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "DPad DOWN is held down" << std::endl;
   }
 
   // Directional Pad Left
-  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT)] == static_cast<int>(Keytate::pressed))
+  if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT)] == static_cast<int>(KeyState::pressed))
   {
     std::cout << "DPad LEFT is pressed" << std::endl;
   }
-  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT)] == static_cast<int>(Keytate::heldDown))
+  else if (buttonsCurrState_[static_cast<int>(GamepadButton::LEFT)] == static_cast<int>(KeyState::heldDown))
   {
     std::cout << "DPad LET is held down" << std::endl;
   }

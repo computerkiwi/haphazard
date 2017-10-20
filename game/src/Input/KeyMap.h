@@ -1,6 +1,7 @@
 #pragma once
 
-enum class Keytate : int
+// State the key is in: pressed, released, held down
+enum class KeyState : int
 {
 
   released,
@@ -9,7 +10,7 @@ enum class Keytate : int
 
 }; 
 
-// Avoids polluting global namespace
+// Pressable keys and buttons (keyboard and mouse)
 enum class Key : int
 {
   MOUSE_1,
@@ -146,6 +147,7 @@ enum class Key : int
 
 };
 
+// Gamepad buttons: A, B, X, Y, top triggers, directional buttons
 enum class GamepadButton : int
 {
    A,
@@ -165,6 +167,7 @@ enum class GamepadButton : int
 
 };
 
+// Gamepad axes: analog sticks, bottom triggers (sensitivity)
 enum class GamepadAxis : int
 {
   LEFT_ANALOG_X,
