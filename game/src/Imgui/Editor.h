@@ -29,10 +29,9 @@ struct GLFWwindow;
 	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
-
 class Editor
 {
-
+	friend void PrintObjects(Editor *editor);
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 
 	Engine * m_engine;
@@ -117,3 +116,4 @@ public:
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };
 
+void PrintObjects(Editor *editor);

@@ -134,6 +134,7 @@ void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 	{
 		objects.emplace_back(info.GetGameObject().Getid());
 	}
+	objects.emplace_back(0);
 }
 
 

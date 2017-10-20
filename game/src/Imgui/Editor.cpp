@@ -365,6 +365,42 @@ void Editor::Tools()
 }
 
 
+void PrintObjects(Editor *editor)
+{
+	// Get all the names of the objects
+	char name_buffer[128] = { 0 };
+	GameObject object(0);
+
+	for (auto& object_id : editor->m_objects)
+	{
+		if (object_id == 0)
+		{
+			ImGui::Separator();
+			continue;
+		}
+		object = object_id;
+		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
+
+		if (name.size() > 8)
+		{
+			snprintf(name_buffer, sizeof(name_buffer),
+				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+		}
+		else
+		{
+			snprintf(name_buffer, sizeof(name_buffer),
+				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+		}
+
+		if (ImGui::Selectable(name_buffer))
+		{
+			editor->SetGameObject(object);
+			break;
+		}
+	}
+}
+
+
 void Editor::ObjectsList()
 {
 	using namespace ImGui;
@@ -383,32 +419,7 @@ void Editor::ObjectsList()
 		engine->GetSpaceManager()->AddSpace();
 	}
 
-	// Get all the names of the objects
-	char name_buffer[128] = { 0 };
-	GameObject object(0);
-
-	for (auto& object_id : m_objects)
-	{
-		object = object_id;
-		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
-
-		if (name.size() > 8)
-		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
-		else
-		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
-
-		if (ImGui::Selectable(name_buffer))
-		{
-			SetGameObject(object);
-			break;
-		}
-	}
+	PrintObjects(this);
 
 	End();
 }

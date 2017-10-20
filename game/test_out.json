@@ -451,6 +451,10 @@
                             "meta_object_data": {}
                         }
                     ]
+                },
+                {
+                    "objID": 0,
+                    "componentArray": []
                 }
             ]
         },
@@ -812,6 +816,10 @@
                             "meta_object_data": {}
                         }
                     ]
+                },
+                {
+                    "objID": 0,
+                    "componentArray": []
                 }
             ]
         }
