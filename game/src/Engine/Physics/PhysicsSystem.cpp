@@ -55,37 +55,33 @@ struct MinMax
 class BoxCollider
 {
 public:
-	BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, const ComponentHandle<RigidBodyComponent> rigidBody, float rotation);
+	BoxCollider(const glm::vec3& center, const glm::vec3& dimensions, float rotation);
 
 	friend std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox);
 
-	glm::vec3 m_corners0;
-	glm::vec3 m_corners2;
+	glm::vec3 m_topRight;
+	glm::vec3 m_botLeft;
 	float m_rotation;
 };
 
 std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
 {
-	ostream << "Top Right Corner: (" << colliderBox.m_corners0.x << ", " << colliderBox.m_corners0.y << ")" << std::endl;
-	ostream << "Bot Left  Corner: (" << colliderBox.m_corners2.x << ", " << colliderBox.m_corners2.y << ")" << std::endl;
+	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
+	ostream << "Bot Left  Corner: (" << colliderBox.m_botLeft.x << ", " << colliderBox.m_botLeft.y << ")" << std::endl;
 
 
 	return ostream;
 }
 
-BoxCollider::BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dimensions, ComponentHandle<RigidBodyComponent> rigidBody, float rotation)
+BoxCollider::BoxCollider(const glm::vec3& center, const glm::vec3& dimensions, float rotation)
 {
-	glm::vec3 centerWithVelocity = center;
-	if (rigidBody.IsValid())
-	{
-		centerWithVelocity += rigidBody->Velocity() * dt;
-	}
+	glm::vec3 boxCenter = center;
 
 	// if the box is axis-aligned, the calculation can be done ignoring angles
 	if (rotation == 0)
 	{
-		m_corners0 = centerWithVelocity + (.5f * dimensions);
-		m_corners2 = centerWithVelocity - (.5f * dimensions);
+		m_topRight = boxCenter + (.5f * dimensions);
+		m_botLeft = boxCenter - (.5f * dimensions);
 		m_rotation = 0;
 	}
 	else
@@ -93,12 +89,12 @@ BoxCollider::BoxCollider(float dt, const glm::vec3& center, const glm::vec3& dim
 		m_rotation = rotation;
 
 		// calculate the top right corner
-		m_corners0.x = centerWithVelocity.x + (dimensions.x * 0.5f * cos(m_rotation)) - (dimensions.y * 0.5f * sin(m_rotation));
-		m_corners0.y = centerWithVelocity.y + (dimensions.x * 0.5f * sin(m_rotation)) + (dimensions.y * 0.5f * cos(m_rotation));
+		m_topRight.x = boxCenter.x + (dimensions.x * 0.5f * cos(m_rotation)) - (dimensions.y * 0.5f * sin(m_rotation));
+		m_topRight.y = boxCenter.y + (dimensions.x * 0.5f * sin(m_rotation)) + (dimensions.y * 0.5f * cos(m_rotation));
 
 		// calculate the bottom left corner
-		m_corners2.x = centerWithVelocity.x - (dimensions.x * 0.5f * cos(m_rotation)) + (dimensions.y * 0.5f * sin(m_rotation));
-		m_corners2.y = centerWithVelocity.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
+		m_botLeft.x = boxCenter.x - (dimensions.x * 0.5f * cos(m_rotation)) + (dimensions.y * 0.5f * sin(m_rotation));
+		m_botLeft.y = boxCenter.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
 	}
 }
 
@@ -204,8 +200,6 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 		}
 	}
 
-	std::cout << Box1.m_corners[BoxCorners::botLeft].y - Box2.m_corners[BoxCorners::topRight].y << "\n\n";
-
 	// if we get here it is guarunteed that there was a collision and all sides have been tested for the shortest overlap
 	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
 
@@ -218,62 +212,62 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 
 glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	BoxCollider Box1(dt, AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform.GetSiblingComponent<RigidBodyComponent>(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(dt, AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform.GetSiblingComponent<RigidBodyComponent>(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
+	BoxCollider Box1(AABB1Transform->Position(), AABB1Collider.GetDimensions(), AABB1Transform->Rotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(AABB2Transform->Position(), AABB2Collider.GetDimensions(), AABB2Transform->Rotation() + AABB2Collider.GetRotationOffset());
 
-	glm::vec3 escapeVector(0);
+	glm::vec3 penetrationVector(0);
 	glm::vec3 minValue(0);
 
-	if (Box1.m_corners0.x < Box2.m_corners2.x)
+	if (Box1.m_topRight.x < Box2.m_botLeft.x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.x = Box1.m_corners0.x - Box2.m_corners2.x;
+		minValue.x = Box1.m_topRight.x - Box2.m_botLeft.x;
 	}
-	if (Box1.m_corners0.y < Box2.m_corners2.y)
+	if (Box1.m_topRight.y < Box2.m_botLeft.y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.y = Box1.m_corners0.y - Box2.m_corners2.y;
+		minValue.y = Box1.m_topRight.y - Box2.m_botLeft.y;
 	}
-	if (Box1.m_corners2.x > Box2.m_corners0.x)
+	if (Box1.m_botLeft.x > Box2.m_topRight.x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_corners2.x - Box2.m_corners0.x) < abs(minValue.x))
+		if (abs(Box1.m_botLeft.x - Box2.m_topRight.x) < abs(minValue.x))
 		{
-			minValue.x = Box1.m_corners2.x - Box2.m_corners0.x;
+			minValue.x = Box1.m_botLeft.x - Box2.m_topRight.x;
 		}
 	}
-	if (Box1.m_corners2.y > Box2.m_corners0.y)
+	if (Box1.m_botLeft.y > Box2.m_topRight.y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_corners2.y - Box2.m_corners0.y) < abs(minValue.y))
+		if (abs(Box1.m_botLeft.y - Box2.m_topRight.y) < abs(minValue.y))
 		{
-			minValue.y = Box1.m_corners2.y - Box2.m_corners0.y;
+			minValue.y = Box1.m_botLeft.y - Box2.m_topRight.y;
 		}
 	}
 
 	// if the resolution needs to be primarily along the x axis
 	if (abs(minValue.x) < abs(minValue.y))
 	{
-		escapeVector.x = minValue.x;
+		penetrationVector.x = minValue.x;
 	}
 	else // if the resolution needs to be primarily along the y axis
 	{
-		escapeVector.y = minValue.y;
+		penetrationVector.y = minValue.y;
 	}
 
-	return escapeVector;
+	return -penetrationVector;
 }
 
 void printAMatrix(glm::mat3 matrix)
