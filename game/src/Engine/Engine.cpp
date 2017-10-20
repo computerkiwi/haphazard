@@ -164,12 +164,9 @@ void Engine::Update()
 
 	Input::Update();
 
-	// Checks 'A' key state
-	Input::Input_Debug(Key::B);
-
 	Audio::Update();
 	
-	if (Input::IsPressed(Key::GRAVE_ACCENT))
+	if (Input::IsPressed(Key::GraveAccent))
 		m_editor.ToggleEditor();
 	m_editor.Update();
 	

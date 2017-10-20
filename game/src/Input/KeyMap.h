@@ -1,51 +1,63 @@
 #pragma once
 
-// State the key is in: pressed, released, held down
+// Avoids polluting global namespace
+// Austin knows the magical stuff
+
 enum class KeyState : int
 {
 
-  released,
-  pressed,
-  heldDown
+  Released = 0,
+  Pressed = 1,
+  HeldDown = 2,
+  Idle = 3
 
-}; 
+};
 
-// Pressable keys and buttons (keyboard and mouse)
+enum class Action : int
+{
+  Jump,
+  Attack,
+  MoveLeft,
+  MoveRight
+};
+
+// All keyboard and mouse buttons
 enum class Key : int
 {
-  MOUSE_1,
-  MOUSE_2,
-  MOUSE_3,
-  MOUSE_4,
-  MOUSE_5,
-  MOUSE_6,
-  MOUSE_7,
-  MOUSE_8,
-  MOUSE_LAST = MOUSE_8,
-  MOUSE_BUTTON_LEFT = MOUSE_1,
-  MOUSE_BUTTON_RIGHT = MOUSE_2,
-  MOUSE_BUTTON_MIDDLE = MOUSE_3,
+ // For fancy meese
+ Mouse_1,
+ Mouse_2,
+ Mouse_3,
+ Mouse_4,
+ Mouse_5,
+ Mouse_6,
+ Mouse_7,
+ Mouse_8,
+ MouseButton_Last = Mouse_8,
+ MouseButton_Left = Mouse_1,
+ MouseButton_Right = Mouse_2,
+ MouseButton_Middle = Mouse_3,
 
-  UNKNOWN = -1,
-  SPACE = 32,
-  APOSTROPHE = 39, // '
-  COMMA = 44,      // ,
-  MINUS = 45,      // -
-  PERIOD = 46,     // .
-  SLASH = 47,      // /
+  Unknown = -1,
+  Space = 32,
+  Apostrophe = 39, // '
+  Comma = 44,      // ,
+  Minus = 45,      // -
+  Period = 46,     // .
+  Slash = 47,      // /
 
-  ZERO = 48,
-  ONE = 49,
-  TWO = 50,
-  THREE = 51,
-  FOUR = 52,
-  FIVE = 53,
-  SIX = 54,
-  SEVEN = 55,
-  EIGHT = 56,
-  NINE = 57,
-  SEMICOLON = 59,  // ;
-  EQUAL = 61,      // =
+  Zero = 48,
+  One = 49,
+  Two = 50,
+  Three = 51,
+  Four = 52,
+  Five = 53,
+  Six = 54,
+  Seven = 55,
+  Eight = 56,
+  Nine = 57,
+  Semicolon = 59,  // ;
+  Equal = 61,      // =
 
   A = 65,
   B = 66,
@@ -74,35 +86,35 @@ enum class Key : int
   Y = 89,
   Z = 90,
 
-  BRACKET_LEFT = 91,
-  BACKSLASH = 92,
-  RIGHT_BRACKET = 93,
-  GRAVE_ACCENT = 96,
+  BracketLeft = 91,
+  Backslash = 92,
+  BracketRight = 93,
+  GraveAccent = 96,
 
-  WORLD_1 = 161, // Non-US #1
-  WORLD_2 = 162, // Non-US #2
+  World_1 = 161, // Non-US #1
+  World_2 = 162, // Non-US #2
 
-  ESCAPE = 256,
-  ENTER = 257,
-  TAB = 258,
-  BACKSPACE = 259,
-  INSERT = 260,
-  DELETE = 261,
+  Escape = 256,
+  Enter = 257,
+  Tab = 258,
+  Backspace = 259,
+  Insert = 260,
+  Delete = 261,
 
-  RIGHT = 262,
-  LEFT = 263,
-  DOWN = 264,
-  UP = 265,
+  Right = 262,
+  Left = 263,
+  Down = 264,
+  Up = 265,
 
-  PAGE_UP = 266,
-  PAGE_DOWN = 267,
-  HOME = 268,
-  END = 269,
-  CAPS_LOCK = 280,
-  SCROLL_OCK = 281,
-  NUM_LOCK = 282,
-  PRINT_SCREEN = 283,
-  PAUSE = 284,
+  PageUp = 266,
+  PageDown = 267,
+  Home = 268,
+  End = 269,
+  CapsLock = 280,
+  ScrollLock = 281,
+  NumLock = 282,
+  PrintScreen = 283,
+  Pause = 284,
 
   F1 = 290,
   F2 = 291,
@@ -120,63 +132,60 @@ enum class Key : int
   F14 = 303,
   F15 = 304,
 
-  NUMPAD_0 = 320,
-  NUMPAD_1 = 321,
-  NUMPAD_2 = 322,
-  NUMPAD_3 = 323,
-  NUMPAD_4 = 324,
-  NUMPAD_5 = 325,
-  NUMPAD_6 = 326,
-  NUMPAD_7 = 327,
-  NUMPAD_8 = 328,
-  NUMPAD_9 = 329,
-  NUMPAD_DECIMAL = 330,
-  NUMPAD_DIVIDE = 331,
-  NUMPAD_MULTIPLY = 332,
-  NUMPAD_SUBTRACT = 333,
-  NUMPAD_ADD = 334,
-  NUMPAD_ENTER = 335,
-  NUMPAD_EQUAL = 336,
+  Numpad_0 = 320,
+  Numpad_1 = 321,
+  Numpad_2 = 322,
+  Numpad_3 = 323,
+  Numpad_4 = 324,
+  Numpad_5 = 325,
+  Numpad_6 = 326,
+  Numpad_7 = 327,
+  Numpad_8 = 328,
+  Numpad_9 = 329,
+  NumpadDecimal = 330,
+  NumpadDivide = 331,
+  NumpadMultiply = 332,
+  NumpadSubtract = 333,
+  NumpadAdd = 334,
+  NumpadEnter = 335,
+  NumpadEqual = 336,
 
-  LEFT_SHIFT = 340,
-  LEFT_CONTROL = 341,
-  LEFT_ALT = 342,
-  RIGHT_SHIFT = 344,
-  RIGHT_CONTROL = 345,
-  RIGHT_ALT = 346
+  LeftShift = 340,
+  LeftControl = 341,
+  LeftAlt = 342,
+  RightShift = 344,
+  RightControl = 345,
+  RightAlt = 346
 
 };
 
-// Gamepad buttons: A, B, X, Y, top triggers, directional buttons
 enum class GamepadButton : int
 {
    A,
    B,
    X,
    Y,
-   LEFT_TRIGGER,
-   RIGHT_TRIGGER,
-   BACK,
-   START,
-   LEFT_THUMB,
-   RIGHT_THUMB,
-   UP,
-   RIGHT,
-   DOWN,
-   LEFT
-
+   LeftTrigger,
+   RightTrigger,
+   Back,
+   Start,
+   LeftThumb,
+   RightThumb,
+   Up,
+   Right,
+   Down,
+   Left
 };
 
-// Gamepad axes: analog sticks, bottom triggers (sensitivity)
 enum class GamepadAxis : int
 {
-  LEFT_ANALOG_X,
-  LEFT_ANALOG_Y,
-  RIGHT_ANALOG_X,
-  RIGHT_ANALOG_Y,
-  LEFT_TRIGGER,
-  RIGHT_TRIGGER,
+  LeftAnalog_X,
+  LeftAnalog_Y,
+  RightAnalog_X,
+  RightAnalog_Y,
+  LeftTrigger,
+  RightTrigger,
 
-  LEFT_ANALOG,  // Both left XY axes
-  RIGHT_ANALOG, // Both right XY axes
+  LeftAnalog,  // Both left XY axes
+  RightAnalog, // Both right XY axes
 };

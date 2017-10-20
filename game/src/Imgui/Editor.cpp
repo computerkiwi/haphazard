@@ -317,7 +317,7 @@ void Editor::SetGameObject(GameObject_ID new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
+	if (Input::IsPressed(Key::MouseButton_Left) && !ImGui::GetIO().WantCaptureMouse)
 	{
 		const glm::vec2& mouse = Input::GetMousePos();
 
