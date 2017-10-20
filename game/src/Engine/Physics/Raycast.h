@@ -51,3 +51,5 @@ public:
 	// the corners of the box in this order: topRight, topLeft, botLeft, botRight
 	glm::vec2 m_corners[4];
 };
+
+float DegreesToRadians(float angleInDegrees);
