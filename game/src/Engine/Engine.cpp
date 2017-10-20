@@ -104,6 +104,12 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	obj_other_space.AddComponent<RigidBodyComponent>();
 	obj_other_space.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
 
+	GameObject obj_other_space1 = m_spaces[1]->NewGameObject("Child");
+	obj_other_space1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
+	obj_other_space1.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	obj_other_space1.AddComponent<RigidBodyComponent>();
+	obj_other_space1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+
 
 	// RigidBody and Collider Testing Objects
 	// object with velocity

@@ -255,38 +255,8 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			int parent_id = 0;
 			if (BeginPopup("Add Parent##add_parent_popup"))
 			{
-				char name_buffer[128] = { 0 };
 
-				for (auto& id : editor->m_objects)
-				{
-					GameObject object = id;
-
-					if (object.Getid() == editor->m_selected_object)
-					{
-						continue;
-					}
-
-					std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
-
-					if (name.size() > 8)
-					{
-						snprintf(name_buffer, sizeof(name_buffer),
-							"%-8.8s... - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
-					}
-					else
-					{
-						snprintf(name_buffer, sizeof(name_buffer),
-							"%-8.8s    - %d : %d", name.c_str(), object.Getid() & ID_MASK, object.GetIndex());
-					}
-
-					
-
-					if (Selectable(name_buffer))
-					{
-						transform->SetParent(id);
-						break;
-					}
-				}
+				PrintObjects(editor);
 				EndPopup();
 			}
 		}
