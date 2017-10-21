@@ -17,7 +17,11 @@ class SpriteComponent;
 class Collider2D;
 struct ScriptComponent;
 
+#define MAX_SELECT 10
+
 void ImGui_GameObject(GameObject object, Editor *editor);
+void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor);
+
 void ImGui_ObjectInfo(ObjectInfo *info);
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object);

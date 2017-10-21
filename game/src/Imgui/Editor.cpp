@@ -137,7 +137,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	// Create gameobject
 	RegisterCommand("create", [this]() 
 	{ 
-		std::string name = m_line.substr(strlen("create"), m_line.find_first_of(" ", strlen("create")));
+		std::string name = m_line.substr(strlen("create "));
 		CreateGameObject(name.c_str()); 
 	});
 	
@@ -216,7 +216,7 @@ void Editor::Update()
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		// Get all the active gameobjects
-		m_engine->GetSpaceManager()->CollectAllObjects(m_objects);
+		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
 
 		// Top Bar
 		MenuBar();
@@ -241,7 +241,17 @@ void Editor::Update()
 		ObjectsList();
 
 		// Pass the current object in the editor
-		ImGui_GameObject(GameObject(m_selected_object), this);
+		if (m_multiselect.m_size)
+		{
+			for (size_t i = 0; i < m_multiselect.m_size; i++)
+			{
+				ImGui_GameObject_Multi(m_multiselect, this);
+			}
+		}
+		else
+		{
+			ImGui_GameObject(GameObject(m_selected_object), this);
+		}
 
 		ImGui::Render();
 	}
@@ -317,7 +327,7 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
+	if (m_selected_object && Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
 	{
 		const glm::vec2& mouse = Input::GetMousePos();
 
@@ -339,11 +349,33 @@ void Editor::OnClick()
 }
 
 
+static glm::vec2 Lerp_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
+{
+	glm::vec2 lerp;
+
+	for (size_t i = 0; i < objects.m_size; i++)
+	{
+		// f = t * b + a(1 - t)
+		lerp += GameObject(objects[i]).GetComponent<TransformComponent>()->GetPosition();
+	}
+	
+	return lerp / glm::vec2(static_cast<float>(objects.m_size));
+}
+
+
 void Editor::Tools()
 {
 	if (m_selected_object && GameObject(m_selected_object).GetSpace())
 	{
-		const glm::vec2 pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
+		glm::vec2 pos;
+		if (m_multiselect.m_size)
+		{
+			pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
+		}
+		else
+		{
+			pos = Lerp_Pos(m_multiselect);
+		}
 
 		switch (m_tool)
 		{
@@ -373,7 +405,8 @@ void PrintObjects(Editor *editor)
 
 	for (auto& object_id : editor->m_objects)
 	{
-		if (object_id == 0)
+		// Use invalid gameObject as a delimiter
+		if (object_id == INVALID_GAMEOBJECT_ID)
 		{
 			ImGui::Separator();
 			continue;
@@ -381,6 +414,7 @@ void PrintObjects(Editor *editor)
 		object = object_id;
 		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
+		// Save the buffer based off name size, max name size is 8
 		if (name.size() > 8)
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
@@ -392,11 +426,27 @@ void PrintObjects(Editor *editor)
 				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
-		if (ImGui::Selectable(name_buffer))
+		if (Input::IsHeldDown(Key::LEFT_CONTROL))
 		{
-			editor->SetGameObject(object);
-			break;
+			if (ImGui::Selectable(name_buffer))
+			{
+				if (editor->m_multiselect.m_size < MAX_SELECT)
+				{
+					editor->m_multiselect.push_back(object);
+				}
+
+				editor->SetGameObject(object);
+			}
 		}
+		else
+		{
+			if (ImGui::Selectable(name_buffer))
+			{
+				editor->m_multiselect.clear();
+				editor->SetGameObject(object);
+				break;
+			}
+		}		
 	}
 }
 
