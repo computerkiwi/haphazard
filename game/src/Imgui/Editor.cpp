@@ -327,7 +327,7 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (m_selected_object && Input::IsPressed(Key::MOUSE_1) && !ImGui::GetIO().WantCaptureMouse)
+	if (m_selected_object && Input::IsPressed(Key::Mouse_1) && !ImGui::GetIO().WantCaptureMouse)
 	{
 		const glm::vec2& mouse = Input::GetMousePos();
 
@@ -426,7 +426,7 @@ void PrintObjects(Editor *editor)
 				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
-		if (Input::IsHeldDown(Key::LEFT_CONTROL))
+		if (Input::IsHeldDown(Key::LeftControl))
 		{
 			if (ImGui::Selectable(name_buffer))
 			{
