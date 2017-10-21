@@ -22,7 +22,7 @@ typedef int GameObject_ID;
 typedef int GameSpaceIndex;
 typedef int    dummy;
 
-const GameObject_ID INVALID_GAMEOBJECT_ID = -1;
+const GameObject_ID INVALID_GAMEOBJECT_ID = 0;
 
 class GameObject
 {

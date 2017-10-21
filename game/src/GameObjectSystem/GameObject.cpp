@@ -23,11 +23,13 @@ implicit GameObject::GameObject(GameObject_ID id) : m_objID(id)
 {
 }
 
+
 // Tries to add a component by type.
 void GameObject::AddComponent(meta::Any& component)
 {
 	GetSpace()->AddComponentMeta(m_objID, component);
 }
+
 
 GameObject_ID GameObject::GetObject_id() const
 {
@@ -134,7 +136,7 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	rapidjson::Value jsonId;
 	jsonId = jsonValue["objID"];
 	assert(jsonId.IsInt64());
-	GameObject_ID id = jsonId.GetInt64();
+	GameObject_ID id = static_cast<GameObject_ID>(jsonId.GetInt64());
 
 	// Setup the GameObject's id.
 	gameObject.m_objID = id;

@@ -253,6 +253,9 @@ public:
 	GameObject Duplicate(GameObject_ID originalObject, GameObject_ID newObject);
 
 	void Delete(GameObject_ID object);
+	
+	// Delimits between Spaces by adding an invalid ID
+	void CollectGameObjectsDelimited(std::vector<GameObject_ID>& objects);
 
 	std::vector<GameObject> CollectGameObjects();
 	void CollectGameObjects(std::vector<GameObject_ID>& objects);
@@ -404,6 +407,15 @@ public:
 		for (int i = 0; i < m_spaces.size(); ++i)
 		{
 			m_spaces[i].CollectGameObjects(objects);
+		}
+	}
+
+	void CollectAllObjectsDelimited(std::vector<GameObject_ID>& objects)
+	{
+		objects.clear();
+		for (int i = 0; i < m_spaces.size(); ++i)
+		{
+			m_spaces[i].CollectGameObjectsDelimited(objects);
 		}
 	}
 
