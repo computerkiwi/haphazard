@@ -119,7 +119,7 @@ public:
 
 	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData);
 
-	void CalculateCastBox(BoxCorners& box);
+	void CalculateCastBox(BoxCorners& box, GameObject& gameObject);
 
 	glm::vec2 m_startPoint;
 	glm::vec2 m_direction;
@@ -127,6 +127,8 @@ public:
 
 	float m_length;
 	glm::vec2 m_intersection;
+
+	GameObject m_gameObjectHit;
 };
 
 void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData)
@@ -164,7 +166,7 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 		// circle collision to quickly eliminate far away objects
 		if (CirclesCollide(raycastCenter, raycastRadius, boxCenter, std::max(boxDimenions.x, boxDimenions.y)))
 		{
-			CalculateCastBox(corners);
+			CalculateCastBox(corners, transform.GetGameObject());
 		}
 	}
 }
@@ -198,7 +200,7 @@ float CrossP(glm::vec2 vec1, glm::vec2 vec2)
 	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
 }
 
-void RayCastCalculator::CalculateCastBox(BoxCorners& box)
+void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject)
 {
 	// check each side
 	for (int i = 0; i < 4; i++)
@@ -236,6 +238,7 @@ void RayCastCalculator::CalculateCastBox(BoxCorners& box)
 				// set the new intersection
 				m_intersection = intersection;
 				m_length = sqrt(intersectLengthSquared);
+				m_gameObjectHit = gameObject;
 			}
 		}
 	}
@@ -292,4 +295,9 @@ float& Raycast::Length()
 glm::vec2& Raycast::Intersection()
 {
 	return m_intersection;
+}
+
+GameObject& Raycast::GameObjectHit()
+{
+	return m_gameObjectHit;
 }

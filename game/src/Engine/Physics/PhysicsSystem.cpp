@@ -432,6 +432,9 @@ void PhysicsSystem::Update(float dt)
 	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
 	pDrawSmallBoxAtPosition(testCast.Intersection());
 
+	ComponentHandle<TransformComponent> transformasdf = testCast.GameObjectHit().GetComponent<TransformComponent>();
+
+	transformasdf->SetPosition(glm::vec2(200, 0));
 
 	for (auto& tRigidBodyHandle : *rigidBodies)
 	{
