@@ -16,24 +16,42 @@ struct Array
 	std::size_t m_size = 0;
 	T m_array[size];
 
-	T * Push(T & object)
+	Array() : Array(T()) {}
+	Array(T& init) 
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			m_array[i] = init;
+		}
+	}
+
+	Array(T&& init)
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			m_array[i] = init;
+		}
+	}
+
+
+	T * push_back(T & object)
 	{
 		m_array[m_size++] = object;
 		return &object;
 	}
 
-	T * Push(T && object)
+	T * push_back(T && object)
 	{
 		m_array[m_size++] = object;
 		return &object;
 	}
 
-	void Pop()
+	void pop()
 	{
 		--m_size;
 	}
 
-	void Clear()
+	void clear()
 	{
 		m_size = 0;
 	}

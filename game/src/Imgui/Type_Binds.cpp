@@ -213,6 +213,21 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 }
 
 
+void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor)
+{
+#if 0
+	for (size_t i = 0; i < objects.m_size; i++)
+	{
+		GameObject object = objects[i];
+		(void)object;
+	}
+#else
+	(void)objects;
+	(void)editor;
+#endif
+}
+
+
 //
 // Component ImGui stuff
 // ----------------------

@@ -13,6 +13,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <glm/detail/type_vec2.hpp>
 
 #include "GameObjectSystem\GameObject.h"
+#include "Util/DataStructures/Array/Array.h"
 
 class Engine;
 class TransformComponent;
@@ -29,6 +30,8 @@ struct GLFWwindow;
 	                (static_cast<float>(0x00FF0000 & HEX) / 0x00FF0000), \
 	                (static_cast<float>(0x0000FF00 & HEX) / 0x0000FF00)
 
+#define MAX_SELECT 10
+
 class Editor
 {
 	friend void PrintObjects(Editor *editor);
@@ -38,6 +41,8 @@ class Editor
 	bool m_show_editor;
 
 	GameObject_ID m_selected_object = 0;
+	Array<GameObject_ID, MAX_SELECT> m_multiselect;
+
 	std::vector<GameObject_ID> m_objects;
 
 	enum Tool

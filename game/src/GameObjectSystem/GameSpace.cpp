@@ -109,8 +109,7 @@ void GameSpace::Delete(GameObject_ID object)
 	}
 }
 
-std::vector<GameObject> GameSpace::
-CollectGameObjects()
+std::vector<GameObject> GameSpace::CollectGameObjects()
 {
 	// Get the object ids.
 	std::vector<GameObject_ID> ids;
@@ -126,6 +125,22 @@ CollectGameObjects()
 	return objects;
 }
 
+
+// Delimits between Spaces by adding an invalid ID
+void GameSpace::CollectGameObjectsDelimited(std::vector<GameObject_ID>& objects)
+{
+	auto *map = GetComponentMap<ObjectInfo>();
+
+	for (auto& info : *map)
+	{
+		objects.emplace_back(info.GetGameObject().Getid());
+	}
+
+	// Delimits between Spaces
+	objects.emplace_back(INVALID_GAMEOBJECT_ID);
+}
+
+
 void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 {
 	auto *map = GetComponentMap<ObjectInfo>();
@@ -134,7 +149,6 @@ void GameSpace::CollectGameObjects(std::vector<GameObject_ID>& objects)
 	{
 		objects.emplace_back(info.GetGameObject().Getid());
 	}
-	objects.emplace_back(0);
 }
 
 
