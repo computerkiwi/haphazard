@@ -9,6 +9,7 @@
 #include "Settings.h"
 #include "DebugGraphic.h"
 #include "Text.h"
+#include "Particles.h"
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
@@ -16,6 +17,8 @@
 static bool resizeCameras = false;
 static int width;
 static int height;
+
+ParticleSystem *particles;
 
 RenderSystem::RenderSystem()
 {
@@ -25,6 +28,7 @@ void RenderSystem::Init()
 {
 	Font::InitFonts();
 
+	particles = new ParticleSystem();
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
@@ -103,6 +107,11 @@ void RenderSystem::Update(float dt)
 		}
 		textHandle->Draw(transform->GetMatrix4());
 	}
+
+
+	Screen::GetView().Use();
+	particles->Render(dt);
+
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);

@@ -232,7 +232,8 @@ namespace Shaders
 	//Shader Declaration
 	ShaderProgram* defaultShader;
 	ShaderProgram* textShader;
-	ShaderProgram* particleShader;
+	ShaderProgram* particleUpdateShader;
+	ShaderProgram* particleRenderShader;
 
 	ShaderProgram* debugShader;
 
@@ -298,19 +299,19 @@ namespace Shaders
 	{
 		// Particle Update Transform Feedback Shader Program
 		std::string vertShaderSource = LoadFileToString( (path + "particleUpdate.vertshader").c_str() ).c_str();
-		std::string fragShaderSource = LoadFileToString( (path + "particleUpdate.geoshader").c_str() ).c_str();
+		std::string geoShaderSource = LoadFileToString( (path + "particleUpdate.geoshader").c_str() ).c_str();
 		Shader vs_Up = Shader(GL_VERTEX_SHADER, vertShaderSource.c_str());
-		Shader gs_Up = Shader(GL_FRAGMENT_SHADER, fragShaderSource.c_str());
+		Shader gs_Up = Shader(GL_GEOMETRY_SHADER, geoShaderSource.c_str());
 
 		GLuint updateProgram = glCreateProgram();
-		glAttachShader(updateProgram, gs_Up.GetShaderID());
+		glAttachShader(updateProgram, vs_Up.GetShaderID());
 		glAttachShader(updateProgram, gs_Up.GetShaderID());
 
 		const GLchar* TFVaryings[4];
 		TFVaryings[0] = "Type";
 		TFVaryings[1] = "Position";
 		TFVaryings[2] = "Velocity";
-		TFVaryings[3] = "Age";
+		TFVaryings[3] = "Life";
 
 		glTransformFeedbackVaryings(updateProgram, 4, TFVaryings, GL_INTERLEAVED_ATTRIBS);
 
@@ -330,8 +331,10 @@ namespace Shaders
 
 		// Particle Render Shader Program
 		attribs.clear();
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 3, 0));
-		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_FLOAT, sizeof(float), false, 3, 2));
+		// Buffer holds everything from update shader, only pos is needed for rendering though
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 6, 1));
+		
+		//attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_FLOAT, sizeof(float), false, 6 + 1, 6));
 
 		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.fragshader", attribs);
 		if (!particleRenderShader->wasCompiled())

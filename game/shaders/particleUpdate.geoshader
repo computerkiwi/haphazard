@@ -1,8 +1,7 @@
 #version 330 core
 
-layout(points) in;
-layout(points) out;
-layout(max_vertices = 30) out;
+layout (points) in;
+layout (points, max_vertices = 30) out;
 
 in float PType[];
 in vec2 PPos[];
@@ -14,58 +13,119 @@ out vec2 Position;
 out vec2 Velocity;
 out float Life;
 
-uniform float dt;
-uniform float EmitterLifetime;
-uniform float ParticleLifetime;
-uniform float SubParticleLifetime;
+
+/// Enum Defines \\\
 
 #define EMITTER_TYPE 0.0f
 #define PARTICLE_TYPE 1.0f
-#define SUB_PARTICLE_TYPE 2.0f
+
+#define SPACE_WORLD 0
+#define SPACE_LOCAL 1
+
+#define SHAPE_CIRCLE_VOLUME 0
+#define SHAPE_CIRLCE_EDGE   1
+#define SHAPE_SQUARE_VOLUME 2
+#define SHAPE_SQUARE_EDGE   3
+
+/// Uniforms \\\
+
+uniform float	dt;
+uniform float	EmitterLifetime;
+uniform float	ParticleLifetime;
+
+uniform bool	IsLooping;
+uniform int		SimulationSpace;
+
+uniform vec2	StartingVelocity;
+
+uniform vec2	RotationOverLifetime;
+uniform vec4	ScaleOverLifetime;
+
+uniform int		ParticlesPerEmission;
+uniform float	EmissionRate;
+uniform vec3	BurtEmission;
+uniform int		EmissionShape;
+
+/// Locals \\\
+
+vec2 emitterPosition;
+
+
+vec2 rand()
+{
+	// Pseudo-Random formula found online from unknown origins
+	// modified by me to output random vec2 and without needing screen resolution
+	vec2 st = 1/gl_Position.xy;
+	return vec2(
+		fract(sin(dot(st.xy,vec2(12.9898,78.233))) * 43758.5453123),
+		fract(sin(dot(st.xy,vec2(6.98,6))) * 43758.5453123)
+		);
+}
+
+void HandleEmitter()
+{
+	float currAge = PLife[0] + dt;
+	
+	if(currAge >= EmitterLifetime && !IsLooping) 
+	{
+		// Kill emitter from emitting new particles
+		return; 
+	}
+
+	if (currAge / EmissionRate > PLife[0] / EmissionRate)
+	{
+		// Emit new particle(s)
+
+		for(int i = 0; i < ParticlesPerEmission; i++)
+		{
+			Type = PARTICLE_TYPE;
+			Position = PPos[0]; // Emission position
+			Velocity = StartingVelocity;
+			Life = 0.0f;
+
+			EmitVertex();
+			EndPrimitive();
+		}
+    }
+
+	// Emit this particle emitter
+    Type = EMITTER_TYPE;
+    Position = PPos[0];
+    Velocity = r;
+    Life = currAge;
+    EmitVertex();
+    EndPrimitive();
+
+	// Save emitter position for particles in local space
+	emitterPosition = Position; 
+}
+
+void HandleParticle()
+{
+	if(currAge < ParticleLifetime) 
+	{
+		// Still alive, update then emit self
+	
+		Type = PType[0];
+		Position = PPos[0] + PVel[0] * dt;
+	    Velocity = PVel[0];
+	    Life = currAge;
+	    EmitVertex();
+	    EndPrimitive();
+	}
+}
+
 
 void main()
 {
-	float currAge = PLife[0] + dt;
-
+	//vec2 r = rand() - vec2(0.5f,0.5f);
+	
 	if(PType[0] == EMITTER_TYPE)
 	{
-		if (currAge >= EmitterLifetime) { // Emit new particle with the following info:
-            Type = PARTICLE_TYPE;
-            Position = PPos[0];
-            Velocity = vec2(1,1);
-            Age = 0.0f;
-
-            EmitVertex();
-            EndPrimitive();
-        }
-
-		// Emit this particle emitter
-        Type = EMITTER_TYPE;
-        Position = Pos[0];
-        Velocity = Vel[0];
-        Age = currAge;
-        EmitVertex();
-        EndPrimitive();
+		HandleEmitter();
 	}
-	else // Handle particle or sub particle update
+	else if(PType[0] == PARTICLE_TYPE)
 	{
-		if(PType[0] == PARTICLE_TYPE)
-		{
-			if(currAge < ParticleLifetime) 
-			{
-				// Still alive, update then emit self
-				Type = PType[0];
-				Position = Pos[0];
-		        Velocity = Vel[0];
-		        Age = currAge;
-		        EmitVertex();
-			    EndPrimitive();
-			}
-			else
-			{
-				// Dead, emit sub emitter, or don't.
-			}
-		}
+		HandleParticle();
 	}
-
 }

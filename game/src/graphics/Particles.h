@@ -13,9 +13,12 @@ private:
 	void RenderParticles();
 
 
-	bool m_isFirst = true; // Is first time rendering
-	unsigned int m_currVB; // Current 
-	unsigned int m_currTFB;
+	int m_isFirst = 0; // Is first time rendering
+	unsigned int m_currVB = 0; // Current VBO index 
+	unsigned int m_currTFB = 1; // Current Transform Feedback index
+
+	// Buffers
 	GLuint m_particleBuffer[2];
 	GLuint m_transformFeedback[2];
+	GLuint m_VAO;
 };
