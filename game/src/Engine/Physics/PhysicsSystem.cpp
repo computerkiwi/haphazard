@@ -419,7 +419,7 @@ void PhysicsSystem::Update(float dt)
 		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
 	}
 
-	float range = 5;
+	float range = 6;
 	glm::vec3 castPosition(-2, 2.5, 0);
 	
 	glm::vec3 normalizedDirection(2, -1.5f, 0);
@@ -431,10 +431,6 @@ void PhysicsSystem::Update(float dt)
 	pDrawSmallBoxAtPosition(castPosition);
 	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
 	pDrawSmallBoxAtPosition(testCast.Intersection());
-
-	ComponentHandle<TransformComponent> transformasdf = testCast.GameObjectHit().GetComponent<TransformComponent>();
-
-	transformasdf->SetPosition(glm::vec2(200, 0));
 
 	for (auto& tRigidBodyHandle : *rigidBodies)
 	{

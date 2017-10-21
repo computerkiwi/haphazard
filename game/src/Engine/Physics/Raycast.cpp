@@ -171,7 +171,7 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 	}
 }
 
-RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction) : m_startPoint(startPoint), m_direction(direction), m_range(range), m_length(-1), m_intersection(glm::vec2(0,0))
+RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction) : m_startPoint(startPoint), m_direction(direction), m_range(range), m_length(-1), m_intersection(glm::vec2(0,0)), m_gameObjectHit(INVALID_GAMEOBJECT_ID)
 {
 	// find a circle around the ray for broad range checking
 	float radius = range / 2.0f;
@@ -245,7 +245,7 @@ void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject
 }
 
 // constructor with direction in degrees
-Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range)
+Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range) : m_gameObjectHit(INVALID_GAMEOBJECT_ID)
 {
 	glm::vec2 normalizedDirection((float)(cos(direction)), (float)(sin(direction)));
 
@@ -257,6 +257,7 @@ Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, 
 	{
 		m_length = raycast.m_length;
 		m_intersection = raycast.m_intersection;
+		m_gameObjectHit = raycast.m_gameObjectHit;
 	}
 	else // else set the full ray
 	{
@@ -278,6 +279,7 @@ Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, 
 	{
 		m_length = raycast.m_length;
 		m_intersection = raycast.m_intersection;
+		m_gameObjectHit = raycast.m_gameObjectHit;
 	}
 	else
 	{
