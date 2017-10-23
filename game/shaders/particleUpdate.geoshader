@@ -85,7 +85,7 @@ void HandleEmitter()
 
 	// Emit this particle emitter
     Type = EMITTER_TYPE;
-    Position = PPos[0];
+    Position = EmitterPosition;
     Velocity = PVel[0];
     Life = currAge;
     EmitVertex();

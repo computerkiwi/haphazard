@@ -54,9 +54,11 @@ void main()
 	else
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 
-	Color = StartColor * (life / ParticleLife) + EndColor * (1 - life / ParticleLife);
+	float percent = life / ParticleLife;
+	
+	Color = StartColor * percent + EndColor * (1 - percent);
 
-	Rotation = RotationOverLifetime[0] + (1 - life / ParticleLife) * (RotationOverLifetime[1] - RotationOverLifetime[0]);
-	Scale = ScaleOverLifetime.xy + (1 - life / ParticleLife) * (ScaleOverLifetime.zw - ScaleOverLifetime.xy);
+	Rotation = RotationOverLifetime[0] + (1 - percent) * (RotationOverLifetime[1] - RotationOverLifetime[0]);
+	Scale = ScaleOverLifetime.xy + (1 - percent) * (ScaleOverLifetime.zw - ScaleOverLifetime.xy);
 	IResolution = vec2(proj[0][0], proj[1][1]);
 }

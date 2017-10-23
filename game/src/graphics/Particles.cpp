@@ -90,14 +90,14 @@ void ParticleSystem::UpdateParticles(float dt)
 	Shaders::particleUpdateShader->SetVariable("Time", m_time);
 	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", 5.0f);
 	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", 1.5f);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 0.2f);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 1.0f);
 	Shaders::particleUpdateShader->SetVariable("IsLooping", true);
-	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,2));
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.5f, 0.3f));
-	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0, -2));
+	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,0));
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.0f, 0.0f));
+	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0, 1));
 	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 1);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", 0.1f);
-	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,1));
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", 2.0f);
+	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,0));
 	Shaders::particleUpdateShader->SetVariable("EmissionShape", 0);
 	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.5f,0.5f) );
 	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
@@ -127,9 +127,9 @@ void ParticleSystem::RenderParticles()
 	Shaders::particleRenderShader->Use();
 
 	// Set state, if needed (texture, ect)
-	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f);
+	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f + 1);
   Shaders::particleRenderShader->SetVariable("StartColor", glm::vec4(1, 0, 0, 1));
-	Shaders::particleRenderShader->SetVariable("EndColor", glm::vec4(0, 1, 0, 1));
+	Shaders::particleRenderShader->SetVariable("EndColor", glm::vec4(1, 1, 0, 1));
 	Shaders::particleRenderShader->SetVariable("SimulationSpace", 0);
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
 	Shaders::particleRenderShader->SetVariable("RotationOverLifetime", glm::vec2(0, 3.1415926));
@@ -168,3 +168,25 @@ void ParticleSystem::GenRandomTexture()
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
+
+/*
+EmitterLifetime
+ParticleLifetime
+ParticleLifetimeVariance
+IsLooping
+StartingVelocity
+StartingVelocityVariance
+Acceleration
+ParticlesPerEmission
+EmissionRate
+BurstEmission
+EmissionShape
+EmissionShapeScale
+EmitterPosition
+
+StartColor
+EndColor
+SimulationSpace
+RotationOverLifetime
+ScaleOverLifetime
+*/
