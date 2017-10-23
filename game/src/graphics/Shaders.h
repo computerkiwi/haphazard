@@ -129,6 +129,12 @@ public:
 		glUniform3f(glGetUniformLocation(m_ID, varName), value.x, value.y, value.z);
 	}
 
+	void ShaderProgram::SetVariable(char* varName, glm::vec4 value)
+	{
+		Use();
+		glUniform4f(glGetUniformLocation(m_ID, varName), value.x, value.y, value.z, value.w);
+	}
+
 	void ShaderProgram::SetVariable(char* varName, int value)
 	{
 		Use();

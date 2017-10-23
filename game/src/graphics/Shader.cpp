@@ -330,13 +330,11 @@ namespace Shaders
 		particleUpdateShader->SetAttributes(attribs);
 
 		// Particle Render Shader Program
-		attribs.clear();
-		// Buffer holds everything from update shader, only pos is needed for rendering though
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 6, 1));
+		// Keep attribs from other shader, all that data is wanted for this shader
 		
 		//attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_FLOAT, sizeof(float), false, 6 + 1, 6));
 
-		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.fragshader", attribs);
+		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.geoshader", path + "particleRender.fragshader", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();
 	}

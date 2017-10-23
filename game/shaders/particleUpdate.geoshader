@@ -19,96 +19,142 @@ out float Life;
 #define EMITTER_TYPE 0.0f
 #define PARTICLE_TYPE 1.0f
 
-#define SPACE_WORLD 0
-#define SPACE_LOCAL 1
-
-#define SHAPE_CIRCLE_VOLUME 0
-#define SHAPE_CIRLCE_EDGE   1
-#define SHAPE_SQUARE_VOLUME 2
-#define SHAPE_SQUARE_EDGE   3
+#define SHAPE_POINT	        0
+#define SHAPE_CIRCLE_VOLUME 1
+#define SHAPE_CIRCLE_EDGE   2
+#define SHAPE_SQUARE_VOLUME 3
+#define SHAPE_SQUARE_EDGE   4
 
 /// Uniforms \\\
 
 uniform float	dt;
+uniform float	Time;
+
 uniform float	EmitterLifetime;
 uniform float	ParticleLifetime;
+uniform float	ParticleLifetimeVariance;
 
 uniform bool	IsLooping;
-uniform int		SimulationSpace;
 
 uniform vec2	StartingVelocity;
-
-uniform vec2	RotationOverLifetime;
-uniform vec4	ScaleOverLifetime;
+uniform vec2	StartingVelocityVariance;
+uniform vec2	Acceleration;
 
 uniform int		ParticlesPerEmission;
 uniform float	EmissionRate;
-uniform vec3	BurtEmission;
+uniform vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
 uniform int		EmissionShape;
+uniform vec2	EmissionShapeScale;
 
-/// Locals \\\
+uniform vec2	EmitterPosition;
 
-vec2 emitterPosition;
+uniform sampler1D RandomTexture;
 
 
-vec2 rand()
+vec3 rand(float TexCoord)
 {
-	// Pseudo-Random formula found online from unknown origins
-	// modified by me to output random vec2 and without needing screen resolution
-	vec2 st = 1/gl_Position.xy;
-	return vec2(
-		fract(sin(dot(st.xy,vec2(12.9898,78.233))) * 43758.5453123),
-		fract(sin(dot(st.xy,vec2(6.98,6))) * 43758.5453123)
-		);
+    return texture(RandomTexture, 1.0f/(TexCoord+1) * (Time + dt) ).xyz;
+}
+
+
+vec2 NewParticlePosition(vec2 center, vec2 r)
+{
+	if(EmissionShape == SHAPE_POINT)
+		return center;
+
+	if(EmissionShape < SHAPE_SQUARE_VOLUME)
+	{
+		// random between 0-2pi
+		float angle = (r.x + 0.5f) * 6.28318531;
+
+		// Cirlce Edge
+		if(EmissionShape == SHAPE_CIRCLE_EDGE)
+			return center + vec2( EmissionShapeScale.x * cos(angle), EmissionShapeScale.y * sin(angle));
+
+		// Circle Volume (Circle edge * random value between 0-1)
+		return center + (r.y + 0.5f) * vec2( EmissionShapeScale.x * cos(angle), EmissionShapeScale.y * sin(angle));
+	}
+
+	// Square (Disabling volume/edge until needed because math)			//if(EmissionShape == SHAPE_SQUARE_VOLUME)
+	return center + r * EmissionShapeScale;
 }
 
 void HandleEmitter()
 {
 	float currAge = PLife[0] + dt;
-	
-	if(currAge >= EmitterLifetime && !IsLooping) 
+
+	// Emit this particle emitter
+    Type = EMITTER_TYPE;
+    Position = PPos[0];
+    Velocity = PVel[0];
+    Life = currAge;
+    EmitVertex();
+    EndPrimitive();
+
+
+	// Handle Emission
+
+	if(!IsLooping && currAge >= EmitterLifetime) 
 	{
 		// Kill emitter from emitting new particles
 		return; 
 	}
 
-	if (currAge / EmissionRate > PLife[0] / EmissionRate)
+	// Standard Emission
+	if(EmissionRate > 0.0f)
 	{
-		// Emit new particle(s)
-
-		for(int i = 0; i < ParticlesPerEmission; i++)
+		if ( int(currAge / EmissionRate) > int(PLife[0] / EmissionRate))
 		{
-			Type = PARTICLE_TYPE;
-			Position = PPos[0]; // Emission position
-			Velocity = StartingVelocity;
-			Life = 0.0f;
+			// Emit new particle(s)
 
-			EmitVertex();
-			EndPrimitive();
+			for(int i = 0; i < ParticlesPerEmission; i++)
+			{
+				vec3 r = rand(i)*2 - vec3(1,1,1);
+
+				Type = PARTICLE_TYPE;
+				Position = NewParticlePosition(PPos[0], r.xy);
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r.x, StartingVelocityVariance.y * r.y);
+				Life = ParticleLifetime + ParticleLifetimeVariance * r.z;
+
+				EmitVertex();
+				EndPrimitive();
+			}
 		}
-    }
+	}
 
-	// Emit this particle emitter
-    Type = EMITTER_TYPE;
-    Position = PPos[0];
-    Velocity = r;
-    Life = currAge;
-    EmitVertex();
-    EndPrimitive();
+	// Burst Emission
+	if(BurstEmission.z > 0.0f)
+	{
+		if( int(currAge / BurstEmission.z) > int(PLife[0] / BurstEmission.z) )
+		{
+			float amt = rand(0).x * (BurstEmission.y - BurstEmission.x) + BurstEmission.x;
+			for(int i = 0; i < amt; i++)
+			{
+				vec3 r = rand(i)*2 - vec3(1,1,1);
 
-	// Save emitter position for particles in local space
-	emitterPosition = Position; 
+				Type = PARTICLE_TYPE;
+				Position = NewParticlePosition(PPos[0], r.xy );
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r.x, StartingVelocityVariance.y * r.y);
+				Life = ParticleLifetime + ParticleLifetimeVariance * r.z;
+
+				EmitVertex();
+				EndPrimitive();
+			}
+		}
+	}
 }
 
 void HandleParticle()
 {
-	if(currAge < ParticleLifetime) 
+	float currAge = PLife[0] - dt;
+
+	if(currAge > 0) 
 	{
 		// Still alive, update then emit self
 	
 		Type = PType[0];
 		Position = PPos[0] + PVel[0] * dt;
-	    Velocity = PVel[0];
+	    Velocity = PVel[0] + Acceleration * dt;
 	    Life = currAge;
 	    EmitVertex();
 	    EndPrimitive();
@@ -117,9 +163,7 @@ void HandleParticle()
 
 
 void main()
-{
-	//vec2 r = rand() - vec2(0.5f,0.5f);
-	
+{	
 	if(PType[0] == EMITTER_TYPE)
 	{
 		HandleEmitter();

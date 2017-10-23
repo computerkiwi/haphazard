@@ -136,6 +136,7 @@
     <None Include="src\meta\.gitignore" />
     <None Include="shaders\text.fragshader" />
     <None Include="shaders\text.vertshader" />
+    <None Include="shaders\particleRender.geoshader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />

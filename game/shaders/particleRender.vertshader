@@ -1,10 +1,21 @@
 #version 330 core
 
-layout (location = 0) in vec2 pos;
-layout (location = 1) in float texLayer;
+layout (location = 0) in float type;
+layout (location = 1) in vec2 pos;
+layout (location = 2) in vec2 velocity;
+layout (location = 3) in float life;
+//layout (location = 4) in float texLayer;
+//layout (location = 5) in vec4 texBox;
 
+out float Type;
 out vec2 Texcoord;
 out float TexLayer;
+out vec4 Color;
+out float Rotation;
+out vec2 Scale;
+out vec2 IResolution;
+out vec4 TexBox;
+
 
 layout (std140) uniform Matrices
 {
@@ -12,8 +23,40 @@ layout (std140) uniform Matrices
 	uniform mat4 proj;
 };
 
+/// Enum Defines \\\
+
+#define SPACE_WORLD 0
+#define SPACE_LOCAL 1
+
+/// Uniform Settings \\\
+
+uniform vec4	StartColor;
+uniform vec4	EndColor;
+
+uniform int		SimulationSpace;
+uniform vec2	EmitterPosition;
+
+uniform vec2	RotationOverLifetime;
+uniform vec4	ScaleOverLifetime;
+
+uniform float	ParticleLife;
+
+
 void main()
 {
-	TexLayer = texLayer;
-	gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
+	Type = type;
+
+	//TexLayer = texLayer;
+	//TexBox = texBox;
+
+	if(SimulationSpace == SPACE_LOCAL)
+		gl_Position = proj * view * vec4(pos + EmitterPosition, 0.0f, 1.0f);
+	else
+		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
+
+	Color = StartColor * (life / ParticleLife) + EndColor * (1 - life / ParticleLife);
+
+	Rotation = RotationOverLifetime[0] + (1 - life / ParticleLife) * (RotationOverLifetime[1] - RotationOverLifetime[0]);
+	Scale = ScaleOverLifetime.xy + (1 - life / ParticleLife) * (ScaleOverLifetime.zw - ScaleOverLifetime.xy);
+	IResolution = vec2(proj[0][0], proj[1][1]);
 }

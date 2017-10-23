@@ -23,6 +23,7 @@
     <ProjectGuid>{458FA915-1A5D-45C1-AEEC-E4812DDFB33D}</ProjectGuid>
     <RootNamespace>game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>game</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -230,6 +231,7 @@
     <None Include="shaders\debug.vertshader" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\particleRender.geoshader" />
     <None Include="shaders\text.fragshader" />
     <None Include="shaders\text.vertshader" />
     <None Include="src\meta\.gitignore" />

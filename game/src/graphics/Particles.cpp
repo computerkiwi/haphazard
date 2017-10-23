@@ -1,12 +1,9 @@
 
-/*
-Some of the code below was influenced by the following resource:
-http://ogldev.atspace.co.uk/www/tutorial28/tutorial28.html
-*/
 #include "Particles.h"
 #include "Shaders.h"
+#include <cstdlib>
 
-#define MAX_PARTICLES 1000
+#define MAX_PARTICLES 100
 
 ///
 // Enums
@@ -34,8 +31,13 @@ struct Particle
 // ParticleSystem 
 ///
 
+GLuint ParticleSystem::m_randTexture = -1;
+
 ParticleSystem::ParticleSystem(glm::vec2 position)
 {
+	if (m_randTexture == -1)
+		GenRandomTexture();
+
 	Particle Particles[MAX_PARTICLES] = { 0 };
 
 	Particles[0].type = static_cast<float>(EMITTER);
@@ -52,6 +54,10 @@ ParticleSystem::ParticleSystem(glm::vec2 position)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
 	}
+
+
+	Shaders::particleUpdateShader->Use();
+	glBindTexture(GL_TEXTURE_1D, m_randTexture);
 }
 
 
@@ -66,6 +72,8 @@ void ParticleSystem::Render(float dt)
 
 void ParticleSystem::UpdateParticles(float dt)
 {
+	m_time += dt;
+
 	Shaders::particleUpdateShader->Use();
 
 	// Don't want particle updates to be rendered to the screen, just sent through the feedback transform
@@ -79,9 +87,20 @@ void ParticleSystem::UpdateParticles(float dt)
 
 	// Set state
 	Shaders::particleUpdateShader->SetVariable("dt", dt);
-	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", 0.3f);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", 10.5f);
-	Shaders::particleUpdateShader->SetVariable("SubParticleLifetime", 1.0f);
+	Shaders::particleUpdateShader->SetVariable("Time", m_time);
+	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", 5.0f);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", 1.5f);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 0.2f);
+	Shaders::particleUpdateShader->SetVariable("IsLooping", true);
+	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,2));
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.5f, 0.3f));
+	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0, -2));
+	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 1);
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", 0.1f);
+	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,1));
+	Shaders::particleUpdateShader->SetVariable("EmissionShape", 0);
+	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.5f,0.5f) );
+	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
 	glBeginTransformFeedback(GL_POINTS);
@@ -108,18 +127,44 @@ void ParticleSystem::RenderParticles()
 	Shaders::particleRenderShader->Use();
 
 	// Set state, if needed (texture, ect)
-	
+	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f);
+  Shaders::particleRenderShader->SetVariable("StartColor", glm::vec4(1, 0, 0, 1));
+	Shaders::particleRenderShader->SetVariable("EndColor", glm::vec4(0, 1, 0, 1));
+	Shaders::particleRenderShader->SetVariable("SimulationSpace", 0);
+	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
+	Shaders::particleRenderShader->SetVariable("RotationOverLifetime", glm::vec2(0, 3.1415926));
+	Shaders::particleRenderShader->SetVariable("ScaleOverLifetime", glm::vec4(0.1f,0.1f, 0.01f,0.01f));
+
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
 
-	//Particle p[3];
-	//glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
+	Particle p[3];
+	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
 
 	Shaders::particleRenderShader->ApplyAttributes();
 
 	// Render it
 	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
 	//glDrawArrays(GL_POINTS, 0, 3);
+}
+
+void ParticleSystem::GenRandomTexture()
+{
+	const int size = 1000;
+	glm::vec3 data[size];
+
+	for (unsigned int i = 0; i < size; i++) {
+		data[i].x = static_cast<float>(rand()) / RAND_MAX;
+		data[i].y = static_cast<float>(rand()) / RAND_MAX;
+		data[i].z = static_cast<float>(rand()) / RAND_MAX;
+	}
+
+	glGenTextures(1, &m_randTexture);
+	glBindTexture(GL_TEXTURE_1D, m_randTexture);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, size, 0.0f, GL_RGB, GL_FLOAT, data);
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
