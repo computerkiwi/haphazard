@@ -163,6 +163,8 @@
     <ClCompile Include="src\Engine\Physics\Raycast.cpp" />
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
+    <ClCompile Include="src\Engine\ResourceManager.cpp" />
+    <ClCompile Include="src\Engine\ResourceRegistration.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameObject.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
     <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
@@ -207,6 +209,7 @@
     <ClInclude Include="src\Engine\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Engine\Physics\Raycast.h" />
     <ClInclude Include="src\Engine\Physics\RigidBody.h" />
+    <ClInclude Include="src\Engine\ResourceManager.h" />
     <ClInclude Include="src\GameObjectSystem\Component.h" />
     <ClInclude Include="src\GameObjectSystem\GameObject.h" />
     <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
