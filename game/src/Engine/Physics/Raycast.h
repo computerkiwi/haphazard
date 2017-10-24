@@ -49,7 +49,7 @@ public:
 	BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, float rotation);
 
 	// methods
-	MinMax ProjectOntoAxis(glm::vec2 axis);
+	MinMax ProjectOntoAxis(glm::vec2 axis) const;
 
 	// the corners of the box in this order: topRight, topLeft, botLeft, botRight
 	glm::vec2 m_corners[4];

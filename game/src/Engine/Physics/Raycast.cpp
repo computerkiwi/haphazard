@@ -22,7 +22,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 void DrawSmallBoxAtPosition(glm::vec2 position)
 {
-	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 1, 1, 1));
+	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
 }
 
 // draws a ray, assumes direction to be already normalized
