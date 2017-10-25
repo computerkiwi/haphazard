@@ -58,7 +58,7 @@ public:
 	bool isStatic();
 
 private:
-	friend void ImGui_Collider2D(Collider2D *collider, GameObject object);
+	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
 	int m_colliderType;
 	glm::vec3 m_dimensions;
 	CollisionLayer m_collisionLayer;
