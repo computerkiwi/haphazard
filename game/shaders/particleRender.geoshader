@@ -41,10 +41,10 @@ void main() {
 	verts[3].x *= IResolution[0].x; verts[3].y *= IResolution[0].y;
 
 	vec2 texVerts[4] = {
-		TexBox[0].xy + (vec2(0,1) * (TexBox[0].zw - TexBox[0].xy)),	// TL
-		TexBox[0].xy + (vec2(0,0) * (TexBox[0].zw - TexBox[0].xy)),	// BL
-		TexBox[0].xy + (vec2(1,0) * (TexBox[0].zw - TexBox[0].xy)),	// BR
-		TexBox[0].xy + (vec2(1,1) * (TexBox[0].zw - TexBox[0].xy))	// TR
+		TexBox[0].xy + (vec2(0,0) * (TexBox[0].zw - TexBox[0].xy)),	// TL
+		TexBox[0].xy + (vec2(0,1) * (TexBox[0].zw - TexBox[0].xy)),	// BL
+		TexBox[0].xy + (vec2(1,1) * (TexBox[0].zw - TexBox[0].xy)),	// BR
+		TexBox[0].xy + (vec2(1,0) * (TexBox[0].zw - TexBox[0].xy))	// TR
 	};
 
 	// Triangle 1

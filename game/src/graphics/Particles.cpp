@@ -1,6 +1,7 @@
 
 #include "Particles.h"
 #include "Shaders.h"
+#include "Texture.h"
 #include <cstdlib>
 
 #define MAX_PARTICLES 100
@@ -90,16 +91,16 @@ void ParticleSystem::UpdateParticles(float dt)
 	Shaders::particleUpdateShader->SetVariable("Time", m_time);
 	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", 5.0f);
 	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", 1.5f);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 1.0f);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 0.1f);
 	Shaders::particleUpdateShader->SetVariable("IsLooping", true);
-	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,0));
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.0f, 0.0f));
-	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0, 1));
-	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 1);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", 2.0f);
+	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,0.5f));
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.2f, 0.3f));
+	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0.2f, 1));
+	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 2);
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", 0.05f);
 	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,0));
-	Shaders::particleUpdateShader->SetVariable("EmissionShape", 0);
-	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.5f,0.5f) );
+	Shaders::particleUpdateShader->SetVariable("EmissionShape", 2);
+	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.2f,0.2f) );
 	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
@@ -126,14 +127,18 @@ void ParticleSystem::RenderParticles()
 {
 	Shaders::particleRenderShader->Use();
 
+	Texture::BindArray();
+
 	// Set state, if needed (texture, ect)
-	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f + 1);
+	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f + 0.1f);
   Shaders::particleRenderShader->SetVariable("StartColor", glm::vec4(1, 0, 0, 1));
 	Shaders::particleRenderShader->SetVariable("EndColor", glm::vec4(1, 1, 0, 1));
 	Shaders::particleRenderShader->SetVariable("SimulationSpace", 0);
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
 	Shaders::particleRenderShader->SetVariable("RotationOverLifetime", glm::vec2(0, 3.1415926));
 	Shaders::particleRenderShader->SetVariable("ScaleOverLifetime", glm::vec4(0.1f,0.1f, 0.01f,0.01f));
+	Shaders::particleRenderShader->SetVariable("TextureLayer", 4.0f);
+	Shaders::particleRenderShader->SetVariable("TextureBox", glm::vec4(0,0,0.5f,0.5f));
 
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);
@@ -189,4 +194,24 @@ EndColor
 SimulationSpace
 RotationOverLifetime
 ScaleOverLifetime
+
+
+
+
+ok I cant set the variable because it runs in parallel... OH
+hold positions and update like the particle positions.
+position0 = particlePosition,		set using   pos0 = pos0 + vel * dt
+position1 = particle trail mid  set using   pos1 = pos1 + vel * dt
+position2 = particel trail end  set using   pos2 = pos2 + vel * dt
+But how will i spread them out?
+OH, only set the if statements
+
+pos0 = pos0 + vel * dt
+if(life > trail time / 2)
+	pos1 = pos1 + vel * dt
+if(life > trail time)
+	pos2 = pos2 + vel * dt
+
+no bezier curve needed, 
+unless... i make a very detailed mesh (triangle strip) in the geo shader
 */

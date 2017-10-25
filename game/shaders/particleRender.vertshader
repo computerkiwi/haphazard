@@ -4,16 +4,14 @@ layout (location = 0) in float type;
 layout (location = 1) in vec2 pos;
 layout (location = 2) in vec2 velocity;
 layout (location = 3) in float life;
-//layout (location = 4) in float texLayer;
-//layout (location = 5) in vec4 texBox;
 
 out float Type;
 out vec2 Texcoord;
-out float TexLayer;
 out vec4 Color;
 out float Rotation;
 out vec2 Scale;
 out vec2 IResolution;
+out float TexLayer;
 out vec4 TexBox;
 
 
@@ -41,13 +39,16 @@ uniform vec4	ScaleOverLifetime;
 
 uniform float	ParticleLife;
 
+uniform float TextureLayer;
+uniform vec4 TextureBox;
+
 
 void main()
 {
 	Type = type;
 
-	//TexLayer = texLayer;
-	//TexBox = texBox;
+	TexLayer = TextureLayer;
+	TexBox = TextureBox;
 
 	if(SimulationSpace == SPACE_LOCAL)
 		gl_Position = proj * view * vec4(pos + EmitterPosition, 0.0f, 1.0f);
