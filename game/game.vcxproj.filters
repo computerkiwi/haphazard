@@ -47,6 +47,7 @@
     <ClCompile Include="src\meta\Any.cpp" />
     <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
     <ClCompile Include="src\Util\Serialization.cpp" />
+    <ClCompile Include="src\Engine\Physics\PhysicsUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -166,5 +167,7 @@
     <ClInclude Include="src\GameObjectSystem\ObjectInfo.h" />
     <ClInclude Include="src\Engine\Physics\Raycast.h" />
     <ClInclude Include="src\Util\Serialization.h" />
+    <ClInclude Include="src\Engine\Physics\PhysicsUtils.h" />
+    <ClInclude Include="src\Engine\Physics\PhysicsInternalTools.h" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 #include "../../graphics/DebugGraphic.h"
 #include "GameObjectSystem\GameObject.h"
+#include "PhysicsInternalTools.h"
+#include "PhysicsUtils.h"
 
 //TEMP
 #include "Raycast.h"
@@ -28,11 +30,6 @@ bool debugShowHitboxes = true;
 void debugDisplayHitboxes(bool hitboxesShown)
 {
 	debugShowHitboxes = hitboxesShown;
-}
-
-void pDrawSmallBoxAtPosition(glm::vec2 position)
-{
-	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 1, 1, 1));
 }
 
 struct MinMax
@@ -53,18 +50,6 @@ struct MinMax
 
 		return std::min(overlap1, overlap2);
 	}
-};
-
-class BoxCollider
-{
-public:
-	BoxCollider(const glm::vec2& center, const glm::vec3& dimensions, float rotation);
-
-	friend std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox);
-
-	glm::vec3 m_topRight;
-	glm::vec3 m_botLeft;
-	float m_rotation;
 };
 
 std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
@@ -101,7 +86,7 @@ BoxCollider::BoxCollider(const glm::vec2& center, const glm::vec3& dimensions, f
 	}
 }
 
-MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis)
+MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis) const
 {
 	float firstDot = glm::dot(axis, m_corners[0]);
 	// we only care about the min and max values
@@ -131,38 +116,16 @@ std::ostream& operator<<(std::ostream& lhs, glm::vec2 rhs)
 	return lhs;
 }
 
-glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collider2D& collider1, ComponentHandle<TransformComponent>& transform2, Collider2D& collider2)
+glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 {
 	const int num_projections = 4;
 	float smallestOverlap = -1;
 	glm::vec2 smallestAxis;
 
-	glm::vec2 obj1Center = transform1->GetPosition();
-	glm::vec2 obj1Dimensions = collider1.GetDimensions();
-	float obj1Rotation = transform1->GetRotation() + collider1.GetRotationOffset();
-
-	glm::vec2 obj2Center = transform2->GetPosition();
-	glm::vec2 obj2Dimensions = collider2.GetDimensions();
-	float obj2Rotation = transform2->GetRotation() + collider2.GetRotationOffset();
-
-	// get the corners of each of the objects
-	BoxCorners Box1(obj1Center, obj1Dimensions, obj1Rotation);
-	BoxCorners Box2(obj2Center, obj2Dimensions, obj2Rotation);
-
-	//std::cout << "Box top right: " << Box2.m_corners[BoxCorners::corner::topRight] << std::endl;
-	//std::cout << "Box top left : " << Box2.m_corners[BoxCorners::corner::topLeft] << std::endl;
-	//std::cout << "Box bot left : " << Box2.m_corners[BoxCorners::corner::botLeft] << std::endl;
-	//std::cout << "Box bot right: " << Box2.m_corners[BoxCorners::corner::botRight] << std::endl << std::endl;
-
-	//std::cout << "Box top right: " << Box1.m_corners[BoxCorners::corner::topRight] << std::endl;
-	//std::cout << "Box top left : " << Box1.m_corners[BoxCorners::corner::topLeft] << std::endl;
-	//std::cout << "Box bot left : " << Box1.m_corners[BoxCorners::corner::botLeft] << std::endl;
-	//std::cout << "Box bot right: " << Box1.m_corners[BoxCorners::corner::botRight] << std::endl << std::endl << std::endl;
-
 	//!?!? do an optimized AABB check to first rule out distant collisions
 
 	// the vectors onto which each shape will be projected
-	glm::vec2 edgeNormals[num_projections] = { {0,0} };
+	glm::vec2 edgeNormals[num_projections] = { { 0,0 } };
 
 	// since these are boxes, we only have to check two of the four side since the rest are parallel, and they are already perpindicular to each other
 	edgeNormals[0] = Box1.m_corners[BoxCorners::topRight] - Box1.m_corners[BoxCorners::topLeft];
@@ -212,16 +175,35 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 	return escapeVector;
 }
 
-
-glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
+glm::vec3 Collision_SAT(glm::vec2 position1, float rotation1, Collider2D& collider1, glm::vec2 position2, float rotation2, Collider2D& collider2)
 {
-	BoxCollider Box1(AABB1Transform->GetPosition(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(AABB2Transform->GetPosition(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
+	glm::vec2 obj1Center = position1 + static_cast<glm::vec2>(collider1.GetOffset());
+	glm::vec2 obj1Dimensions = collider1.GetDimensions();
+	float obj1Rotation = rotation1 + collider1.GetRotationOffset();
 
+	glm::vec2 obj2Center = position2 + static_cast<glm::vec2>(collider2.GetOffset());
+	glm::vec2 obj2Dimensions = collider2.GetDimensions();
+	float obj2Rotation = rotation2 + collider2.GetRotationOffset();
+
+	// get the corners of each of the objects
+	BoxCorners Box1(obj1Center, obj1Dimensions, obj1Rotation);
+	BoxCorners Box2(obj2Center, obj2Dimensions, obj2Rotation);
+
+	return Collision_SAT(Box1, Box2);
+}
+
+glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collider2D& collider1, ComponentHandle<TransformComponent>& transform2, Collider2D& collider2)
+{
+	return Collision_SAT(transform1->GetPosition(), transform1->GetRotation(), collider1, transform2->GetPosition(), transform2->GetRotation(), collider2);
+}
+
+
+glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2)
+{
 	glm::vec3 penetrationVector(0);
 	glm::vec3 minValue(0);
 
-	if (Box1.m_topRight.x < Box2.m_botLeft.x)
+	if (Box1.m_topRight.x <= Box2.m_botLeft.x)
 	{
 		return glm::vec3(0);
 	}
@@ -229,7 +211,7 @@ glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AA
 	{
 		minValue.x = Box1.m_topRight.x - Box2.m_botLeft.x;
 	}
-	if (Box1.m_topRight.y < Box2.m_botLeft.y)
+	if (Box1.m_topRight.y <= Box2.m_botLeft.y)
 	{
 		return glm::vec3(0);
 	}
@@ -237,7 +219,7 @@ glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AA
 	{
 		minValue.y = Box1.m_topRight.y - Box2.m_botLeft.y;
 	}
-	if (Box1.m_botLeft.x > Box2.m_topRight.x)
+	if (Box1.m_botLeft.x >= Box2.m_topRight.x)
 	{
 		return glm::vec3(0);
 	}
@@ -248,7 +230,7 @@ glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AA
 			minValue.x = Box1.m_botLeft.x - Box2.m_topRight.x;
 		}
 	}
-	if (Box1.m_botLeft.y > Box2.m_topRight.y)
+	if (Box1.m_botLeft.y >= Box2.m_topRight.y)
 	{
 		return glm::vec3(0);
 	}
@@ -271,6 +253,61 @@ glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AA
 	}
 
 	return -penetrationVector;
+}
+
+glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
+{
+	BoxCollider Box1(AABB1Transform->GetPosition(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(AABB2Transform->GetPosition(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
+
+	return Collision_AABBToAABB(Box1, Box2);
+}
+
+bool Collision_PointToBoxQuick(const glm::vec2& point, const BoxCorners& box, float boxRotation)
+{
+	// use AABB collision if the box is not rotated
+	if (boxRotation == 0)
+	{
+		// get the top right and bottom left corners of the object
+		const glm::vec2 botLeftCorner = box.m_corners[BoxCorners::botLeft];
+		const glm::vec2 topRightCorner = box.m_corners[BoxCorners::topRight];
+
+		// if the point is above the object, return false
+		if (point.y >= topRightCorner.y)
+		{
+			return false;
+		}
+		// if the point is let of the object, return false
+		if (point.x <= botLeftCorner.x)
+		{
+			return false;
+		}
+		// if the point is right of the object, return false
+		if (point.x >= topRightCorner.x)
+		{
+			return false;
+		}
+		// if the point is below the object, return false
+		if (point.y <= botLeftCorner.y)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		glm::vec3 result = Collision_SAT(BoxCorners(point, glm::vec2(.000001f, .000001f), 0), box);
+
+		if (result.x || result.y)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void printAMatrix(glm::mat3 matrix)
@@ -428,9 +465,14 @@ void PhysicsSystem::Update(float dt)
 
 	Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, normalizedDirection, range);
 
-	pDrawSmallBoxAtPosition(castPosition);
+	DrawSmallBoxAtPosition(castPosition);
 	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
-	pDrawSmallBoxAtPosition(testCast.Intersection());
+	DrawSmallBoxAtPosition(testCast.Intersection());
+
+	glm::vec2 testPoint(1, 0);
+	glm::vec2 pointEscape = CollidePointOnLayer(allDynamicColliders, allStaticColliders, testPoint);
+	testPoint += pointEscape;
+	DrawSmallBoxAtPosition(testPoint);
 
 	for (auto& tRigidBodyHandle : *rigidBodies)
 	{
@@ -467,7 +509,7 @@ void PhysicsSystem::Update(float dt)
 				// check for collision on non-rotated objects
 				if (object1Rotation == 0 && object2Rotation == 0)
 				{
-					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+					resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
 				}
 				else // check for collision on rotated objects
 				{
@@ -494,7 +536,7 @@ void PhysicsSystem::Update(float dt)
 				// check for collision on non-rotated objects
 				if (object1Rotation == 0 && object2Rotation == 0)
 				{
-					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
+					resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
 				}
 				else
 				{
