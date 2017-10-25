@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include <map>
 #include <string>
+#include <vector>
 
 // New resource types must be registered here and in ResourceRegistration.cpp
 enum class ResourceType : int
@@ -70,6 +71,9 @@ public:
 	void Refresh();
 
 	void LoadAll();
+
+	void GetResourcesOfType(ResourceType type, std::vector<Resource *>& vec);
+	std::vector<Resource *> GetResourcesOfType(ResourceType type);
 
 	Resource *Get(ResourceID id);
 	Resource *Get(const char *fileName);

@@ -141,6 +141,25 @@ void ResourceManager::LoadAll()
 	}
 }
 
+void ResourceManager::GetResourcesOfType(ResourceType type, std::vector<Resource*>& vec)
+{
+	for (auto& resPair : m_resources)
+	{
+		Resource& res = *resPair.second;
+		if (res.GetResourceType() == type)
+		{
+			vec.push_back(&res);
+		}
+	}
+}
+
+std::vector<Resource*> ResourceManager::GetResourcesOfType(ResourceType type)
+{
+	std::vector<Resource*> vec;
+	GetResourcesOfType(type, vec);
+	return vec;
+}
+
 Resource *ResourceManager::Get(ResourceID id)
 {
 	// Search in the map for the resource and return it if it exists.
