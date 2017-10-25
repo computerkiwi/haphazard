@@ -80,3 +80,13 @@ bool CollisionLayer::operator==(CollisionLayer& layer)
 {
 	return m_layer == layer.m_layer;
 }
+
+CollisionLayer::operator collisionLayers()
+{
+	return static_cast<collisionLayers>(m_layer);
+}
+
+CollisionLayer::operator int()
+{
+	return m_layer;
+}

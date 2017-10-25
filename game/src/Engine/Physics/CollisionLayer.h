@@ -26,6 +26,10 @@ enum /*class */collisionLayers
 class CollisionLayer
 {
 public:
+	// conversion operators
+	operator collisionLayers();
+	explicit operator int();
+
 	// conversion constructors
 	explicit CollisionLayer(int layer = noCollision);
 	CollisionLayer(const CollisionLayer& layer);
