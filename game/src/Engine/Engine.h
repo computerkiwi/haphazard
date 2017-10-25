@@ -19,6 +19,8 @@ extern "C"
 #include "GameObjectSystem/GameSpace.h"
 #include "../Imgui/Editor.h"
 
+#include "ResourceManager.h"
+
 struct GLFWwindow;
 
 class Init_EnginePointer
@@ -26,6 +28,8 @@ class Init_EnginePointer
 public:
 	Init_EnginePointer::Init_EnginePointer(Engine *e);
 };
+
+extern Engine * engine;
 
 class Engine
 {
@@ -54,6 +58,8 @@ public:
 	void StringLoad(const char *jsonString);
 	void FileLoad(const char *fileName);
 
+	ResourceManager& GetResourceManager() { return m_resManager; }
+
 private:
 	float CalculateDt();
 
@@ -65,6 +71,7 @@ private:
 	GLFWwindow *m_window;
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
+	ResourceManager m_resManager;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
 	{
