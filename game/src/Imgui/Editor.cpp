@@ -307,6 +307,31 @@ void Editor::Internal_Log(const char * log_message, ...)
 }
 
 
+void Editor::Push_Action(EditorAction&& a)
+{
+	if (m_actions.size)
+	{
+		if (m_actions.size == m_actions.history.size())
+		{
+			m_actions.history.emplace_back(a);
+			m_actions.size = m_actions.history.size();
+		}
+		else
+		{
+			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+			++m_actions.size;
+		}
+	}
+}
+
+
+void Editor::Pop_Action()
+{
+	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
+	--m_actions.size;
+}
+
+
 void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
 {
 	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
@@ -722,12 +747,15 @@ void Editor::MenuBar()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) 
+			{
+				Pop_Action();
+			}
+			
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) 
+			{
+			}  // Disabled item
+			
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("Console"))

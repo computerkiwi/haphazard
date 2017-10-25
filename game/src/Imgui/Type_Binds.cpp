@@ -20,6 +20,13 @@ using namespace ImGui;
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
 #define GAMEOBJECT_WINDOW_POS  ImVec2(15, 20)
 
+template <typename T>
+void Action_General(EditorAction& a)
+{
+	*reinterpret_cast<T *>(a.object) = a.old_value.GetData<T>();
+}
+
+
 void ImGui_GameObject(GameObject object, Editor *editor)
 {
 	// Check if a nullptr was passed
@@ -278,12 +285,30 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (TreeNode("Position"))
 		{
+			glm::vec2 position = transform->m_position;
 			if (transform->GetParent())
 			{
+				bool x_click = false;
+				bool y_click = false;
+
 				Text("X: %f", transform->GetPosition().x);
 				Text("Y: %f", transform->GetPosition().y);
 
-				DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0);
+				if (DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0))
+				{
+					x_click = true;
+				}
+				else
+				{
+					x_click = false;
+				}
+
+				if (!x_click && position.x != transform->m_position.x)
+				{
+					editor->Push_Action({ position.x, transform->m_position.x, &transform->m_position.x, Action_General<float> });
+					x_click = false;
+				}
+
 				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
 			}
 			else
@@ -297,9 +322,19 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		}
 		if (TreeNode("Scale"))
 		{
+			glm::vec2 scale = transform->m_scale;
 			PushItemWidth(120);
-			InputFloat("X##scale", &transform->m_scale.x);
-			InputFloat("Y##scale", &transform->m_scale.y);
+
+			if (InputFloat("X##scale", &transform->m_scale.x, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				editor->Push_Action({ scale.x, transform->m_scale.x, &transform->m_scale.x, Action_General<float> });
+			}
+
+			if (InputFloat("Y##scale", &transform->m_scale.y, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				editor->Push_Action({ scale.y, transform->m_scale.y, &transform->m_scale.y, Action_General<float> });
+			}
+
 			TreePop();
 			Separator();
 		}

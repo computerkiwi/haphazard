@@ -15,6 +15,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameObject.h"
 #include "Util/DataStructures/Array/Array.h"
 
+#include "meta\meta.h"
+
 class Engine;
 class TransformComponent;
 struct GLFWwindow;
@@ -32,6 +34,19 @@ struct GLFWwindow;
 
 #define MAX_SELECT 10
 
+struct EditorAction;
+typedef void(*actionFunc)(EditorAction& a);
+
+struct EditorAction
+{
+	meta::Any old_value;
+	meta::Any new_value;
+	void *object;
+
+	actionFunc func;
+};
+
+
 class Editor
 {
 	friend void PrintObjects(Editor *editor);
@@ -43,6 +58,11 @@ class Editor
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
 
+	struct Actions
+	{
+		std::vector<EditorAction> history;
+		size_t size = 0;
+	} m_actions;
 	std::vector<GameObject_ID> m_objects;
 
 	enum Tool
@@ -110,6 +130,9 @@ public:
 	// No timestamp
 	void Internal_Log(const char *log_message, ...);
 	void Clear();
+
+	void Push_Action(EditorAction&& a);
+	void Pop_Action();
 
 	void SetGameObject(GameObject new_object);
 	void ToggleEditor();
