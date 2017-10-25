@@ -13,5 +13,5 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "./GameObjectSystem/Component.h"
 
-bool CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicColliders, ComponentMap<StaticCollider2DComponent>* allStaticColliders,
+glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicColliders, ComponentMap<StaticCollider2DComponent>* allStaticColliders,
 						 const glm::vec2& position, collisionLayers layer = collisionLayers::allCollision);

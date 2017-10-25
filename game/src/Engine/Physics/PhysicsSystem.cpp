@@ -52,18 +52,6 @@ struct MinMax
 	}
 };
 
-class BoxCollider
-{
-public:
-	BoxCollider(const glm::vec2& center, const glm::vec3& dimensions, float rotation);
-
-	friend std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox);
-
-	glm::vec3 m_topRight;
-	glm::vec3 m_botLeft;
-	float m_rotation;
-};
-
 std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
 {
 	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
@@ -210,11 +198,8 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 }
 
 
-glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
+glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2)
 {
-	BoxCollider Box1(AABB1Transform->GetPosition(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(AABB2Transform->GetPosition(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
-
 	glm::vec3 penetrationVector(0);
 	glm::vec3 minValue(0);
 
@@ -268,6 +253,14 @@ glm::vec3 Collision_AABBToAABB(float dt, ComponentHandle<TransformComponent>& AA
 	}
 
 	return -penetrationVector;
+}
+
+glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
+{
+	BoxCollider Box1(AABB1Transform->GetPosition(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(AABB2Transform->GetPosition(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
+
+	return Collision_AABBToAABB(Box1, Box2);
 }
 
 bool Collision_PointToBoxQuick(const glm::vec2& point, const BoxCorners& box, float boxRotation)
@@ -476,6 +469,11 @@ void PhysicsSystem::Update(float dt)
 	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
 	DrawSmallBoxAtPosition(testCast.Intersection());
 
+	glm::vec2 testPoint(1, 0);
+	glm::vec2 pointEscape = CollidePointOnLayer(allDynamicColliders, allStaticColliders, testPoint);
+	testPoint += pointEscape;
+	DrawSmallBoxAtPosition(testPoint);
+
 	for (auto& tRigidBodyHandle : *rigidBodies)
 	{
 		// get the transform from the same gameobject, and leave the loop if it isn't valid
@@ -511,7 +509,7 @@ void PhysicsSystem::Update(float dt)
 				// check for collision on non-rotated objects
 				if (object1Rotation == 0 && object2Rotation == 0)
 				{
-					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
+					resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tDynamiColliderHandle->ColliderData());
 				}
 				else // check for collision on rotated objects
 				{
@@ -538,7 +536,7 @@ void PhysicsSystem::Update(float dt)
 				// check for collision on non-rotated objects
 				if (object1Rotation == 0 && object2Rotation == 0)
 				{
-					resolutionVector = Collision_AABBToAABB(dt, transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
+					resolutionVector = Collision_AABBToAABB(transform, dynamicCollider->ColliderData(), otherTransform, tStaticColliderHandle->ColliderData());
 				}
 				else
 				{

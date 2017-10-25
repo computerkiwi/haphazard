@@ -10,7 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Raycast.h" // BoxCorners
 #include "PhysicsInternalTools.h" // Collision_PointToBox
 
-bool CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicColliders, ComponentMap<StaticCollider2DComponent>* allStaticColliders,
+glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicColliders, ComponentMap<StaticCollider2DComponent>* allStaticColliders,
 						 const glm::vec2& position, collisionLayers layer)
 {
 	for (auto tDynamiColliderHandle : *allDynamicColliders)
@@ -36,14 +36,26 @@ bool CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicCol
 		glm::vec2 colliderCenter = objectPosition + static_cast<glm::vec2>(objectCollider.GetOffset());
 		float colliderRotation = objectRotation + objectCollider.GetRotationOffset();
 
-		// the corners of the collider
-		BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+		glm::vec2 result(0,0);
 
-		bool result = Collision_PointToBoxQuick(position, objectCorners, objectRotation);
-
-		if (result)
+		if (colliderRotation == 0)
 		{
-			return true;
+			// the corners of the collider
+			BoxCollider objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+
+			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCollider(position, glm::vec3(0, 0, 0), 0), objectCorners));
+		}
+		else
+		{
+			// the corners of the collider
+			BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+
+			result = static_cast<glm::vec2>(Collision_SAT(BoxCorners(position, glm::vec2(0.0001, 0.0001), 0), objectCorners));
+		}
+
+		if (result.x || result.y)
+		{
+			return result;
 		}
 	}
 	for (auto tStaticColliderHandle : *allStaticColliders)
@@ -69,16 +81,28 @@ bool CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicCol
 		glm::vec2 colliderCenter = objectPosition + static_cast<glm::vec2>(objectCollider.GetOffset());
 		float colliderRotation = objectRotation + objectCollider.GetRotationOffset();
 
-		// the corners of the collider
-		BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+		glm::vec2 result(0, 0);
 
-		bool result = Collision_PointToBoxQuick(position, objectCorners, objectRotation);
-
-		if (result)
+		if (colliderRotation == 0)
 		{
-			return true;
+			// the corners of the collider
+			BoxCollider objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+
+			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCollider(position, glm::vec3(0, 0, 0), 0), objectCorners));
+		}
+		else
+		{
+			// the corners of the collider
+			BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+
+			result = static_cast<glm::vec2>(Collision_SAT(BoxCorners(position, glm::vec2(0.0001, 0.0001), 0), objectCorners));
+		}
+
+		if (result.x || result.y)
+		{
+			return result;
 		}
 	}
 
-	return false;
+	return glm::vec2(0,0);
 }
