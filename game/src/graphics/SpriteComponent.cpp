@@ -51,6 +51,13 @@ SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
 
 void SpriteComponent::SetTextureResource(Resource *res)
 {
+	if (res == nullptr)
+	{
+		SetTexture(GetDefaultTexture());
+		m_resID = -1;
+		return;
+	}
+
 	assert(res->GetResourceType() == ResourceType::TEXTURE);
 	Texture *tex = reinterpret_cast<Texture *>(res->Data());
 	SetTexture(tex);
