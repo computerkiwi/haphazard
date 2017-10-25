@@ -58,22 +58,26 @@ Init_EnginePointer::Init_EnginePointer(Engine *e)
 				   // Init OpenGL and start window
 Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window)
 {
+	m_resManager.Init();
+
+	// For debug purposes.
+	// TODO: Come up with a smarter resource loading strategy.
+	m_resManager.LoadAll();
+
 	// Load Shaders
 	Shaders::Init();
 
 	Audio::Init();
 	meta::Init();
+	Input::Init(m_window);
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-	// TEMPORARY IDK where to put this
-	Input::Init(m_window);
-	// Register the component types.
-	m_spaces.AddSpace();
-	m_spaces.AddSpace();
-
-#define GENERATE_SCENE
+//#define GENERATE_SCENE
 #ifdef GENERATE_SCENE
+
+	m_spaces.AddSpace();
+	m_spaces.AddSpace();
 
 	m_spaces[1]->RegisterComponentType<ObjectInfo>();
 	m_spaces[1]->RegisterComponentType<TransformComponent>();
@@ -97,16 +101,17 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	m_spaces[1]->Init();
 
 
+	Resource *tex = m_resManager.Get("bird.png");
 
 	GameObject obj_other_space = m_spaces[1]->NewGameObject("Parent");
 	obj_other_space.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
-	obj_other_space.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	obj_other_space.AddComponent<SpriteComponent>(tex);
 	obj_other_space.AddComponent<RigidBodyComponent>();
 	obj_other_space.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
 
 	GameObject obj_other_space1 = m_spaces[1]->NewGameObject("Child");
 	obj_other_space1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
-	obj_other_space1.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	obj_other_space1.AddComponent<SpriteComponent>(tex);
 	obj_other_space1.AddComponent<RigidBodyComponent>();
 	obj_other_space1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
 
@@ -115,9 +120,14 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// object with velocity
 	GameObject Brett_obj1 = m_spaces[0]->NewGameObject("Parent");
 	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.5f, .5f, 1));
-	Brett_obj1.AddComponent<SpriteComponent>(new Texture("bird.png"));
+	Brett_obj1.AddComponent<SpriteComponent>(tex);
 	Brett_obj1.AddComponent<RigidBodyComponent>();
 	Brett_obj1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
+
+	GameObject anotherObj = m_spaces[0]->NewGameObject("Another Object");
+	anotherObj.AddComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(.5f, .5f, 1));
+	anotherObj.AddComponent<SpriteComponent>(tex);
+	anotherObj.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
 
 
 
@@ -126,7 +136,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
 	Brett_obj2.GetComponent<TransformComponent>()->SetParent(Brett_obj1);
 
-	Brett_obj2.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60.0f);
+	Brett_obj2.AddComponent<SpriteComponent>(m_resManager.Get("bird.png"));
 	// Brett_obj2.AddComponent<RigidBodyComponent>();
 	Brett_obj2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0), collisionLayers::allCollision/*, glm::vec3(1, 0, 0)*/);
 
@@ -135,7 +145,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// static colliders: box of cats
 	GameObject Brett_obj3 = m_spaces[0]->NewGameObject("Ground");
 	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(1.25, -1, -1), glm::vec3(2.5, 1, 1));
-	Brett_obj3.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
+	Brett_obj3.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, 1, 0));
 
 	this->FileSave("test_out.json");

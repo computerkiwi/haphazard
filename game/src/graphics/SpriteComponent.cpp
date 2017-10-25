@@ -1,6 +1,6 @@
 #include "SpriteComponent.h"
 
-SpriteComponent::SpriteComponent(Texture* t)
+SpriteComponent::SpriteComponent(Resource *res)
   : Mesh()
 {
 	AddTriangle(
@@ -17,10 +17,14 @@ SpriteComponent::SpriteComponent(Texture* t)
 	);
 	CompileMesh();
 
-	if (t)
-		SetTexture(t);
+	if (res)
+	{
+		SetTextureResource(res);
+	}
 	else
+	{
 		SetTexture(GetDefaultTexture());
+	}
 }
 
 SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
@@ -41,4 +45,14 @@ SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
 
 	if (t)
 		SetTexture(t, fps);
+
+	m_resID = -1;
+}
+
+void SpriteComponent::SetTextureResource(Resource *res)
+{
+	assert(res->GetResourceType() == ResourceType::TEXTURE);
+	Texture *tex = reinterpret_cast<Texture *>(res->Data());
+	SetTexture(tex);
+	m_resID = res->Id();
 }

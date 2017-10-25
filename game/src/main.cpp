@@ -9,6 +9,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "Engine/Engine.h"
+#include "Engine/ResourceManager.h"
 
 Engine *engine;
 
