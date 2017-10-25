@@ -73,7 +73,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-//#define GENERATE_SCENE
+#define GENERATE_SCENE
 #ifdef GENERATE_SCENE
 
 	m_spaces.AddSpace();

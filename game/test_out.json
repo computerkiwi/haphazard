@@ -171,6 +171,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
@@ -311,6 +315,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
@@ -451,6 +459,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
@@ -567,7 +579,7 @@
                                             "meta_object_data": {
                                                 "layer": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 2
+                                                    "meta_object_data": 8
                                                 }
                                             }
                                         },
@@ -591,6 +603,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
@@ -779,6 +795,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
@@ -962,6 +982,10 @@
                                         "rotationOffset": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
                                         }
                                     }
                                 }
