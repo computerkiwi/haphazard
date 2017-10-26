@@ -26,6 +26,12 @@ void Action_General(EditorAction& a)
 	*reinterpret_cast<T *>(a.object) = a.old_value.GetData<T>();
 }
 
+template <>
+void Action_General<char *>(EditorAction& a)
+{
+
+}
+
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
@@ -223,31 +229,31 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		// Check for RigidBody OR Static Collider, can only have one
 		if (object.GetComponent<RigidBodyComponent>().IsValid())
 		{
-			ImGui_RigidBody(object.GetComponent<RigidBodyComponent>().Get(), object);
+			ImGui_RigidBody(object.GetComponent<RigidBodyComponent>().Get(), object, editor);
 
 			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 			{
-				ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
+				ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object, editor);
 			}
 		}
 		else if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 		{
-			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object);
+			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object, editor);
 		}
 		else if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 		{
-			ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object);
+			ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object, editor);
 		}
 
 
 		if (object.GetComponent<SpriteComponent>().IsValid())
 		{
-			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object);
+			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object, editor);
 		}
 
 		if (object.GetComponent<ScriptComponent>().IsValid())
 		{
-			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object);
+			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
 		}
 
 		End();
@@ -389,7 +395,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 }
 
 
-void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
+void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("RigidBody"))
 	{
@@ -403,27 +409,58 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 
 		if (TreeNode("Acceleration"))
 		{
+			glm::vec2 acc = rb->m_acceleration;
 			PushItemWidth(120);
-			InputFloat(" X##acceleration", &rb->m_acceleration.x);
-			InputFloat(" Y##acceleration", &rb->m_acceleration.y);
+			
+			if (InputFloat(" X##acceleration", &rb->m_acceleration.x))
+			{
+				editor->Push_Action({ acc.x, rb->m_acceleration.x, &rb->m_acceleration.x, Action_General<float> });
+			}
+
+			if (InputFloat(" Y##acceleration", &rb->m_acceleration.y))
+			{
+				editor->Push_Action({ acc.y, rb->m_acceleration.y, &rb->m_acceleration.y, Action_General<float> });
+			}
+			
+			
 			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Velocity"))
 		{
+			glm::vec2 vel = rb->m_velocity;
 			PushItemWidth(120);
-			InputFloat(" X##velocity", &rb->m_velocity.x);
-			InputFloat(" Y##velocity", &rb->m_velocity.y);
+
+			if (InputFloat(" X##velocity", &rb->m_velocity.x))
+			{
+				editor->Push_Action({ vel.x, rb->m_velocity.x, &rb->m_velocity.x, Action_General<float> });
+			}
+
+			if (InputFloat(" Y##velocity", &rb->m_velocity.y))
+			{
+				editor->Push_Action({ vel.y, rb->m_velocity.y, &rb->m_velocity.y, Action_General<float> });
+			}
+			
 			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Gravity"))
 		{
+			glm::vec2 gravity = rb->m_gravity;
 			PushItemWidth(120);
-			InputFloat(" X##gravity", &rb->m_gravity.x);
-			InputFloat(" Y##gravity", &rb->m_gravity.y);
+
+			if (InputFloat(" X##gravity", &rb->m_gravity.x))
+			{
+				editor->Push_Action({ gravity.x, rb->m_gravity.x, &rb->m_gravity.x, Action_General<float> });
+			}
+
+			if (InputFloat(" Y##gravity", &rb->m_gravity.y))
+			{
+				editor->Push_Action({ gravity.y, rb->m_gravity.y, &rb->m_gravity.y, Action_General<float> });
+			}
+			
 			PopItemWidth();
 			TreePop();
 			Separator();
@@ -434,7 +471,7 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object)
 }
 
 
-void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
+void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Sprite"))
 	{
@@ -443,16 +480,17 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object)
 			object.DeleteComponent<SpriteComponent>();
 			return;
 		}
-		char buffer[2048] = { 0 };
+		char *buffer = new char[2048];
 		if (InputText("Image Source", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			sprite->SetTexture(&Texture(buffer));
+			editor->Push_Action({ buffer, buffer, buffer, Action_General<char *> });
 		}
 	}
 }
 
 
-void ImGui_Collider2D(Collider2D *collider, GameObject object)
+void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Collider"))
 	{
@@ -494,7 +532,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object)
 }
 
 
-void ImGui_Script(ScriptComponent *script_c, GameObject object)
+void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
 	{
