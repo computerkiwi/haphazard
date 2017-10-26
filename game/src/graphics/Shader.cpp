@@ -107,7 +107,22 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::
 	glAttachShader(m_ID, fragmentShader.GetShaderID());
 	glLinkProgram(m_ID);
 
-	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
+	GLint isLinked = 0;
+	glGetProgramiv(m_ID, GL_LINK_STATUS, &isLinked);
+	if (isLinked == GL_FALSE) // Check for linking error
+	{
+		GLint logSize = 0;
+		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		if (logSize > 0)
+		{
+			std::vector<char> log(logSize);
+			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+			glDeleteShader(m_ID);
+		}
+	}
+
+	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
 }
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
@@ -119,7 +134,23 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fr
 	glAttachShader(m_ID, fragmentShader.GetShaderID());
 	glLinkProgram(m_ID);
 
-	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled();
+	GLint isLinked = 0;
+	glGetProgramiv(m_ID, GL_LINK_STATUS, &isLinked);
+	if (isLinked == GL_FALSE) // Check for linking error
+	{
+		GLint logSize = 0;
+		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		if (logSize > 0)
+		{
+			std::vector<char> log(logSize);
+			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+			glDeleteShader(m_ID);
+
+		}
+	}
+
+	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
 }
 
 ShaderProgram::~ShaderProgram()
@@ -307,33 +338,52 @@ namespace Shaders
 		glAttachShader(updateProgram, vs_Up.GetShaderID());
 		glAttachShader(updateProgram, gs_Up.GetShaderID());
 
-		const GLchar* TFVaryings[4];
+		const GLchar* TFVaryings[7];
 		TFVaryings[0] = "Type";
 		TFVaryings[1] = "Position";
 		TFVaryings[2] = "Velocity";
-		TFVaryings[3] = "Life";
+		TFVaryings[3] = "Scale";
+		TFVaryings[4] = "Rotation";
+		TFVaryings[5] = "Life";
+		TFVaryings[6] = "MaxLife";
 
-		glTransformFeedbackVaryings(updateProgram, 4, TFVaryings, GL_INTERLEAVED_ATTRIBS);
+		glTransformFeedbackVaryings(updateProgram, 7, TFVaryings, GL_INTERLEAVED_ATTRIBS);
 
 		glLinkProgram(updateProgram);
 
-		if (!vs_Up.wasCompiled() || !gs_Up.wasCompiled())
+		GLint isLinked = 0;
+		glGetProgramiv(updateProgram, GL_LINK_STATUS, &isLinked);
+		if (!vs_Up.wasCompiled() || !gs_Up.wasCompiled() || isLinked == GL_FALSE)
+		{
+			GLint logSize = 0;
+			glGetShaderiv(updateProgram, GL_INFO_LOG_LENGTH, &logSize);
+			if (logSize > 0)
+			{
+				std::vector<char> log(logSize);
+				glGetShaderInfoLog(updateProgram, logSize, &logSize, &log[0]);
+				fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+				glDeleteShader(updateProgram);
+			}
+			else
+				fprintf(stderr, "Could not link program \n");
 			FailedCompile();
+		}
 
 		particleUpdateShader = new ShaderProgram(updateProgram);
 
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 6, 0));
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 6, 1));
-		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 6, 3));
-		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 6, 5));
+		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 10, 0));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 10, 1));
+		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 10, 3));
+		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 10, 5));
+		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 10, 7));
+		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 10, 8));
+		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 10, 9));
 		particleUpdateShader->SetAttributes(attribs);
 
 		// Particle Render Shader Program
 		// Keep attribs from other shader, all that data is wanted for this shader
 		
-		//attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_FLOAT, sizeof(float), false, 6 + 1, 6));
-
 		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.geoshader", path + "particleRender.fragshader", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();

@@ -13,7 +13,8 @@
 enum ParticleType
 {
 	EMITTER,
-	PARTICLE
+	PARTICLE,
+	TRAIL_PARTICLE,
 };
 
 ///
@@ -25,7 +26,10 @@ struct Particle
 	float type;
 	glm::vec2 position;
 	glm::vec2 velocity;
+	glm::vec2 scale;
+	float rotation;
 	float life;
+	float maxLife;
 };
 
 ///
@@ -94,14 +98,14 @@ void ParticleSystem::UpdateParticles(float dt)
 	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 0.1f);
 	Shaders::particleUpdateShader->SetVariable("IsLooping", true);
 	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,0.5f));
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(0.2f, 0.3f));
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(2.2f, 0.3f));
 	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0.2f, 1));
-	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 2);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", 0.05f);
+	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 1);
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", 2.1f);
 	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,0));
-	Shaders::particleUpdateShader->SetVariable("EmissionShape", 2);
+	Shaders::particleUpdateShader->SetVariable("EmissionShape", 0);
 	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.2f,0.2f) );
-	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
+	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(0,0));
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
 	glBeginTransformFeedback(GL_POINTS);
@@ -136,9 +140,9 @@ void ParticleSystem::RenderParticles()
 	Shaders::particleRenderShader->SetVariable("SimulationSpace", 0);
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
 	Shaders::particleRenderShader->SetVariable("RotationOverLifetime", glm::vec2(0, 3.1415926));
-	Shaders::particleRenderShader->SetVariable("ScaleOverLifetime", glm::vec4(0.1f,0.1f, 0.01f,0.01f));
-	Shaders::particleRenderShader->SetVariable("TextureLayer", 4.0f);
-	Shaders::particleRenderShader->SetVariable("TextureBox", glm::vec4(0,0,0.5f,0.5f));
+	Shaders::particleRenderShader->SetVariable("ScaleOverLifetime", glm::vec4(0.1f,0.1f, 0.1f,0.1f));
+	Shaders::particleRenderShader->SetVariable("TextureLayer", -1.0f);
+	Shaders::particleRenderShader->SetVariable("TextureBox", glm::vec4(0,0,0.6f,0.5f));
 
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);

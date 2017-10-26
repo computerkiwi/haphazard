@@ -1,12 +1,13 @@
 #version 330 core
 layout (points) in;
-layout (triangle_strip, max_vertices = 6) out;
+layout (triangle_strip, max_vertices = 9) out;
 
 out vec2 texcoord;
 out float texLayer;
 out vec4 color;
 
 in float Type[];
+in vec2 Velocity[];
 in vec2 Texcoord[];
 in float TexLayer[];
 in vec4 Color[];
@@ -14,6 +15,7 @@ in float Rotation[];
 in vec2 Scale[];
 in vec2 IResolution[];
 in vec4 TexBox[];
+in float PercentLife[];
 
 void main() {
 	if(Type[0] == 0.0) // Don't render emitter particle
@@ -28,24 +30,22 @@ void main() {
 	rot[2] = vec4(0, 0, 1, 0);
 	rot[3] = vec4(0, 0, 0, 1);
 
-	vec4 verts[4] = {
-		rot * vec4(-Scale[0].x, Scale[0].y, 0,0),	// TL
-		rot * vec4(-Scale[0].x,-Scale[0].y, 0,0),	// BL
-		rot * vec4(Scale[0].x, -Scale[0].y, 0,0),	// BR
-		rot * vec4(Scale[0].x,  Scale[0].y, 0,0)	// TR
-	};
+	vec4 verts[4];
+	verts[0] = rot * vec4(-Scale[0].x, Scale[0].y, 0,0);	// TL
+	verts[1] = rot * vec4(-Scale[0].x,-Scale[0].y, 0,0);	// BL
+	verts[2] = rot * vec4(Scale[0].x, -Scale[0].y, 0,0);	// BR
+	verts[3] = rot * vec4(Scale[0].x,  Scale[0].y, 0,0);	// TR
 
 	verts[0].x *= IResolution[0].x; verts[0].y *= IResolution[0].y;
 	verts[1].x *= IResolution[0].x; verts[1].y *= IResolution[0].y;
 	verts[2].x *= IResolution[0].x; verts[2].y *= IResolution[0].y;
 	verts[3].x *= IResolution[0].x; verts[3].y *= IResolution[0].y;
 
-	vec2 texVerts[4] = {
-		TexBox[0].xy + (vec2(0,0) * (TexBox[0].zw - TexBox[0].xy)),	// TL
-		TexBox[0].xy + (vec2(0,1) * (TexBox[0].zw - TexBox[0].xy)),	// BL
-		TexBox[0].xy + (vec2(1,1) * (TexBox[0].zw - TexBox[0].xy)),	// BR
-		TexBox[0].xy + (vec2(1,0) * (TexBox[0].zw - TexBox[0].xy))	// TR
-	};
+	vec2 texVerts[4];
+	texVerts[0] = TexBox[0].xy + (vec2(0,0) * (TexBox[0].zw - TexBox[0].xy));	// TL
+	texVerts[1] = TexBox[0].xy + (vec2(0,1) * (TexBox[0].zw - TexBox[0].xy));	// BL
+	texVerts[2] = TexBox[0].xy + (vec2(1,1) * (TexBox[0].zw - TexBox[0].xy));	// BR
+	texVerts[3] = TexBox[0].xy + (vec2(1,0) * (TexBox[0].zw - TexBox[0].xy));	// TR
 
 	// Triangle 1
     gl_Position = gl_in[0].gl_Position + verts[0];
@@ -73,7 +73,5 @@ void main() {
 	texcoord = texVerts[3];
     EmitVertex();
 
-
     EndPrimitive();
-
 }  

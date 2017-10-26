@@ -6,18 +6,25 @@ layout (points, max_vertices = 30) out;
 in float PType[];
 in vec2 PPos[];
 in vec2 PVel[];
+in vec2 PScale[];
+in float PRot[];
 in float PLife[];
+in float PMaxLife[];
 
 out float Type;
 out vec2 Position;
 out vec2 Velocity;
+out vec2 Scale;
+out float Rotation;
 out float Life;
+out float MaxLife;
 
 
 /// Enum Defines \\\
 
 #define EMITTER_TYPE 0.0f
 #define PARTICLE_TYPE 1.0f
+#define TRAIL_TYPE 1.0f
 
 #define SHAPE_POINT	        0
 #define SHAPE_CIRCLE_VOLUME 1
@@ -158,6 +165,16 @@ void HandleParticle()
 	    Life = currAge;
 	    EmitVertex();
 	    EndPrimitive();
+		
+		/*
+		if(Trail && PType[0] == PARTICLE_TYPE)
+		{
+			Type = TRAIL_TYPE;
+		    Life = TrailLifetime;
+		    EmitVertex();
+		    EndPrimitive();
+		}
+		*/
 	}
 }
 
@@ -168,7 +185,7 @@ void main()
 	{
 		HandleEmitter();
 	}
-	else if(PType[0] == PARTICLE_TYPE)
+	else
 	{
 		HandleParticle();
 	}

@@ -2,10 +2,14 @@
 
 layout (location = 0) in float type;
 layout (location = 1) in vec2 pos;
-layout (location = 2) in vec2 velocity;
-layout (location = 3) in float life;
+layout (location = 2) in vec2 vel;
+layout (location = 3) in vec2 scale;
+layout (location = 4) in float rotation;
+layout (location = 5) in float life;
+layout (location = 6) in float maxLife;
 
 out float Type;
+out vec2 Velocity;
 out vec2 Texcoord;
 out vec4 Color;
 out float Rotation;
@@ -13,6 +17,7 @@ out vec2 Scale;
 out vec2 IResolution;
 out float TexLayer;
 out vec4 TexBox;
+out float PercentLife;
 
 
 layout (std140) uniform Matrices
@@ -22,6 +27,10 @@ layout (std140) uniform Matrices
 };
 
 /// Enum Defines \\\
+
+#define TYPE_EMITTER 0.0f
+#define TYPE_PARTICLE 1.0f
+#define TYPE_TRAIL 2.0f
 
 #define SPACE_WORLD 0
 #define SPACE_LOCAL 1
@@ -46,9 +55,13 @@ uniform vec4 TextureBox;
 void main()
 {
 	Type = type;
+	Velocity = vel;
 
 	TexLayer = TextureLayer;
 	TexBox = TextureBox;
+
+	if(type == TYPE_TRAIL)
+		TexLayer = -1;
 
 	if(SimulationSpace == SPACE_LOCAL)
 		gl_Position = proj * view * vec4(pos + EmitterPosition, 0.0f, 1.0f);
@@ -56,6 +69,7 @@ void main()
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 
 	float percent = life / ParticleLife;
+	PercentLife = percent;
 	
 	Color = StartColor * percent + EndColor * (1 - percent);
 
