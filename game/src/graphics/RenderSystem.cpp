@@ -67,7 +67,6 @@ void RenderSystem::Update(float dt)
 
 		//Stuff happens here
 	}
-		DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14f / 4, glm::vec4(1, 0, 1, 1));
 
 	Mesh::BindTextureVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);

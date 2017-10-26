@@ -31,7 +31,7 @@ public:
 
 	// constructor
 	Collider2D(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset)
+			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset), m_layersCollidedWith(0)
 	{
 	}
 
@@ -50,12 +50,16 @@ public:
 	void SetOffset(glm::vec3 newOffset);
 	void SetRotationOffset(float newRotationOffset);
 	void SetCollisionLayer(CollisionLayer newLayer);
+	void AddCollidedLayer(collisionLayers layer);
+	void RemoveCollidedLayer(collisionLayers layer);
 
 	// methods
 	// Passed only one parameter, scales both axes by the same thing
 	void ScaleDimensions(float xScale, float yScale = 0);
 	void AdjustRotationOffset(float rotationAdjustment);
 	bool isStatic();
+	bool IsCollidingWithLayer(collisionLayers layer);
+	void ClearCollidedLayers();
 
 private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
@@ -64,6 +68,7 @@ private:
 	CollisionLayer m_collisionLayer;
 	glm::vec3 m_offset;
 	float m_rotationOffset;
+	int m_layersCollidedWith;
 
 	META_REGISTER(Collider2D)
 	{
@@ -79,6 +84,7 @@ private:
 		META_DefineMember(Collider2D, m_dimensions, "dimensions");
 		META_DefineMember(Collider2D, m_rotationOffset, "rotationOffset");
 		META_DefineMember(Collider2D, m_collisionLayer, "collisionLayer");
+		META_DefineMember(Collider2D, m_layersCollidedWith, "layersCollidedWith");
 	}
 };
 

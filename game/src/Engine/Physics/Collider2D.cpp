@@ -60,6 +60,22 @@ void Collider2D::SetCollisionLayer(CollisionLayer newLayer)
 	m_collisionLayer = newLayer;
 }
 
+void Collider2D::AddCollidedLayer(collisionLayers layer)
+{
+	m_layersCollidedWith = m_layersCollidedWith | layer;
+}
+
+void Collider2D::RemoveCollidedLayer(collisionLayers layer)
+{
+	m_layersCollidedWith = m_layersCollidedWith & ~layer;
+}
+
+void Collider2D::ClearCollidedLayers()
+{
+	// set each flag to 0
+	m_layersCollidedWith = 0;
+}
+
 // methods
 	// Passed only one parameter, scales both axes by the same thing
 void Collider2D::ScaleDimensions(float xScale, float yScale)
@@ -94,4 +110,9 @@ Collider2D& StaticCollider2DComponent::ColliderData()
 Collider2D& DynamicCollider2DComponent::ColliderData()
 {
 	return m_colliderData;
+}
+
+bool Collider2D::IsCollidingWithLayer(collisionLayers layer)
+{
+	return (m_layersCollidedWith & layer);
 }

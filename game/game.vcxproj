@@ -160,9 +160,12 @@
     <ClCompile Include="src\Engine\Physics\Collider2D.cpp" />
     <ClCompile Include="src\Engine\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Engine\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Engine\Physics\PhysicsUtils.cpp" />
     <ClCompile Include="src\Engine\Physics\Raycast.cpp" />
     <ClCompile Include="src\Engine\Physics\RigidBody.cpp" />
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
+    <ClCompile Include="src\Engine\ResourceManager.cpp" />
+    <ClCompile Include="src\Engine\ResourceRegistration.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameObject.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
     <ClCompile Include="src\GameObjectSystem\HierarchyComponent.cpp" />
@@ -176,6 +179,7 @@
     <ClCompile Include="src\graphics\Shader.cpp" />
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
     <ClCompile Include="src\graphics\Texture.cpp" />
+    <ClCompile Include="src\graphics\TextureResource.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\Imgui\Editor.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
@@ -205,9 +209,12 @@
     <ClInclude Include="src\Engine\Engine.h" />
     <ClInclude Include="src\Engine\Physics\Collider2D.h" />
     <ClInclude Include="src\Engine\Physics\CollisionLayer.h" />
+    <ClInclude Include="src\Engine\Physics\PhysicsInternalTools.h" />
     <ClInclude Include="src\Engine\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Engine\Physics\PhysicsUtils.h" />
     <ClInclude Include="src\Engine\Physics\Raycast.h" />
     <ClInclude Include="src\Engine\Physics\RigidBody.h" />
+    <ClInclude Include="src\Engine\ResourceManager.h" />
     <ClInclude Include="src\GameObjectSystem\Component.h" />
     <ClInclude Include="src\GameObjectSystem\GameObject.h" />
     <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
@@ -225,6 +232,7 @@
     <ClInclude Include="src\graphics\ShaderSource.h" />
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Texture.h" />
+    <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\graphics\Transform.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Input\Gamepad.h" />

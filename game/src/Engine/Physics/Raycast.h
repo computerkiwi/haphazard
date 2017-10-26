@@ -9,6 +9,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 #include "glm/glm.hpp"
 #include "Collider2D.h"
+#include "GameObjectSystem\GameObject.h"
 
 // forward declaration
 struct MinMax;
@@ -25,10 +26,12 @@ public:
 	// getters/setters
 	float& Length();
 	glm::vec2& Intersection();
+	GameObject& GameObjectHit();
 
 private:
 	float m_length;
 	glm::vec2 m_intersection;
+	GameObject m_gameObjectHit;
 };
 
 class BoxCorners
@@ -46,7 +49,7 @@ public:
 	BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, float rotation);
 
 	// methods
-	MinMax ProjectOntoAxis(glm::vec2 axis);
+	MinMax ProjectOntoAxis(glm::vec2 axis) const;
 
 	// the corners of the box in this order: topRight, topLeft, botLeft, botRight
 	glm::vec2 m_corners[4];
