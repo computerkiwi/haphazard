@@ -438,20 +438,19 @@ void Editor::AddPopUp(PopUpWindow&& pop)
 }
 
 
-#define PADDING_X 18.0f
-#define PADDING_Y 20.0f
 void Editor::UpdatePopUps(float dt)
 {
 	int width = 0;
 	int height = 0;
 	glfwGetWindowSize(m_engine->GetWindow(), &width, &height);
 
-	glm::vec2 padding(width / PADDING_X, height / PADDING_Y);
+	glm::vec2 padding(65, 65);
 
 	for (int i = 0; i < m_pop_ups.size(); ++i)
 	{
 		PopUpWindow& popup = m_pop_ups[i];
 		ImVec2 pos;
+		size_t text_padding = strlen(popup.message) * 6;
 		switch (popup.pos)
 		{
 		case PopUpPosition::BottomLeft:
@@ -459,11 +458,11 @@ void Editor::UpdatePopUps(float dt)
 			break;
 
 		case PopUpPosition::BottomRight:
-			pos = ImVec2(static_cast<float>(width) - padding.x, static_cast<float>(height) - padding.y);
+			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, static_cast<float>(height) - padding.y);
 			break;
 
 		case PopUpPosition::TopRight:
-			pos = ImVec2(static_cast<float>(width) - padding.x, 0);
+			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, 0);
 			break;
 
 		case PopUpPosition::TopLeft:
