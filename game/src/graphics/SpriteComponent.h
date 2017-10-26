@@ -28,7 +28,7 @@ private:
 	ResourceID m_resID;
 
 	void SetTextureResource(Resource *resource);
-	void SetTextureID(Resource *res);
+	void SetTextureID(ResourceID res);
 
 	Texture *GetDefaultTexture()
 	{

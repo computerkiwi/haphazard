@@ -47,6 +47,24 @@ struct EditorAction
 };
 
 
+enum PopUpPosition
+{
+	TopLeft,
+	TopRight,
+	BottomRight,
+	BottomLeft,
+	Center
+};
+struct PopUpWindow
+{
+	PopUpWindow(const char *msg, float time, PopUpPosition position) 
+		: message(msg), timer(time), pos(position) {}
+	const char *message;
+	float timer;
+	PopUpPosition pos;
+};
+
+
 class Editor
 {
 	friend void PrintObjects(Editor *editor);
@@ -108,7 +126,8 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
-	
+	void UpdatePopUps(float dt);
+	std::vector<PopUpWindow> m_pop_ups;
 
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
@@ -134,6 +153,8 @@ public:
 
 	void Push_Action(EditorAction&& a);
 	void Pop_Action();
+
+	void AddPopUp(PopUpWindow&& pop);
 
 	void SetGameObject(GameObject new_object);
 	void ToggleEditor();

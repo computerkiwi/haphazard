@@ -218,6 +218,8 @@ void Editor::Update()
 		// Get all the active gameobjects
 		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
 
+		UpdatePopUps(1 / 60.0f);
+
 		// Top Bar
 		MenuBar();
 
@@ -235,7 +237,7 @@ void Editor::Update()
 		// Move, Scale, Rotate
 		Tools();
 
-		// ImGui::ShowTestWindow();
+		ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
@@ -362,7 +364,7 @@ void Editor::OnClick()
 	// Check for mouse 1 click
 	if (m_selected_object && Input::IsPressed(Key::Mouse_1) && !ImGui::GetIO().WantCaptureMouse)
 	{
-		const glm::vec2& mouse = Input::GetMousePos();
+		const glm::vec2 mouse = Input::GetMousePos();
 
 		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
 		{
@@ -425,6 +427,68 @@ void Editor::Tools()
 			break;
 		default:
 			break;
+		}
+	}
+}
+
+
+void Editor::AddPopUp(PopUpWindow&& pop)
+{
+	m_pop_ups.emplace_back(pop);
+}
+
+
+#define PADDING_X 18.0f
+#define PADDING_Y 20.0f
+void Editor::UpdatePopUps(float dt)
+{
+	int width = 0;
+	int height = 0;
+	glfwGetWindowSize(m_engine->GetWindow(), &width, &height);
+
+	glm::vec2 padding(width / PADDING_X, height / PADDING_Y);
+
+	for (int i = 0; i < m_pop_ups.size(); ++i)
+	{
+		PopUpWindow& popup = m_pop_ups[i];
+		ImVec2 pos;
+		switch (popup.pos)
+		{
+		case PopUpPosition::BottomLeft:
+			pos = ImVec2(0, static_cast<float>(height) - padding.y);
+			break;
+
+		case PopUpPosition::BottomRight:
+			pos = ImVec2(static_cast<float>(width) - padding.x, static_cast<float>(height) - padding.y);
+			break;
+
+		case PopUpPosition::TopRight:
+			pos = ImVec2(static_cast<float>(width) - padding.x, 0);
+			break;
+
+		case PopUpPosition::TopLeft:
+			pos = ImVec2(0, 0);
+			break;
+
+		case PopUpPosition::Center:
+			pos = ImVec2(width / 2.0f, height / 2.0f);
+			break;
+		}
+
+		if (popup.timer > 0)
+		{
+			popup.timer -= dt;
+			ImGui::OpenPopup(popup.message);
+			ImGui::SetNextWindowPos(pos);
+			if (ImGui::BeginPopup(popup.message))
+			{
+				ImGui::Text(popup.message);
+				ImGui::EndPopup();
+			}
+		}
+		else
+		{
+			m_pop_ups.erase(m_pop_ups.begin() + i);
 		}
 	}
 }
@@ -731,6 +795,10 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 void Editor::ToggleEditor()
 {
+	float& dt = m_engine->GetDtObject();
+
+	dt = dt ? 0 : (1 / 60.0f);
+
 	m_show_editor = !m_show_editor;
 }
 
@@ -743,7 +811,8 @@ void Editor::MenuBar()
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				
+				engine->FileSave("GameWasSaved.json");
+				AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
 			}
 
 			if (ImGui::MenuItem("Load"))

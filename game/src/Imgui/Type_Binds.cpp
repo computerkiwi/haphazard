@@ -29,7 +29,7 @@ void Action_General(EditorAction& a)
 template <>
 void Action_General<ResourceID>(EditorAction& a)
 {
-	static_cast<SpriteComponent *>(a.object)->SetTextureResource()
+//	static_cast<SpriteComponent *>(a.object)->SetTextureResource()
 }
 
 
@@ -187,7 +187,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				{
 					if (object.GetComponent<DynamicCollider2DComponent>().IsValid() || object.GetComponent<RigidBodyComponent>().IsValid())
 					{
-						// Display an error
+						editor->AddPopUp(PopUpWindow("This object has a Dynamic Collider or a RigidBody!", 2.0f, PopUpPosition::Center));
 					}
 					else
 					{
@@ -490,15 +490,18 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		std::string name = rm.Get(id)->FileName();
 
 		Text("Image Source: %s", name.c_str());
-
-		for (auto resouce : sprites)
+		Separator();
+		BeginChild("Sprites", ImVec2(0, 125), true);
+		for (auto resource : sprites)
 		{
-			if (Selectable(resouce->FileName().c_str()))
+			if (Selectable(resource->FileName().c_str()))
 			{
-				sprite->SetResourceID(resouce->Id());
-				editor->Push_Action({ id, sprite->m_resID, sprite, Action_General<ResourceID> });
+				// Is resource ref counted, can I store pointers to them?
+				// sprite->SetTextureResource(resource);
+				// editor->Push_Action({ id, resource, sprite, Action_General<ResourceID> });
 			}
 		}
+		EndChild();
 	}
 }
 
@@ -538,9 +541,47 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			TreePop();
 			Separator();
 		}
-		int index = collider->m_colliderType - 2;
+		int index = collider->m_colliderType;
+		for (int i = 0; i < sizeof(Collider2D::colliderType) * 8; i++)
+		{
+			if (index & (1 << i))
+			{
+				index = i - 1;
+				break;
+			}
+		}
+
+		// Collision Type
 		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
-		collider->m_colliderType = index;
+		switch (index)
+		{
+		case 0:
+			collider->m_colliderType = Collider2D::colliderType::colliderBox;
+			break;
+		};
+		Separator();
+		
+		// Collision Layers
+		if (TreeNode("Collision Layers"))
+		{
+			int layer = collider->m_collisionLayer;
+
+			Columns(2, nullptr, false);
+			RadioButton("All Collision",   &layer, collisionLayers::allCollision);   NextColumn();
+			RadioButton("No Collision",    &layer, collisionLayers::noCollision);    NextColumn();
+			RadioButton("Player",          &layer, collisionLayers::player);         NextColumn();
+			RadioButton("Decor",		   &layer, collisionLayers::decor);		     NextColumn();
+			RadioButton("Ground",		   &layer, collisionLayers::ground);	     NextColumn();
+			RadioButton("Ally Projectile", &layer, collisionLayers::allyProjectile); NextColumn();
+			RadioButton("Enemy",		   &layer, collisionLayers::enemy);
+			Columns();
+
+			editor->Push_Action({ layer, collider->m_collisionLayer, &collider->m_collisionLayer, Action_General<int> });
+
+			collider->m_collisionLayer = CollisionLayer(layer);
+
+			TreePop();
+		}
 	}
 }
 

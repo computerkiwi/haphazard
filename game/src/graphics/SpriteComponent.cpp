@@ -65,7 +65,19 @@ void SpriteComponent::SetTextureResource(Resource *res)
 }
 
 
-void SpriteComponent::SetTextureID(Resource *res)
+void SpriteComponent::SetTextureID(ResourceID res)
 {
+	if (res == -1)
+	{
+		SetTexture(GetDefaultTexture());
+		m_resID = -1;
+		return;
+	}
 
+	Resource *resource = engine->GetResourceManager().Get(res);
+
+	assert(resource->GetResourceType() == ResourceType::TEXTURE);
+	Texture *tex = reinterpret_cast<Texture *>(resource->Data());
+	SetTexture(tex);
+	m_resID = res;
 }

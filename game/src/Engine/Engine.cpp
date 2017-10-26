@@ -73,9 +73,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-#define GENERATE_SCENE
-#ifdef GENERATE_SCENE
-
 	m_spaces.AddSpace();
 	m_spaces.AddSpace();
 
@@ -114,7 +111,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	anotherObj.AddComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(.5f, .5f, 1));
 	anotherObj.AddComponent<SpriteComponent>(tex);
 	anotherObj.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.3, .5, 0));
-
 
 
 	// object with velocity
@@ -159,14 +155,14 @@ void Engine::Update()
 	if (glfwWindowShouldClose(m_window))
 		m_running = false;
 
-	m_dt = CalculateDt();
-	
+	// m_dt = CalculateDt(); -- Removed for now since only doing (1 / 60.0f)
+
 	m_spaces[0]->Update(m_dt);
 
 	Input::Update();
 
 	Audio::Update();
-	
+
 	if (Input::IsPressed(Key::GraveAccent))
 		m_editor.ToggleEditor();
 	m_editor.Update();
@@ -224,6 +220,12 @@ void Engine::LoggingInit()
 
 
 float Engine::Dt() const
+{
+	return m_dt;
+}
+
+
+float& Engine::GetDtObject()
 {
 	return m_dt;
 }
