@@ -63,3 +63,9 @@ void SpriteComponent::SetTextureResource(Resource *res)
 	SetTexture(tex);
 	m_resID = res->Id();
 }
+
+
+void SpriteComponent::SetTextureID(Resource *res)
+{
+
+}

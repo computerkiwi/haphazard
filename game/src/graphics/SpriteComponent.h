@@ -12,7 +12,7 @@ class SpriteComponent : public Mesh
 public:
 	SpriteComponent(Resource *res = NULL);
 	SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps);
-	
+
 	void SetResourceID(ResourceID resID) 
 	{
 		m_resID = resID;
@@ -28,6 +28,7 @@ private:
 	ResourceID m_resID;
 
 	void SetTextureResource(Resource *resource);
+	void SetTextureID(Resource *res);
 
 	Texture *GetDefaultTexture()
 	{

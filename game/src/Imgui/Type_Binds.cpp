@@ -27,9 +27,9 @@ void Action_General(EditorAction& a)
 }
 
 template <>
-void Action_General<char *>(EditorAction& a)
+void Action_General<ResourceID>(EditorAction& a)
 {
-
+	static_cast<SpriteComponent *>(a.object)->SetTextureResource()
 }
 
 
@@ -480,11 +480,24 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			object.DeleteComponent<SpriteComponent>();
 			return;
 		}
-		char *buffer = new char[2048];
-		if (InputText("Image Source", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
+
+		ResourceManager& rm = engine->GetResourceManager();
+
+		std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
+		
+		ResourceID id = sprite->GetResourceID();
+
+		std::string name = rm.Get(id)->FileName();
+
+		Text("Image Source: %s", name.c_str());
+
+		for (auto resouce : sprites)
 		{
-			sprite->SetTexture(&Texture(buffer));
-			editor->Push_Action({ buffer, buffer, buffer, Action_General<char *> });
+			if (Selectable(resouce->FileName().c_str()))
+			{
+				sprite->SetResourceID(resouce->Id());
+				editor->Push_Action({ id, sprite->m_resID, sprite, Action_General<ResourceID> });
+			}
 		}
 	}
 }
