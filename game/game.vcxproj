@@ -165,6 +165,7 @@
     <ClCompile Include="src\Engine\Quadtree\Quadtree.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameObject.cpp" />
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
+    <ClCompile Include="src\GameObjectSystem\HierarchyComponent.cpp" />
     <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="src\GameObjectSystem\Component.h" />
     <ClInclude Include="src\GameObjectSystem\GameObject.h" />
     <ClInclude Include="src\GameObjectSystem\GameSpace.h" />
+    <ClInclude Include="src\GameObjectSystem\HierarchyComponent.h" />
     <ClInclude Include="src\GameObjectSystem\ObjectInfo.h" />
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />

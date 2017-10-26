@@ -322,6 +322,11 @@ void Editor::Push_Action(EditorAction&& a)
 			++m_actions.size;
 		}
 	}
+	else
+	{
+		m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+		++m_actions.size;
+	}
 }
 
 
@@ -334,12 +339,15 @@ void Editor::Pop_Action()
 
 void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
 {
-	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
-	
-	// Add a transform component
-	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
+	if (m_selected_object)
+	{
+		GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
 
-	m_selected_object = object.Getid();
+		// Add a transform component
+		object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
+
+		m_selected_object = object.Getid();
+	}
 }
 
 

@@ -27,6 +27,52 @@ void Action_General(EditorAction& a)
 }
 
 
+void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
+{
+	// Get all the names of the objects
+	char name_buffer[128] = { 0 };
+	GameObject object(0);
+
+	for (auto& object_id : editor->m_objects)
+	{
+		// Use invalid gameObject as a delimiter
+		if (object_id == INVALID_GAMEOBJECT_ID)
+		{
+			ImGui::Separator();
+			continue;
+		}
+		object = object_id;
+		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
+
+		// Save the buffer based off name size, max name size is 8
+		if (name.size() > 8)
+		{
+			snprintf(name_buffer, sizeof(name_buffer),
+				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+		}
+		else
+		{
+			snprintf(name_buffer, sizeof(name_buffer),
+				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+		}
+
+
+		if (ImGui::Selectable(name_buffer))
+		{
+			transform->SetParent(object);
+			if (object.GetComponent<HierarchyComponent>().IsValid())
+			{
+				object.GetComponent<HierarchyComponent>()->Add(child);
+			}
+			else
+			{
+				object.AddComponent<HierarchyComponent>(child);
+			}	
+		}
+	}
+}
+
+
 void ImGui_GameObject(GameObject object, Editor *editor)
 {
 	// Check if a nullptr was passed
@@ -55,7 +101,6 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (Button("Delete"))
 		{
 			object.Delete();
-			object.SetSpace(0);
 			editor->SetGameObject(0);
 			End();
 			return;
@@ -92,7 +137,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			
 			if (Button("Sprite"))
 			{
-				if (object.GetComponent<SpriteComponent>().Get())
+				if (object.GetComponent<SpriteComponent>().IsValid())
 				{
 				}
 				else
@@ -102,7 +147,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			}
 			else if (Button("RigidBody"))
 			{
-				if (object.GetComponent<RigidBodyComponent>().Get())
+				if (object.GetComponent<RigidBodyComponent>().IsValid())
 				{
 				}
 				else
@@ -112,12 +157,12 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			}
 			else if (Button("Dynamic Collider"))
 			{
-				if (object.GetComponent<DynamicCollider2DComponent>().Get())
+				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 				{
 				}
 				else
 				{
-					if (object.GetComponent<StaticCollider2DComponent>().Get())
+					if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 					{
 						// Display an error
 					}
@@ -129,12 +174,12 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			}
 			else if (Button("Static Collider"))
 			{
-				if (object.GetComponent<StaticCollider2DComponent>().Get())
+				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 				{
 				}
 				else
 				{
-					if (object.GetComponent<DynamicCollider2DComponent>().Get() || object.GetComponent<RigidBodyComponent>().Get())
+					if (object.GetComponent<DynamicCollider2DComponent>().IsValid() || object.GetComponent<RigidBodyComponent>().IsValid())
 					{
 						// Display an error
 					}
@@ -146,7 +191,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			}
 			else if (Button("Script"))
 			{
-				if (object.GetComponent<ScriptComponent>().Get())
+				if (object.GetComponent<ScriptComponent>().IsValid())
 				{
 				}
 				else
@@ -259,6 +304,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		{
 			if (Button("Remove Parent##remove_parent_button"))
 			{
+				transform->m_parent.GetComponent<HierarchyComponent>()->Remove(object);
 				transform->SetParent(0);
 			}
 			else
@@ -277,8 +323,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			int parent_id = 0;
 			if (BeginPopup("Add Parent##add_parent_popup"))
 			{
-
-				PrintObjects(editor);
+				Choose_Parent_ObjectList(editor, transform, object);
 				EndPopup();
 			}
 		}

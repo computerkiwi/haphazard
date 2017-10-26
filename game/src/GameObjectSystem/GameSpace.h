@@ -21,7 +21,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Component.h"
 #include "ObjectInfo.h"
 #include "TransformComponent.h"
-
+#include "HierarchyComponent.h"
 
 // Forward declare.
 class GameSpace;

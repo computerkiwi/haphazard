@@ -51,6 +51,7 @@ class Editor
 {
 	friend void PrintObjects(Editor *editor);
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
+	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	Engine * m_engine;
 	bool m_show_editor;

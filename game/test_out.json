@@ -206,11 +206,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 1.5
+                                            "meta_object_data": 0.5
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 1.5
+                                            "meta_object_data": 0.5
                                         }
                                     }
                                 },
@@ -236,7 +236,7 @@
                                     "meta_object_data": {
                                         "id": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 3
+                                            "meta_object_data": 0
                                         }
                                     }
                                 },

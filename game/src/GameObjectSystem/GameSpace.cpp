@@ -40,6 +40,23 @@ GameObject_ID GenerateID()
 // GameSpace
 //-----------
 
+
+template <>
+void ComponentMap<HierarchyComponent>::Delete(GameObject_ID object)
+{
+	if (m_components.find(object) != m_components.end())
+	{
+		std::vector<GameObject>& children = m_components.find(object)->second.GetList();
+		for (auto child : children)
+		{
+			child.GetComponent<TransformComponent>()->SetParent(0);
+		}
+
+		m_components.erase(object);
+	}
+}
+
+
 void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 {
 	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Gamespace ", this, " registering system");
@@ -251,6 +268,7 @@ void GameSpace::RegisterInitial()
 	RegisterComponentType<DynamicCollider2DComponent>();
 	RegisterComponentType<SpriteComponent>();
 	RegisterComponentType<ScriptComponent>();
+	RegisterComponentType<HierarchyComponent>();
 
 	RegisterSystem(new PhysicsSystem());
 	RegisterSystem(new RenderSystem());

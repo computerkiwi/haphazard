@@ -75,23 +75,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 #define GENERATE_SCENE
 #ifdef GENERATE_SCENE
 
-	m_spaces[1]->RegisterComponentType<ObjectInfo>();
-	m_spaces[1]->RegisterComponentType<TransformComponent>();
-	m_spaces[1]->RegisterComponentType<RigidBodyComponent>();
-	m_spaces[1]->RegisterComponentType<StaticCollider2DComponent>();
-	m_spaces[1]->RegisterComponentType<DynamicCollider2DComponent>();
-	m_spaces[1]->RegisterComponentType<SpriteComponent>();
-	m_spaces[1]->RegisterComponentType<ScriptComponent>();
-
-	// Register the systems.
-	m_spaces[0]->RegisterSystem(new PhysicsSystem());
-	m_spaces[0]->RegisterSystem(new RenderSystem());
-	m_spaces[0]->RegisterSystem(new ScriptSystem());
-
-	m_spaces[1]->RegisterSystem(new PhysicsSystem());
-	m_spaces[1]->RegisterSystem(new RenderSystem());
-	m_spaces[1]->RegisterSystem(new ScriptSystem());
-
 	// Initialize the system.
 	m_spaces[0]->Init();
 	m_spaces[1]->Init();
@@ -124,7 +107,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// object with velocity
 	GameObject Brett_obj2 = m_spaces[0]->NewGameObject("Child");
 	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
-	Brett_obj2.GetComponent<TransformComponent>()->SetParent(Brett_obj1);
 
 	Brett_obj2.AddComponent<SpriteComponent>(new AnimatedTexture("flyboy.png", 240, 314, 5, 4), 60.0f);
 	// Brett_obj2.AddComponent<RigidBodyComponent>();
