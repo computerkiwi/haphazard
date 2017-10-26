@@ -563,6 +563,11 @@ void PhysicsSystem::Update(float dt)
 				Collider2D collider1 = dynamicCollider->ColliderData();
 				Collider2D collider2 = tStaticColliderHandle->ColliderData();
 
+				if (!collider1.GetCollisionLayer().LayersCollide(collider2.GetCollisionLayer()))
+				{
+					continue;
+				}
+
 				ComponentHandle<TransformComponent> otherTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 				assert(otherTransform.IsValid() && "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
 				
