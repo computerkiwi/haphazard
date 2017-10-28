@@ -17,13 +17,13 @@ namespace meta
 		META_REGISTER(RegisterGLM)
 		{
 			META_DefineType(glm::vec2);
-			META_DefineMember(glm::vec2, glm::vec2::x, "x");
-			META_DefineMember(glm::vec2, glm::vec2::y, "y");
+			META_DefineMember(glm::vec2, x, "x");
+			META_DefineMember(glm::vec2, y, "y");
 
 			META_DefineType(glm::vec3);
-			META_DefineMember(glm::vec3, glm::vec3::x, "x");
-			META_DefineMember(glm::vec3, glm::vec3::y, "y");
-			META_DefineMember(glm::vec3, glm::vec3::z, "z");
+			META_DefineMember(glm::vec3, x, "x");
+			META_DefineMember(glm::vec3, y, "y");
+			META_DefineMember(glm::vec3, z, "z");
 
 			META_DefineType(glm::vec4);
 

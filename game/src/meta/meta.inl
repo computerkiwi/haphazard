@@ -1,5 +1,7 @@
 #pragma once
 
+#include "meta.h"
+
 namespace meta
 {
 	// Helper wrappers around constructors/assignment operators. (We get pointers to these.)

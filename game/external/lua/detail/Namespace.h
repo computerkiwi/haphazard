@@ -482,6 +482,11 @@ private:
       }
       else
       {
+				// HAPHAZARD ADDITION - Fix for reopen crash taken from https://github.com/vinniefalco/LuaBridge/issues/142
+				lua_getmetatable(L, -1);
+				lua_remove(L, -2);
+				// End addition.
+
         rawgetfield (L, -1, "__class");
         rawgetfield (L, -1, "__const");
 

@@ -125,6 +125,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf1.AddComponent<SpriteComponent>(tex);
 	asdf1.AddComponent<RigidBodyComponent>();
 	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::noCollision);
+	asdf1.AddComponent<ScriptComponent>("PlayerController.lua");
 
 	// object with velocity
 	GameObject asdf2 = m_spaces[0]->NewGameObject("Parent");

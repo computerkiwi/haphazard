@@ -13,6 +13,10 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "rapidjson/document.h"
 
+#include "lua.hpp"
+#include "LuaBridge.h"
+#include "Scripting/LuaEngine.h"
+
 namespace meta
 {
 	class Member;
@@ -425,12 +429,14 @@ namespace meta
 
 #define META_DefineType(TYPE) (::meta::GetTypePointer<TYPE>(#TYPE))
 
-#define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)))
+#define META_DefineMember(TYPE, MEMBER, NAME) (::meta::GetTypePointer<TYPE>()->RegisterMember(NAME, ::meta::GetTypePointer<decltype(reinterpret_cast<TYPE *>(NULL)->MEMBER)>(), offsetof(TYPE,MEMBER)));\
+                                              (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<TYPE>(#TYPE).addData(NAME, &TYPE::MEMBER, true).endClass())
 
 #define META_DefineSerializeFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetSerializeFunction(FUNCTION_PTR))
 #define META_DefineDeserializeAssignFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetDeserializeAssignFunction(FUNCTION_PTR))
 
-#define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
+#define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER));\
+                               (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<BASETYPE>(#BASETYPE).addProperty(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 
 #define META_NAMESPACE(NAMESPACE)
 #define META_REGISTER(TYPE) private: friend class ::meta::Type; public: static void Meta__Register__##TYPE()
