@@ -24,7 +24,7 @@ out float MaxLife;
 
 #define EMITTER_TYPE 0.0f
 #define PARTICLE_TYPE 1.0f
-#define TRAIL_TYPE 1.0f
+#define TRAIL_TYPE 2.0f
 
 #define SHAPE_POINT	        0
 #define SHAPE_CIRCLE_VOLUME 1
@@ -41,14 +41,24 @@ uniform float	EmitterLifetime;
 uniform float	ParticleLifetime;
 uniform float	ParticleLifetimeVariance;
 
-uniform bool	IsLooping;
-
 uniform vec2	StartingVelocity;
 uniform vec2	StartingVelocityVariance;
 uniform vec2	Acceleration;
 
-uniform int		ParticlesPerEmission;
+uniform vec4	ScaleOverTime;
+
+uniform float	StartRotation;
+uniform float	StartRotationVariation;
+uniform float	RotationRate;
+
+uniform bool	HasTrail;
+uniform float	TrailEmissionRate;
+uniform float	TrailLifetime;
+uniform vec2	TrailScale;
+
+uniform bool	IsLooping;
 uniform float	EmissionRate;
+uniform int		ParticlesPerEmission;
 uniform vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
 uniform int		EmissionShape;
 uniform vec2	EmissionShapeScale;
@@ -117,11 +127,15 @@ void HandleEmitter()
 			for(int i = 0; i < ParticlesPerEmission; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
 
 				Type = PARTICLE_TYPE;
 				Position = NewParticlePosition(PPos[0], r.xy);
-				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r.x, StartingVelocityVariance.y * r.y);
-				Life = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Scale = ScaleOverTime.xy;
+				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Life = 0;
 
 				EmitVertex();
 				EndPrimitive();
@@ -138,11 +152,15 @@ void HandleEmitter()
 			for(int i = 0; i < amt; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
 
 				Type = PARTICLE_TYPE;
-				Position = NewParticlePosition(PPos[0], r.xy );
-				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r.x, StartingVelocityVariance.y * r.y);
-				Life = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Position = NewParticlePosition(PPos[0], r.xy);
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Scale = ScaleOverTime.xy;
+				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Life = 0;
 
 				EmitVertex();
 				EndPrimitive();
@@ -153,40 +171,74 @@ void HandleEmitter()
 
 void HandleParticle()
 {
-	float currAge = PLife[0] - dt;
+	float currAge = PLife[0] + dt;
 
-	if(currAge > 0) 
+	if(PLife[0] < PMaxLife[0]) 
 	{
+		
 		// Still alive, update then emit self
 	
 		Type = PType[0];
 		Position = PPos[0] + PVel[0] * dt;
 	    Velocity = PVel[0] + Acceleration * dt;
 	    Life = currAge;
+		MaxLife = PMaxLife[0];
+		Scale = ScaleOverTime.xy * (1 - PLife[0]/PMaxLife[0]) + ScaleOverTime.zw * (PLife[0]/PMaxLife[0]);
+		Rotation = PRot[0] + RotationRate*dt;
 	    EmitVertex();
 	    EndPrimitive();
 		
-		/*
-		if(Trail && PType[0] == PARTICLE_TYPE)
+		if(HasTrail 
+			&& PType[0] == PARTICLE_TYPE 
+			&& ( int(currAge / TrailEmissionRate) > int(PLife[0] / TrailEmissionRate)))
 		{
+			// Spawn Trail particles
 			Type = TRAIL_TYPE;
-		    Life = TrailLifetime;
+			Scale = TrailScale * PScale[0];
+		    Velocity = Scale; // Velocity is used to store initial scale for future scale calculations
+			MaxLife = PLife[0] / PMaxLife[0]; // MaxLife is used to hold parent life percent
+			Life = 0;
+			// Keep Position and Rotation as source
+
 		    EmitVertex();
 		    EndPrimitive();
 		}
-		*/
 	}
 }
 
+void HandleTrailParticle()
+{
+	float currAge = PLife[0] + dt;
+
+	if(currAge < TrailLifetime)
+	{
+		Type = PType[0];
+		Position = PPos[0];
+		Life = currAge;
+		MaxLife = PMaxLife[0];
+		Velocity = PVel[0];
+		Rotation = PRot[0];
+
+		// Velocity is used to store initial scale
+		Scale = PScale[0] - PVel[0] * dt / TrailLifetime;
+
+		EmitVertex();
+		EndPrimitive();
+	}
+}
 
 void main()
-{	
+{
 	if(PType[0] == EMITTER_TYPE)
 	{
 		HandleEmitter();
 	}
-	else
+	else if(PType[0] == PARTICLE_TYPE)
 	{
 		HandleParticle();
+	}
+	else
+	{
+		HandleTrailParticle();
 	}
 }

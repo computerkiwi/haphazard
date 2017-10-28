@@ -338,16 +338,18 @@ namespace Shaders
 		glAttachShader(updateProgram, vs_Up.GetShaderID());
 		glAttachShader(updateProgram, gs_Up.GetShaderID());
 
-		const GLchar* TFVaryings[7];
-		TFVaryings[0] = "Type";
-		TFVaryings[1] = "Position";
-		TFVaryings[2] = "Velocity";
-		TFVaryings[3] = "Scale";
-		TFVaryings[4] = "Rotation";
-		TFVaryings[5] = "Life";
-		TFVaryings[6] = "MaxLife";
+		const GLchar* TFVaryings[] =
+		{
+			"Type",
+			"Position",
+			"Velocity",
+			"Scale",
+			"Rotation",
+			"Life",
+			"MaxLife"
+		};
 
-		glTransformFeedbackVaryings(updateProgram, 7, TFVaryings, GL_INTERLEAVED_ATTRIBS);
+		glTransformFeedbackVaryings(updateProgram, _countof(TFVaryings), TFVaryings, GL_INTERLEAVED_ATTRIBS);
 
 		glLinkProgram(updateProgram);
 

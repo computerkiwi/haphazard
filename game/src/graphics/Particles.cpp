@@ -4,7 +4,7 @@
 #include "Texture.h"
 #include <cstdlib>
 
-#define MAX_PARTICLES 100
+#define MAX_PARTICLES 500
 
 ///
 // Enums
@@ -48,10 +48,12 @@ ParticleSystem::ParticleSystem(glm::vec2 position)
 	Particles[0].type = static_cast<float>(EMITTER);
 	Particles[0].position = glm::vec2(1,0);
 	Particles[0].velocity = glm::vec2(0.0f, 1.0f);
+	Particles[0].scale = glm::vec2(1.0f, 1.0f);
 	Particles[0].life = 0.0f;
 
 	glGenTransformFeedbacks(2, m_transformFeedback);
 	glGenBuffers(2, m_particleBuffer);
+	glGenVertexArrays(1, &m_VAO);
 
 	for (int i = 0; i < 2; i++) {
 		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
@@ -68,7 +70,8 @@ ParticleSystem::ParticleSystem(glm::vec2 position)
 
 void ParticleSystem::Render(float dt)
 {
-	glPointSize(10);
+	glBindVertexArray(m_VAO);
+	//glPointSize(10);
 	UpdateParticles(dt);
 	RenderParticles();
 
@@ -89,23 +92,41 @@ void ParticleSystem::UpdateParticles(float dt)
 	glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);
 
 	Shaders::particleUpdateShader->ApplyAttributes();
+	
+	///
+	// Set settings
+	///
 
-	// Set state
+	// Time
 	Shaders::particleUpdateShader->SetVariable("dt", dt);
 	Shaders::particleUpdateShader->SetVariable("Time", m_time);
-	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", 5.0f);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", 1.5f);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", 0.1f);
-	Shaders::particleUpdateShader->SetVariable("IsLooping", true);
-	Shaders::particleUpdateShader->SetVariable("StartingVelocity", glm::vec2(0,0.5f));
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", glm::vec2(2.2f, 0.3f));
-	Shaders::particleUpdateShader->SetVariable("Acceleration", glm::vec2(0.2f, 1));
-	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", 1);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", 2.1f);
-	Shaders::particleUpdateShader->SetVariable("BurstEmission", glm::vec3(10,10,0));
-	Shaders::particleUpdateShader->SetVariable("EmissionShape", 0);
-	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", glm::vec2(0.2f,0.2f) );
-	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(0,0));
+	// Emission
+	Shaders::particleUpdateShader->SetVariable("IsLooping", m_settings.isLooping);
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", m_settings.EmissionRate);
+	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", m_settings.ParticlesPerEmission);
+	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.BurstEmission);
+	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.EmissionShape) );
+	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.EmissionShapeScale);
+	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(0, 0));
+	// Lifetimes
+	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.EmitterLifetime);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", m_settings.ParticleLifetime);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", m_settings.ParticleLifetimeVariance);
+	// Movement
+	Shaders::particleUpdateShader->SetVariable("StartingVelocity", m_settings.StartingVelocity);
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", m_settings.StartingVelocityVariance);
+	Shaders::particleUpdateShader->SetVariable("Acceleration", m_settings.Acceleration);
+	// Scale
+	Shaders::particleUpdateShader->SetVariable("ScaleOverTime", m_settings.ScaleOverTime);
+	// Rotation
+	Shaders::particleUpdateShader->SetVariable("StartRotation", m_settings.StartRotation);
+	Shaders::particleUpdateShader->SetVariable("StartRotationVariation", m_settings.StartRotationVariation);
+	Shaders::particleUpdateShader->SetVariable("RotationRate", m_settings.RotationRate);
+	// Trail
+	Shaders::particleUpdateShader->SetVariable("HasTrail", m_settings.HasTrail);
+	Shaders::particleUpdateShader->SetVariable("TrailEmissionRate", m_settings.TrailEmissionRate);
+	Shaders::particleUpdateShader->SetVariable("TrailLifetime", m_settings.TrailLifetime);
+	Shaders::particleUpdateShader->SetVariable("TrailScale", m_settings.TrailScale);
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
 	glBeginTransformFeedback(GL_POINTS);
@@ -113,6 +134,7 @@ void ParticleSystem::UpdateParticles(float dt)
 	// Check for first update time 
 	if (m_isFirst < 1) 
 	{
+
 		// Need to give the transform feedback loop a frame of reference for number of verts it will create
 		glDrawArrays(GL_POINTS, 0, 1);
 		m_isFirst++;
@@ -133,30 +155,42 @@ void ParticleSystem::RenderParticles()
 
 	Texture::BindArray();
 
-	// Set state, if needed (texture, ect)
-	Shaders::particleRenderShader->SetVariable("ParticleLife", 1.5f + 0.1f);
-  Shaders::particleRenderShader->SetVariable("StartColor", glm::vec4(1, 0, 0, 1));
-	Shaders::particleRenderShader->SetVariable("EndColor", glm::vec4(1, 1, 0, 1));
-	Shaders::particleRenderShader->SetVariable("SimulationSpace", 0);
-	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(-1,0));
-	Shaders::particleRenderShader->SetVariable("RotationOverLifetime", glm::vec2(0, 3.1415926));
-	Shaders::particleRenderShader->SetVariable("ScaleOverLifetime", glm::vec4(0.1f,0.1f, 0.1f,0.1f));
-	Shaders::particleRenderShader->SetVariable("TextureLayer", -1.0f);
-	Shaders::particleRenderShader->SetVariable("TextureBox", glm::vec4(0,0,0.6f,0.5f));
+	// Set rendering state (color, texture, etc)
+	Shaders::particleRenderShader->SetVariable("StartColor", m_settings.StartColor);
+	Shaders::particleRenderShader->SetVariable("EndColor", m_settings.EndColor);
+
+	Shaders::particleRenderShader->SetVariable("TrailStartColor", m_settings.TrailStartColor);
+	Shaders::particleRenderShader->SetVariable("TrailEndColor", m_settings.TrailEndColor);
+
+	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.ParticleSpace) );
+	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(0,0));
+	if (m_settings.Texture)
+	{
+		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.Texture->GetID());
+		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.Texture->GetBounds());
+	}
+	else
+	{
+		Shaders::particleRenderShader->SetVariable("TextureLayer", -1.0f);
+	}
 
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
 
-	Particle p[3];
-	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
+	//Particle p[3];
+	//glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
 
 	Shaders::particleRenderShader->ApplyAttributes();
 
-	// Render it
+	// Render it (with additive blending)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
 	//glDrawArrays(GL_POINTS, 0, 3);
+
+	// Reset Blend Mode
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 }
 
 void ParticleSystem::GenRandomTexture()
@@ -177,45 +211,3 @@ void ParticleSystem::GenRandomTexture()
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
-
-/*
-EmitterLifetime
-ParticleLifetime
-ParticleLifetimeVariance
-IsLooping
-StartingVelocity
-StartingVelocityVariance
-Acceleration
-ParticlesPerEmission
-EmissionRate
-BurstEmission
-EmissionShape
-EmissionShapeScale
-EmitterPosition
-
-StartColor
-EndColor
-SimulationSpace
-RotationOverLifetime
-ScaleOverLifetime
-
-
-
-
-ok I cant set the variable because it runs in parallel... OH
-hold positions and update like the particle positions.
-position0 = particlePosition,		set using   pos0 = pos0 + vel * dt
-position1 = particle trail mid  set using   pos1 = pos1 + vel * dt
-position2 = particel trail end  set using   pos2 = pos2 + vel * dt
-But how will i spread them out?
-OH, only set the if statements
-
-pos0 = pos0 + vel * dt
-if(life > trail time / 2)
-	pos1 = pos1 + vel * dt
-if(life > trail time)
-	pos2 = pos2 + vel * dt
-
-no bezier curve needed, 
-unless... i make a very detailed mesh (triangle strip) in the geo shader
-*/

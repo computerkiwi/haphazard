@@ -77,9 +77,6 @@ void RenderSystem::Update(float dt)
 
 		if (numVerts == 0)
 			numVerts = spriteHandle->NumVerts();
-
-		//Stuff happens here
-		//t->Draw(transform->GetMatrix4());
 	}
 
 	Shaders::defaultShader->Use();
@@ -108,10 +105,7 @@ void RenderSystem::Update(float dt)
 		textHandle->Draw(transform->GetMatrix4());
 	}
 
-
-	Screen::GetView().Use();
 	particles->Render(dt);
-
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
