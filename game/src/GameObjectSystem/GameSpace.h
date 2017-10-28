@@ -349,6 +349,11 @@ class GameSpaceManagerID
 	std::vector<GameSpace> m_spaces;
 
 public:
+	size_t GetSize() const
+	{
+		return m_spaces.size();
+	}
+
 	inline std::vector<GameSpace>& GetSpaces()
 	{
 		return m_spaces;

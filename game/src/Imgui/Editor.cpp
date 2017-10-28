@@ -138,7 +138,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	RegisterCommand("create", [this]() 
 	{ 
 		std::string name = m_line.substr(strlen("create "));
-		CreateGameObject(name.c_str()); 
+		QuickCreateGameObject(name.c_str()); 
 	});
 	
 	// Clear the log
@@ -237,7 +237,7 @@ void Editor::Update()
 		// Move, Scale, Rotate
 		Tools();
 
-		ImGui::ShowTestWindow();
+		// ImGui::ShowTestWindow();
 
 		// Display
 		ObjectsList();
@@ -254,6 +254,15 @@ void Editor::Update()
 		{
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
+
+		#ifdef _DEBUG
+			// Please don't delete, super important
+			if (rand() % 1000000 == 0)
+			{
+				extern const char *ErrorList[];
+				AddPopUp(PopUpWindow(ErrorList[0], 2.5f, PopUpPosition::Center));
+			}
+		#endif
 
 		ImGui::Render();
 	}
@@ -332,14 +341,23 @@ void Editor::Push_Action(EditorAction&& a)
 }
 
 
-void Editor::Pop_Action()
+void Editor::Undo_Action()
 {
+	m_actions.history[m_actions.size - 1].redo = false;
 	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
 	--m_actions.size;
 }
 
 
-void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
+void Editor::Redo_Action()
+{
+	m_actions.history[m_actions.size - 1].redo = true;
+	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
+	++m_actions.size;
+}
+
+
+void Editor::QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
 {
 	if (m_selected_object)
 	{
@@ -362,21 +380,26 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (m_selected_object && Input::IsPressed(Key::Mouse_1) && !ImGui::GetIO().WantCaptureMouse)
+	if (Input::IsPressed(Key::V))
 	{
-		const glm::vec2 mouse = Input::GetMousePos();
+		const glm::vec2 mouse = Input::GetMousePos_World();
 
-		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
+		for (auto id : m_objects)
 		{
-			const glm::vec2 scale = transform.Get()->GetScale();
-			const glm::vec2 pos = transform.Get()->GetPosition();
-
-			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
+			if (id)
 			{
-				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
+				GameObject object = id;
+				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+				const glm::vec2 scale = transform.Get()->GetScale();
+				const glm::vec2 pos = transform.Get()->GetPosition();
+
+				if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
 				{
-					// Save the GameObject data
-					m_selected_object = transform.GetGameObject().Getid();
+					if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
+					{
+						// Save the GameObject data
+						m_selected_object = transform.GetGameObject().Getid();
+					}
 				}
 			}
 		}
@@ -451,10 +474,11 @@ void Editor::UpdatePopUps(float dt)
 		PopUpWindow& popup = m_pop_ups[i];
 		ImVec2 pos;
 		size_t text_padding = strlen(popup.message) * 6;
+
 		switch (popup.pos)
 		{
 		case PopUpPosition::BottomLeft:
-			pos = ImVec2(0, static_cast<float>(height) - padding.y);
+			pos = ImVec2(padding.x, static_cast<float>(height) - padding.y);
 			break;
 
 		case PopUpPosition::BottomRight:
@@ -462,15 +486,18 @@ void Editor::UpdatePopUps(float dt)
 			break;
 
 		case PopUpPosition::TopRight:
-			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, 0);
+			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, padding.y);
 			break;
 
 		case PopUpPosition::TopLeft:
-			pos = ImVec2(0, 0);
+			pos = ImVec2(padding.x, padding.y);
 			break;
 
 		case PopUpPosition::Center:
 			pos = ImVec2(width / 2.0f, height / 2.0f);
+			break;
+		case PopUpPosition::Mouse:
+			pos = Input::GetMousePos();
 			break;
 		}
 
@@ -493,13 +520,13 @@ void Editor::UpdatePopUps(float dt)
 }
 
 
-void PrintObjects(Editor *editor)
+void Editor::PrintObjects()
 {
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
 	GameObject object(0);
 
-	for (auto& object_id : editor->m_objects)
+	for (auto& object_id : m_objects)
 	{
 		// Use invalid gameObject as a delimiter
 		if (object_id == INVALID_GAMEOBJECT_ID)
@@ -526,20 +553,20 @@ void PrintObjects(Editor *editor)
 		{
 			if (ImGui::Selectable(name_buffer))
 			{
-				if (editor->m_multiselect.m_size < MAX_SELECT)
+				if (m_multiselect.m_size < MAX_SELECT)
 				{
-					editor->m_multiselect.push_back(object);
+					m_multiselect.push_back(object);
 				}
 
-				editor->SetGameObject(object);
+				SetGameObject(object);
 			}
 		}
 		else
 		{
 			if (ImGui::Selectable(name_buffer))
 			{
-				editor->m_multiselect.clear();
-				editor->SetGameObject(object);
+				m_multiselect.clear();
+				SetGameObject(object);
 				break;
 			}
 		}		
@@ -557,15 +584,36 @@ void Editor::ObjectsList()
 
 	if (Button("Create"))
 	{
-		CreateGameObject("No Name");
-	} SameLine();
+		ImGui::OpenPopup("Create Component###CreateComponent");
+	} 
+
+	if (ImGui::BeginPopup("Create Component###CreateComponent"))
+	{
+		char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue);
+		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
+
+		if (ImGui::Button("Create###createObjectListButton"))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>();
+
+			m_selected_object = object.Getid();
+		}
+
+		ImGui::EndPopup();
+	}
+	
+	SameLine();
 
 	if (Button("Add Space"))
 	{
 		engine->GetSpaceManager()->AddSpace();
 	}
 
-	PrintObjects(this);
+	PrintObjects();
 
 	End();
 }
@@ -825,12 +873,13 @@ void Editor::MenuBar()
 		{
 			if (ImGui::MenuItem("Undo", "CTRL+Z")) 
 			{
-				Pop_Action();
+				Undo_Action();
 			}
 			
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) 
+			if (ImGui::MenuItem("Redo", "CTRL+Y")) 
 			{
-			}  // Disabled item
+				Redo_Action();
+			}
 			
 			ImGui::EndMenu();
 		}

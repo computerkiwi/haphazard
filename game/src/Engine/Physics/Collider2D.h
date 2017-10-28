@@ -17,6 +17,8 @@ constexpr char *collider_types[] =
 	"Box"
 };
 
+class DynamicCollider2DComponent;
+
 class Collider2D
 {
 public:
@@ -46,6 +48,8 @@ public:
 
 	// setters
 	void SetColliderType(colliderType colliderType);
+	void SetStatic();
+	void SetDynamic();
 	void SetDimensions(glm::vec3 newDimensions);
 	void SetOffset(glm::vec3 newOffset);
 	void SetRotationOffset(float newRotationOffset);
@@ -98,6 +102,8 @@ public:
 	{
 	}
 
+	explicit StaticCollider2DComponent(DynamicCollider2DComponent *dyn_collider);
+
 	StaticCollider2DComponent(const StaticCollider2DComponent& other) : m_colliderData(other.m_colliderData)
 	{
 	}
@@ -124,6 +130,8 @@ public:
 							   m_colliderData(colliderType, dimensions, collisionLayer, offset, rotationOffset)
 	{
 	}
+
+	explicit DynamicCollider2DComponent(StaticCollider2DComponent *static_collider);
 
 	DynamicCollider2DComponent(const DynamicCollider2DComponent& other) : m_colliderData(other.m_colliderData)
 	{

@@ -23,14 +23,44 @@ using namespace ImGui;
 template <typename T>
 void Action_General(EditorAction& a)
 {
-	*reinterpret_cast<T *>(a.object) = a.old_value.GetData<T>();
+	if (a.redo)
+	{
+		*reinterpret_cast<T *>(a.object) = a.new_value.GetData<T>();
+	}
+	else
+	{
+		*reinterpret_cast<T *>(a.object) = a.old_value.GetData<T>();
+	}
 }
+
 
 template <>
 void Action_General<ResourceID>(EditorAction& a)
 {
 //	static_cast<SpriteComponent *>(a.object)->SetTextureResource()
 }
+
+enum ErrorIndex
+{
+	FailedToStartEditor = 1,
+	HasRigidBodyDynamicCollider,
+	HasStaticCollider
+};
+
+const char * ErrorList[] = 
+{
+	"Error 00: See Brett if you see this",
+	"Error 01: Cannot Start the Editor",
+	"Error 02: This Object has a RigidBody or a Dynamic Collider.",
+	"Error 03: This Object has a Static Collider.",
+	"Error 04: ",
+	"Error 05: ",
+	"Error 06: ",
+	"Error 07: ",
+	"Error 08: ",
+	"Error 09: ",
+	"Error 10: "
+};
 
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
@@ -159,6 +189,13 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<RigidBodyComponent>();
+					if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
+					{
+					}
+					else
+					{
+						object.AddComponent<DynamicCollider2DComponent>();
+					}
 				}
 			}
 			else if (Button("Dynamic Collider"))
@@ -170,11 +207,16 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				{
 					if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 					{
-						// Display an error
+						editor->AddPopUp(PopUpWindow(ErrorList[HasStaticCollider], 2.0f, PopUpPosition::Mouse));
 					}
 					else
 					{
-						object.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+						object.AddComponent<DynamicCollider2DComponent>();
+						if (object.GetComponent<RigidBodyComponent>().IsValid())
+						{
+							object.AddComponent<RigidBodyComponent>();
+							editor->AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
+						}
 					}
 				}
 			}
@@ -187,7 +229,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				{
 					if (object.GetComponent<DynamicCollider2DComponent>().IsValid() || object.GetComponent<RigidBodyComponent>().IsValid())
 					{
-						editor->AddPopUp(PopUpWindow("This object has a Dynamic Collider or a RigidBody!", 2.0f, PopUpPosition::Center));
+						editor->AddPopUp(PopUpWindow(ErrorList[HasRigidBodyDynamicCollider], 2.0f, PopUpPosition::Mouse));
 					}
 					else
 					{
@@ -238,7 +280,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		}
 		else if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 		{
-			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>().Get()->ColliderData(), object, editor);
+			ImGui_Collider2D(&object.GetComponent<StaticCollider2DComponent>()->ColliderData(), object, editor);
 		}
 		else if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 		{
@@ -404,6 +446,13 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 		if (Button("Remove##rigidbody"))
 		{
 			object.DeleteComponent<RigidBodyComponent>();
+
+			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
+			{
+				object.AddComponent<StaticCollider2DComponent>(object.GetComponent<DynamicCollider2DComponent>().Get());
+				object.DeleteComponent<DynamicCollider2DComponent>();
+				editor->AddPopUp(PopUpWindow("Converted to Static Collider.", 1.5f, PopUpPosition::Mouse));
+			}
 			return;
 		}
 
@@ -481,6 +530,14 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			return;
 		}
 
+		// if (sprite->isAnimated())
+		// {
+		//		int frame = sprite->GetFrame();
+		//		SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetFrameCount());
+		//		sprite->SetFrame(frame);
+		// }
+
+
 		ResourceManager& rm = engine->GetResourceManager();
 
 		std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
@@ -523,6 +580,26 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			return;
 		}
 
+		bool dynamic = collider->isStatic() ? false : true;
+
+		if (Checkbox("Dynamic Collider", &dynamic))
+		{
+			if (dynamic)
+			{
+				object.AddComponent<RigidBodyComponent>();
+				object.AddComponent<DynamicCollider2DComponent>(object.GetComponent<StaticCollider2DComponent>().Get());
+				object.DeleteComponent<StaticCollider2DComponent>();
+				return;
+			}
+			else
+			{
+				object.AddComponent<StaticCollider2DComponent>(object.GetComponent<DynamicCollider2DComponent>().Get());
+				object.DeleteComponent<DynamicCollider2DComponent>();
+				object.DeleteComponent<RigidBodyComponent>();
+				return;
+			}
+		}
+
 		if (TreeNode("Dimensions"))
 		{
 			PushItemWidth(120);
@@ -550,6 +627,10 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				break;
 			}
 		}
+
+		float dummy = 0.0f;
+		SliderFloat("Elasticity", &dummy, 0.0f, 1.0f);
+		
 
 		// Collision Type
 		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);

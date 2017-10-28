@@ -96,7 +96,7 @@ struct ImVec2
     ImVec2() : x(0), y(0) {}
     ImVec2(float _x, float _y) : x(_x), y(_y) {}
 #ifdef IM_VEC2_CLASS_EXTRA          // Define constructor and implicit cast operators in imconfig.h to convert back<>forth from your math types and ImVec2.
-    IM_VEC2_CLASS_EXTRA
+	IM_VEC2_CLASS_EXTRA
 #endif
 };
 

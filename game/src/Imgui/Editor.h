@@ -1,5 +1,5 @@
 /*
-FILE: Editor.h
+          FILE: Editor.h
 PRIMARY AUTHOR: Sweet
 
 Copyright � 2017 DigiPen (USA) Corporation.
@@ -42,8 +42,9 @@ struct EditorAction
 	meta::Any old_value;
 	meta::Any new_value;
 	void *object;
-
 	actionFunc func;
+
+	bool redo;
 };
 
 
@@ -53,7 +54,8 @@ enum PopUpPosition
 	TopRight,
 	BottomRight,
 	BottomLeft,
-	Center
+	Center, 
+	Mouse
 };
 struct PopUpWindow
 {
@@ -67,13 +69,13 @@ struct PopUpWindow
 
 class Editor
 {
-	friend void PrintObjects(Editor *editor);
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	Engine * m_engine;
 	bool m_show_editor;
 
+	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
 
@@ -132,7 +134,7 @@ class Editor
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
-	void CreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
 
@@ -152,11 +154,13 @@ public:
 	void Clear();
 
 	void Push_Action(EditorAction&& a);
-	void Pop_Action();
+	void Undo_Action();
+	void Redo_Action();
 
 	void AddPopUp(PopUpWindow&& pop);
 
 	void SetGameObject(GameObject new_object);
+	void PrintObjects();
 	void ToggleEditor();
 
 	void Tools();
@@ -165,5 +169,3 @@ public:
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };
-
-void PrintObjects(Editor *editor);
