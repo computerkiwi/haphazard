@@ -46,23 +46,34 @@ typedef enum Gamepad
 
 namespace Input
 {
-    ////////// Functions //////////
+    ////////// Main Input Functions //////////
     void Init(GLFWwindow * window);
     void Update();
     void Exit();
 
+    // Key states
     bool IsPressed(Key key);
     bool IsHeldDown(Key key);
     bool IsReleased(Key key);
-
-    void SetGamepad();
-    void InputDebug(Key key);
     void SetKeyState(int key, KeyState state);
-    void ResetKeyStates();
 
+    void InputDebug(Key key1, Key key2, Key key3);
+
+    // Gamepad functions
+    void SetGamepad();
+    float GamepadGetAxis(PlayerNum player, GamepadAxis axis);
+    bool GamepadIsPressed(PlayerNum player, GamepadButton button);
+    bool GamepadIsHeldDown(PlayerNum player, GamepadButton button);
+    bool GamepadIsReleased(PlayerNum player, GamepadButton button);
+
+    // Update functions
+    void UpdateKeyStates();
+    void UpdateGamepads();
+
+    // Cursor functions
     glm::vec2 GetMousePos();
     glm::vec2 GetMousePos_World();
-    glm::vec2 ScreenToWorld(glm::vec2 screen);
+    glm::vec2 ScreenToWorld(glm::vec2 cursor);
 
     ////////// Callback Functions //////////
     // GLFW doesn't know what an object is, needs static

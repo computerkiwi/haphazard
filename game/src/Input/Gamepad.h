@@ -20,30 +20,37 @@ Copyright 2017 DigiPen (USA) Corporation.
 
 class Gamepad
 {
-
-
   private:
-    int ID_;
-    int buttons_;
-    int axes_; // 6 axes: left analog (x,y), right analog (x,y), L2 (sensitivity), R2 (sensitivity))
-    unsigned char const * buttonsCurrState_;
-    float const * axesCurrState_;
+    int ID_;                                  // Gamepad ID
+    bool enabled_;                            // Gamepad is connected
+    int numAxes_;                             // Number of axes in gamepad
+    int numButtons_;                          // Number of buttons in gamepad
+    float const * axisValues_;                // 6 axes: left analog (x,y), right analog (x,y), L2 (sensitivity), R2 (sensitivity))
+    unsigned char * buttonsPrevState_;        // Store previous button state
+    unsigned char * buttonsCurrState_;        //
+    unsigned char const * buttonsNextState_;  // Provided by GLFW
+
+    // Include dead zone
+
+//    void GamepadDebug();
+    void BitPrint(const unsigned char * const array, int count);
 
   public:
     Gamepad(int ID);
     ~Gamepad();
+    void Update();
 
-    void SetGamepadButton(unsigned char const & buttons);
-    void SetGamepadAxis(float const & axes);
+    void UpdateButtons();
+//    void UpdateAxes();
+
+    void EnableGamepad();
+    void DisableGamepad();
     int GetGamepadID();
     int GetGamepadButton();
-    int GetGamepadAxis();
+    float GetGamepadAxis(GamepadAxis axis);
 
+    bool IsConnected();
     bool IsPressed(GamepadButton button);
     bool IsHeldDown(GamepadButton button);
-    
-    glm::vec2 GetGamepadAxes(GamepadAxis axes);
-    float GetGamepadSingleAxis(GamepadAxis axis);
-
-    void GamepadDebug();
+    bool IsReleased(GamepadButton button);
 };
