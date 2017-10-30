@@ -59,7 +59,7 @@ class ParticleSystem
 {
 public:
 	ParticleSystem(glm::vec2 position = glm::vec2(0,0));
-	void Render(float dt);
+	void Render(float dt, glm::vec2 pos);
 
 
 	// Emitter loops or dies after lifetime
@@ -126,8 +126,8 @@ public:
 	void SetTrailColor(glm::vec4 start, glm::vec4 end) { m_settings.TrailStartColor = start; m_settings.TrailEndColor = end; }
 
 private:
-	void UpdateParticles(float dt);
-	void RenderParticles();
+	void UpdateParticles(float dt, glm::vec2 pos);
+	void RenderParticles(glm::vec2 pos);
 	void GenRandomTexture();
 
 	int m_isFirst = 0; // Is first time rendering

@@ -38,6 +38,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "graphics\Text.h"
 #include "graphics\Camera.h"
+#include "graphics\Particles.h"
 
 GLFWwindow* WindowInit(); 
 
@@ -68,6 +69,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	m_space.RegisterComponentType<SpriteComponent>();
 	m_space.RegisterComponentType<TextComponent>();
 	m_space.RegisterComponentType<Camera>();
+	m_space.RegisterComponentType<ParticleSystem>();
 
 	// Register the systems.
 	m_space.RegisterSystem(new PhysicsSystem);
@@ -120,6 +122,7 @@ Engine::Engine() : m_window(WindowInit()), m_editor(this, m_window)
 	Brett_obj6.AddComponent<TransformComponent>(glm::vec3(0, 1, -1), glm::vec3(1, 1, 1));
 	Brett_obj6.AddComponent<SpriteComponent>(new Texture("sampleBlend.png"));
 	Brett_obj6.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+	Brett_obj6.AddComponent<ParticleSystem>();
 
 	GameObject MainCamera = m_space.NewGameObject();
 	MainCamera.AddComponent<Camera>();

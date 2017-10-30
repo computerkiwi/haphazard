@@ -68,17 +68,17 @@ ParticleSystem::ParticleSystem(glm::vec2 position)
 }
 
 
-void ParticleSystem::Render(float dt)
+void ParticleSystem::Render(float dt, glm::vec2 pos)
 {
 	glBindVertexArray(m_VAO);
 	//glPointSize(10);
-	UpdateParticles(dt);
-	RenderParticles();
+	UpdateParticles(dt, pos);
+	RenderParticles(pos);
 
 	std::swap(m_currVB, m_currTFB);
 }
 
-void ParticleSystem::UpdateParticles(float dt)
+void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 {
 	m_time += dt;
 
@@ -107,7 +107,7 @@ void ParticleSystem::UpdateParticles(float dt)
 	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.BurstEmission);
 	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.EmissionShape) );
 	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.EmissionShapeScale);
-	Shaders::particleUpdateShader->SetVariable("EmitterPosition", glm::vec2(0, 0));
+	Shaders::particleUpdateShader->SetVariable("EmitterPosition", pos);
 	// Lifetimes
 	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.EmitterLifetime);
 	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", m_settings.ParticleLifetime);
@@ -149,7 +149,7 @@ void ParticleSystem::UpdateParticles(float dt)
 }
 
 
-void ParticleSystem::RenderParticles()
+void ParticleSystem::RenderParticles(glm::vec2 pos)
 {
 	Shaders::particleRenderShader->Use();
 
@@ -163,7 +163,7 @@ void ParticleSystem::RenderParticles()
 	Shaders::particleRenderShader->SetVariable("TrailEndColor", m_settings.TrailEndColor);
 
 	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.ParticleSpace) );
-	Shaders::particleRenderShader->SetVariable("EmitterPosition", glm::vec2(0,0));
+	Shaders::particleRenderShader->SetVariable("EmitterPosition", pos);
 	if (m_settings.Texture)
 	{
 		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.Texture->GetID());

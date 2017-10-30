@@ -18,8 +18,6 @@ static bool resizeCameras = false;
 static int width;
 static int height;
 
-ParticleSystem *particles;
-
 RenderSystem::RenderSystem()
 {
 }
@@ -28,7 +26,6 @@ void RenderSystem::Init()
 {
 	Font::InitFonts();
 
-	particles = new ParticleSystem();
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
@@ -105,7 +102,16 @@ void RenderSystem::Update(float dt)
 		textHandle->Draw(transform->GetMatrix4());
 	}
 
-	particles->Render(dt);
+	ComponentMap<ParticleSystem> *particles = GetGameSpace()->GetComponentMap<ParticleSystem>();
+	for (auto& particleHandle : *particles)
+	{
+		ComponentHandle<TransformComponent> transform = particleHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+		particleHandle->Render(dt, transform->GetPosition());
+	}
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
