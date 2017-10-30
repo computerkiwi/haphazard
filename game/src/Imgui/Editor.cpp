@@ -269,6 +269,20 @@ void Editor::Update()
 }
 
 
+void Editor::KeyBindings()
+{
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
+	{
+		Undo_Action();
+	}
+
+	if (Input::IsPressed(Key::LeftControl) && Input::IsPressed(Key::Y))
+	{
+		Redo_Action();
+	}
+}
+
+
 // Register a command using a lambda
 void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
 {
@@ -351,8 +365,8 @@ void Editor::Undo_Action()
 
 void Editor::Redo_Action()
 {
-	m_actions.history[m_actions.size - 1].redo = true;
-	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
+	m_actions.history[m_actions.size].redo = true;
+	m_actions.history[m_actions.size].func(m_actions.history[m_actions.size]);
 	++m_actions.size;
 }
 
@@ -437,15 +451,15 @@ void Editor::Tools()
 
 		switch (m_tool)
 		{
-		case Translation:
+		case Tool::Translation:
 			DebugGraphic::DrawShape(pos, glm::vec2(5, 5));
 			break;
 
-		case Scale:
+		case Tool::Scale:
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
 			break;
 
-		case Rotation:
+		case Tool::Rotation:
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
 			break;
 		default:
@@ -467,13 +481,29 @@ void Editor::UpdatePopUps(float dt)
 	int height = 0;
 	glfwGetWindowSize(m_engine->GetWindow(), &width, &height);
 
-	glm::vec2 padding(65, 65);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_ShowBorders |
+		ImGuiWindowFlags_NoFocusOnAppearing |
+		ImGuiWindowFlags_NoScrollbar;
+
 
 	for (int i = 0; i < m_pop_ups.size(); ++i)
 	{
 		PopUpWindow& popup = m_pop_ups[i];
+		float text_padding = strlen(popup.message) * 5.75f;
+
+		// float offset = m_pop_ups.size() - i;
+		glm::vec2 padding(65, 65);
+		
 		ImVec2 pos;
-		size_t text_padding = strlen(popup.message) * 6;
+		ImVec2 size(text_padding * 2, 42);
 
 		switch (popup.pos)
 		{
@@ -503,20 +533,40 @@ void Editor::UpdatePopUps(float dt)
 
 		if (popup.timer > 0)
 		{
-			popup.timer -= dt;
-			ImGui::OpenPopup(popup.message);
-			ImGui::SetNextWindowPos(pos);
-			if (ImGui::BeginPopup(popup.message))
+			// f = t * b + a(1 - t)
+			constexpr float factor = 0.25f;
+
+			float alpha = 1.0f;
+			if (popup.timer < 0.25f)
 			{
-				ImGui::Text(popup.message);
-				ImGui::EndPopup();
+				alpha = (popup.timer / popup.max_time) * factor + popup.alpha * (1 - factor);
 			}
+
+			popup.timer -= dt;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+
+			ImGui::SetNextWindowPos(pos);
+			ImGui::SetNextWindowSize(size);
+
+			ImGui::Begin(popup.message, nullptr, flags);
+			ImGui::PushAllowKeyboardFocus(false);
+
+			ImGui::Text(popup.message);
+
+			popup.alpha = alpha;
+
+			ImGui::PopAllowKeyboardFocus();
+			ImGui::End();
+			ImGui::PopStyleVar(1);
 		}
 		else
 		{
 			m_pop_ups.erase(m_pop_ups.begin() + i);
 		}
 	}
+
+	ImGui::PopStyleVar(1);
 }
 
 
@@ -772,7 +822,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 				for (auto& command : editor->m_commands)
 				{
-					if (Strnicmp(command.second.command, word_start, (int)(word_end - word_start)) == 0)
+					if (Strnicmp(command.second.command, word_start, static_cast<int>((word_end - word_start))) == 0)
 					{
 						editor->m_matches.push_back(command.second.command);
 					}
@@ -858,7 +908,7 @@ void Editor::MenuBar()
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				engine->FileSave("GameWasSaved.json");
+				engine->FileSave(m_filename.c_str());
 				AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
 			}
 
@@ -883,9 +933,19 @@ void Editor::MenuBar()
 			
 			ImGui::EndMenu();
 		}
+		if (ImGui::Button("PopUp"))
+		{
+			AddPopUp(PopUpWindow("Pop Up", 10.0f, PopUpPosition::BottomRight));
+		}
 		if (ImGui::Button("Console"))
 		{
 			m_show_console = !m_show_console;
+		}
+
+		char filename[512];
+		if (ImGui::InputText("Filename", filename, 512, ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			m_filename = filename;
 		}
 
 		ImGui::EndMainMenuBar();
@@ -1100,7 +1160,9 @@ void Editor::Console()
 	}
 
 	if ((ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+	{
 		ImGui::SetKeyboardFocusHere(-1);
+	}
 
 	// Draw PopUp
 	ImVec2 pop_pos(ImGui::GetItemRectMin());

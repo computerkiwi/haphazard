@@ -43,16 +43,18 @@ void Action_General<ResourceID>(EditorAction& a)
 enum ErrorIndex
 {
 	FailedToStartEditor = 1,
+	HasComponent,
 	HasRigidBodyDynamicCollider,
 	HasStaticCollider
 };
 
 const char * ErrorList[] = 
 {
-	"Error 00: See Brett if you see this",
+	"Error 00: See Max if you see this",
 	"Error 01: Cannot Start the Editor",
-	"Error 02: This Object has a RigidBody or a Dynamic Collider.",
-	"Error 03: This Object has a Static Collider.",
+	"Error 02: Already has this Component Type.",
+	"Error 03: This Object has a RigidBody or a Dynamic Collider.",
+	"Error 04: This Object has a Static Collider.",
 	"Error 04: ",
 	"Error 05: ",
 	"Error 06: ",
@@ -61,6 +63,9 @@ const char * ErrorList[] =
 	"Error 09: ",
 	"Error 10: "
 };
+
+
+#define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
 
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
@@ -175,6 +180,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (object.GetComponent<SpriteComponent>().IsValid())
 				{
+					HAS_COMPONENT;
 				}
 				else
 				{
@@ -185,6 +191,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (object.GetComponent<RigidBodyComponent>().IsValid())
 				{
+					HAS_COMPONENT;
 				}
 				else
 				{
@@ -202,6 +209,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 				{
+					HAS_COMPONENT;
 				}
 				else
 				{
@@ -212,7 +220,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					else
 					{
 						object.AddComponent<DynamicCollider2DComponent>();
-						if (object.GetComponent<RigidBodyComponent>().IsValid())
+						if (!object.GetComponent<RigidBodyComponent>().IsValid())
 						{
 							object.AddComponent<RigidBodyComponent>();
 							editor->AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
@@ -224,6 +232,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 				{
+					HAS_COMPONENT;
 				}
 				else
 				{
@@ -241,6 +250,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (object.GetComponent<ScriptComponent>().IsValid())
 				{
+					HAS_COMPONENT;
 				}
 				else
 				{

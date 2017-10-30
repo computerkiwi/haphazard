@@ -60,9 +60,11 @@ enum PopUpPosition
 struct PopUpWindow
 {
 	PopUpWindow(const char *msg, float time, PopUpPosition position) 
-		: message(msg), timer(time), pos(position) {}
+		: message(msg), timer(time), max_time(time), alpha(1), pos(position) {}
 	const char *message;
 	float timer;
+	float max_time;
+	float alpha;
 	PopUpPosition pos;
 };
 
@@ -78,6 +80,8 @@ class Editor
 	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
+
+	std::string m_filename = "SaveData.json";
 
 	struct Actions
 	{
@@ -145,6 +149,8 @@ public:
 	~Editor();
 
 	void Update();
+
+	void KeyBindings();
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
