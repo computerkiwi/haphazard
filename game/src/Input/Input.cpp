@@ -15,17 +15,14 @@ Copyright 2017 DigiPen (USA) Corporation.
 
 namespace Input
 {
-  #define MAX_KEY_SIZE 350
-  #define MAX_PLAYERS 4
+  #define MAX_KEY_SIZE 350 // Maximum number of keys on keyboard and mouse
+  #define MAX_PLAYERS 4    // Maximum number of players
 
-  // Key to check, Last Key state, Current Key state
-//  typedef std::map<int, std::pair<int, int>> TriggerMap;
-
+  // Vector of keys available
   typedef std::vector<int> InputData;
 
   ////////// Static Variables //////////
   static GLFWwindow * inputWindow;         // Window to detect input from
-//  static TriggerMap triggerMap;          // 0 to 9, A to Z, special characters, modifiers, numpad
   static glm::vec2 cursorPos;              // x, y cursor positions; top-left is origin
   static std::vector<Gamepad *> gamepads;  // TEMP: vector of gamepad objects
 
@@ -67,28 +64,10 @@ namespace Input
   // Calls GLFW functions to check and store input
   void Update()
   {
-    // Callback function always called first
+    // Callback functions always called first; key states stored in "next state"
 
-    // Store states from callback
-
-    // Probably change this to controls/commands
-    for (int i = 0; i < MAX_PLAYERS; ++i)
-    {
-      if (gamepads[i]->IsConnected() == true)
-      {
-        gamepads[i]->Update();
-
-        if (gamepads[i]->IsPressed(GamepadButton::RightTrigger))
-        {
-          printf("Button X is pressed\n");
-        }
-      }
-    }
-
-    if (IsPressed(Key::A))
-    {
-      std::cout << "A was pressed" << std::endl;
-    }
+    // Read gamepad input
+    UpdateGamepads();
 
     // Copy over current to previous key states
     UpdateKeyStates();
@@ -130,23 +109,12 @@ namespace Input
 
   // Check if key is pressed; takes the key to check
   // Returns true if pressed
-  bool IsPressed(int key)
+  bool IsPressed(Key key)
   {
-    //// Key pressed
-    //if ((keyEvents[key].first == KeyState::Pressed) && (keyEvents[key].second == false))
-    //{
-    //  // Event handled
-    //  keyEvents[key].second = true;
+    int i = static_cast<int>(key);
 
-    //  return true;
-    //}
-
-    //if (triggerMap[key].first == KeyState::Released && triggerMap[key].second == KeyState::Pressed)
-    //{
-    //  return true;
-    //}
-
-    if ((prevState[key] == KeyState::Released) && (currState[key] == KeyState::Pressed))
+    if ((prevState[i] == KeyState::Released) &&
+        (currState[i] == KeyState::Pressed))
     {
       return true;
     }
@@ -157,24 +125,12 @@ namespace Input
   
   // Check if key is held down; takes the key to check
   // Returns true if held down
-  bool IsHeldDown(int key)
+  bool IsHeldDown(Key key)
   {
-    //if ((keyEvents[key].first == KeyState::HeldDown) && (keyEvents[key].second == false))
-    //{
-    //  // Event handled
-    //  keyEvents[key].second = true;
+    int i = static_cast<int>(key);
 
-    //  return true;
-    //}
-
-    //if ((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown) &&
-    //    (triggerMap[key].second == KeyState::Pressed) || (triggerMap[key].second == KeyState::HeldDown))
-    //{
-    //  return true;
-    //}
-    //
-
-    if ((prevState[key] != KeyState::Released) && (currState[key] != KeyState::Released))
+    if ((prevState[i] != KeyState::Released) &&
+        (currState[i] != KeyState::Released))
     {
       return true;
     }
@@ -185,22 +141,12 @@ namespace Input
 
   // Check if key has been released; takes key to check
   // Returns true if released
-  bool IsReleased(int key)
+  bool IsReleased(Key key)
   {
-    //if ((keyEvents[key].first == KeyState::Released) && (keyEvents[key].second == false))
-    //{
-    //  // Event handled
-    //  keyEvents[key].second = true;
+    int i = static_cast<int>(key);
 
-    //  return true;
-    //}
-
-    //if (((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown)) && (triggerMap[key].second == KeyState::Released))
-    //{
-    //  return true;
-    //}
-
-    if ((prevState[key] == KeyState::Pressed) && (currState[key] == KeyState::Released))
+    if ((prevState[i] != KeyState::Released) &&
+        (currState[i] == KeyState::Released))
     {
       return true;
     }
@@ -227,61 +173,58 @@ namespace Input
   }
 
   // Debug to check for key states and cursor coordinates
-  void InputDebug(int key)
+  void InputDebug(Key key1, Key key2, Key key3)
   {
-    char letter = static_cast<int>(key);
+    char letter1 = static_cast<int>(key1);
+    char letter2 = static_cast<int>(key2);
+    char letter3 = static_cast<int>(key3);
 
-    if (IsPressed(key) == true)
+    if (IsPressed(key1) == true)
     {
-      printf("%c is pressed\n", letter);
+      printf("%c is pressed\n", letter1);
     }
-    else if (IsHeldDown(key) == true)
+    else if (IsHeldDown(key2) == true)
     {
-      printf("%c is held down\n", letter);
+      printf("%c is held down\n", letter2);
     }
-    else if (IsReleased(key) == true)
+    else if (IsReleased(key3) == true)
     {
-      printf("%c is released\n", letter);
+      printf("%c is released\n", letter3);
     }
 
-    if (IsHeldDown(key))
-    {
-      glm::vec2 coordinates = GetMousePos_World();
-      printf("World coordinates: x = %f, y = %f\n", coordinates.x, coordinates.y);
-    }
+    //if (IsHeldDown(key2))
+    //{
+    //  glm::vec2 coordinates = GetMousePos_World();
+    //  printf("World coordinates: x = %f, y = %f\n", coordinates.x, coordinates.y);
+    //}
 
   }
 
   // Callback for GLFW keyboard input detection
-  // Stores keyboard input information
+  // Stores keyboard input information to be set as Current State in next frame
   void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
   {
-    std::cout << "Callback called.\n";
     if (key)
     {
       switch (action)
       {
         // Key was pressed
         case GLFW_PRESS:
-//          SetKeyState(key, KeyState::Pressed);
-          nextState[key] = KeyState::Pressed;
+          SetKeyState(key, KeyState::Pressed);
           break;
 
         // Key was held down
         case GLFW_REPEAT:
-//          SetKeyState(key, KeyState::HeldDown);
-          nextState[key] = KeyState::HeldDown;
+          SetKeyState(key, KeyState::HeldDown);
           break;
 
         // Key was released
         case GLFW_RELEASE:
-//          SetKeyState(key, KeyState::Released);
-          nextState[key] = KeyState::Released;
+          SetKeyState(key, KeyState::Released);
       }
 
     // Noah does a thing
 	  ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
-
     }
   }
 
@@ -296,7 +239,7 @@ namespace Input
   void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod)
   {
     // Button was pressed
-    if ((button >= 0) && (action == static_cast<int>(KeyState::Pressed)))
+    if ((button >= 0) && (action == KeyState::Pressed))
     {
       SetKeyState(button, KeyState::Pressed);
     }
@@ -310,6 +253,7 @@ namespace Input
     {
       std::cout << "Gamepad connected" << std::endl;
 
+      // Enable gamepad
       gamepads[joy]->EnableGamepad();
 
     }
@@ -323,63 +267,74 @@ namespace Input
     }
   }
 
-  // Helper function for finding keys
-  void SetKeyState(int key, int state)
+  // Helper function to delay update until input is read
+  void SetKeyState(int key, KeyState state)
   {
-    // Set key state: first = previous, second = current; creates key is it doesn't exist
-    //triggerMap[static_cast<Key>(key)].first = triggerMap[static_cast<Key>(key)].second;
-    //triggerMap[static_cast<Key>(key)].second = state;
-
-    //// State changed, add to key events
-    //if (triggerMap[static_cast<Key>(key)].first != triggerMap[static_cast<Key>(key)].second)
-    //{
-    //  keyEvents[static_cast<Key>(key)].first = state;  // Change state
-    //  keyEvents[static_cast<Key>(key)].second = false; // Event not handled
-    //}
-
-    currState[key] = state;
+    // Sets next state
+    nextState[key] = state;
   }
 
   // Update previous state with current state
+  // Sets current state to next state from callback
   void UpdateKeyStates()
   {
- //   TriggerMap::iterator it = triggerMap.begin();
-
- //   while (it != triggerMap.end())
- //   {
- //     //if (it->second.first != it->second.second)
- //     //{
- //     //  it->second.first = it->second.second;
- //     //}
-
- //     it->second.first = it->second.second;
- ////     it->second.second = KeyState::Released;
-
- //     ++it;
- //   }
-
-    //InputData::iterator curr = currState.begin();
-    //InputData::iterator prev = prevState.begin();
-    //InputData::iterator next = nextState.begin();
-
-    //while (curr != currState.end())
-    //{
-    //  prev->second = curr->second;
-
-    //  next = nextState.find(curr->first);
-    //  if (next != nextState.end())
-    //  {
-    //    curr->second = next->second;
-    //  }
-
-    //  ++curr;
-    //  ++prev;
-    //}
-
+    // Loops through all keys
     for (int i = 0; i < MAX_KEY_SIZE; ++i)
     {
       prevState[i] = currState[i];
       currState[i] = nextState[i];
+    }
+  }
+
+  void UpdateGamepads()
+  {
+    // Update each gamepad
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+      if (gamepads[i]->IsConnected() == true)
+      {
+        gamepads[i]->Update();
+        if (gamepads[i]->IsPressed(GamepadButton::B))
+        {
+          std::cout << "Gamepad button B pressed" << std::endl;
+        }
+      }
+    }
+  }
+
+  // Gets value for specific gamepad axis
+  float GamepadGetAxis(PlayerNum player, GamepadAxis axis)
+  {
+    if (gamepads[player]->IsConnected())
+    {
+      return gamepads[player]->GetGamepadAxis(axis);
+    }
+  }
+
+  // Checks if gamepad button is pressed
+  bool GamepadIsPressed(PlayerNum player, GamepadButton button)
+  {
+    if (gamepads[player]->IsConnected())
+    {
+      return gamepads[player]->IsPressed(button);
+    }
+  }
+
+  // Checks if gamepad button is held down
+  bool GamepadIsHeldDown(PlayerNum player, GamepadButton button)
+  {
+    if (gamepads[player]->IsConnected())
+    {
+      return gamepads[player]->IsHeldDown(button);
+    }
+  }
+
+  // Checks if gamepad button is released
+  bool GamepadIsReleased(PlayerNum player, GamepadButton button)
+  {
+    if (gamepads[player]->IsConnected())
+    {
+      return gamepads[player]->IsReleased(button);
     }
   }
 }

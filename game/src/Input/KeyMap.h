@@ -2,34 +2,35 @@
 
 // Avoids polluting global namespace
 
-namespace KeyState
+typedef enum KeyState : int
 {
-  enum : int
-  {
-    Released = 0,
-    Pressed = 1,
-    HeldDown = 2
-  };
-}
+  Released = 0,
+  Pressed = 1,
+  HeldDown = 2
+} KeyState;
 
-namespace Action
+// Player number
+typedef enum PlayerNum : int
 {
-  enum : int
-  {
+  Player1,
+  Player2,
+  Player3,
+  Player4
+}PlayerNum;
+
+enum class Action : int
+{
     Jump,
     Attack,
     Stack,
     Toss,
     MoveLeft,
     MoveRight
-  };
-}
+};
 
 // All keyboard and mouse buttons
-namespace Key
+enum class Key : int
 {
-  enum : int
-  {
     // For fancy meese
     Mouse_1,
     Mouse_2,
@@ -163,45 +164,38 @@ namespace Key
     RightControl = 345,
     RightAlt = 346
 
-  };
-}
+};
 
-namespace GamepadButton
+enum class GamepadButton : int
 {
-  enum : int
-  {
-      A,
-      B,
-      X,
-      Y,
-      LeftTrigger,
-      RightTrigger,
-      Back,
-      Start,
-      LeftThumb,
-      RightThumb,
-      Up,
-      Right,
-      Down,
-      Left
-  };
-}
+  A,
+  B,
+  X,
+  Y,
+  LeftTrigger,
+  RightTrigger,
+  Back,
+  Start,
+  LeftThumb,
+  RightThumb,
+  Up,
+  Right,
+  Down,
+  Left
+};
 
-namespace GamepadAxis
+enum class GamepadAxis : int
 {
-  enum : int
-  {
-    LeftAnalog_X,
-    LeftAnalog_Y,
-    RightAnalog_X,
-    RightAnalog_Y,
-    LeftTrigger,
-    RightTrigger,
+  LeftAnalog_X,
+  LeftAnalog_Y,
+  RightAnalog_X,
+  RightAnalog_Y,
+  LeftTrigger,
+  RightTrigger,
 
-    LeftAnalog,  // Both left XY axes
-    RightAnalog, // Both right XY axes
+  LeftAnalog,  // Both left XY axes
+  RightAnalog, // Both right XY axes
 
-  //  Horizontal = LeftAnalog_X,
-  //  Vertical = LeftAnalog_Y,
-  };
-}
+//  Horizontal = LeftAnalog_X,
+//  Vertical = LeftAnalog_Y,
+};

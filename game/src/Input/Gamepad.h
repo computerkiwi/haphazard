@@ -20,22 +20,20 @@ Copyright 2017 DigiPen (USA) Corporation.
 
 class Gamepad
 {
-
-
   private:
-    int ID_;       // gamepad ID
-    bool enabled_; // gamepad Enabled
-    int axes_;
-    int buttons_;
-    std::map<int, std::pair<int, bool>> gamepadButtonEvents_;  // Button state (pressed, held down, released), EventHandled
-    std::map<int, float> gamepadAxisVals_;                            // Axis values (-1 to 1)
+    int ID_;                                  // Gamepad ID
+    bool enabled_;                            // Gamepad is connected
+    int numAxes_;                             // Number of axes in gamepad
+    int numButtons_;                          // Number of buttons in gamepad
+    float const * axisValues_;                // 6 axes: left analog (x,y), right analog (x,y), L2 (sensitivity), R2 (sensitivity))
+    unsigned char * buttonsPrevState_;        // Store previous button state
+    unsigned char * buttonsCurrState_;        //
+    unsigned char const * buttonsNextState_;  // Provided by GLFW
+
     // Include dead zone
 
-    // Current button states
-    unsigned char * buttonsPrevState_;
-    unsigned char const * buttonsCurrState_;
-
-    float const * axesCurrState_; // 6 axes: left analog (x,y), right analog (x,y), L2 (sensitivity), R2 (sensitivity))
+//    void GamepadDebug();
+    void BitPrint(const unsigned char * const array, int count);
 
   public:
     Gamepad(int ID);
@@ -43,23 +41,16 @@ class Gamepad
     void Update();
 
     void UpdateButtons();
-    void UpdateAxes();
+//    void UpdateAxes();
 
-    void SetGamepadButton();
-    void SetGamepadAxis();
     void EnableGamepad();
     void DisableGamepad();
     int GetGamepadID();
     int GetGamepadButton();
-    int GetGamepadAxis();
+    float GetGamepadAxis(GamepadAxis axis);
 
     bool IsConnected();
-    bool IsPressed(int button);
-    bool IsHeldDown(int button);
-    bool IsReleased(int button);
-    
-    glm::vec2 GetGamepadAxes(int axes);
-    float GetGamepadSingleAxis(int axis);
-
-    void GamepadDebug();
+    bool IsPressed(GamepadButton button);
+    bool IsHeldDown(GamepadButton button);
+    bool IsReleased(GamepadButton button);
 };
