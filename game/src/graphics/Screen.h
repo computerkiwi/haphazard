@@ -40,7 +40,7 @@ public:
 	void SetBackgroundColor(float r, float g, float b, float a);
 	void SetEffects(int count, FX fx[]);
 	void AddEffect(FX fx);
-	void SetBlurAmount(int amt);
+	void SetBlurAmount(float amt);
 
 	void AddRaindrop();
 	static void UpdateRaindrops(float dt);
@@ -121,7 +121,7 @@ private: // Variables
 	Mesh mFullscreen;
 	std::vector<FX> mFXList;
 
-	int blurAmount = 2;
+	float blurAmount = 1;
 
 	Screen()
 	{

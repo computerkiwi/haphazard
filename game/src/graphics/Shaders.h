@@ -23,6 +23,9 @@ namespace Shaders
 	void Unload();
 
 	extern ShaderProgram* defaultShader;
+	extern ShaderProgram* textShader;
+	extern ShaderProgram* particleUpdateShader;
+	extern ShaderProgram* particleRenderShader;
 
 	extern ShaderProgram* debugShader;
 
@@ -92,41 +95,50 @@ public:
 
 	ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::vector<Attribute> attributes);
 	ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attributes);
+	explicit ShaderProgram(GLuint id) : m_ID{id} {}
 	~ShaderProgram();
 
 	bool wasCompiled();
 	GLuint GetProgramID();
 	void Use();
 
+	void SetAttributes(std::vector<Attribute> attributes) { m_Attributes = attributes; }
+
 	template<typename T>
 	void SetVariable(char* varName, T value)
 	{
 		Use();
-		glUniform1f(glGetUniformLocation(id, varName), value);
+		glUniform1f(glGetUniformLocation(m_ID, varName), value);
 	}
 
 	void ShaderProgram::SetVariable(char* varName, glm::mat4 value)
 	{
 		Use();
-		glUniformMatrix4fv(glGetUniformLocation(id, varName), 1, GL_FALSE, glm::value_ptr(value));
+		glUniformMatrix4fv(glGetUniformLocation(m_ID, varName), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
 	void ShaderProgram::SetVariable(char* varName, glm::vec2 value)
 	{
 		Use();
-		glUniform2f(glGetUniformLocation(id, varName), value.x, value.y);
+		glUniform2f(glGetUniformLocation(m_ID, varName), value.x, value.y);
 	}
 
 	void ShaderProgram::SetVariable(char* varName, glm::vec3 value)
 	{
 		Use();
-		glUniform3f(glGetUniformLocation(id, varName), value.x, value.y, value.z);
+		glUniform3f(glGetUniformLocation(m_ID, varName), value.x, value.y, value.z);
+	}
+
+	void ShaderProgram::SetVariable(char* varName, glm::vec4 value)
+	{
+		Use();
+		glUniform4f(glGetUniformLocation(m_ID, varName), value.x, value.y, value.z, value.w);
 	}
 
 	void ShaderProgram::SetVariable(char* varName, int value)
 	{
 		Use();
-		glUniform1i(glGetUniformLocation(id, varName), value);
+		glUniform1i(glGetUniformLocation(m_ID, varName), value);
 	}
 
 	void ApplyAttributes();
@@ -134,9 +146,9 @@ public:
 
 private:
 
-	GLuint id;
-	std::vector<Attribute> attributes;
-	bool successfulCompile = false;
+	GLuint m_ID;
+	std::vector<Attribute> m_Attributes;
+	bool m_SuccessfulCompile = false;
 };
 
 

@@ -40,6 +40,10 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "input\Input.h"
 
+#include "graphics\Text.h"
+#include "graphics\Camera.h"
+#include "graphics\Particles.h"
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
@@ -75,6 +79,9 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 #define GENERATE_SCENE
 #ifdef GENERATE_SCENE
+	m_space.RegisterComponentType<ParticleSystem>();
+	m_space.RegisterComponentType<Camera>();
+	m_space.RegisterComponentType<TextComponent>();
 
 	m_spaces.AddSpace();
 	m_spaces.AddSpace();

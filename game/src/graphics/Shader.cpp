@@ -77,7 +77,7 @@ ShaderProgram::Attribute::Attribute(GLuint loc, int numArgs, GLenum argType, siz
 void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 {
 	if(name)
-		index = glGetAttribLocation(program->id, name);
+		index = glGetAttribLocation(program->m_ID, name);
 
 	glEnableVertexAttribArray(index);
 
@@ -100,51 +100,82 @@ void ShaderProgram::Attribute::Apply(ShaderProgram* program)
 ///
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::vector<Attribute> attribs)
-	: attributes{attribs}
+	: m_Attributes{attribs}
 {
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader.GetShaderID());
-	glAttachShader(id, fragmentShader.GetShaderID());
-	glLinkProgram(id);
+	m_ID = glCreateProgram();
+	glAttachShader(m_ID, vertexShader.GetShaderID());
+	glAttachShader(m_ID, fragmentShader.GetShaderID());
+	glLinkProgram(m_ID);
 
-	successfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled();
+	GLint isLinked = 0;
+	glGetProgramiv(m_ID, GL_LINK_STATUS, &isLinked);
+	if (isLinked == GL_FALSE) // Check for linking error
+	{
+		GLint logSize = 0;
+		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		if (logSize > 0)
+		{
+			std::vector<char> log(logSize);
+			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+			glDeleteShader(m_ID);
+		}
+	}
+
+	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
 }
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
-	: attributes{ attribs }
+	: m_Attributes{ attribs }
 {
-	id = glCreateProgram();
-	glAttachShader(id, vertexShader.GetShaderID());
-	glAttachShader(id, geoShader.GetShaderID());
-	glAttachShader(id, fragmentShader.GetShaderID());
-	glLinkProgram(id);
+	m_ID = glCreateProgram();
+	glAttachShader(m_ID, vertexShader.GetShaderID());
+	glAttachShader(m_ID, geoShader.GetShaderID());
+	glAttachShader(m_ID, fragmentShader.GetShaderID());
+	glLinkProgram(m_ID);
 
-	successfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled();
+	GLint isLinked = 0;
+	glGetProgramiv(m_ID, GL_LINK_STATUS, &isLinked);
+	if (isLinked == GL_FALSE) // Check for linking error
+	{
+		GLint logSize = 0;
+		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		if (logSize > 0)
+		{
+			std::vector<char> log(logSize);
+			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+			glDeleteShader(m_ID);
+
+		}
+	}
+
+	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
 }
 
 ShaderProgram::~ShaderProgram()
 {
-	glDeleteProgram(id);
+	glDeleteProgram(m_ID);
 }
 
 bool ShaderProgram::wasCompiled()
 {
-	return successfulCompile;
+	return m_SuccessfulCompile;
 }
 
 GLuint ShaderProgram::GetProgramID()
 { 
-	return id; 
+	return m_ID; 
 }
 
 void ShaderProgram::Use()
 { 
-	glUseProgram(id); 
+	glUseProgram(m_ID); 
 }
 
 void ShaderProgram::ApplyAttributes()
 {
-	for (Attribute& attrib : attributes)
+	for (Attribute& attrib : m_Attributes)
 	{
 		attrib.Apply(this);
 	}
@@ -155,7 +186,7 @@ void ShaderProgram::ApplyAttributes(int start, int end)
 	Attribute* attrib;
 	for (int i = start; i < end; i++)
 	{
-		attrib = &attributes[i];
+		attrib = &m_Attributes[i];
 		attrib->Apply(this);
 	}
 }
@@ -231,6 +262,10 @@ namespace Shaders
 {
 	//Shader Declaration
 	ShaderProgram* defaultShader;
+	ShaderProgram* textShader;
+	ShaderProgram* particleUpdateShader;
+	ShaderProgram* particleRenderShader;
+
 	ShaderProgram* debugShader;
 
 	ShaderProgram* ScreenShader::Raindrop;
@@ -264,6 +299,95 @@ namespace Shaders
 		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
 
 		if (!defaultShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadTextShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		// Vertex
+		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 5, 0));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 5, 3));
+
+		//Character
+		attribs.push_back(ShaderProgram::Attribute("charPos", 2, GL_FLOAT, sizeof(float), false, 10, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 10, 2, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 10, 6, true));
+
+		// Model matrix
+//		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 24, 8, true));
+//		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 24, 12, true));
+//		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 24, 16, true));
+//		attribs.push_back(ShaderProgram::Attribute(9, 4, GL_FLOAT, sizeof(float), false, 24, 20, true));
+
+		textShader = LoadShaders(path + "text.vertshader", path + "text.fragshader", attribs);
+
+		if (!textShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadParticleShaders()
+	{
+		// Particle Update Transform Feedback Shader Program
+		std::string vertShaderSource = LoadFileToString( (path + "particleUpdate.vertshader").c_str() ).c_str();
+		std::string geoShaderSource = LoadFileToString( (path + "particleUpdate.geoshader").c_str() ).c_str();
+		Shader vs_Up = Shader(GL_VERTEX_SHADER, vertShaderSource.c_str());
+		Shader gs_Up = Shader(GL_GEOMETRY_SHADER, geoShaderSource.c_str());
+
+		GLuint updateProgram = glCreateProgram();
+		glAttachShader(updateProgram, vs_Up.GetShaderID());
+		glAttachShader(updateProgram, gs_Up.GetShaderID());
+
+		const GLchar* TFVaryings[] =
+		{
+			"Type",
+			"Position",
+			"Velocity",
+			"Scale",
+			"Rotation",
+			"Life",
+			"MaxLife"
+		};
+
+		glTransformFeedbackVaryings(updateProgram, _countof(TFVaryings), TFVaryings, GL_INTERLEAVED_ATTRIBS);
+
+		glLinkProgram(updateProgram);
+
+		GLint isLinked = 0;
+		glGetProgramiv(updateProgram, GL_LINK_STATUS, &isLinked);
+		if (!vs_Up.wasCompiled() || !gs_Up.wasCompiled() || isLinked == GL_FALSE)
+		{
+			GLint logSize = 0;
+			glGetShaderiv(updateProgram, GL_INFO_LOG_LENGTH, &logSize);
+			if (logSize > 0)
+			{
+				std::vector<char> log(logSize);
+				glGetShaderInfoLog(updateProgram, logSize, &logSize, &log[0]);
+				fprintf(stderr, "Could not link program \n%s\n", &log[0]);
+				glDeleteShader(updateProgram);
+			}
+			else
+				fprintf(stderr, "Could not link program \n");
+			FailedCompile();
+		}
+
+		particleUpdateShader = new ShaderProgram(updateProgram);
+
+		std::vector<ShaderProgram::Attribute> attribs;
+		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 10, 0));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 10, 1));
+		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 10, 3));
+		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 10, 5));
+		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 10, 7));
+		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 10, 8));
+		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 10, 9));
+		particleUpdateShader->SetAttributes(attribs);
+
+		// Particle Render Shader Program
+		// Keep attribs from other shader, all that data is wanted for this shader
+		
+		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.geoshader", path + "particleRender.fragshader", attribs);
+		if (!particleRenderShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -350,6 +474,8 @@ namespace Shaders
 	void Init()
 	{
 		LoadDefaultShader();
+		LoadTextShader();
+		LoadParticleShaders();
 		LoadDebugShader();
 		LoadScreenShaders();
 
@@ -365,6 +491,7 @@ namespace Shaders
 	{
 		delete defaultShader;
 		delete debugShader;
+		delete textShader;
 		delete ScreenShader::Default;
 		delete ScreenShader::Blur;
 		delete ScreenShader::BlurCorners;
@@ -373,6 +500,7 @@ namespace Shaders
 		delete ScreenShader::Sharpen;
 		delete ScreenShader::HDR;
 		delete ScreenShader::Bloom;
+		delete ScreenShader::Raindrop;
 	}
 
 };

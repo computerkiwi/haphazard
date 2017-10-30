@@ -16,7 +16,6 @@ void Texture::GenerateTextureArray()
 	// Warning: If larger or more textures are needed, the size cannot exceed GL_MAX_3D_TEXTURE_SIZE 
 	// 3 mipmap levels, max layers is 128
 	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 3, GL_RGBA8, Texture::MAX_WIDTH, Texture::MAX_HEIGHT, 128);
-	GL_MAX_3D_TEXTURE_SIZE;
 }
 
 void LoadTexture(void* image, int width, int height, int layer, GLenum format)
