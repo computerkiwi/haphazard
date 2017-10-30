@@ -51,18 +51,18 @@ namespace Input
     void Update();
     void Exit();
 
-    bool IsPressed(Key key);
-    bool IsHeldDown(Key key);
-    bool IsReleased(Key key);
+    bool IsPressed(int key);
+    bool IsHeldDown(int key);
+    bool IsReleased(int key);
 
     void SetGamepad();
-    void InputDebug(Key key);
-    void SetKeyState(int key, KeyState state);
-    void ResetKeyStates();
+    void InputDebug(int key);
+    void SetKeyState(int key, int state);
+    void UpdateKeyStates();
 
     glm::vec2 GetMousePos();
     glm::vec2 GetMousePos_World();
-    glm::vec2 ScreenToWorld(glm::vec2 screen);
+    glm::vec2 ScreenToWorld(glm::vec2 cursor);
 
     ////////// Callback Functions //////////
     // GLFW doesn't know what an object is, needs static

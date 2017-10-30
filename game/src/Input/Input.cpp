@@ -13,99 +13,85 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
 
-// Command-based: jump, left, right, attack
-// Keep binding in mind
-
-
-/*Gamepad::Gamepad() : moveLeft_(GLFW_KEY_A), moveRight_(GLFW_KEY_D)
-                     , attack_(GLFW_KEY_RIGHT_ALT), jump_(GLFW_KEY_SPACE)
-{
-}
-
-Gamepad const & Gamepad::GetConfig() const
-{
-  return *this;
-} 
-
-Input::Input(GLFWwindow * window) : window_(window) //, keyMap_()
-{
-} */
-
 namespace Input
 {
+  #define MAX_KEY_SIZE 350
+  #define MAX_PLAYERS 4
 
   // Key to check, Last Key state, Current Key state
-  typedef std::map<Key, std::pair<KeyState, KeyState>> TriggerMap;
+//  typedef std::map<int, std::pair<int, int>> TriggerMap;
+
+  typedef std::vector<int> InputData;
 
   ////////// Static Variables //////////
-  static GLFWwindow * inputWindow;                           // Window to detect input from
-  static TriggerMap triggerMap;                              // 0 to 9, A to Z, special characters, modifiers, numpad
-//  static std::vector<std::pair<Key, KeyState>> keyEvents;  // Key events
-  static std::map<Key, std::pair<KeyState, bool>> keyEvents; // Key to check, key's state, whether or not even was handled
-  static glm::vec2 cursorPos;                                // x, y cursor positions; top-left is origin
-  static std::vector<Gamepad *> gamepads;                    // TEMP: vector of gamepad objects
+  static GLFWwindow * inputWindow;         // Window to detect input from
+//  static TriggerMap triggerMap;          // 0 to 9, A to Z, special characters, modifiers, numpad
+  static glm::vec2 cursorPos;              // x, y cursor positions; top-left is origin
+  static std::vector<Gamepad *> gamepads;  // TEMP: vector of gamepad objects
 
-//  static Gamepad * player1;
+  static InputData prevState(MAX_KEY_SIZE); // Holds previous key states
+  static InputData currState(MAX_KEY_SIZE); // Holds current key states
+  static InputData nextState(MAX_KEY_SIZE); // Holds next key states collected by callback
 
   // Initializes input window for detection
   void Init(GLFWwindow * window)
   {
-    // Set default Gamepad
-
+    // Check for window
     if (window)
     {
       inputWindow = window;
- //     player1Gamepad
     }
     else
     {
       std::cout << "No input window set" << std::endl;
     }
 
+    // Callbacks for GLFW
+    glfwSetKeyCallback(inputWindow, KeyCallback);                  // Keyboard
+    glfwSetCursorPosCallback(inputWindow, CursorCallback);         // Cursor position
+    glfwSetMouseButtonCallback(inputWindow, MouseButtonCallback);  // Mouse buttons
+    glfwSetJoystickCallback(GamepadCallback);                      // Gamepad connectivity
+
+    // Allocate memory for gamepads
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+      gamepads.push_back(new Gamepad(i));
+
+      if (glfwJoystickPresent(i))
+      {
+        gamepads[i]->EnableGamepad();
+      }
+    }
   }
 
   // Calls GLFW functions to check and store input
   void Update()
   {
-    // Input mode (GLFW set input mode): sticky Key (makes sure a key is polled, event stays until handled)
+    // Callback function always called first
 
-    // Callbacks for GLFW
-    glfwSetKeyCallback(inputWindow, KeyCallback);
-    glfwSetCursorPosCallback(inputWindow, CursorCallback);
-    glfwSetMouseButtonCallback(inputWindow, MouseButtonCallback);
+    // Store states from callback
 
-    //glfwPollEvents();
-
-    // Detects gamepads
-    glfwSetJoystickCallback(GamepadCallback);
-    
-    // Gamepads connected
-    if (gamepads.size() > 0)
+    // Probably change this to controls/commands
+    for (int i = 0; i < MAX_PLAYERS; ++i)
     {
-      for (int i = 0; i < gamepads.size(); ++i)
+      if (gamepads[i]->IsConnected() == true)
       {
-        gamepads[0]->GamepadDebug();
+        gamepads[i]->Update();
+
+        if (gamepads[i]->IsPressed(GamepadButton::RightTrigger))
+        {
+          printf("Button X is pressed\n");
+        }
       }
     }
 
-//    ResetKeyStates();
-    /*
-    for (size_t i = 0; i < gamepads.size(); ++i)
+    if (IsPressed(Key::A))
     {
-      if (gamepads[i] != NULL)
-      {
-        int axes; // ???? Why do I need the address whyyy
+      std::cout << "A was pressed" << std::endl;
+    }
 
-        glfwGetJoystickAxes(gamepads[i]->GetGamepadID(), &axes);
-
-        gamepads[i]->SetAxes(axes);
-
-
-        std::cout << "ID: " << gamepads[i]->GetGamepadID() << std::endl;
-        std::cout << "AXES: " << gamepads[i]->GetGamepadAxis() << std::endl;
-      }
-    } */
-
+    // Copy over current to previous key states
+    UpdateKeyStates();
   }
 
   // Screen coordinates
@@ -121,36 +107,47 @@ namespace Input
   }
 
   // Upper left is (0,0)
-  glm::vec2 ScreenToWorld(glm::vec2 screen)
+  glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
+    glm::vec2 origin;
     int world_x;
     int world_y;
 
+    // Retrieve screen size
     glfwGetWindowSize(inputWindow, &world_x, &world_y);
+
+    origin.x = world_x / 2;
+    origin.y = world_y / 2;
+
     printf("GLFW world: x = %d, y = %d\n", world_x, world_y);
     printf("GLFW cursor pos: x = %f, y = %f\n", cursorPos.x, cursorPos.y);
-    return glm::vec2(screen.x/ world_x, screen.y/ world_y);
+
+ //   glm::
+
+
+    return glm::vec2(cursor.x/ world_x, cursor.y/ world_y);
   }
 
   // Check if key is pressed; takes the key to check
   // Returns true if pressed
-  bool IsPressed(Key key)
+  bool IsPressed(int key)
   {
     //// Key pressed
-    //if ((triggerMap[key].first == KeyState::Released) && (triggerMap[key].second == KeyState::Pressed))
+    //if ((keyEvents[key].first == KeyState::Pressed) && (keyEvents[key].second == false))
     //{
-    //  // Reset key state
-    //  triggerMap[key].second = KeyState::Released;
+    //  // Event handled
+    //  keyEvents[key].second = true;
 
     //  return true;
     //}
 
-    // Key pressed
-    if ((keyEvents[key].first == KeyState::Pressed) && (keyEvents[key].second == false))
-    {
-      // Event handled
-      keyEvents[key].second = true;
+    //if (triggerMap[key].first == KeyState::Released && triggerMap[key].second == KeyState::Pressed)
+    //{
+    //  return true;
+    //}
 
+    if ((prevState[key] == KeyState::Released) && (currState[key] == KeyState::Pressed))
+    {
       return true;
     }
 
@@ -160,38 +157,37 @@ namespace Input
   
   // Check if key is held down; takes the key to check
   // Returns true if held down
-  bool IsHeldDown(Key key)
+  bool IsHeldDown(int key)
   {
-    //// Key was pressed or held down, and not currently released
-    //if (((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown)) &&
-    //     (triggerMap[key].second != KeyState::Released))
+    //if ((keyEvents[key].first == KeyState::HeldDown) && (keyEvents[key].second == false))
     //{
-
     //  // Event handled
     //  keyEvents[key].second = true;
 
     //  return true;
     //}
 
-    if ((keyEvents[key].first == KeyState::HeldDown) && (keyEvents[key].second == false))
-    {
-      // Event handled
-      keyEvents[key].second = true;
+    //if ((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown) &&
+    //    (triggerMap[key].second == KeyState::Pressed) || (triggerMap[key].second == KeyState::HeldDown))
+    //{
+    //  return true;
+    //}
+    //
 
+    if ((prevState[key] != KeyState::Released) && (currState[key] != KeyState::Released))
+    {
       return true;
     }
-    
+
     // Key not held down
     return false;
   }
 
   // Check if key has been released; takes key to check
   // Returns true if released
-  bool IsReleased(Key key)
+  bool IsReleased(int key)
   {
-    //// Key was pressed or held down, and now released
-    //if (((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown)) &&
-    //     (triggerMap[key].second == KeyState::Released))
+    //if ((keyEvents[key].first == KeyState::Released) && (keyEvents[key].second == false))
     //{
     //  // Event handled
     //  keyEvents[key].second = true;
@@ -199,11 +195,13 @@ namespace Input
     //  return true;
     //}
 
-    if ((keyEvents[key].first == KeyState::Released) && (keyEvents[key].second == false))
-    {
-      // Event handled
-      keyEvents[key].second = true;
+    //if (((triggerMap[key].first == KeyState::Pressed) || (triggerMap[key].first == KeyState::HeldDown)) && (triggerMap[key].second == KeyState::Released))
+    //{
+    //  return true;
+    //}
 
+    if ((prevState[key] == KeyState::Pressed) && (currState[key] == KeyState::Released))
+    {
       return true;
     }
 
@@ -229,60 +227,56 @@ namespace Input
   }
 
   // Debug to check for key states and cursor coordinates
-  void InputDebug(Key key)
+  void InputDebug(int key)
   {
     char letter = static_cast<int>(key);
 
-    if (Input::IsPressed(key) == true)
+    if (IsPressed(key) == true)
     {
       printf("%c is pressed\n", letter);
     }
-    else if (Input::IsHeldDown(key) == true)
+    else if (IsHeldDown(key) == true)
     {
       printf("%c is held down\n", letter);
     }
-    else if (Input::IsReleased(key) == true)
+    else if (IsReleased(key) == true)
     {
       printf("%c is released\n", letter);
     }
 
-    if (Input::IsHeldDown(key))
+    if (IsHeldDown(key))
     {
       glm::vec2 coordinates = GetMousePos_World();
       printf("World coordinates: x = %f, y = %f\n", coordinates.x, coordinates.y);
     }
 
-
   }
-
-
-  // Array slot of each possible key that stores current state; modify state whenever pressed/released
-  // Function for checking which key is pressed
-  // Mouse position, key presses
-  // Get axis from Unity (tutorial for input scheme)
 
   // Callback for GLFW keyboard input detection
   // Stores keyboard input information
   void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
   {
+    std::cout << "Callback called.\n";
     if (key)
     {
       switch (action)
       {
         // Key was pressed
         case GLFW_PRESS:
-          SetKeyState(key, KeyState::Pressed);
+//          SetKeyState(key, KeyState::Pressed);
+          nextState[key] = KeyState::Pressed;
           break;
 
         // Key was held down
         case GLFW_REPEAT:
-          SetKeyState(key, KeyState::HeldDown);
+//          SetKeyState(key, KeyState::HeldDown);
+          nextState[key] = KeyState::HeldDown;
           break;
 
         // Key was released
         case GLFW_RELEASE:
-          SetKeyState(key, KeyState::Released);
- //         triggerMap[static_cast<Key>(key)].first = KeyState::Released;
+//          SetKeyState(key, KeyState::Released);
+          nextState[key] = KeyState::Released;
       }
 
     // Noah does a thing
@@ -294,11 +288,6 @@ namespace Input
   // Stores mouse position
   void CursorCallback(GLFWwindow * window, double xpos, double ypos)
   {
-    //double x_pos;
-    //double y_pos;
-
-    //glfwGetCursorPos(inputWindow, &x_pos, &y_pos);
-
     cursorPos.x = (float)xpos;
     cursorPos.y = (float)ypos;
   }
@@ -310,8 +299,6 @@ namespace Input
     if ((button >= 0) && (action == static_cast<int>(KeyState::Pressed)))
     {
       SetKeyState(button, KeyState::Pressed);
-
- //     std::cout << "MOUSE BUTTON " << button << " was pressed" << std::endl;
     }
   }
 
@@ -323,49 +310,76 @@ namespace Input
     {
       std::cout << "Gamepad connected" << std::endl;
 
-      // Add gamepad ID to player list
-      gamepads.push_back(new Gamepad(joy));
-
-      // Set Gamepad
+      gamepads[joy]->EnableGamepad();
 
     }
     // Joystick disconnected
     else if (event == GLFW_DISCONNECTED)
     {
       std::cout << "Gamepad disconnected" << std::endl;
+      
+      // Disable gamepad
+      gamepads[joy]->DisableGamepad();
     }
   }
 
   // Helper function for finding keys
-  void SetKeyState(int key, KeyState state)
+  void SetKeyState(int key, int state)
   {
     // Set key state: first = previous, second = current; creates key is it doesn't exist
-    triggerMap[static_cast<Key>(key)].first = triggerMap[static_cast<Key>(key)].second;
-    triggerMap[static_cast<Key>(key)].second = state;
+    //triggerMap[static_cast<Key>(key)].first = triggerMap[static_cast<Key>(key)].second;
+    //triggerMap[static_cast<Key>(key)].second = state;
 
-    // State changed, add to key events
-    if (triggerMap[static_cast<Key>(key)].first != triggerMap[static_cast<Key>(key)].second)
-    {
-//      keyEvents.push_back(std::make_pair(static_cast<Key>(key), state));
+    //// State changed, add to key events
+    //if (triggerMap[static_cast<Key>(key)].first != triggerMap[static_cast<Key>(key)].second)
+    //{
+    //  keyEvents[static_cast<Key>(key)].first = state;  // Change state
+    //  keyEvents[static_cast<Key>(key)].second = false; // Event not handled
+    //}
 
-      keyEvents[static_cast<Key>(key)].first = state;
-      keyEvents[static_cast<Key>(key)].second = false;
-
-//      printf("State changed %d to %d\n", key, state);
-    }
+    currState[key] = state;
   }
 
-  // Reset all key states to released
-  void ResetKeyStates()
+  // Update previous state with current state
+  void UpdateKeyStates()
   {
-    TriggerMap::iterator it = triggerMap.begin();
+ //   TriggerMap::iterator it = triggerMap.begin();
 
-    while (it != triggerMap.end())
+ //   while (it != triggerMap.end())
+ //   {
+ //     //if (it->second.first != it->second.second)
+ //     //{
+ //     //  it->second.first = it->second.second;
+ //     //}
+
+ //     it->second.first = it->second.second;
+ ////     it->second.second = KeyState::Released;
+
+ //     ++it;
+ //   }
+
+    //InputData::iterator curr = currState.begin();
+    //InputData::iterator prev = prevState.begin();
+    //InputData::iterator next = nextState.begin();
+
+    //while (curr != currState.end())
+    //{
+    //  prev->second = curr->second;
+
+    //  next = nextState.find(curr->first);
+    //  if (next != nextState.end())
+    //  {
+    //    curr->second = next->second;
+    //  }
+
+    //  ++curr;
+    //  ++prev;
+    //}
+
+    for (int i = 0; i < MAX_KEY_SIZE; ++i)
     {
-      it->second.first = KeyState::Released;
-      it->second.second = KeyState::Released;
-
-      ++it;
+      prevState[i] = currState[i];
+      currState[i] = nextState[i];
     }
   }
 }
