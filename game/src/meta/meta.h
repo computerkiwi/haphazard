@@ -438,8 +438,12 @@ namespace meta
 #define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER));\
                                (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<BASETYPE>(#BASETYPE).addProperty(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))
 
+// Currently only does Lua registration.
+#define META_DefineFunction(TYPE, FUNCTION, NAME) (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<TYPE>(#TYPE).addFunction(NAME, &TYPE::FUNCTION))
+
 #define META_NAMESPACE(NAMESPACE)
-#define META_REGISTER(TYPE) private: friend class ::meta::Type; public: static void Meta__Register__##TYPE()
+// Templated to allow types. Any type that has been meta registered is allowed.
+#define META_REGISTER(TYPE) private: friend class ::meta::Type; public: template <typename Dummy = int> static void Meta__Register__##TYPE()
 
 #include "meta.inl"
 #include "MemberGetSet.inl"

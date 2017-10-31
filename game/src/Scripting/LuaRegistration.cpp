@@ -11,26 +11,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "lua.hpp"
 #include "LuaBridge.h"
 
-#include "glm\glm.hpp"
-
-#include "GameObjectSystem/TransformComponent.h"
-#include "Engine/Physics/RigidBody.h"
-#include "GameObjectSystem/GameObject.h"
-#include "GameObjectSystem/Component.h"
 #include "Input/Input.h"
-
-//------------
-// GameObject
-//------------
-TransformComponent *GameObjectGetTransform(GameObject &gObject)
-{
-	return gObject.GetComponent<TransformComponent>().Get();
-}
-RigidBodyComponent *GameObjectGetRigidBody(GameObject &gObject)
-{
-	return gObject.GetComponent<RigidBodyComponent>().Get();
-}
-
 
 //-------
 // Input
@@ -44,13 +25,6 @@ bool LuaIsPressed(int val)
 void RegisterLua(lua_State * L)
 {
 	luabridge::getGlobalNamespace(L)
-
-		.beginClass<GameObject>("GameObject")
-		.addStaticFunction("GetTransform", &GameObjectGetTransform)
-		.addStaticFunction("GetRigidBody", &GameObjectGetRigidBody)
-		.endClass()
-
-
 		.addFunction("IsPressed", &LuaIsPressed);
 		
 }

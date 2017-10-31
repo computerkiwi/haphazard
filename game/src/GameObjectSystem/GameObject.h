@@ -105,12 +105,27 @@ private:
 		};
 		GameObject_ID m_objID;
 	};
+
 	static rapidjson::Value GameObjectSerialize(const void *gameObjectPtr, rapidjson::Document::AllocatorType& allocator);
 	static void GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue);
+
+	// Returns a pointer. This is dangerous and probably bad because it's not a handle. 
+	// Function created because Luabridge likes pointers, not component handles.
+	template <typename T>
+	T *GetComponentPointer()
+	{
+		return GetComponent<T>().Get();
+	}
 
 	META_REGISTER(GameObject)
 	{
 		META_DefineType(GameObject);
 		META_DefineMember(GameObject, m_objID, "id");
+
+		META_DefineFunction(GameObject, GetComponentPointer<TransformComponent>, "GetTransform");
+		META_DefineFunction(GameObject, GetComponentPointer<RigidBodyComponent>, "GetRigidBody");
+		META_DefineFunction(GameObject, GetComponentPointer<StaticCollider2DComponent>, "GetStaticCollider");
+		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
+		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>, "GetSprite");
 	}
 };
