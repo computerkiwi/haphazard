@@ -1,3 +1,9 @@
+/*
+FILE: Shader.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -12,49 +18,49 @@
 
 Shader::Shader(unsigned int shaderType, const char* source)
 {
-	id = glCreateShader(shaderType);
-	glShaderSource(id, 1, &source, NULL);
-	successfulCompile = Compile();
+	m_ID = glCreateShader(shaderType);
+	glShaderSource(m_ID, 1, &source, NULL);
+	m_SuccessfulCompile = Compile();
 }
 
 Shader::Shader(unsigned int shaderType, std::string& source)
 {
 	const char* c_source = source.c_str();
-	glShaderSource(id, 1, &c_source, NULL);
-	successfulCompile = Compile();
+	glShaderSource(m_ID, 1, &c_source, NULL);
+	m_SuccessfulCompile = Compile();
 }
 
 Shader::~Shader()
 { 
-	glDeleteShader(id); 
+	glDeleteShader(m_ID); 
 }
 
 bool Shader::wasCompiled()
 { 
-	return successfulCompile; 
+	return m_SuccessfulCompile; 
 }
 
 GLuint Shader::GetShaderID() {
-	return id; 
+	return m_ID; 
 }
 
 bool Shader::Compile()
 {
-	glCompileShader(id);
+	glCompileShader(m_ID);
 
 	//Check compile success
 	GLint success = 0;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(m_ID, GL_COMPILE_STATUS, &success);
 	if (success == GL_FALSE)
 	{
 		GLint logSize = 0;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logSize);
+		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0)
 		{
 			std::vector<char> log(logSize);
-			glGetShaderInfoLog(id, logSize, &logSize, &log[0]);
+			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
 			fprintf(stderr, "Could not compile shader \n%s\n", &log[0]);
-			glDeleteShader(id);
+			glDeleteShader(m_ID);
 		}
 	}
 	return success;
@@ -261,7 +267,7 @@ static const std::string path = "shaders/";
 namespace Shaders
 {
 	//Shader Declaration
-	ShaderProgram* defaultShader;
+	ShaderProgram* spriteShader;
 	ShaderProgram* textShader;
 	ShaderProgram* particleUpdateShader;
 	ShaderProgram* particleRenderShader;
@@ -279,7 +285,7 @@ namespace Shaders
 	ShaderProgram* ScreenShader::ExtractBrights;
 	ShaderProgram* ScreenShader::Bloom;
 
-	void LoadDefaultShader()
+	void LoadSpriteShader()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
 		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 9, 0));
@@ -296,9 +302,9 @@ namespace Shaders
 
 		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(int), false, 1, 0, true));
 
-		defaultShader = LoadShaders(path + "shader.vertshader", path + "shader.fragshader", attribs);
+		spriteShader = LoadShaders(path + "spriteShader.vert", path + "spriteShader.frag", attribs);
 
-		if (!defaultShader->wasCompiled())
+		if (!spriteShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -320,7 +326,7 @@ namespace Shaders
 //		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 24, 16, true));
 //		attribs.push_back(ShaderProgram::Attribute(9, 4, GL_FLOAT, sizeof(float), false, 24, 20, true));
 
-		textShader = LoadShaders(path + "text.vertshader", path + "text.fragshader", attribs);
+		textShader = LoadShaders(path + "text.vert", path + "text.frag", attribs);
 
 		if (!textShader->wasCompiled())
 			FailedCompile();
@@ -329,8 +335,8 @@ namespace Shaders
 	void LoadParticleShaders()
 	{
 		// Particle Update Transform Feedback Shader Program
-		std::string vertShaderSource = LoadFileToString( (path + "particleUpdate.vertshader").c_str() ).c_str();
-		std::string geoShaderSource = LoadFileToString( (path + "particleUpdate.geoshader").c_str() ).c_str();
+		std::string vertShaderSource = LoadFileToString( (path + "particleUpdate.vert").c_str() ).c_str();
+		std::string geoShaderSource = LoadFileToString( (path + "particleUpdate.geo").c_str() ).c_str();
 		Shader vs_Up = Shader(GL_VERTEX_SHADER, vertShaderSource.c_str());
 		Shader gs_Up = Shader(GL_GEOMETRY_SHADER, geoShaderSource.c_str());
 
@@ -386,7 +392,7 @@ namespace Shaders
 		// Particle Render Shader Program
 		// Keep attribs from other shader, all that data is wanted for this shader
 		
-		particleRenderShader = LoadShaders(path + "particleRender.vertshader", path + "particleRender.geoshader", path + "particleRender.fragshader", attribs);
+		particleRenderShader = LoadShaders(path + "particleRender.vert", path + "particleRender.geo", path + "particleRender.frag", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();
 	}
@@ -399,7 +405,7 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 9, 4, true));
 		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 9, 5, true));
 
-		debugShader = LoadShaders(path + "debug.vertshader", path + "debug.geoshader", path + "debug.fragshader", attribs);
+		debugShader = LoadShaders(path + "debug.vert", path + "debug.geo", path + "debug.frag", attribs);
 
 		if (!debugShader->wasCompiled())
 			FailedCompile();
@@ -411,39 +417,39 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 4, 0));
 		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 4, 2));
 
-		ScreenShader::Default = LoadShaders(path + "screenDefault.vertshader", path + "screenDefault.fragshader", attribs);
+		ScreenShader::Default = LoadShaders(path + "screenDefault.vert", path + "screenDefault.frag", attribs);
 		if (!ScreenShader::Default->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::HDR = LoadShaders(path + "screenDefault.vertshader", path + "screenHDR.fragshader", attribs);
+		ScreenShader::HDR = LoadShaders(path + "screenDefault.vert", path + "screenHDR.frag", attribs);
 		if (!ScreenShader::HDR->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::Blur = LoadShaders(path + "screenDefault.vertshader", path + "screenBlur.fragshader", attribs);
+		ScreenShader::Blur = LoadShaders(path + "screenDefault.vert", path + "screenBlur.frag", attribs);
 		if (!ScreenShader::Blur->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::BlurCorners = LoadShaders(path + "screenDefault.vertshader", path + "screenBlurCorners.fragshader", attribs);
+		ScreenShader::BlurCorners = LoadShaders(path + "screenDefault.vert", path + "screenBlurCorners.frag", attribs);
 		if (!ScreenShader::BlurCorners->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::EdgeDetection = LoadShaders(path + "screenDefault.vertshader", path + "screenEdgeDect.fragshader", attribs);
+		ScreenShader::EdgeDetection = LoadShaders(path + "screenDefault.vert", path + "screenEdgeDect.frag", attribs);
 		if (!ScreenShader::EdgeDetection->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::Sharpen= LoadShaders(path + "screenDefault.vertshader", path + "screenSharpen.fragshader", attribs);
+		ScreenShader::Sharpen= LoadShaders(path + "screenDefault.vert", path + "screenSharpen.frag", attribs);
 		if (!ScreenShader::Sharpen->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::ExtractBrights = LoadShaders(path + "screenDefault.vertshader", path + "screenExtractBrights.fragshader", attribs);
+		ScreenShader::ExtractBrights = LoadShaders(path + "screenDefault.vert", path + "screenExtractBrights.frag", attribs);
 		if (!ScreenShader::ExtractBrights->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::Bloom = LoadShaders(path + "screenDefault.vertshader", path + "screenBloom.fragshader", attribs);
+		ScreenShader::Bloom = LoadShaders(path + "screenDefault.vert", path + "screenBloom.frag", attribs);
 		if (!ScreenShader::Bloom->wasCompiled())
 			FailedCompile();
 
-		ScreenShader::Raindrop = LoadShaders(path + "raindrop.vertshader", path + "raindrop.fragshader", attribs);
+		ScreenShader::Raindrop = LoadShaders(path + "raindrop.vert", path + "raindrop.frag", attribs);
 		if (!ScreenShader::Raindrop->wasCompiled())
 			FailedCompile();
 	}
@@ -466,14 +472,14 @@ namespace Shaders
 	void LoadUniformBlockBindings()
 	{
 		//Bind all shaders with Matrices uniform (for camera matrices) to 0
-		GLuint index = glGetUniformBlockIndex(defaultShader->GetProgramID(), "Matrices");
-		glUniformBlockBinding(defaultShader->GetProgramID(), index, 0);
+		GLuint index = glGetUniformBlockIndex(spriteShader->GetProgramID(), "Matrices");
+		glUniformBlockBinding(spriteShader->GetProgramID(), index, 0);
 	}
 
 	// Creates all basic shaders
 	void Init()
 	{
-		LoadDefaultShader();
+		LoadSpriteShader();
 		LoadTextShader();
 		LoadParticleShaders();
 		LoadDebugShader();
@@ -489,7 +495,7 @@ namespace Shaders
 	// Frees all basic shaders
 	void Unload()
 	{
-		delete defaultShader;
+		delete spriteShader;
 		delete debugShader;
 		delete textShader;
 		delete ScreenShader::Default;

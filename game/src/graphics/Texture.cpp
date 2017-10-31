@@ -1,3 +1,9 @@
+/*
+FILE: Texture.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Mesh.h"
 #include "SOIL\SOIL.h"
 
@@ -15,15 +21,12 @@ void Texture::GenerateTextureArray()
 
 	// Warning: If larger or more textures are needed, the size cannot exceed GL_MAX_3D_TEXTURE_SIZE 
 	// 3 mipmap levels, max layers is 128
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 3, GL_RGBA8, Texture::MAX_WIDTH, Texture::MAX_HEIGHT, 128);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 3, GL_RGBA8, Texture::MAX_WIDTH, Texture::MAX_HEIGHT, 32);
 }
 
 void LoadTexture(void* image, int width, int height, int layer, GLenum format)
 {
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, width, height, 1, GL_RGBA, format, image);
-
-	if (layer <= 2)
-		return;
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

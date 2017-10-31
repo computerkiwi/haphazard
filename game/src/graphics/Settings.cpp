@@ -1,3 +1,9 @@
+/*
+FILE: Settings.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Settings.h"
 
 #define SCREEN_WIDTH  800

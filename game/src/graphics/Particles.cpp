@@ -1,4 +1,9 @@
+/*
+FILE: Particles.cpp
+PRIMARY AUTHOR: Max Rauffer
 
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Particles.h"
 #include "Shaders.h"
 #include "Texture.h"

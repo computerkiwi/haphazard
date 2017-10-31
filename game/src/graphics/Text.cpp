@@ -1,3 +1,9 @@
+/*
+FILE: Text.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Text.h"
 
 #include "Util\Logging.h"

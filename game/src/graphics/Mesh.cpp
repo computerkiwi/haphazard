@@ -1,6 +1,11 @@
+/*
+FILE: Mesh.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Mesh.h"
 #include "Texture.h"
-#include "Transform.h"
 
 #include "glm\glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
@@ -17,9 +22,10 @@ GLuint Mesh::textureVBO = 0;
 static Texture* defaultTexture;
 
 Mesh::Mesh(GLenum renderMode)
-  : drawMode{ renderMode }, animatedTexture(nullptr), vaoID{ 0 }, vboID{ 0 }, vertices{ std::vector<Vertice>() }, program{ nullptr }, blend{ BlendMode::BM_DEFAULT }, texture{nullptr}, AT_frame{0}, AT_fps{0}, AT_timer{0}
+  : animatedTexture(nullptr), vaoID{ 0 }, vboID{ 0 }, vertices{ std::vector<Vertice>() }, texture{nullptr}, AT_frame{0}, AT_fps{0}, AT_timer{0}
 {
-	if (!defaultTexture) // no default texture, make it
+	// Generate default texture (1 white pixel) if it does not exist
+	if (!defaultTexture) 
 	{
 		float p[] = { 
 			1,1,1,1,
@@ -27,36 +33,34 @@ Mesh::Mesh(GLenum renderMode)
 		defaultTexture = new Texture(p, 1, 1);
 	}
 
-  program = Shaders::defaultShader;
-
+	// Generate Vertex Attribute Object (VAO)
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
 
+	// Instance VBOs are static, make them if they dont exist
 	if (!instanceVBO)
 	{
+		// Generate buffers to hold vertex and texture data
 		glGenBuffers(1, &instanceVBO);
 		glGenBuffers(1, &textureVBO);
 	}
+	
+	// Setup VBOs for this VAO
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	program->ApplyAttributes(3, 8); // Apply instance attributes
+	Shaders::spriteShader->ApplyAttributes(3, 8); // Apply instance attributes
 
 	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
-	program->ApplyAttributes(8, 9);
+	Shaders::spriteShader->ApplyAttributes(8, 9); // Apply texture instance attribute
 
-	glGenBuffers(1, &vboID); //Start vbo
+	// VBO for non chaning vertex data
+	glGenBuffers(1, &vboID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-
-	program->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember
-
-	//Get Transform attrib locations
-	//uniModel = glGetUniformLocation(program->GetProgramID(), "model");
-	//uniTextureBox = glGetUniformLocation(program->GetProgramID(), "texBox");
+	Shaders::spriteShader->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember
 }
 
 Mesh::~Mesh()
 {
 	//glDeleteBuffers(1, &vboID);
-	//glDeleteVertexArrays(1, &vaoID);
 }
 
 void Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
@@ -98,6 +102,7 @@ void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 {
 	if (animatedTexture)
 	{
+		// Animated textures hold a different texture box depending on the current frame of the animation
 		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
 		glm::vec2 s = animatedTexture->GetSpriteSize();
 
@@ -108,6 +113,7 @@ void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 	}
 	else
 	{
+		// Static textures have constant bounds and start at 0,0
 		glm::vec2 b = texture->GetBounds();
 		data->push_back(0);
 		data->push_back(0);
@@ -126,28 +132,13 @@ GLuint Mesh::GetRenderTextureID()
 		return animatedTexture->GetID();
 	if(texture)
 		return texture->GetID();
+	// No texture bound, return default (blank) texture
 	return defaultTexture->GetID();
 }
 
 void Mesh::SetTexture(Texture* tex)
 { 
 	texture = tex;
-}
-
-void Mesh::SetShader(ShaderProgram *shader)
-{
-	program = shader;
-
-	glBindVertexArray(vaoID);
-	program->ApplyAttributes(); // Apply program attributes for vao to remember
-
-	//Get Transform attrib locations
-	//uniModel = glGetUniformLocation(program->GetProgramID(), "model");
-}
-
-void Mesh::SetBlendMode(BlendMode b)
-{
-	blend = b;
 }
 
 std::vector<Mesh::Vertice>* Mesh::GetVertices()

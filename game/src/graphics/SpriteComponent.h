@@ -1,3 +1,9 @@
+/*
+FILE: SpriteComponent.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include "Mesh.h"
@@ -8,11 +14,17 @@
 class GameObject;
 class SpriteComponent : public Mesh
 {
+	// Editor access
 	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object);
+
 public:
+	// Sprite Constructor for static sprite
 	SpriteComponent(Resource *res = NULL);
-	SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps);
+	// Sprite Contructor for animated sprite
+	SpriteComponent(AnimatedTexture* t, float fps);
 	
+	// Resource functions
+
 	void SetResourceID(ResourceID resID) 
 	{
 		m_resID = resID;

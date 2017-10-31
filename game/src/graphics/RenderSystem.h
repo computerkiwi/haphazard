@@ -1,3 +1,9 @@
+/*
+FILE: RenderSystem.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include "GameObjectSystem\GameSpace.h"
@@ -21,4 +27,9 @@ public:
 
 	// Inherited via SystemBase
 	virtual SystemBase * NewDuplicate() override;
+private:
+	void UpdateCameras(float dt);
+	void RenderSprites(float dt);
+	void RenderText(float dt);
+	void RenderParticles(float dt);
 };

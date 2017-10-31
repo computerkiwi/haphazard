@@ -1,3 +1,9 @@
+/*
+FILE: Texture.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 #include "glm\glm.hpp"
 
@@ -8,9 +14,15 @@ class Texture
 {
 	friend class AnimatedTexture;
 public:
+	// Load texture from file
 	Texture(const char* file);
+
+	// Load texture from memory
 	Texture(float *pixels, int width, int height);
+
+	// Load texture from ID
 	Texture(GLuint id) { m_ID = id; }
+
 	~Texture();
 
 	GLuint GetID() const { return m_ID; }
@@ -20,7 +32,7 @@ public:
 	
 private:
 	const static int MAX_WIDTH = 1920;
-	const static int MAX_HEIGHT = 1920;
+	const static int MAX_HEIGHT = 1080;
 
 	static void GenerateTextureArray();
 

@@ -1,3 +1,9 @@
+/*
+FILE: Screen.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include <glm/glm.hpp>
@@ -5,12 +11,8 @@
 #include <list>
 
 #include "Texture.h"
-#include "Transform.h"
 
 typedef unsigned int GLuint;
-
-
-
 
 enum FX
 {
@@ -25,30 +27,52 @@ enum FX
 class Screen
 {
 	//Disable Defaults
-	Screen(Screen const&) = delete;
-	void operator=(Screen const&) = delete;
+	Screen() = delete;
 
+	// Declaration
+	class FrameBuffer;
+	class Mesh;
 public:
-	static Screen& GetView()
-	{
-		static Screen s;
-		return s;
-	}
 
-	void Use(); // Start render to this screen (clears screen)
+	///
+	// Public Interface
+	///
+	static void InitScreen();
 
-	void SetBackgroundColor(float r, float g, float b, float a);
-	void SetEffects(int count, FX fx[]);
-	void AddEffect(FX fx);
-	void SetBlurAmount(float amt);
+	static void Use(); // Start render to this screen (clears screen)
+	static void Draw();
 
-	void AddRaindrop();
-	static void UpdateRaindrops(float dt);
+	static void ResizeScreen(int width, int height);
+	static void SetBackgroundColor(float r, float g, float b, float a);
 
-	void Draw();
+	static void SetEffects(int count, FX fx[]);
+	static void AddEffect(FX fx);
 
-	void ResizeScreen(int width, int height);
+	static void SetBlurAmount(float amt);
 
+
+	// Legacy (to be removed/changed soon)
+	//static void AddRaindrop();
+	//static void UpdateRaindrops(float dt);
+	//
+
+private: // Private functions
+	static bool UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target);
+
+	static void RenderBloom(FrameBuffer& source, FrameBuffer& target);
+	static void RenderBlur(GLuint colorBuffer, FrameBuffer& target);
+
+
+private: // Variables
+	static FrameBuffer* m_View;
+	static FrameBuffer* m_FX;
+	static Mesh* m_Fullscreen;
+	static std::vector<FX> m_FXList;
+
+	static float m_BlurAmount;
+
+
+public: // Private classes
 	class FrameBuffer
 	{
 		friend Screen;
@@ -65,14 +89,13 @@ public:
 	private:
 		GLuint mID;
 		GLuint mDepthStencilBuffer;
-		GLuint mColorBuffers[2] = {0,0}; // Max color buffers = 2
+		GLuint mColorBuffers[2] = { 0,0 }; // Max color buffers = 2
 		int mWidth, mHeight;
 		int numColBfrs;
 		glm::vec4 mClearColor;
 	};
 
-private:
-
+	// Screen mesh (covers entire screen)
 	class Mesh
 	{
 	public:
@@ -81,19 +104,17 @@ private:
 		void Bind();
 		void DrawTris();
 		GLuint mVAO, mVBO;
-	private:
 	};
 
+/*
+Legacy (to be removed soon)
 	class Raindrop
 	{
 	public:
-
 		Raindrop();
-		static void DrawToScreen(FrameBuffer& screen);
+		static void DrawToScreen(Screen::FrameBuffer& screen);
 		void Draw();
 		void Update(float dt);
-		
-		bool operator== (const Raindrop& r) const;
 
 		static Screen::Mesh* mesh;
 		static Texture* texture;
@@ -103,31 +124,11 @@ private:
 		float speed = 1;
 
 		const glm::vec3 sizeMin = glm::vec3(0.05f, 0.03f, 0.4f);
-		const glm::vec3 sizeMax = glm::vec3(0.1f,   0.15f, 0.7f);
+		const glm::vec3 sizeMax = glm::vec3(0.1f, 0.15f, 0.7f);
 
 		static FrameBuffer* drops;
 		static FrameBuffer* screen;
 		static std::list<Raindrop*> raindrops;
 	};
-
-	bool UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target);
-
-	void RenderBloom(FrameBuffer& source, FrameBuffer& target);
-	void RenderBlur(GLuint colorBuffer, FrameBuffer& target);
-
-private: // Variables
-	FrameBuffer mView;
-	FrameBuffer mFX;
-	Mesh mFullscreen;
-	std::vector<FX> mFXList;
-
-	float blurAmount = 1;
-
-	Screen()
-	{
-		mView = FrameBuffer();
-		mFX = FrameBuffer();
-		mFullscreen = Mesh();
-	}
+*/
 };
-

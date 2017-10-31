@@ -1,3 +1,9 @@
+/*
+FILE: Screen.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include <cstdarg>
 #include <cstdlib>
 #include <ctime>
@@ -5,7 +11,6 @@
 #include "Shaders.h"
 #include "Settings.h"
 #include "Mesh.h"
-#include "Transform.h"
 #include "Texture.h"
 
 #include "GL\glew.h"
@@ -17,36 +22,50 @@
 // Screen
 ///
 
+Screen::FrameBuffer* Screen::m_View;
+Screen::FrameBuffer* Screen::m_FX;
+Screen::Mesh* Screen::m_Fullscreen;
+float Screen::m_BlurAmount = 1;
+std::vector<FX> Screen::m_FXList;
+
+
+void Screen::InitScreen()
+{
+	m_View = new FrameBuffer();
+	m_FX = new FrameBuffer();
+	m_Fullscreen = new Mesh();
+}
+
 void Screen::Use() 
 { 
-	mView.Use(); 
+	m_View->Use(); 
 	glEnable(GL_DEPTH_TEST);
-	mView.Clear(); 
+	m_View->Clear(); 
 }
 
 void Screen::SetBackgroundColor(float r, float g, float b, float a)
 {
-	mView.SetClearColor(r, g, b, a);
-	mFX.SetClearColor(1 - r, 1 - g, 1 - b, a); // Set FX as negative for debug
+	m_View->SetClearColor(r, g, b, a);
+	m_FX->SetClearColor(1 - r, 1 - g, 1 - b, a); // Set FX as negative for debug
 }
 
 void Screen::SetEffects(int c, FX fx[])
 {
-	mFXList.clear();
+	m_FXList.clear();
 	for (int i = 0; i < c; ++i)
 	{
-		mFXList.push_back(fx[i]);
+		m_FXList.push_back(fx[i]);
 	}
 }
 
 void Screen::AddEffect(FX fx)
 {
-	mFXList.push_back(fx);
+	m_FXList.push_back(fx);
 }
 
 void Screen::SetBlurAmount(float amt)
 {
-	blurAmount = amt;
+	m_BlurAmount = amt;
 	Shaders::ScreenShader::Blur->SetVariable("Intensity", amt);
 	/* Use this when blurring via multi-pass gaus blur to save passes
 	blurAmount = amt > 10 ? 10 : amt;
@@ -66,7 +85,7 @@ void Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 	int blurSmooth = 4;
 
 	Shaders::ScreenShader::Blur->Use();
-	mFullscreen.Bind();
+	m_Fullscreen->Bind();
 
 	for (int i = 0; i < blurSmooth /*blurAmount*/; i++)
 	{
@@ -80,11 +99,11 @@ void Screen::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 		else
 			pingpongFBO[!horizontal].BindColorBuffer();
 
-		mFullscreen.DrawTris();
+		m_Fullscreen->DrawTris();
 		horizontal = !horizontal;
 	}
 	target.Use();
-	mFullscreen.DrawTris(); // Draw final product onto target
+	m_Fullscreen->DrawTris(); // Draw final product onto target
 }
 
 void Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
@@ -97,8 +116,8 @@ void Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	target.Use();
 	target.Clear();
 	source.BindColorBuffer();
-	mFullscreen.Bind();
-	mFullscreen.DrawTris();
+	m_Fullscreen->Bind();
+	m_Fullscreen->DrawTris();
 
 	// Target now contains (0) source screen, and (1) extracted brights (raw)
 	RenderBlur(target.ColorBuffer(0), blurredBrights); // Draw blurred brights onto new framebuffer
@@ -113,7 +132,7 @@ void Screen::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	glActiveTexture(GL_TEXTURE1);
 	blurredBrights.BindColorBuffer();
 
-	mFullscreen.DrawTris();
+	m_Fullscreen->DrawTris();
 
 	glActiveTexture(GL_TEXTURE0); // Reset
 }
@@ -146,27 +165,27 @@ bool Screen::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
 
 void Screen::Draw()
 {
-	FrameBuffer result = mView; // Resulting framebuffer after fx are applied (if applicable)
+	FrameBuffer* result = m_View; // Resulting framebuffer after fx are applied (if applicable)
 
-	if (mFXList.size() > 0)
+	if (m_FXList.size() > 0)
 	{
-		FrameBuffer source = mView;
-		FrameBuffer target = mFX;
+		FrameBuffer* source = m_View;
+		FrameBuffer* target = m_FX;
 
-		mFX.Clear(); // Who knows what is in mFX (probably the last frame or something, but clear it or problems will be.)
+		m_FX->Clear(); // Who knows what is in mFX (probably the last frame or something, but clear it or problems will be.)
 		glDisable(GL_DEPTH_TEST);
 
-		mFullscreen.Bind(); // Bind screen mesh
+		m_Fullscreen->Bind(); // Bind screen mesh
 
-		for (auto i = mFXList.begin(); i < mFXList.end(); ++i)
+		for (auto i = m_FXList.begin(); i < m_FXList.end(); ++i)
 		{
-			target.Use(); // Render to target
+			target->Use(); // Render to target
 
-			if (UseFxShader(*i, source, target)) // Use next FX shader on list, returns if uses default rendering
+			if (UseFxShader(*i, *source, *target)) // Use next FX shader on list, returns if uses default rendering
 			{
 				//No special render method, render as normal texture
-				source.BindColorBuffer(); // Bind source screen to target screen
-				mFullscreen.DrawTris(); // Renders to screen other framebuffer
+				source->BindColorBuffer(); // Bind source screen to target screen
+				m_Fullscreen->DrawTris(); // Renders to screen other framebuffer
 			}
 			std::swap(source, target); // Render back and forth, applying another fx shader on each pass
 		}
@@ -174,7 +193,7 @@ void Screen::Draw()
 		result = source; // Save outcome colorbuffer (would be target, but they are swapped at the end of each loop)
 	}
 	
-	Raindrop::DrawToScreen(result);
+	//Raindrop::DrawToScreen(*result);
 
 	// Enable Window framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -184,10 +203,10 @@ void Screen::Draw()
 
 
 	// Render final screen
-	mFullscreen.Bind();
+	m_Fullscreen->Bind();
 	glDisable(GL_DEPTH_TEST); // Dont want to lose screen to near clipping
-	result.BindColorBuffer();
-	mFullscreen.DrawTris();
+	result->BindColorBuffer();
+	m_Fullscreen->DrawTris();
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -195,8 +214,8 @@ void Screen::ResizeScreen(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
-	mView.SetDimensions(width, height);
-	mFX.SetDimensions(width, height);
+	m_View->SetDimensions(width, height);
+	m_FX->SetDimensions(width, height);
 }
 
 ///
@@ -326,7 +345,7 @@ void Screen::Mesh::DrawTris()
 	glDrawArrays(GL_TRIANGLES, 0, 6); 
 }
 
-
+/*
 ///
 // Raindrop
 ///
@@ -370,10 +389,10 @@ void Screen::Raindrop::DrawToScreen(Screen::FrameBuffer& dest)
 		return;
 
 	// Blur screen
-	int b = GetView().blurAmount;
-	GetView().SetBlurAmount(10);
-	Screen::GetView().UseFxShader(BLUR, dest, *screen);
-	GetView().SetBlurAmount(b);
+	int b = Screen::m_BlurAmount;
+	Screen::SetBlurAmount(10);
+	Screen::UseFxShader(BLUR, dest, *screen);
+	Screen::SetBlurAmount(b);
 
 	// Render raindrops onto fresh buffer
 	drops->Use();
@@ -388,9 +407,9 @@ void Screen::Raindrop::DrawToScreen(Screen::FrameBuffer& dest)
 	
 	// Render drops to destination screen
 	dest.Use();
-	Screen::GetView().mFullscreen.Bind();
+	Screen::m_Fullscreen->Bind();
 	drops->BindColorBuffer();
-	Screen::GetView().mFullscreen.DrawTris();
+	Screen::m_Fullscreen->DrawTris();
 
 	// Reset blend mode
 	glBlendFunc(GL_ONE, GL_ZERO);
@@ -426,7 +445,7 @@ void Screen::UpdateRaindrops(float dt)
 	float f = 0.1f + rand() % 10 / 10.0f;
 	if (count > f)
 	{
-		GetView().AddRaindrop();
+		AddRaindrop();
 		count=0;
 	}
 
@@ -465,3 +484,4 @@ void Screen::AddRaindrop()
 	Raindrop::raindrops.push_back(new Raindrop());
 }
 
+*/

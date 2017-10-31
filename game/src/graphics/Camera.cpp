@@ -1,3 +1,9 @@
+/*
+FILE: Camera.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Camera.h"
 
 #include "glm\glm.hpp"
@@ -9,29 +15,29 @@
 
 Camera::Camera()
 {
-	glGenBuffers(1, &mMatricesUbo);
-	glBindBuffer(GL_UNIFORM_BUFFER, mMatricesUbo);
+	glGenBuffers(1, &m_MatricesUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_MatricesUbo);
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW); // allocate memory
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, mMatricesUbo, 0, 2 * sizeof(glm::mat4));
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
 }
 
 
 void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 {
-	mPosition = pos;
-	mCenter = target;
-	mUp = upVector;
+	m_Position = pos;
+	m_Center = target;
+	m_Up = upVector;
 	ApplyCameraMatrices();
 }
 
 void Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
 {
-	m_zoom = zoom;
-	mAspectRatio = aspectRatio;
-	mNear = near;
-	mFar = far;
+	m_Zoom = zoom;
+	m_AspectRatio = aspectRatio;
+	m_Near = near;
+	m_Far = far;
 	ApplyCameraMatrices();
 }
 
@@ -40,19 +46,19 @@ void Camera::SetRotation(float degrees)
 	float r = degrees / 180.0f * 3.1416f;
 	glm::mat4 rotation;
 	rotation = glm::rotate(rotation, r, glm::vec3(0, 0, 1));
-	mUp = rotation * glm::vec4(0,1,0,1);
+	m_Up = rotation * glm::vec4(0,1,0,1);
 	ApplyCameraMatrices();
 }
 
 void Camera::ApplyCameraMatrices()
 {
-	glm::mat4 view = glm::lookAt(mPosition, mCenter, mUp);
-	glm::mat4 proj = glm::ortho(-1.0f * m_zoom, 1.0f * m_zoom, -1.0f * m_zoom / mAspectRatio, 1.0f * m_zoom / mAspectRatio, mNear, mFar);
+	glm::mat4 view = glm::lookAt(m_Position, m_Center, m_Up);
+	glm::mat4 proj = glm::ortho(-1.0f * m_Zoom, 1.0f * m_Zoom, -1.0f * m_Zoom / m_AspectRatio, 1.0f * m_Zoom / m_AspectRatio, m_Near, m_Far);
 		//glm::perspective(glm::radians(mFOV), mAspectRatio, mNear, mFar);
 
 	glm::mat4 data[] = { view, proj };
 
-	glBindBuffer(GL_UNIFORM_BUFFER, mMatricesUbo);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_MatricesUbo);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 2 * sizeof(glm::mat4), data);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -60,19 +66,19 @@ void Camera::ApplyCameraMatrices()
 void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 {
 	glm::mat4 matrix;
-	matrix = glm::translate(matrix, mCenter);
+	matrix = glm::translate(matrix, m_Center);
 	matrix = glm::rotate(matrix, glm::radians(degrees), axis);
-	matrix = glm::translate(matrix, -mCenter);
+	matrix = glm::translate(matrix, -m_Center);
 
-	glm::vec3 forward = mPosition - mCenter;
+	glm::vec3 forward = m_Position - m_Center;
 
 	if ((axis.x && forward.x) || (axis.y && forward.y) || (axis.z && forward.z)) // If axis contains forward
 	{
-		mPosition = matrix * glm::vec4(mPosition, 1);
-		mUp = matrix * glm::vec4(mUp, 1);
+		m_Position = matrix * glm::vec4(m_Position, 1);
+		m_Up = matrix * glm::vec4(m_Up, 1);
 	}
 	else
-		mPosition = matrix * glm::vec4(mPosition, 1);
+		m_Position = matrix * glm::vec4(m_Position, 1);
 
 	ApplyCameraMatrices();
 }
@@ -84,15 +90,15 @@ void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rot
 	matrix = glm::rotate(matrix, glm::radians(degrees), axis);
 	matrix = glm::translate(matrix, -center);
 
-	glm::vec3 forward = mPosition - mCenter;
+	glm::vec3 forward = m_Position - m_Center;
 
 	if ((axis.x && forward.x) || (axis.y && forward.y) || (axis.z && forward.z)) // If axis contains forward
 	{
-		mPosition = matrix * glm::vec4(mPosition, 1);
-		mUp = matrix * glm::vec4(mUp, 1);
+		m_Position = matrix * glm::vec4(m_Position, 1);
+		m_Up = matrix * glm::vec4(m_Up, 1);
 	}
 	else
-		mPosition = matrix * glm::vec4(mPosition, 1);
+		m_Position = matrix * glm::vec4(m_Position, 1);
 
 	ApplyCameraMatrices();
 }

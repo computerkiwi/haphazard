@@ -1,3 +1,9 @@
+/*
+FILE: Text.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "Universal.h"
 #include "glm\glm.hpp"
 #include "Texture.h"
@@ -6,30 +12,43 @@
 
 typedef unsigned int GLuint;
 
-class Font
-{
-public:
-	static void InitFonts();
-
-	float GetFontSpacing() { return 1; }
-	GLuint GetTextureLayer() { return m_Texture->GetID(); }
-	glm::vec4 CharBox(char c)
-	{
-		c -= '!'-1; // First character = one before !
-		return glm::vec4(m_Texture->GetFrameCoords(c), m_Texture->GetFrameCoords(c) + m_Texture->GetSpriteSize());
-	}
-private:
-	Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY);
-	
-	AnimatedTexture* m_Texture;
-	glm::vec2 m_FontSize;
-
-};
+class Font;
 
 namespace Fonts
 {
 	extern Font* arial;
 }
+
+
+
+class Font
+{
+public:
+	static void InitFonts();
+
+	// Get relative space between characters
+	float GetFontSpacing() { return m_FontSpacing; }
+
+	// Set relative space between characters
+	void SetFontSpacing(float space) { m_FontSpacing = space; }
+
+	// Return font texture
+	GLuint GetTextureLayer() { return m_Texture->GetID(); }
+
+	// Get texture box around character c 
+	glm::vec4 CharBox(char c)
+	{
+		c -= '!'-1; // First character on spritesheet is one character before '!'
+		return glm::vec4(m_Texture->GetFrameCoords(c), m_Texture->GetFrameCoords(c) + m_Texture->GetSpriteSize());
+	}
+
+private:
+	Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY);
+	
+	AnimatedTexture* m_Texture;
+	glm::vec2 m_FontSize;
+	float m_FontSpacing = 1;
+};
 
 class TextComponent
 {
@@ -43,7 +62,7 @@ private:
 
 	void CompileText(std::string string);
 
-	std::vector<float> m_CharData;
+	std::vector<float> m_CharData; // String instance data
 	Font* m_Font;
 	glm::vec4 m_Color;
 

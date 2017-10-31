@@ -19,7 +19,6 @@
     <ClCompile Include="src\graphics\Settings.cpp" />
     <ClCompile Include="src\graphics\Shader.cpp" />
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
-    <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\Imgui\Editor.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -124,16 +123,13 @@
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\DebugGraphic.h" />
-    <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
     <ClInclude Include="src\graphics\Screen.h" />
     <ClInclude Include="src\graphics\Settings.h" />
     <ClInclude Include="src\graphics\Shaders.h" />
-    <ClInclude Include="src\graphics\ShaderSource.h" />
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Texture.h" />
-    <ClInclude Include="src\graphics\Transform.h" />
     <ClInclude Include="src\meta\meta.h" />
     <ClInclude Include="src\meta\RegisterGLM.h" />
     <ClInclude Include="src\Imgui\Editor.h" />

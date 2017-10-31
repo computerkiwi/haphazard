@@ -1,3 +1,9 @@
+/*
+FILE: Particles.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include "Universal.h"

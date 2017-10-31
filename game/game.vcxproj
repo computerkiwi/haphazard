@@ -182,7 +182,6 @@
     <ClCompile Include="src\graphics\Text.cpp" />
     <ClCompile Include="src\graphics\Texture.cpp" />
     <ClCompile Include="src\graphics\TextureResource.cpp" />
-    <ClCompile Include="src\graphics\Transform.cpp" />
     <ClCompile Include="src\Imgui\Editor.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
     <ClCompile Include="src\Imgui\Type_Binds.cpp" />
@@ -224,19 +223,16 @@
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\DebugGraphic.h" />
-    <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\Particles.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
     <ClInclude Include="src\graphics\Screen.h" />
     <ClInclude Include="src\graphics\Settings.h" />
     <ClInclude Include="src\graphics\Shaders.h" />
-    <ClInclude Include="src\graphics\ShaderSource.h" />
     <ClInclude Include="src\graphics\SpriteComponent.h" />
     <ClInclude Include="src\graphics\Text.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
-    <ClInclude Include="src\graphics\Transform.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Input\Gamepad.h" />
     <ClInclude Include="src\Input\Input.h" />

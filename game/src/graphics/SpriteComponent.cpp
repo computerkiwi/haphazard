@@ -1,5 +1,12 @@
+/*
+FILE: SpriteComponent.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "SpriteComponent.h"
 
+// Constructs a unit mesh (1x1 white mesh) and sets texture to be used for that mesh
 SpriteComponent::SpriteComponent(Resource *res)
   : Mesh()
 {
@@ -23,6 +30,7 @@ SpriteComponent::SpriteComponent(Resource *res)
 	}
 	else
 	{
+		// If no texture is given, display default texture (solid color)
 		SetTexture(GetDefaultTexture());
 	}
 }
@@ -43,8 +51,11 @@ SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
 	);
 	CompileMesh();
 
+	// Animated texture should be set to something, null should never be passed
 	if (t)
 		SetTexture(t, fps);
+	else
+		assert(!"You passed a NULL animated texture to a sprite component");
 
 	m_resID = -1;
 }
