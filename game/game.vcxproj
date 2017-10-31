@@ -23,6 +23,7 @@
     <ProjectGuid>{458FA915-1A5D-45C1-AEEC-E4812DDFB33D}</ProjectGuid>
     <RootNamespace>game</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <ProjectName>game</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -172,11 +173,13 @@
     <ClCompile Include="src\graphics\Camera.cpp" />
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
+    <ClCompile Include="src\graphics\Particles.cpp" />
     <ClCompile Include="src\graphics\RenderSystem.cpp" />
     <ClCompile Include="src\graphics\Screen.cpp" />
     <ClCompile Include="src\graphics\Settings.cpp" />
     <ClCompile Include="src\graphics\Shader.cpp" />
     <ClCompile Include="src\graphics\SpriteComponent.cpp" />
+    <ClCompile Include="src\graphics\Text.cpp" />
     <ClCompile Include="src\graphics\Texture.cpp" />
     <ClCompile Include="src\graphics\TextureResource.cpp" />
     <ClCompile Include="src\graphics\Transform.cpp" />
@@ -223,12 +226,14 @@
     <ClInclude Include="src\graphics\DebugGraphic.h" />
     <ClInclude Include="src\graphics\Graphics.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
+    <ClInclude Include="src\graphics\Particles.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
     <ClInclude Include="src\graphics\Screen.h" />
     <ClInclude Include="src\graphics\Settings.h" />
     <ClInclude Include="src\graphics\Shaders.h" />
     <ClInclude Include="src\graphics\ShaderSource.h" />
     <ClInclude Include="src\graphics\SpriteComponent.h" />
+    <ClInclude Include="src\graphics\Text.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\graphics\Transform.h" />
@@ -266,6 +271,9 @@
   <ItemGroup>
     <None Include="src\GameObjectSystem\Component.inl" />
     <None Include="src\GameObjectSystem\GameSpace.inl" />
+    <None Include="shaders\particleRender.geoshader" />
+    <None Include="shaders\text.fragshader" />
+    <None Include="shaders\text.vertshader" />
     <None Include="src\meta\.gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Universal.h"
 #include "GL\glew.h"
 #include <glm/glm.hpp>
 
@@ -11,7 +12,7 @@ public:
 	void SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector);
 	void SetProjection(float zoom, float aspectRatio, float near, float far);
 
-	void SetPosition(glm::vec3 pos) { mPosition = mCenter = pos; mCenter.z = 0; ApplyCameraMatrices(); }
+	void SetPosition(glm::vec2 pos) { mPosition = mCenter = glm::vec3(pos, 2); mCenter.z = 0; ApplyCameraMatrices(); }
 	//void SetTarget(glm::vec3 pos) { mCenter = pos; ApplyCameraMatrices(); }
 	void SetUp(glm::vec3 up) { mUp = up; ApplyCameraMatrices(); }
 
@@ -29,7 +30,7 @@ public:
 		ApplyCameraMatrices();
 	}
 
-	glm::vec3 GetPosition() { return mPosition; }
+	glm::vec2 GetPosition() { return glm::vec2(mPosition.x, mPosition.y); }
 	float GetZoom() { return m_zoom; }
 
 	void Orbit(float degrees, glm::vec3 axis); // Rotates around target
@@ -52,5 +53,10 @@ private:
 	float mFar = 10.0f;
 
 	GLuint mMatricesUbo;
+
+	META_REGISTER(Camera)
+	{
+		META_DefineType(Camera);
+	}
 };
 

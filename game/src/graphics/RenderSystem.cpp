@@ -9,24 +9,27 @@
 #include "Camera.h"
 #include "Settings.h"
 #include "DebugGraphic.h"
+#include "Text.h"
+#include "Particles.h"
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
+
+static bool resizeCameras = false;
+static int width;
+static int height;
 
 RenderSystem::RenderSystem()
 {
 }
 
-static Camera* mainCamera;
-
 void RenderSystem::Init()
 {
-	mainCamera = new Camera();
-	mainCamera->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	mainCamera->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	mainCamera->SetPosition(glm::vec3(0, 0, 2.0f));
+	Font::InitFonts();
 
-	mainCamera->SetZoom(3);
+//	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
+//	Screen::GetView().AddEffect(FX::BLOOM);
+//	Screen::GetView().SetBlurAmount(0.9f);
 }
 
 // Called each frame.
@@ -36,7 +39,26 @@ void RenderSystem::Update(float dt)
 	//Screen::UpdateRaindrops(dt);
 	////Start Loop
 
-	//Screen::GetView().ResizeScreen(1920, 1080);
+	ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
+
+	for (auto& camera : *cameras)
+	{
+		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+
+		if (resizeCameras)
+		{
+			camera->SetAspectRatio(width / (float)height);
+		}
+
+		if(transform->GetPosition() != camera->GetPosition())
+			camera->SetPosition(transform->GetPosition());
+	}
+	resizeCameras = false;
+
 
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
@@ -44,8 +66,6 @@ void RenderSystem::Update(float dt)
 	std::vector<int> tex;
 	int numMeshes = 0;
 	int numVerts = 0;
-
-	Shaders::defaultShader->Use();
 
 	for (auto& spriteHandle : *sprites)
 	{
@@ -64,22 +84,44 @@ void RenderSystem::Update(float dt)
 
 		if (numVerts == 0)
 			numVerts = spriteHandle->NumVerts();
-
-		//Stuff happens here
 	}
 
+	Shaders::defaultShader->Use();
+	DebugGraphic::DrawShape(glm::vec2(1, 0), glm::vec2(0.25f, 0.25f), 3.14f / 4, glm::vec4(1, 0, 1, 1));
+	
 	Mesh::BindTextureVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
 
 	Mesh::BindInstanceVBO();
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
-	sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 	// Bind first VAO, all VAOs should be the same until multiple shaders are used for sprites
 	sprites->begin()->BindVAO();
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
 	
+	ComponentMap<TextComponent> *text = GetGameSpace()->GetComponentMap<TextComponent>();
+
+	for (auto& textHandle : *text)
+	{
+		ComponentHandle<TransformComponent> transform = textHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+		textHandle->Draw(transform->GetMatrix4());
+	}
+
+	ComponentMap<ParticleSystem> *particles = GetGameSpace()->GetComponentMap<ParticleSystem>();
+	for (auto& particleHandle : *particles)
+	{
+		ComponentHandle<TransformComponent> transform = particleHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+		particleHandle->Render(dt, transform->GetPosition());
+	}
 
 	//End loop
 	glBlendFunc(GL_ONE, GL_ZERO);
@@ -88,10 +130,13 @@ void RenderSystem::Update(float dt)
 	Screen::GetView().Draw();
 }
 
-void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int width, int height)
+void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int w, int h)
 {
+	width = w;
+	height = h;
+
 	Screen::GetView().ResizeScreen(width, height);
-	mainCamera->SetAspectRatio(width / (float)height);
+	resizeCameras = true;
 }
 
 SystemBase *RenderSystem::NewDuplicate()

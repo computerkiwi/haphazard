@@ -32,6 +32,8 @@
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
     <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\Input\Gamepad.cpp" />
+    <ClCompile Include="src\graphics\Text.cpp" />
+    <ClCompile Include="src\graphics\Particles.cpp" />
     <ClCompile Include="src\Scripting\LuaScript.cpp" />
     <ClCompile Include="src\Scripting\ScriptingUtil.cpp" />
     <ClCompile Include="src\Scripting\GoodLuaDebugging.cpp" />
@@ -151,12 +153,19 @@
     <None Include="shaders\debug.geoshader" />
     <None Include="shaders\debug.vertshader" />
     <None Include="src\meta\.gitignore" />
+    <None Include="shaders\text.fragshader" />
+    <None Include="shaders\text.vertshader" />
+    <None Include="shaders\particleRender.geoshader" />
     <None Include="PlayerController.lua" />
     <None Include="src\GameObjectSystem\Component.inl" />
     <None Include="src\GameObjectSystem\GameSpace.inl" />
     <None Include="src\meta\meta.inl" />
     <None Include="src\meta\MemberGetSet.inl" />
     <None Include="src\meta\Any.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\graphics\Text.h" />
+    <ClInclude Include="src\graphics\Particles.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

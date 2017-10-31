@@ -51,6 +51,11 @@ public:
 
 	void SetFrame(int frame) { AT_frame = frame; AT_timer = 0; }
 
+	bool IsAnimated() const { return animatedTexture != nullptr; }
+
+	AnimatedTexture* GetAnimatedTexture() const { return animatedTexture; }
+	Texture* GetTexture() const { return texture; }
+
 	void UpdateAnimatedTexture(float dt);
 
 	void BindVAO() { glBindVertexArray(vaoID); }
@@ -73,8 +78,8 @@ private:
 	BlendMode blend = BlendMode::BM_DEFAULT;
 	GLenum drawMode = GL_TRIANGLES;
 
-	AnimatedTexture* animatedTexture = NULL;
-	Texture* texture = 0;
+	AnimatedTexture* animatedTexture = nullptr;
+	Texture* texture = nullptr;
 	int AT_frame = 0;
 	float AT_fps, AT_timer = 0;
 };

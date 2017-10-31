@@ -15,6 +15,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\RigidBody.h"
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
+#include "graphics\Camera.h"
+#include "graphics\Particles.h"
+#include "graphics\Text.h"
 
 // Systems to register.
 #include "graphics\RenderSystem.h"
@@ -251,6 +254,9 @@ void GameSpace::RegisterInitial()
 	RegisterComponentType<DynamicCollider2DComponent>();
 	RegisterComponentType<SpriteComponent>();
 	RegisterComponentType<ScriptComponent>();
+	RegisterComponentType<ParticleSystem>();
+	RegisterComponentType<Camera>();
+	RegisterComponentType<TextComponent>();
 
 	RegisterSystem(new PhysicsSystem());
 	RegisterSystem(new RenderSystem());

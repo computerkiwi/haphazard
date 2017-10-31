@@ -44,7 +44,7 @@ void Screen::AddEffect(FX fx)
 	mFXList.push_back(fx);
 }
 
-void Screen::SetBlurAmount(int amt)
+void Screen::SetBlurAmount(float amt)
 {
 	blurAmount = amt;
 	Shaders::ScreenShader::Blur->SetVariable("Intensity", amt);

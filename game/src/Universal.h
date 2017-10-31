@@ -10,5 +10,6 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 // TODO - Make this a precompiled header.
 
+#include "meta/meta.h"
 #include "Util/Logging.h"
 #include <cassert>
