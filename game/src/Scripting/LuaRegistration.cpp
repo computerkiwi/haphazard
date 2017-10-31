@@ -37,7 +37,7 @@ RigidBodyComponent *GameObjectGetRigidBody(GameObject &gObject)
 //-------
 bool LuaIsPressed(int val)
 {
-	return Input::IsPressed(static_cast<Key>(val));
+	return Input::IsHeldDown(static_cast<Key>(val));
 }
 
 

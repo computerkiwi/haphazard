@@ -112,14 +112,14 @@ void Gamepad::UpdateButtons()
     memcpy(buttonsPrevState_, buttonsCurrState_, numButtons_);
   }
 
-  std::cout << "Prev state: " << std::endl;
-  BitPrint(buttonsPrevState_, numButtons_);
+  //std::cout << "Prev state: " << std::endl;
+  //BitPrint(buttonsPrevState_, numButtons_);
 
-  std::cout << "Curr state: " << std::endl;;
-  BitPrint(buttonsCurrState_, numButtons_);
+  //std::cout << "Curr state: " << std::endl;;
+  //BitPrint(buttonsCurrState_, numButtons_);
 
-  std::cout << "Next state: " << std::endl;
-  BitPrint(buttonsNextState_, numButtons_);
+  //std::cout << "Next state: " << std::endl;
+  //BitPrint(buttonsNextState_, numButtons_);
 
   // Current button state exists
   if (buttonsNextState_ != NULL)
@@ -128,8 +128,8 @@ void Gamepad::UpdateButtons()
     memcpy(buttonsCurrState_, buttonsNextState_, numButtons_);
   }
 
-  std::cout << "NEW Curr state: " << std::endl;
-  BitPrint(buttonsCurrState_, numButtons_);
+  //std::cout << "NEW Curr state: " << std::endl;
+  //BitPrint(buttonsCurrState_, numButtons_);
 
 }
 
@@ -140,12 +140,12 @@ bool Gamepad::IsPressed(GamepadButton gamepadbutton)
   if ((buttonsPrevState_[button] == KeyState::Released) &&
       (buttonsCurrState_[button] == KeyState::Pressed))
   {
-    std::cout << "Is Pressed" << std::endl;
-    std::cout << "Prev state: ";
-    BitPrint(buttonsPrevState_, numButtons_);
+    //std::cout << "Is Pressed" << std::endl;
+    //std::cout << "Prev state: ";
+    //BitPrint(buttonsPrevState_, numButtons_);
 
-    std::cout << "Curr state: ";
-    BitPrint(buttonsCurrState_, numButtons_);
+    //std::cout << "Curr state: ";
+    //BitPrint(buttonsCurrState_, numButtons_);
 
     return true;
   }
@@ -157,8 +157,7 @@ bool Gamepad::IsHeldDown(GamepadButton gamepadbutton)
 {
   int button = static_cast<int>(gamepadbutton);
 
-  if ((buttonsPrevState_[button] == KeyState::Pressed) &&
-      (buttonsCurrState_[button] == KeyState::Pressed))
+  if (buttonsCurrState_[button] == KeyState::Pressed)
   {
     //std::cout << "Is HeldDown" << std::endl;
     //std::cout << "Prev state: ";

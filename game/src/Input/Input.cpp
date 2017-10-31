@@ -129,8 +129,7 @@ namespace Input
   {
     int i = static_cast<int>(key);
 
-    if ((prevState[i] != KeyState::Released) &&
-        (currState[i] != KeyState::Released))
+    if (currState[i] != KeyState::Released)
     {
       return true;
     }
@@ -215,7 +214,7 @@ namespace Input
 
         // Key was held down
         case GLFW_REPEAT:
-          SetKeyState(key, KeyState::HeldDown);
+          SetKeyState(key, KeyState::Pressed);
           break;
 
         // Key was released

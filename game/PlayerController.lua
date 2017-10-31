@@ -1,7 +1,7 @@
 
 timer = 0
 
-speed = 25
+speed = 2
 
 function dumpTable(tab)
 	for k,v in pairs(tab) do print(tostring(k) .. " - " .. type(v)) end
