@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Universal.h"
 #include "GL\glew.h"
 #include "glm\glm.hpp"
 #include "Texture.h"
@@ -143,4 +144,9 @@ private:
 	GLuint m_VAO;
 
 	static GLuint m_randTexture;
+
+	META_REGISTER(ParticleSystem)
+	{
+		META_DefineType(ParticleSystem);
+	}
 };

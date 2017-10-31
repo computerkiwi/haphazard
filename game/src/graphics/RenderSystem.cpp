@@ -39,17 +39,26 @@ void RenderSystem::Update(float dt)
 	//Screen::UpdateRaindrops(dt);
 	////Start Loop
 
-	if (resizeCameras)
-	{
-		ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
+	ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
 
-		for (auto& camera : *cameras)
+	for (auto& camera : *cameras)
+	{
+		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+
+		if (resizeCameras)
 		{
 			camera->SetAspectRatio(width / (float)height);
 		}
 
-		resizeCameras = false;
+		if(transform->GetPosition() != camera->GetPosition())
+			camera->SetPosition(transform->GetPosition());
 	}
+	resizeCameras = false;
+
 
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 

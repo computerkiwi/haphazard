@@ -1,3 +1,4 @@
+#include "Universal.h"
 #include "glm\glm.hpp"
 #include "Texture.h"
 #include <string>
@@ -33,7 +34,7 @@ namespace Fonts
 class TextComponent
 {
 public:
-	TextComponent(std::string string, Font* font, glm::vec4 color);
+	TextComponent(std::string string = std::string(""), Font* font = Fonts::arial, glm::vec4 color = glm::vec4(1,1,1,1));
 	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
 	void Draw(glm::mat4& matrix);
 
@@ -50,4 +51,9 @@ private:
 	static GLuint m_VertexVBO;
 	GLuint m_VAO;
 	GLuint m_CharVBO = 0;
+
+	META_REGISTER(TextComponent)
+	{
+		META_DefineType(TextComponent);
+	}
 };
