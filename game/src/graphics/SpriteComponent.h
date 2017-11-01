@@ -14,9 +14,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 class GameObject;
 class SpriteComponent : public Mesh
 {
-	// Editor access
-	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object);
-
+	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 public:
 	// Sprite Constructor for static sprite
 	SpriteComponent(Resource *res = NULL);
@@ -40,6 +38,7 @@ private:
 	ResourceID m_resID;
 
 	void SetTextureResource(Resource *resource);
+	void SetTextureID(ResourceID res);
 
 	Texture *GetDefaultTexture()
 	{

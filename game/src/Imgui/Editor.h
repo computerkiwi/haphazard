@@ -1,5 +1,5 @@
 /*
-FILE: Editor.h
+          FILE: Editor.h
 PRIMARY AUTHOR: Sweet
 
 Copyright � 2017 DigiPen (USA) Corporation.
@@ -14,6 +14,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem\GameObject.h"
 #include "Util/DataStructures/Array/Array.h"
+
+#include "meta\meta.h"
 
 class Engine;
 class TransformComponent;
@@ -32,17 +34,71 @@ struct GLFWwindow;
 
 #define MAX_SELECT 10
 
+struct EditorAction;
+typedef void(*actionFunc)(EditorAction& a);
+
+struct EditorComponentHandle
+{
+
+	template <class T>
+	explicit operator T() { return T(id, isValid); }
+
+	GameObject_ID id;
+	bool isValid;
+};
+
+struct EditorAction
+{
+	meta::Any old_value;
+	meta::Any new_value;
+	const char *name;
+	EditorComponentHandle handle;
+	actionFunc func;
+
+	bool redo;
+};
+
+
+enum PopUpPosition
+{
+	TopLeft,
+	TopRight,
+	BottomRight,
+	BottomLeft,
+	Center, 
+	Mouse
+};
+struct PopUpWindow
+{
+	PopUpWindow(const char *msg, float time, PopUpPosition position) 
+		: message(msg), timer(time), max_time(time), alpha(1), pos(position) {}
+	const char *message;
+	float timer;
+	float max_time;
+	float alpha;
+	PopUpPosition pos;
+};
+
+
 class Editor
 {
-	friend void PrintObjects(Editor *editor);
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
+	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	Engine * m_engine;
 	bool m_show_editor;
 
+	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
 
+	std::string m_filename = "SaveData.json";
+
+	struct Actions
+	{
+		std::vector<EditorAction> history;
+		size_t size = 0;
+	} m_actions;
 	std::vector<GameObject_ID> m_objects;
 
 	enum Tool
@@ -87,12 +143,13 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
-	
+	void UpdatePopUps(float dt);
+	std::vector<PopUpWindow> m_pop_ups;
 
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 	bool PopUp(ImVec2& pos, ImVec2& size);
-	void CreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
 
@@ -104,6 +161,8 @@ public:
 
 	void Update();
 
+	void KeyBindings();
+
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
 	
@@ -111,7 +170,14 @@ public:
 	void Internal_Log(const char *log_message, ...);
 	void Clear();
 
+	void Push_Action(EditorAction&& a);
+	void Undo_Action();
+	void Redo_Action();
+
+	void AddPopUp(PopUpWindow&& pop);
+
 	void SetGameObject(GameObject new_object);
+	void PrintObjects();
 	void ToggleEditor();
 
 	void Tools();
@@ -120,5 +186,3 @@ public:
 	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };
-
-void PrintObjects(Editor *editor);

@@ -40,6 +40,15 @@ void Collider2D::SetColliderType(colliderType colliderType)
 	m_colliderType = colliderType;
 }
 
+void Collider2D::SetStatic()
+{
+	m_colliderType |= colliderType::staticCollider;
+}
+void Collider2D::SetDynamic()
+{
+	m_colliderType &= ~colliderType::staticCollider;
+}
+
 void Collider2D::SetDimensions(glm::vec3 newDimensions)
 {
 	m_dimensions = newDimensions;
@@ -115,4 +124,16 @@ Collider2D& DynamicCollider2DComponent::ColliderData()
 bool Collider2D::IsCollidingWithLayer(collisionLayers layer)
 {
 	return (m_layersCollidedWith & layer);
+}
+
+
+StaticCollider2DComponent::StaticCollider2DComponent(DynamicCollider2DComponent *dyn_collider) : m_colliderData(dyn_collider->ColliderData())
+{
+	m_colliderData.SetStatic();
+}
+
+
+DynamicCollider2DComponent::DynamicCollider2DComponent(StaticCollider2DComponent *static_collider) : m_colliderData(static_collider->ColliderData())
+{
+	m_colliderData.SetDynamic();
 }

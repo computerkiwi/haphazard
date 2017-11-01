@@ -77,9 +77,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-#define GENERATE_SCENE
-#ifdef GENERATE_SCENE
-
 	m_spaces.AddSpace();
 	m_spaces.AddSpace();
 
@@ -141,6 +138,9 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf5.AddComponent<SpriteComponent>(tex);
 	asdf5.AddComponent<RigidBodyComponent>();
 	asdf5.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::enemy);
+	
+	GameObject Brett_obj2 = m_spaces[0]->NewGameObject("Child");
+	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
 
 	// object with velocity
 	GameObject asdf6 = m_spaces[0]->NewGameObject("Parent");
@@ -235,8 +235,8 @@ void Engine::Update()
 	if (glfwWindowShouldClose(m_window))
 		m_running = false;
 
-	m_dt = CalculateDt();
-	
+	// m_dt = CalculateDt(); -- Removed for now since only doing (1 / 60.0f)
+
 	m_spaces[0]->Update(m_dt);
 
 	Input::Update();
@@ -244,7 +244,7 @@ void Engine::Update()
   Input::InputDebug(Key::A, Key::B, Key::A);
 
 	Audio::Update();
-	
+
 	if (Input::IsPressed(Key::GraveAccent))
 		m_editor.ToggleEditor();
 	m_editor.Update();
@@ -302,6 +302,12 @@ void Engine::LoggingInit()
 
 
 float Engine::Dt() const
+{
+	return m_dt;
+}
+
+
+float& Engine::GetDtObject()
 {
 	return m_dt;
 }

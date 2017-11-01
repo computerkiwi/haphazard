@@ -43,12 +43,14 @@ public:
 	void Update();
 
 	float Dt() const;
-	lua_State * GetLua();
+	float& GetDtObject();
 
 	GameSpaceManagerID *GetSpaceManager() { return &m_spaces; }
 	GameSpace *GetSpace(std::size_t index) { return m_spaces[index]; }
 
 	Editor *GetEditor() { return &m_editor; }
+
+	GLFWwindow *GetWindow() const { return m_window; }
 
 	void Exit() { m_running = false; }
 
@@ -65,7 +67,7 @@ private:
 
 	Init_EnginePointer m_init;
 
-	float m_dt = 0.0f;
+	float m_dt = (1 / 60.0f);
 	bool m_running = true;
 
 	GLFWwindow *m_window;

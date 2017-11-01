@@ -24,7 +24,7 @@ void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *e
 
 void ImGui_ObjectInfo(ObjectInfo *info);
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
-void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object);
-void ImGui_Sprite(SpriteComponent *sprite, GameObject object);
-void ImGui_Collider2D(Collider2D *collider, GameObject object);
-void ImGui_Script(ScriptComponent *script_c, GameObject object);
+void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor);
+void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
+void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
+void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor);

@@ -138,7 +138,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	RegisterCommand("create", [this]() 
 	{ 
 		std::string name = m_line.substr(strlen("create "));
-		CreateGameObject(name.c_str()); 
+		QuickCreateGameObject(name.c_str()); 
 	});
 	
 	// Clear the log
@@ -218,6 +218,8 @@ void Editor::Update()
 		// Get all the active gameobjects
 		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
 
+		UpdatePopUps(1 / 60.0f);
+
 		// Top Bar
 		MenuBar();
 
@@ -253,7 +255,30 @@ void Editor::Update()
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
 
+		#ifdef _DEBUG
+			// Please don't delete, super important
+			if (rand() % 1000000 == 0)
+			{
+				extern const char *ErrorList[];
+				AddPopUp(PopUpWindow(ErrorList[0], 2.5f, PopUpPosition::Center));
+			}
+		#endif
+
 		ImGui::Render();
+	}
+}
+
+
+void Editor::KeyBindings()
+{
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
+	{
+		Undo_Action();
+	}
+
+	if (Input::IsPressed(Key::LeftControl) && Input::IsPressed(Key::Y))
+	{
+		Redo_Action();
 	}
 }
 
@@ -307,14 +332,58 @@ void Editor::Internal_Log(const char * log_message, ...)
 }
 
 
-void Editor::CreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
+// Adds an action to the history
+//   Order is Old Value, New Value, Field Name, handle to component, action function
+void Editor::Push_Action(EditorAction&& a)
 {
-	GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
-	
-	// Add a transform component
-	object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
+	if (m_actions.size)
+	{
+		if (m_actions.size == m_actions.history.size())
+		{
+			m_actions.history.emplace_back(a);
+			m_actions.size = m_actions.history.size();
+		}
+		else
+		{
+			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+			++m_actions.size;
+		}
+	}
+	else
+	{
+		m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+		++m_actions.size;
+	}
+}
 
-	m_selected_object = object.Getid();
+
+void Editor::Undo_Action()
+{
+	m_actions.history[m_actions.size - 1].redo = false;
+	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
+	--m_actions.size;
+}
+
+
+void Editor::Redo_Action()
+{
+	m_actions.history[m_actions.size].redo = true;
+	m_actions.history[m_actions.size].func(m_actions.history[m_actions.size]);
+	++m_actions.size;
+}
+
+
+void Editor::QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size)
+{
+	if (m_selected_object)
+	{
+		GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
+
+		// Add a transform component
+		object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
+
+		m_selected_object = object.Getid();
+	}
 }
 
 
@@ -327,21 +396,26 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (m_selected_object && Input::IsPressed(Key::Mouse_1) && !ImGui::GetIO().WantCaptureMouse)
+	if (Input::IsPressed(Key::V))
 	{
-		const glm::vec2& mouse = Input::GetMousePos();
+		const glm::vec2 mouse = Input::GetMousePos_World();
 
-		for (auto& transform : *m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->GetComponentMap<TransformComponent>())
+		for (auto id : m_objects)
 		{
-			const glm::vec2 scale = transform.Get()->GetScale();
-			const glm::vec2 pos = transform.Get()->GetPosition();
-
-			if (mouse.x < pos.x + scale.x && mouse.x > pos.x - scale.x)
+			if (id)
 			{
-				if (mouse.y < pos.y + scale.y && mouse.y > pos.y - scale.y)
+				GameObject object = id;
+				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+				const glm::vec2 scale = transform.Get()->GetScale();
+				const glm::vec2 pos = transform.Get()->GetPosition();
+
+				if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
 				{
-					// Save the GameObject data
-					m_selected_object = transform.GetGameObject().Getid();
+					if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
+					{
+						// Save the GameObject data
+						m_selected_object = transform.GetGameObject().Getid();
+					}
 				}
 			}
 		}
@@ -379,15 +453,15 @@ void Editor::Tools()
 
 		switch (m_tool)
 		{
-		case Translation:
+		case Tool::Translation:
 			DebugGraphic::DrawShape(pos, glm::vec2(5, 5));
 			break;
 
-		case Scale:
+		case Tool::Scale:
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
 			break;
 
-		case Rotation:
+		case Tool::Rotation:
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
 			break;
 		default:
@@ -397,13 +471,114 @@ void Editor::Tools()
 }
 
 
-void PrintObjects(Editor *editor)
+void Editor::AddPopUp(PopUpWindow&& pop)
+{
+	m_pop_ups.emplace_back(pop);
+}
+
+
+void Editor::UpdatePopUps(float dt)
+{
+	int width = 0;
+	int height = 0;
+	glfwGetWindowSize(m_engine->GetWindow(), &width, &height);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoInputs |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_ShowBorders |
+		ImGuiWindowFlags_NoFocusOnAppearing |
+		ImGuiWindowFlags_NoScrollbar;
+
+
+	for (int i = 0; i < m_pop_ups.size(); ++i)
+	{
+		PopUpWindow& popup = m_pop_ups[i];
+		float text_padding = strlen(popup.message) * 5.75f;
+
+		// float offset = m_pop_ups.size() - i;
+		glm::vec2 padding(65, 65);
+		
+		ImVec2 pos;
+		ImVec2 size(text_padding * 2, 42);
+
+		switch (popup.pos)
+		{
+		case PopUpPosition::BottomLeft:
+			pos = ImVec2(padding.x, static_cast<float>(height) - padding.y);
+			break;
+
+		case PopUpPosition::BottomRight:
+			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, static_cast<float>(height) - padding.y);
+			break;
+
+		case PopUpPosition::TopRight:
+			pos = ImVec2(static_cast<float>(width) - padding.x - text_padding, padding.y);
+			break;
+
+		case PopUpPosition::TopLeft:
+			pos = ImVec2(padding.x, padding.y);
+			break;
+
+		case PopUpPosition::Center:
+			pos = ImVec2(width / 2.0f, height / 2.0f);
+			break;
+		case PopUpPosition::Mouse:
+			pos = Input::GetMousePos();
+			break;
+		}
+
+		if (popup.timer > 0)
+		{
+			// f = t * b + a(1 - t)
+			constexpr float factor = 0.25f;
+
+			float alpha = 1.0f;
+			if (popup.timer < 0.25f)
+			{
+				alpha = (popup.timer / popup.max_time) * factor + popup.alpha * (1 - factor);
+			}
+
+			popup.timer -= dt;
+
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
+
+			ImGui::SetNextWindowPos(pos);
+			ImGui::SetNextWindowSize(size);
+
+			ImGui::Begin(popup.message, nullptr, flags);
+			ImGui::PushAllowKeyboardFocus(false);
+
+			ImGui::Text(popup.message);
+
+			popup.alpha = alpha;
+
+			ImGui::PopAllowKeyboardFocus();
+			ImGui::End();
+			ImGui::PopStyleVar(1);
+		}
+		else
+		{
+			m_pop_ups.erase(m_pop_ups.begin() + i);
+		}
+	}
+
+	ImGui::PopStyleVar(1);
+}
+
+
+void Editor::PrintObjects()
 {
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
 	GameObject object(0);
 
-	for (auto& object_id : editor->m_objects)
+	for (auto& object_id : m_objects)
 	{
 		// Use invalid gameObject as a delimiter
 		if (object_id == INVALID_GAMEOBJECT_ID)
@@ -430,20 +605,20 @@ void PrintObjects(Editor *editor)
 		{
 			if (ImGui::Selectable(name_buffer))
 			{
-				if (editor->m_multiselect.m_size < MAX_SELECT)
+				if (m_multiselect.m_size < MAX_SELECT)
 				{
-					editor->m_multiselect.push_back(object);
+					m_multiselect.push_back(object);
 				}
 
-				editor->SetGameObject(object);
+				SetGameObject(object);
 			}
 		}
 		else
 		{
 			if (ImGui::Selectable(name_buffer))
 			{
-				editor->m_multiselect.clear();
-				editor->SetGameObject(object);
+				m_multiselect.clear();
+				SetGameObject(object);
 				break;
 			}
 		}		
@@ -457,19 +632,40 @@ void Editor::ObjectsList()
 
 	SetNextWindowSize(ImVec2(260, 400));
 	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
-	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
+	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
 	if (Button("Create"))
 	{
-		CreateGameObject("No Name");
-	} SameLine();
+		ImGui::OpenPopup("Create GameObject###CreateGameObject");
+	} 
+
+	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
+	{
+		char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue);
+		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
+
+		if (ImGui::Button("Create###createObjectListButton"))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>();
+
+			m_selected_object = object.Getid();
+		}
+
+		ImGui::EndPopup();
+	}
+	
+	SameLine();
 
 	if (Button("Add Space"))
 	{
 		engine->GetSpaceManager()->AddSpace();
 	}
 
-	PrintObjects(this);
+	PrintObjects();
 
 	End();
 }
@@ -628,7 +824,7 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 				for (auto& command : editor->m_commands)
 				{
-					if (Strnicmp(command.second.command, word_start, (int)(word_end - word_start)) == 0)
+					if (Strnicmp(command.second.command, word_start, static_cast<int>((word_end - word_start))) == 0)
 					{
 						editor->m_matches.push_back(command.second.command);
 					}
@@ -698,6 +894,10 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 void Editor::ToggleEditor()
 {
+	float& dt = m_engine->GetDtObject();
+
+	dt = dt ? 0 : (1 / 60.0f);
+
 	m_show_editor = !m_show_editor;
 }
 
@@ -710,7 +910,8 @@ void Editor::MenuBar()
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				
+				engine->FileSave(m_filename.c_str());
+				AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
 			}
 
 			if (ImGui::MenuItem("Load"))
@@ -722,17 +923,45 @@ void Editor::MenuBar()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			if (m_actions.size)
+			{
+				if (ImGui::MenuItem("Undo", "CTRL+Z"))
+				{
+					Undo_Action();
+				}
+			}
+			else
+			{
+				ImGui::MenuItem("Undo", "CTRL+Z", false, false);
+			}
+			
+			if (m_actions.history.size() != m_actions.size)
+			{
+				if (ImGui::MenuItem("Redo", "CTRL+Y"))
+				{
+					Redo_Action();
+				}
+			}
+			else
+			{
+				ImGui::MenuItem("Redo", "CTRL+Y", false, false);
+			}
+
 			ImGui::EndMenu();
+		}
+		if (ImGui::Button("PopUp"))
+		{
+			AddPopUp(PopUpWindow("Pop Up", 10.0f, PopUpPosition::BottomRight));
 		}
 		if (ImGui::Button("Console"))
 		{
 			m_show_console = !m_show_console;
+		}
+
+		char filename[512];
+		if (ImGui::InputText("Filename", filename, 512, ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			m_filename = filename;
 		}
 
 		ImGui::EndMainMenuBar();
@@ -947,7 +1176,9 @@ void Editor::Console()
 	}
 
 	if ((ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+	{
 		ImGui::SetKeyboardFocusHere(-1);
+	}
 
 	// Draw PopUp
 	ImVec2 pop_pos(ImGui::GetItemRectMin());
