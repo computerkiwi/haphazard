@@ -363,11 +363,13 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 	if (xCompare < 0 || yCompare < 0)
 	{
 		glm::vec2 prev = rigidBody1->Velocity();
+		glm::vec2 prev1 = rigidBody2->Velocity();
 
 		rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
 		rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
 
 		glm::vec2 post = rigidBody1->Velocity();
+		glm::vec2 post1 = rigidBody2->Velocity();
 		glm::vec2 temp(0, 0);
 	}
 	else // if they are going in the same direction
@@ -536,50 +538,6 @@ void PhysicsSystem::Update(float dt)
 
 			glm::vec3 collidedAcceleration = tRigidBodyHandle->Acceleration();
 
-			// loop through all dynamic colliders
-			for (auto tDynamiColliderHandle : *allDynamicColliders)
-			{
-				// get the colliders out of the objects
-				Collider2D collider1 = dynamicCollider->ColliderData();
-				Collider2D collider2 = tDynamiColliderHandle->ColliderData();
-
-				if (dynamicCollider == tDynamiColliderHandle)
-				{
-					continue;
-				}
-
-				if(!collider1.GetCollisionLayer().LayersCollide(collider2.GetCollisionLayer()))
-				{
-					continue;
-				}
-
-				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
-				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
-
-				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
-				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
-
-				// check for collision on non-rotated objects
-				if (object1Rotation == 0 && object2Rotation == 0)
-				{
-					resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
-				}
-				else // check for collision on rotated objects
-				{
-					resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
-				}
-
-
-				// if there was a collision, resolve it
-				if (resolutionVector.x || resolutionVector.y)
-				{
-					// register collision between the layers
-					RegisterCollision(dynamicCollider->ColliderData(), tDynamiColliderHandle->ColliderData());
-					// resolve the collision
-					ResolveDynDynCollision(&resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
-				}
-			}
-
 			// loop through all static colliders
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
@@ -615,6 +573,49 @@ void PhysicsSystem::Update(float dt)
 					RegisterCollision(dynamicCollider->ColliderData(), tStaticColliderHandle->ColliderData());
 					// resolve the collision
 					ResolveDynStcCollision(&resolutionVector, dynamicCollider, tStaticColliderHandle);
+				}
+			}
+			// loop through all dynamic colliders
+			for (auto tDynamiColliderHandle : *allDynamicColliders)
+			{
+				// get the colliders out of the objects
+				Collider2D collider1 = dynamicCollider->ColliderData();
+				Collider2D collider2 = tDynamiColliderHandle->ColliderData();
+
+				if (dynamicCollider == tDynamiColliderHandle)
+				{
+					continue;
+				}
+
+				if (!collider1.GetCollisionLayer().LayersCollide(collider2.GetCollisionLayer()))
+				{
+					continue;
+				}
+
+				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
+				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
+
+				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
+				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
+
+				// check for collision on non-rotated objects
+				if (object1Rotation == 0 && object2Rotation == 0)
+				{
+					resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+				}
+				else // check for collision on rotated objects
+				{
+					resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+				}
+
+
+				// if there was a collision, resolve it
+				if (resolutionVector.x || resolutionVector.y)
+				{
+					// register collision between the layers
+					RegisterCollision(dynamicCollider->ColliderData(), tDynamiColliderHandle->ColliderData());
+					// resolve the collision
+					ResolveDynDynCollision(&resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
 				}
 			}
 		}
