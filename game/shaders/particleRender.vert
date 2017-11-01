@@ -60,7 +60,7 @@ void main()
 
 
 	if(SimulationSpace == SPACE_LOCAL)
-		gl_Position = proj * view * vec4(pos + EmitterPosition, 0.0f, 1.0f);
+		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 	else
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 

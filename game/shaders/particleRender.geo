@@ -1,6 +1,6 @@
 #version 330 core
 layout (points) in;
-layout (triangle_strip, max_vertices = 9) out;
+layout (triangle_strip, max_vertices = 6) out;
 
 out vec2 texcoord;
 out float texLayer;

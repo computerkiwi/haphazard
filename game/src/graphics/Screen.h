@@ -28,11 +28,10 @@ class Screen
 {
 	//Disable Defaults
 	Screen() = delete;
-
+public:
 	// Declaration
 	class FrameBuffer;
 	class Mesh;
-public:
 
 	///
 	// Public Interface

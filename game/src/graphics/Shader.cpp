@@ -302,7 +302,7 @@ namespace Shaders
 
 		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(int), false, 1, 0, true));
 
-		spriteShader = LoadShaders(path + "spriteShader.vert", path + "spriteShader.frag", attribs);
+		spriteShader = LoadShaders(path + "sprite.vert", path + "sprite.frag", attribs);
 
 		if (!spriteShader->wasCompiled())
 			FailedCompile();

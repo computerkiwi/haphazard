@@ -81,8 +81,8 @@ class ShaderProgram
 	friend class Mesh;
 	friend class Camera;
 
-	class Attribute;
 public:
+	class Attribute;
 	
 	// Constructors
 
@@ -160,6 +160,12 @@ public:
 		glUniform1i(glGetUniformLocation(m_ID, varName), value);
 	}
 
+	void ShaderProgram::SetVariable(char* varName, GLuint value)
+	{
+		Use();
+		glUniform1ui(glGetUniformLocation(m_ID, varName), value);
+	}
+
 	///
 	// Attribute Class
 	///
@@ -183,6 +189,3 @@ public:
 		GLsizei start;
 	};
 };
-
-
-

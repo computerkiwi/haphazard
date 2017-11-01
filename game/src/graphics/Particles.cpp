@@ -43,7 +43,7 @@ struct Particle
 
 GLuint ParticleSystem::m_randTexture = -1;
 
-ParticleSystem::ParticleSystem(glm::vec2 position)
+ParticleSystem::ParticleSystem()
 {
 	if (m_randTexture == -1)
 		GenRandomTexture();
@@ -112,6 +112,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.BurstEmission);
 	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.EmissionShape) );
 	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.EmissionShapeScale);
+	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.ParticleSpace));
 	Shaders::particleUpdateShader->SetVariable("EmitterPosition", pos);
 	// Lifetimes
 	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.EmitterLifetime);
@@ -189,13 +190,9 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 
 	Shaders::particleRenderShader->ApplyAttributes();
 
-	// Render it (with additive blending)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	// Render it (without blending, this will be done later by additively rendering the particle layer onto the screen)
 	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
 	//glDrawArrays(GL_POINTS, 0, 3);
-
-	// Reset Blend Mode
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 }
 
 void ParticleSystem::GenRandomTexture()
@@ -211,7 +208,7 @@ void ParticleSystem::GenRandomTexture()
 
 	glGenTextures(1, &m_randTexture);
 	glBindTexture(GL_TEXTURE_1D, m_randTexture);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, size, 0.0f, GL_RGB, GL_FLOAT, data);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, size, 0, GL_RGB, GL_FLOAT, data);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);

@@ -32,6 +32,9 @@ out float MaxLife;
 #define SHAPE_SQUARE_VOLUME 3
 #define SHAPE_SQUARE_EDGE   4
 
+#define SPACE_WORLD 0
+#define SPACE_LOCAL 1
+
 /// Uniforms \\\
 
 uniform float	dt;
@@ -63,6 +66,7 @@ uniform vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
 uniform int		EmissionShape;
 uniform vec2	EmissionShapeScale;
 
+uniform int		SimulationSpace;
 uniform vec2	EmitterPosition;
 
 uniform sampler1D RandomTexture;
@@ -129,8 +133,12 @@ void HandleEmitter()
 				vec3 r = rand(i)*2 - vec3(1,1,1);
 				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
 
+				if(SimulationSpace == SPACE_LOCAL)
+					Position = NewParticlePosition(PPos[0], r.xy) - EmitterPosition;
+				else
+					Position = NewParticlePosition(PPos[0], r.xy);
+
 				Type = PARTICLE_TYPE;
-				Position = NewParticlePosition(PPos[0], r.xy);
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
 				Scale = ScaleOverTime.xy;
 				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
@@ -156,6 +164,11 @@ void HandleEmitter()
 
 				Type = PARTICLE_TYPE;
 				Position = NewParticlePosition(PPos[0], r.xy);
+				if(SimulationSpace == SPACE_LOCAL)
+					Position = NewParticlePosition(PPos[0], r.xy) - EmitterPosition;
+				else
+					Position = NewParticlePosition(PPos[0], r.xy);
+
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
 				Scale = ScaleOverTime.xy;
 				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
