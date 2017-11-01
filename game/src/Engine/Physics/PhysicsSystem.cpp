@@ -351,26 +351,26 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 	float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
 
 	//!?!? quick cheap solution - replace with a real one later
-	glm::vec2 pos1 = transform1->GetPosition();
-	glm::vec2 pos2 = transform2->GetPosition();
+	if (collider1->ColliderData().GetRotationOffset() + collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() + transform2->GetRotation() == 0)
+	{
+		glm::vec2 pos1 = transform1->GetPosition();
+		glm::vec2 pos2 = transform2->GetPosition();
 
-	glm::vec2 halfresolve = resolutionVector * 0.5f;
+		glm::vec2 halfresolve = resolutionVector * 0.5f;
 
-	transform1->SetPosition(pos1 + halfresolve);
-	transform2->SetPosition(pos2 - halfresolve);
+		transform1->SetPosition(pos1 + halfresolve);
+		transform2->SetPosition(pos2 - halfresolve);
+	}
+
+	// calculate the elasticity multiplier on each object
+	float obj1ElasticityMuliplier = collider1->ColliderData().GetSelfElasticity() * collider2->ColliderData().GetAppliedElasticity();
+	float obj2ElasticityMuliplier = collider2->ColliderData().GetSelfElasticity() * collider1->ColliderData().GetAppliedElasticity();
 
 	// if they are not going in the same direction
 	if (xCompare < 0 || yCompare < 0)
 	{
-		glm::vec2 prev = rigidBody1->Velocity();
-		glm::vec2 prev1 = rigidBody2->Velocity();
-
-		rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
-		rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
-
-		glm::vec2 post = rigidBody1->Velocity();
-		glm::vec2 post1 = rigidBody2->Velocity();
-		glm::vec2 temp(0, 0);
+		rigidBody1->SetVelocity((refMtrx * rigidBody1->Velocity()) * obj1ElasticityMuliplier);
+		rigidBody2->SetVelocity((refMtrx * rigidBody2->Velocity()) * obj2ElasticityMuliplier);
 	}
 	else // if they are going in the same direction
 	{
@@ -381,11 +381,11 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 		if (obj1SquaredMagnitude < obj2SquaredMagnitude)
 		{
 			rigidBody1->SetVelocity(rigidBody1->Velocity());
-			rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
+			rigidBody2->SetVelocity((refMtrx * rigidBody2->Velocity()) * obj2ElasticityMuliplier);
 		}
 		else
 		{
-			rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
+			rigidBody1->SetVelocity((refMtrx * rigidBody1->Velocity()) * obj1ElasticityMuliplier);
 			rigidBody2->SetVelocity(rigidBody2->Velocity());
 		}
 	}
@@ -404,15 +404,18 @@ void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 
 	glm::vec3 resolutionVector = *collisionData;
 
+	// calculate elasticity multiplier applied to dynamic object
+	float elasticity = collider1->ColliderData().GetSelfElasticity() * collider2->ColliderData().GetAppliedElasticity();
+
 	if (resolutionVector.x)
 	{
 		transform1->SetPosition(glm::vec2(position.x + resolutionVector.x, position.y));
-		rigidBody1->SetVelocity(glm::vec3(0, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
+		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x * -elasticity, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
 	}
 	if (resolutionVector.y)
 	{
 		transform1->SetPosition(glm::vec2(position.x, position.y + resolutionVector.y));
-		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, 0, rigidBody1->Velocity().z));
+		rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, rigidBody1->Velocity().y * -elasticity, rigidBody1->Velocity().z));
 	}
 }
 
