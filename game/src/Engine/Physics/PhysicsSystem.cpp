@@ -473,11 +473,6 @@ void PhysicsSystem::Update(float dt)
 	// get all static colliders
 	ComponentMap<StaticCollider2DComponent> *allStaticColliders = GetGameSpace()->GetComponentMap<StaticCollider2DComponent>();
 
-	if (debugShowHitboxes)
-	{
-		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
-	}
-
 	// clear out the recorded collision layers so the recording will be accurate to this frame
 	ClearAllRecordedCollisions(allDynamicColliders, allStaticColliders);
 
@@ -603,6 +598,11 @@ void PhysicsSystem::Update(float dt)
 			// update position, velocity, and acceleration using stored values
 			UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
 		}
+	}
+
+	if (debugShowHitboxes)
+	{
+		DebugDrawAllHitboxes(allDynamicColliders, allStaticColliders);
 	}
 }
 
