@@ -14,8 +14,15 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 
 
-LuaScript::LuaScript(const char * filename, GameObject thisObj) : m_L(GetGlobalLuaState())
+LuaScript::LuaScript() : m_L(nullptr)
 {
+}
+
+LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaState()), m_id(resource->Id())
+{
+	// Make sure we're getting a script resource.
+	assert(resource->GetResourceType() == ResourceType::SCRIPT);
+
 	// Create a table representing the script's environment.
 	lua_newtable(m_L);
 
@@ -36,7 +43,7 @@ LuaScript::LuaScript(const char * filename, GameObject thisObj) : m_L(GetGlobalL
 	// STACK: EnvTable
 
 	// Load the function and set its environment upvalue.
-	int result = luaL_loadfile(m_L, filename);
+	int result = luaL_loadstring(m_L, reinterpret_cast<std::string *>(resource->Data())->c_str());
 	if (result != 0)
 	{
 		Logging::Log(Logging::CORE, Logging::HIGH_PRIORITY, "Lua couldn't load script file: ", lua_tostring(m_L, -1));
@@ -71,6 +78,9 @@ LuaScript::LuaScript(const char * filename, GameObject thisObj) : m_L(GetGlobalL
 
 void LuaScript::RunFunction(const char *functionName, int args, int returns)
 {
+	// nullptr lua environment means invalid default-constructed script.
+	assert(m_L != nullptr);
+
 	GetScriptEnvironment();
 
 	// Get the function out of the environment and clear the environment from the stack.

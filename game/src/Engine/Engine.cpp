@@ -105,6 +105,17 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Resource *tex = m_resManager.Get("bird.png");
 
+
+	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
+	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
+	MainCamera.AddComponent<Camera>();
+	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
+	MainCamera.GetComponent<Camera>()->SetZoom(3);
+	MainCamera.AddComponent<RigidBodyComponent>(RigidBodyComponent(glm::vec3(), glm::vec3(), glm::vec3()));
+	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), MainCamera));
+
 	// RigidBody and Collider Testing Objects
 	// object with velocity
 	GameObject asdf1 = m_spaces[0]->NewGameObject("Parent");
@@ -112,7 +123,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf1.AddComponent<SpriteComponent>(tex);
 	asdf1.AddComponent<RigidBodyComponent>();
 	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::noCollision);
-	asdf1.AddComponent<ScriptComponent>(LuaScript("PlayerController.lua", asdf1));
+	asdf1.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), asdf1));
 
 	// object with velocity
 	GameObject asdf2 = m_spaces[0]->NewGameObject("Parent");
@@ -120,6 +131,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf2.AddComponent<SpriteComponent>(tex);
 	asdf2.AddComponent<RigidBodyComponent>();
 	asdf2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::allCollision);
+	asdf2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), asdf2));
 
 	// object with velocity
 	GameObject asdf3 = m_spaces[0]->NewGameObject("Parent");
@@ -202,13 +214,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj7.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	Brett_obj7.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::decor);
 
-	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
-	MainCamera.AddComponent<TransformComponent>(glm::vec3(0,0,0));
-	MainCamera.AddComponent<Camera>();
-	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	MainCamera.GetComponent<Camera>()->SetZoom(3);
 	//MainCamera.AddComponent<RigidBodyComponent>();
 	//MainCamera.AddComponent<ScriptComponent>("PlayerController.lua");
 

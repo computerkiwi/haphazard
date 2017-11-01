@@ -15,6 +15,7 @@ enum class ResourceType : int
 {
 	INVALID = -1,
 	TEXTURE,
+	SCRIPT,
 	COUNT
 };
 

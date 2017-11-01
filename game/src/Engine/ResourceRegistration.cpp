@@ -10,6 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 // Resource classes to include.
 #include "graphics/TextureResource.h"
+#include "Scripting/ScriptResource.h"
 
 // Once you're registered a resource type in the enum in ResourceManager.h, add to the functions below.
 
@@ -20,6 +21,10 @@ const char *Resource::GetFolderName(ResourceType type)
 	{
 	case ResourceType::TEXTURE:
 		return "textures";
+		break;
+
+	case ResourceType::SCRIPT:
+		return "scripts";
 		break;
 
 	default:
@@ -36,6 +41,10 @@ Resource * Resource::AllocateNewResource(ResourceType type, const char *folderPa
 	{
 	case ResourceType::TEXTURE:
 		return new TextureResource(folderPath, fileName);
+		break;
+
+	case ResourceType::SCRIPT:
+		return new ScriptResource(folderPath, fileName);
 		break;
 
 	default:

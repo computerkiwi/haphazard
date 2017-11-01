@@ -9,11 +9,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "lua.hpp"
 #include "LuaBridge.h"
 #include "GameObjectSystem/GameObject.h"
+#include "ScriptResource.h"
 
 class LuaScript
 {
 public:
-	LuaScript(const char *filename, GameObject thisObj);
+	LuaScript();
+
+	LuaScript(Resource *resource, GameObject thisObj);
 
 	void RunFunction(const char *functionName, int args, int returns);
 
@@ -32,6 +35,14 @@ private:
 	// Puts the environment table for this script on the Lua stack.
 	void GetScriptEnvironment();
 
+	ResourceID m_id;
 	int m_environmentID;
 	lua_State *m_L;
+
+	META_REGISTER(LuaScript)
+	{
+		META_DefineType(LuaScript);
+
+		// TODO: Add functions for getting and setting script resource and "this" object.
+	}
 };
