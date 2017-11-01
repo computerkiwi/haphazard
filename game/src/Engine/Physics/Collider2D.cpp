@@ -34,6 +34,16 @@ CollisionLayer Collider2D::GetCollisionLayer()
 	return m_collisionLayer;
 }
 
+float Collider2D::GetSelfElasticity()
+{
+	return m_selfElasticity;
+}
+
+float Collider2D::GetAppliedElasticity()
+{
+	return m_appliedElasticity;
+}
+
 // setters
 void Collider2D::SetColliderType(colliderType colliderType)
 {
@@ -74,6 +84,26 @@ void Collider2D::ClearCollidedLayers()
 {
 	// set each flag to 0
 	m_layersCollidedWith = 0;
+}
+
+void Collider2D::SetSelfElasticity(float newElasticity)
+{
+	m_selfElasticity = newElasticity;
+}
+
+void Collider2D::AmplifySelfElasticity(float scalar)
+{
+	m_selfElasticity *= scalar;
+}
+
+void Collider2D::SetAppliedElasticity(float newElasticity)
+{
+	m_appliedElasticity = newElasticity;
+}
+
+void Collider2D::AmplifyAppliedElasticity(float scalar)
+{
+	m_appliedElasticity *= scalar;
 }
 
 // methods
