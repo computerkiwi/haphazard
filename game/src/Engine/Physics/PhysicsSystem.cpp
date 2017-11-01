@@ -564,7 +564,7 @@ void PhysicsSystem::Update(float dt)
 					ComponentHandle<ScriptComponent> script2 = tDynamiColliderHandle.GetSiblingComponent<ScriptComponent>();
 					if (script2.IsValid())
 					{
-						script1->CallCollision(dynamicCollider.GetGameObject());
+						script2->CallCollision(dynamicCollider.GetGameObject());
 					}
 				}
 			}

@@ -21,7 +21,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Component.h"
 #include "ObjectInfo.h"
 #include "TransformComponent.h"
-
+#include "HierarchyComponent.h"
 
 // Forward declare.
 class GameSpace;
@@ -349,6 +349,11 @@ class GameSpaceManagerID
 	std::vector<GameSpace> m_spaces;
 
 public:
+	size_t GetSize() const
+	{
+		return m_spaces.size();
+	}
+
 	inline std::vector<GameSpace>& GetSpaces()
 	{
 		return m_spaces;

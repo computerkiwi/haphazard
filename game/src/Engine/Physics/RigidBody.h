@@ -43,7 +43,7 @@ public:
 	void AddMass(float addMass);
 
 private:
-	friend void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object);
+	friend void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor);
 	glm::vec3 m_acceleration;
 	glm::vec3 m_velocity;
 	glm::vec3 m_gravity;

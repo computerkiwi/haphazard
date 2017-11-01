@@ -48,6 +48,7 @@
     <ClCompile Include="src\meta\Any.cpp" />
     <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
     <ClCompile Include="src\Util\Serialization.cpp" />
+    <ClCompile Include="src\GameObjectSystem\HierarchyComponent.cpp" />
     <ClCompile Include="src\Engine\ResourceManager.cpp" />
     <ClCompile Include="src\Engine\ResourceRegistration.cpp" />
     <ClCompile Include="src\graphics\TextureResource.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\GameObjectSystem\ObjectInfo.h" />
     <ClInclude Include="src\Engine\Physics\Raycast.h" />
     <ClInclude Include="src\Util\Serialization.h" />
+    <ClInclude Include="src\GameObjectSystem\HierarchyComponent.h" />
     <ClInclude Include="src\Engine\ResourceManager.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\Engine\Physics\PhysicsUtils.h" />

@@ -12,6 +12,11 @@ ComponentHandle<T>::ComponentHandle(GameObject_ID id, bool isValid = true) : m_o
 }
 
 template <typename T>
+ComponentHandle<T>::ComponentHandle() : m_objID(0), m_isValid(false)
+{
+}
+
+template <typename T>
 bool ComponentHandle<T>::operator== (const ComponentHandle& other)
 {
 	return m_objID == other.m_objID;
@@ -32,7 +37,7 @@ T *ComponentHandle<T>::operator->()
 template <typename T>
 T *ComponentHandle<T>::Get()
 {
-	return GameObject(m_objID).GetSpace() ? operator->() : nullptr;
+	return operator->();
 }
 
 template <typename T>
