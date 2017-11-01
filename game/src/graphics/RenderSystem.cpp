@@ -154,15 +154,22 @@ void RenderSystem::Update(float dt)
 	// Clear screen and sets correct framebuffer
 	Screen::Use();
 
+	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//Start Loop
 	UpdateCameras(dt);
 	RenderSprites(dt);
 	RenderText(dt);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	RenderParticles(dt);
 	
 	//End loop
-	glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
-	DebugGraphic::DrawAll();
+	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
+	glDisable(GL_BLEND);
+	//DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
 }
 

@@ -336,6 +336,10 @@
                         {
                             "meta_type_name": "ScriptComponent",
                             "meta_object_data": {}
+                        },
+                        {
+                            "meta_type_name": "ParticleSystem",
+                            "meta_object_data": {}
                         }
                     ]
                 },

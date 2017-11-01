@@ -65,7 +65,7 @@ struct ParticleSettings
 class ParticleSystem 
 {
 public:
-	ParticleSystem(glm::vec2 position = glm::vec2(0,0));
+	ParticleSystem();
 	void Render(float dt, glm::vec2 pos);
 
 
@@ -79,7 +79,7 @@ public:
 	void SetParticlesPerEmission(int amt) { m_settings.ParticlesPerEmission = amt; }
 	
 	// Set Burst minimum and maximum amount of particles spawned in each burst (Also set Burst Emission Rate!)
-	void SetBurstEmissionParticles(int minParticles, int maxParticles) { m_settings.BurstEmission.x = minParticles; m_settings.BurstEmission.y = maxParticles; }
+	void SetBurstEmissionParticles(int minParticles, int maxParticles) { m_settings.BurstEmission.x = static_cast<float>(minParticles); m_settings.BurstEmission.y = static_cast<float>(maxParticles); }
 	
 	// Set reoccurance rate for burst particles in seconds (Also set Burst Emission Particles!)
 	void SetBurstEmissionRate(float repeatRate) { m_settings.BurstEmission.z = repeatRate; }
