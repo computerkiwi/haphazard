@@ -37,11 +37,22 @@ struct GLFWwindow;
 struct EditorAction;
 typedef void(*actionFunc)(EditorAction& a);
 
+struct EditorComponentHandle
+{
+
+	template <class T>
+	explicit operator T() { return T(id, isValid); }
+
+	GameObject_ID id;
+	bool isValid;
+};
+
 struct EditorAction
 {
 	meta::Any old_value;
 	meta::Any new_value;
-	void *object;
+	const char *name;
+	EditorComponentHandle handle;
 	actionFunc func;
 
 	bool redo;

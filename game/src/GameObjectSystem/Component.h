@@ -17,6 +17,7 @@ class ComponentHandle
 {
 public:
 	ComponentHandle(GameObject_ID id, bool isValid = true);
+	ComponentHandle();
 
 	bool operator== (const ComponentHandle& other);
 

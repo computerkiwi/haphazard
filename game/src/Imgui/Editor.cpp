@@ -332,6 +332,8 @@ void Editor::Internal_Log(const char * log_message, ...)
 }
 
 
+// Adds an action to the history
+//   Order is Old Value, New Value, Field Name, handle to component, action function
 void Editor::Push_Action(EditorAction&& a)
 {
 	if (m_actions.size)
@@ -630,14 +632,14 @@ void Editor::ObjectsList()
 
 	SetNextWindowSize(ImVec2(260, 400));
 	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
-	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings);
+	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
 	if (Button("Create"))
 	{
-		ImGui::OpenPopup("Create Component###CreateComponent");
+		ImGui::OpenPopup("Create GameObject###CreateGameObject");
 	} 
 
-	if (ImGui::BeginPopup("Create Component###CreateComponent"))
+	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
 		char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
 		ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue);
@@ -921,16 +923,30 @@ void Editor::MenuBar()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) 
+			if (m_actions.size)
 			{
-				Undo_Action();
+				if (ImGui::MenuItem("Undo", "CTRL+Z"))
+				{
+					Undo_Action();
+				}
+			}
+			else
+			{
+				ImGui::MenuItem("Undo", "CTRL+Z", false, false);
 			}
 			
-			if (ImGui::MenuItem("Redo", "CTRL+Y")) 
+			if (m_actions.history.size() != m_actions.size)
 			{
-				Redo_Action();
+				if (ImGui::MenuItem("Redo", "CTRL+Y"))
+				{
+					Redo_Action();
+				}
 			}
-			
+			else
+			{
+				ImGui::MenuItem("Redo", "CTRL+Y", false, false);
+			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::Button("PopUp"))
