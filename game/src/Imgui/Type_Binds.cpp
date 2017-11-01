@@ -429,7 +429,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object)
 			SameLine();
 			if (Button("Add##script"))
 			{
-				script_c->scripts.emplace_back(LuaScript(buffer));
+				script_c->scripts.emplace_back(LuaScript(buffer, object));
 			}
 		}
 

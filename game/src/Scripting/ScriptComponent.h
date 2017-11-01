@@ -22,6 +22,15 @@ struct ScriptComponent
 		scripts.push_back(script);
 	}
 
+	void CallCollision(GameObject collidedObj)
+	{
+		for (auto& script : scripts)
+		{
+			luabridge::push(script.GetLuaState(), collidedObj);
+			script.RunFunction("OnCollisionEnter", 1, 0);
+		}
+	}
+
 	std::vector<LuaScript> scripts;
 
 	META_REGISTER(ScriptComponent)

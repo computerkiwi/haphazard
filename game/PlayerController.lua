@@ -16,15 +16,13 @@ end
 
 dumpTable(_G)
 
-function handleSprite(gameObject, dt)
+function handleSprite(dt)
 	spriteTimer = spriteTimer + dt
 	
 	if (spriteTimer >= SPRITE_SWITCH_TIME)
 	then
-		print("doin it")
-		
 		-- Get the object and reset the timer
-		local sprite = gameObject:GetSprite()
+		local sprite = this:GetSprite()
 		spriteTimer = spriteTimer - SPRITE_SWITCH_TIME
 		
 		-- Setup the sprite.
@@ -39,12 +37,11 @@ function handleSprite(gameObject, dt)
 	end
 end
 
-function update(gameObject, dt)
+function Update(dt)
 	timer = timer + dt
 		
-	local rBody = gameObject:GetRigidBody()
-	local transform = gameObject:GetTransform()
-	--local transform = GameObject.GetTransform(gameObject)
+	local rBody = this:GetRigidBody()
+	local transform = this:GetTransform()
 	tempVel = rBody.velocity
 	if (IsPressed(68)) -- D
 	then
@@ -64,7 +61,12 @@ function update(gameObject, dt)
 		transform.position = test
 	end
 	
-	handleSprite(gameObject, dt)
+	handleSprite(dt)
 	
 	rBody.velocity = tempVel
+end
+
+function OnCollisionEnter(collidedObject)
+	-- This is real spammy.
+	--print(this:GetName() .. " collided with " .. collidedObject:GetName())
 end

@@ -75,6 +75,9 @@ public:
 
 	void SetSpace(GameSpaceIndex index);
 
+	std::string GetName();
+	void SetName(const std::string& name);
+
 	template <typename T>
 	void DeleteComponent()
 	{
@@ -95,6 +98,7 @@ public:
 	static void SetDeserializeSpace(GameSpaceIndex index);
 	rapidjson::Value SerializeObject(rapidjson::Document::AllocatorType& allocator) const;
 	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
+
 private:
 	union
 	{
@@ -127,5 +131,8 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<StaticCollider2DComponent>, "GetStaticCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>, "GetSprite");
+
+		META_DefineFunction(GameObject, GetName, "GetName");
+		META_DefineFunction(GameObject, SetName, "SetName");
 	}
 };

@@ -14,10 +14,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 
 
-LuaScript::LuaScript(const char * filename) : m_L(GetGlobalLuaState())
+LuaScript::LuaScript(const char * filename, GameObject thisObj) : m_L(GetGlobalLuaState())
 {
 	// Create a table representing the script's environment.
 	lua_newtable(m_L);
+
+	// Add the gameobject as "this"
+	luabridge::push(m_L, thisObj);
+	lua_setfield(m_L, -2, "this");
 
 	// STACK: EnvTable
 

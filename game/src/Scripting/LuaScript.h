@@ -8,11 +8,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "lua.hpp"
 #include "LuaBridge.h"
+#include "GameObjectSystem/GameObject.h"
 
 class LuaScript
 {
 public:
-	LuaScript(const char *filename);
+	LuaScript(const char *filename, GameObject thisObj);
 
 	void RunFunction(const char *functionName, int args, int returns);
 

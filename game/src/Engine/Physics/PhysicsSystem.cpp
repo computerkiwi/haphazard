@@ -18,6 +18,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameObject.h"
 #include "PhysicsInternalTools.h"
 #include "PhysicsUtils.h"
+#include "Scripting/ScriptComponent.h"
 
 //TEMP
 #include "Raycast.h"
@@ -553,6 +554,18 @@ void PhysicsSystem::Update(float dt)
 					RegisterCollision(dynamicCollider->ColliderData(), tDynamiColliderHandle->ColliderData());
 					// resolve the collision
 					ResolveDynDynCollision(&resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
+
+					// Call the collision function on scripts.
+					ComponentHandle<ScriptComponent> script1 = dynamicCollider.GetSiblingComponent<ScriptComponent>();
+					if (script1.IsValid())
+					{
+						script1->CallCollision(tDynamiColliderHandle.GetGameObject());
+					}
+					ComponentHandle<ScriptComponent> script2 = tDynamiColliderHandle.GetSiblingComponent<ScriptComponent>();
+					if (script2.IsValid())
+					{
+						script1->CallCollision(dynamicCollider.GetGameObject());
+					}
 				}
 			}
 
@@ -591,6 +604,18 @@ void PhysicsSystem::Update(float dt)
 					RegisterCollision(dynamicCollider->ColliderData(), tStaticColliderHandle->ColliderData());
 					// resolve the collision
 					ResolveDynStcCollision(&resolutionVector, dynamicCollider, tStaticColliderHandle);
+
+					// Call the collision function on scripts.
+					ComponentHandle<ScriptComponent> script1 = dynamicCollider.GetSiblingComponent<ScriptComponent>();
+					if (script1.IsValid())
+					{
+						script1->CallCollision(tStaticColliderHandle.GetGameObject());
+					}
+					ComponentHandle<ScriptComponent> script2 = tStaticColliderHandle.GetSiblingComponent<ScriptComponent>();
+					if (script2.IsValid())
+					{
+						script1->CallCollision(dynamicCollider.GetGameObject());
+					}
 				}
 			}
 
