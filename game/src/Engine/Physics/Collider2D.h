@@ -32,8 +32,10 @@ public:
 	};
 
 	// constructor
-	Collider2D(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset), m_layersCollidedWith(0)
+	Collider2D(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, 
+		       float selfElasticity = 1, float appliedElasticity = 1, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
+			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset),
+		       m_layersCollidedWith(0), m_selfElasticity(selfElasticity), m_appliedElasticity(appliedElasticity)
 	{
 	}
 
@@ -45,6 +47,8 @@ public:
 	glm::vec3 GetOffset();
 	float GetRotationOffset();
 	CollisionLayer GetCollisionLayer();
+	float GetSelfElasticity();
+	float GetAppliedElasticity();
 
 	// setters
 	void SetColliderType(colliderType colliderType);
@@ -56,6 +60,10 @@ public:
 	void SetCollisionLayer(CollisionLayer newLayer);
 	void AddCollidedLayer(collisionLayers layer);
 	void RemoveCollidedLayer(collisionLayers layer);
+	void SetSelfElasticity(float newElasticity);
+	void AmplifySelfElasticity(float scalar);
+	void SetAppliedElasticity(float newElasticity);
+	void AmplifyAppliedElasticity(float scalar);
 
 	// methods
 	// Passed only one parameter, scales both axes by the same thing
@@ -73,6 +81,8 @@ private:
 	glm::vec3 m_offset;
 	float m_rotationOffset;
 	int m_layersCollidedWith;
+	float m_selfElasticity;
+	float m_appliedElasticity;
 
 	META_REGISTER(Collider2D)
 	{
@@ -89,6 +99,8 @@ private:
 		META_DefineMember(Collider2D, m_rotationOffset, "rotationOffset");
 		META_DefineMember(Collider2D, m_collisionLayer, "collisionLayer");
 		META_DefineMember(Collider2D, m_layersCollidedWith, "layersCollidedWith");
+		META_DefineMember(Collider2D, m_selfElasticity, "selfElasticity");
+		META_DefineMember(Collider2D, m_appliedElasticity, "appliedElasticity");
 	}
 };
 
@@ -97,8 +109,9 @@ class StaticCollider2DComponent
 {
 public:
 	// constructor
-	StaticCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
-							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, collisionLayer, offset, rotationOffset)
+	StaticCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, 
+							  float selfElasticity = 1, float appliedElasticity = 1, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, collisionLayer, selfElasticity, appliedElasticity, offset, rotationOffset)
 	{
 	}
 
@@ -126,8 +139,9 @@ class DynamicCollider2DComponent
 {
 public:
 	// constructor
-	DynamicCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1, 1, 1), int collisionLayer = collisionLayers::allCollision, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
-							   m_colliderData(colliderType, dimensions, collisionLayer, offset, rotationOffset)
+	DynamicCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1, 1, 1), int collisionLayer = collisionLayers::allCollision, 
+							   float selfElasticity = 1, float appliedElasticity = 1, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							   m_colliderData(colliderType, dimensions, collisionLayer, selfElasticity, appliedElasticity, offset, rotationOffset)
 	{
 	}
 
