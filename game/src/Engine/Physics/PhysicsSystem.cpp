@@ -350,22 +350,29 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 	float xCompare = rigidBody1->Velocity().x / rigidBody2->Velocity().x;
 	float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
 
+	//!?!? quick cheap solution - replace with a real one later
+	glm::vec2 pos1 = transform1->GetPosition();
+	glm::vec2 pos2 = transform2->GetPosition();
+
+	glm::vec2 halfresolve = resolutionVector * 0.5f;
+
+	transform1->SetPosition(pos1 + halfresolve);
+	transform2->SetPosition(pos2 - halfresolve);
+
 	// if they are not going in the same direction
 	if (xCompare < 0 || yCompare < 0)
 	{
-		/*std::cout << "Before:\n";
-		std::cout << rigidBody1->Velocity().x << ", " << rigidBody1->Velocity().y << std::endl;
-		std::cout << rigidBody2->Velocity().x << ", " << rigidBody2->Velocity().y << std::endl;*/
+		glm::vec2 prev = rigidBody1->Velocity();
 
 		rigidBody1->SetVelocity(refMtrx * rigidBody1->Velocity());
 		rigidBody2->SetVelocity(refMtrx * rigidBody2->Velocity());
 
-		/*std::cout << "After:\n";
-		std::cout << rigidBody1->Velocity().x << ", " << rigidBody1->Velocity().y << std::endl;
-		std::cout << rigidBody2->Velocity().x << ", " << rigidBody2->Velocity().y << std::endl;*/
+		glm::vec2 post = rigidBody1->Velocity();
+		glm::vec2 temp(0, 0);
 	}
 	else // if they are going in the same direction
 	{
+		// the magnitude of each object's velocity
 		float obj1SquaredMagnitude = (rigidBody1->Velocity().x * rigidBody1->Velocity().x) + (rigidBody1->Velocity().y * rigidBody1->Velocity().y);
 		float obj2SquaredMagnitude = (rigidBody2->Velocity().x * rigidBody2->Velocity().x) + (rigidBody2->Velocity().y * rigidBody2->Velocity().y);
 
@@ -447,6 +454,17 @@ void ClearAllRecordedCollisions(ComponentMap<DynamicCollider2DComponent> *allDyn
 	}
 }
 
+void MoveAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>& rigidBodies)
+{
+	for (auto tRigidBodyHandle : rigidBodies)
+	{
+		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
+
+		// update position, velocity, and acceleration using stored values
+		UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
+	}
+}
+
 // registers collision between two layers upon each other
 void RegisterCollision(Collider2D& collider1, Collider2D& collider2)
 {
@@ -481,6 +499,11 @@ void PhysicsSystem::Update(float dt)
 	// clear out the recorded collision layers so the recording will be accurate to this frame
 	ClearAllRecordedCollisions(allDynamicColliders, allStaticColliders);
 
+	// update the position and velocity of all objects according to their velocity and acceleration
+	MoveAllDynamicObjects(dt, *rigidBodies);
+
+
+	/************************** TEST STUFF **************************/
 	float range = 6;
 	glm::vec3 castPosition(-2, 2.5, 0);
 	
@@ -498,6 +521,7 @@ void PhysicsSystem::Update(float dt)
 	glm::vec2 pointEscape = CollidePointOnLayer(allDynamicColliders, allStaticColliders, testPoint);
 	testPoint += pointEscape;
 	DrawSmallBoxAtPosition(testPoint);
+	/****************************************************************/
 
 	for (auto& tRigidBodyHandle : *rigidBodies)
 	{
@@ -593,9 +617,6 @@ void PhysicsSystem::Update(float dt)
 					ResolveDynStcCollision(&resolutionVector, dynamicCollider, tStaticColliderHandle);
 				}
 			}
-
-			// update position, velocity, and acceleration using stored values
-			UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());	
 		}
 		// if transform is valid and dynamic collider isnt, only update movement
 		else if (transform.IsValid() && !dynamicCollider.IsValid())

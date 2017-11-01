@@ -99,117 +99,31 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// Initialize the system.
 	m_spaces[0]->Init();
 	m_spaces[1]->Init();
-	
-	const float distance = .5f;
-	const float top = 1.5f;
-
-	const float farLeft = -2.0f;
-	const float horzDistance = .7f;
-
-	const int allLayer = 6;
-	const int noLayer = 0;
-	const int playerLayer = 4;
-	const int groundLayer = 5;
-	const int enemyLayer = 3;
-	const int allyPLayer = 2;
-	const int decorLayer = 1;
-
 
 
 	Resource *tex = m_resManager.Get("bird.png");
 
 	// RigidBody and Collider Testing Objects
-	// object with velocity
-	GameObject asdf1 = m_spaces[0]->NewGameObject("Parent");
-	asdf1.AddComponent<TransformComponent>(glm::vec3(farLeft + (allLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf1.AddComponent<SpriteComponent>(tex);
-	asdf1.AddComponent<RigidBodyComponent>();
-	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::noCollision);
-
-	// object with velocity
-	GameObject asdf2 = m_spaces[0]->NewGameObject("Parent");
-	asdf2.AddComponent<TransformComponent>(glm::vec3(farLeft + (noLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf2.AddComponent<SpriteComponent>(tex);
-	asdf2.AddComponent<RigidBodyComponent>();
-	asdf2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::allCollision);
 
 	// object with velocity
 	GameObject asdf3 = m_spaces[0]->NewGameObject("Parent");
-	asdf3.AddComponent<TransformComponent>(glm::vec3(farLeft + (playerLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
+	asdf3.AddComponent<TransformComponent>(glm::vec3(0, 2, 1), glm::vec3(.25f, .25f, 1), 10);
 	asdf3.AddComponent<SpriteComponent>(tex);
-	asdf3.AddComponent<RigidBodyComponent>();
+	asdf3.AddComponent<RigidBodyComponent>(glm::vec3(0,0,0), glm::vec3(.1f, 0, 0));
 	asdf3.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
 
 	// object with velocity
-	GameObject asdf4 = m_spaces[0]->NewGameObject("Parent");
-	asdf4.AddComponent<TransformComponent>(glm::vec3(farLeft + (groundLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf4.AddComponent<SpriteComponent>(tex);
-	asdf4.AddComponent<RigidBodyComponent>();
-	asdf4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::ground);
-
-	// object with velocity
-	GameObject asdf5 = m_spaces[0]->NewGameObject("Parent");
-	asdf5.AddComponent<TransformComponent>(glm::vec3(farLeft + (enemyLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf5.AddComponent<SpriteComponent>(tex);
-	asdf5.AddComponent<RigidBodyComponent>();
-	asdf5.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::enemy);
-
-	// object with velocity
-	GameObject asdf6 = m_spaces[0]->NewGameObject("Parent");
-	asdf6.AddComponent<TransformComponent>(glm::vec3(farLeft + (allyPLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf6.AddComponent<SpriteComponent>(tex);
-	asdf6.AddComponent<RigidBodyComponent>();
-	asdf6.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::allyProjectile);
-
-	// object with velocity
-	GameObject asdf7 = m_spaces[0]->NewGameObject("Parent");
-	asdf7.AddComponent<TransformComponent>(glm::vec3(farLeft + (decorLayer * horzDistance), top + 1.25f, 1), glm::vec3(.25f, .25f, 1));
-	asdf7.AddComponent<SpriteComponent>(tex);
-	asdf7.AddComponent<RigidBodyComponent>();
-	asdf7.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::decor);
-
-
-	// static colliders: box of cats
-	GameObject Brett_obj1 = m_spaces[0]->NewGameObject("Ground-noCol");
-	Brett_obj1.AddComponent<TransformComponent>(glm::vec3(0, top - (noLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj1.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj1.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::noCollision);
-
-	// static colliders: box of cats
-	GameObject Brett_obj2 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj2.AddComponent<TransformComponent>(glm::vec3(0, top - (allLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj2.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj2.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::allCollision);
-
-	// static colliders: box of cats
-	GameObject Brett_obj3 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj3.AddComponent<TransformComponent>(glm::vec3(0, top - (playerLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj3.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj3.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::player);
+	GameObject asdf1 = m_spaces[0]->NewGameObject("Parent");
+	asdf1.AddComponent<TransformComponent>(glm::vec3(1, 2, 1), glm::vec3(.25f, .25f, 1), 10);
+	asdf1.AddComponent<SpriteComponent>(tex);
+	asdf1.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.1f, 0, 0));
+	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
 
 	// static colliders: box of cats
 	GameObject Brett_obj4 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(0, top - (groundLayer * distance), -1), glm::vec3(10, .1, 1));
+	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(0, -1, -1), glm::vec3(10, .1, 1));
 	Brett_obj4.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	Brett_obj4.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::ground);
-
-	// static colliders: box of cats
-	GameObject Brett_obj5 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj5.AddComponent<TransformComponent>(glm::vec3(0, top - (enemyLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj5.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj5.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::enemy);
-
-	// static colliders: box of cats
-	GameObject Brett_obj6 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj6.AddComponent<TransformComponent>(glm::vec3(0, top - (allyPLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj6.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj6.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::allyProjectile);
-
-	// static colliders: box of cats
-	GameObject Brett_obj7 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj7.AddComponent<TransformComponent>(glm::vec3(0, top - (decorLayer * distance), -1), glm::vec3(10, .1, 1));
-	Brett_obj7.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj7.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::decor);
 
 
 	this->FileSave("test_out.json");
