@@ -12,6 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Shaders.h"
 #include "GLFW\glfw3.h"
+
 ///
 // Shader
 ///
