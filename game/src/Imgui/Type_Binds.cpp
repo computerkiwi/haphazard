@@ -413,7 +413,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				OpenPopup("Add Parent##add_parent_popup");
 			}
 
-			int parent_id = 0;
 			if (BeginPopup("Add Parent##add_parent_popup"))
 			{
 				Choose_Parent_ObjectList(editor, transform, object);
@@ -434,24 +433,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 				if (DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0))
 				{
-					x_click = true;
-				}
-				else
-				{
-					x_click = false;
-				}
-
-				if (!x_click && position.x != transform->m_position.x)
-				{
 					editor->Push_Action({ position, transform->m_position, "position", handle, Action_General<TransformComponent, glm::vec3> });
-					x_click = false;
 				}
+				
 
 				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
 			}
 			else
 			{
-				DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0);
+				if (DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0))
+				{
+					
+				}
 				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, SLIDER_STEP, 0);
 			}
 
@@ -508,12 +501,12 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 			glm::vec2 acc = rb->m_acceleration;
 			PushItemWidth(120);
 			
-			if (InputFloat(" X##acceleration", &rb->m_acceleration.x))
+			if (InputFloat("X##acceleration", &rb->m_acceleration.x))
 			{
 				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
 			}
 
-			if (InputFloat(" Y##acceleration", &rb->m_acceleration.y))
+			if (InputFloat("Y##acceleration", &rb->m_acceleration.y))
 			{
 				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
 			}
