@@ -173,7 +173,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 	if (m_settings.Texture)
 	{
 		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.Texture->GetID());
-		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.Texture->GetBounds());
+		Shaders::particleRenderShader->SetVariable("TextureBox", glm::vec4(0,0,m_settings.Texture->GetBounds()) );
 	}
 	else
 	{

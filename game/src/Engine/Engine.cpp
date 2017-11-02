@@ -143,6 +143,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1,0,0,0.5f), glm::vec4(1, 1, 0, 0));
 	asdf1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
 	asdf1.GetComponent<ParticleSystem>()->SetRotationRate(1);
+	asdf1.GetComponent<ParticleSystem>()->SetTexture(reinterpret_cast<Texture*>(tex->Data()));
 	//asdf1.GetComponent<ParticleSystem>()->SetSimulationSpace(SimulationSpace::LOCAL);
 
 	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
