@@ -139,7 +139,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
 	asdf1.GetComponent<ParticleSystem>()->SetHasTrail(false);
 	asdf1.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
-	//asdf1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.03f);
+	asdf1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
 	asdf1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1,0,0,0.5f), glm::vec4(1, 1, 0, 0));
 	asdf1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
 	asdf1.GetComponent<ParticleSystem>()->SetRotationRate(1);
