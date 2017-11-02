@@ -808,6 +808,11 @@ namespace ImGui
     IMGUI_API int           ParseFormatPrecision(const char* fmt, int default_value);
     IMGUI_API float         RoundScalar(float value, int decimal_precision);
 
+
+	// Addition -- Haphazard
+	float  DragBehavior_Haphazard(const ImRect& frame_bb, ImGuiID id, float* v, float v_speed, float v_min, float v_max, int decimal_precision, float power);
+	bool   DragBehavior_ReturnOnClick(const ImRect& frame_bb, ImGuiID id, float* v, float v_speed, float v_min, float v_max, int decimal_precision, float power);
+
 } // namespace ImGui
 
 // ImFontAtlas internals

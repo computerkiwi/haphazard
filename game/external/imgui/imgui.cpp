@@ -10492,3 +10492,304 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 #endif
 
 //-----------------------------------------------------------------------------
+
+// Additions
+float ImGui::DragBehavior_Haphazard(const ImRect& frame_bb, ImGuiID id, float* v, float v_speed, float v_min, float v_max, int decimal_precision, float power)
+{
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+
+	// Draw frame
+	const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+	RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+
+	float value_changed = 0.0f;
+
+	// Process clicking on the drag
+	if (g.ActiveId == id)
+	{
+		if (g.IO.MouseDown[0])
+		{
+			if (g.ActiveIdIsJustActivated)
+			{
+				// Lock current value on click
+				g.DragCurrentValue = *v;
+				g.DragLastMouseDelta = ImVec2(0.f, 0.f);
+			}
+
+			if (v_speed == 0.0f && (v_max - v_min) != 0.0f && (v_max - v_min) < FLT_MAX)
+				v_speed = (v_max - v_min) * g.DragSpeedDefaultRatio;
+			float v_cur = g.DragCurrentValue;
+			const ImVec2 mouse_drag_delta = GetMouseDragDelta(0, 1.0f);
+			if (fabsf(mouse_drag_delta.x - g.DragLastMouseDelta.x) > 0.0f)
+			{
+				float speed = v_speed;
+				if (g.IO.KeyShift && g.DragSpeedScaleFast >= 0.0f)
+					speed = speed * g.DragSpeedScaleFast;
+				if (g.IO.KeyAlt && g.DragSpeedScaleSlow >= 0.0f)
+					speed = speed * g.DragSpeedScaleSlow;
+
+				float adjust_delta = (mouse_drag_delta.x - g.DragLastMouseDelta.x) * speed;
+				if (fabsf(power - 1.0f) > 0.001f)
+				{
+					// Logarithmic curve on both side of 0.0
+					float v0_abs = v_cur >= 0.0f ? v_cur : -v_cur;
+					float v0_sign = v_cur >= 0.0f ? 1.0f : -1.0f;
+					float v1 = powf(v0_abs, 1.0f / power) + (adjust_delta * v0_sign);
+					float v1_abs = v1 >= 0.0f ? v1 : -v1;
+					float v1_sign = v1 >= 0.0f ? 1.0f : -1.0f;          // Crossed sign line
+					v_cur = powf(v1_abs, power) * v0_sign * v1_sign;    // Reapply sign
+				}
+				else
+				{
+					v_cur += adjust_delta;
+				}
+				g.DragLastMouseDelta.x = mouse_drag_delta.x;
+
+				// Clamp
+				if (v_min < v_max)
+					v_cur = ImClamp(v_cur, v_min, v_max);
+				g.DragCurrentValue = v_cur;
+			}
+
+			// Round to user desired precision, then apply
+			v_cur = RoundScalar(v_cur, decimal_precision);
+			if (*v != v_cur)
+			{
+				value_changed = *v - v_cur;
+				*v = v_cur;
+			}
+		}
+		else
+		{
+			ClearActiveID();
+		}
+	}
+
+	return abs(value_changed);
+}
+
+
+// Additions
+bool ImGui::DragBehavior_ReturnOnClick(const ImRect& frame_bb, ImGuiID id, float* v, float v_speed, float v_min, float v_max, int decimal_precision, float power)
+{
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+
+	// Draw frame
+	const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : g.HoveredId == id ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg);
+	RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, style.FrameRounding);
+
+	 bool clicked = false;
+
+	 if (g.IO.MouseClicked[0])
+	 {
+		 clicked = true;
+	 }
+
+	// Process clicking on the drag
+	if (g.ActiveId == id)
+	{
+		if (g.IO.MouseDown[0])
+		{
+			if (g.ActiveIdIsJustActivated)
+			{
+				// Lock current value on click
+				g.DragCurrentValue = *v;
+				g.DragLastMouseDelta = ImVec2(0.f, 0.f);
+			}
+
+			if (v_speed == 0.0f && (v_max - v_min) != 0.0f && (v_max - v_min) < FLT_MAX)
+				v_speed = (v_max - v_min) * g.DragSpeedDefaultRatio;
+			float v_cur = g.DragCurrentValue;
+			const ImVec2 mouse_drag_delta = GetMouseDragDelta(0, 1.0f);
+			if (fabsf(mouse_drag_delta.x - g.DragLastMouseDelta.x) > 0.0f)
+			{
+				float speed = v_speed;
+				if (g.IO.KeyShift && g.DragSpeedScaleFast >= 0.0f)
+					speed = speed * g.DragSpeedScaleFast;
+				if (g.IO.KeyAlt && g.DragSpeedScaleSlow >= 0.0f)
+					speed = speed * g.DragSpeedScaleSlow;
+
+				float adjust_delta = (mouse_drag_delta.x - g.DragLastMouseDelta.x) * speed;
+				if (fabsf(power - 1.0f) > 0.001f)
+				{
+					// Logarithmic curve on both side of 0.0
+					float v0_abs = v_cur >= 0.0f ? v_cur : -v_cur;
+					float v0_sign = v_cur >= 0.0f ? 1.0f : -1.0f;
+					float v1 = powf(v0_abs, 1.0f / power) + (adjust_delta * v0_sign);
+					float v1_abs = v1 >= 0.0f ? v1 : -v1;
+					float v1_sign = v1 >= 0.0f ? 1.0f : -1.0f;          // Crossed sign line
+					v_cur = powf(v1_abs, power) * v0_sign * v1_sign;    // Reapply sign
+				}
+				else
+				{
+					v_cur += adjust_delta;
+				}
+				g.DragLastMouseDelta.x = mouse_drag_delta.x;
+
+				// Clamp
+				if (v_min < v_max)
+					v_cur = ImClamp(v_cur, v_min, v_max);
+				g.DragCurrentValue = v_cur;
+			}
+
+			// Round to user desired precision, then apply
+			v_cur = RoundScalar(v_cur, decimal_precision);
+			if (*v != v_cur)
+			{
+				*v = v_cur;
+			}
+		}
+		else
+		{
+			ClearActiveID();
+		}
+	}
+
+	return clicked;
+}
+
+
+// NB: v_speed is float to allow adjusting the drag speed with more precision
+bool ImGui::DragInt_ReturnOnClick(const char* label, int* v, float v_speed, int v_min, int v_max, const char* display_format)
+{
+	if (!display_format)
+		display_format = "%.0f";
+
+	float v_f = (float)*v;
+
+	bool value_changed = DragFloat_ReturnOnClick(label, &v_f, v_speed, (float)v_min, (float)v_max, display_format);
+
+	*v = (int)v_f;
+
+	return value_changed;
+}
+
+
+bool ImGui::DragFloat_ReturnOnClick(const char* label, float* v, float v_speed, float v_min, float v_max, const char* display_format, float power)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const float w = CalcItemWidth();
+
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y*2.0f));
+	const ImRect inner_bb(frame_bb.Min + style.FramePadding, frame_bb.Max - style.FramePadding);
+	const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
+
+	// NB- we don't call ItemSize() yet because we may turn into a text edit box below
+	if (!ItemAdd(total_bb, &id))
+	{
+		ItemSize(total_bb, style.FramePadding.y);
+		return false;
+	}
+
+	const bool hovered = IsHovered(frame_bb, id);
+	if (hovered)
+		SetHoveredID(id);
+
+	if (!display_format)
+		display_format = "%.3f";
+	int decimal_precision = ParseFormatPrecision(display_format, 3);
+
+	// Tabbing or CTRL-clicking on Drag turns it into an input box
+	bool start_text_input = false;
+	const bool tab_focus_requested = FocusableItemRegister(window, g.ActiveId == id);
+	if (tab_focus_requested || (hovered && (g.IO.MouseClicked[0] | g.IO.MouseDoubleClicked[0])))
+	{
+		SetActiveID(id, window);
+		FocusWindow(window);
+
+		if (tab_focus_requested || g.IO.KeyCtrl || g.IO.MouseDoubleClicked[0])
+		{
+			start_text_input = true;
+			g.ScalarAsInputTextId = 0;
+		}
+	}
+	if (start_text_input || (g.ActiveId == id && g.ScalarAsInputTextId == id))
+		return InputScalarAsWidgetReplacement(frame_bb, label, ImGuiDataType_Float, v, id, decimal_precision);
+
+	// Actual drag behavior
+	ItemSize(total_bb, style.FramePadding.y);
+	const bool value_changed = DragBehavior_ReturnOnClick(frame_bb, id, v, v_speed, v_min, v_max, decimal_precision, power);
+
+	// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+	char value_buf[64];
+	const char* value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), display_format, *v);
+	RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
+
+	if (label_size.x > 0.0f)
+		RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, inner_bb.Min.y), label);
+
+	return value_changed;
+}
+
+
+float ImGui::DragFloat_Haphazard(const char* label, float* v, float v_speed, float v_min, float v_max, const char* display_format, float power)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return 0.0f;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const float w = CalcItemWidth();
+
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y*2.0f));
+	const ImRect inner_bb(frame_bb.Min + style.FramePadding, frame_bb.Max - style.FramePadding);
+	const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
+
+	// NB- we don't call ItemSize() yet because we may turn into a text edit box below
+	if (!ItemAdd(total_bb, &id))
+	{
+		ItemSize(total_bb, style.FramePadding.y);
+		return 0.0f;
+	}
+
+	const bool hovered = IsHovered(frame_bb, id);
+	if (hovered)
+		SetHoveredID(id);
+
+	if (!display_format)
+		display_format = "%.3f";
+	int decimal_precision = ParseFormatPrecision(display_format, 3);
+
+	// Tabbing or CTRL-clicking on Drag turns it into an input box
+	bool start_text_input = false;
+	const bool tab_focus_requested = FocusableItemRegister(window, g.ActiveId == id);
+	if (tab_focus_requested || (hovered && (g.IO.MouseClicked[0] | g.IO.MouseDoubleClicked[0])))
+	{
+		SetActiveID(id, window);
+		FocusWindow(window);
+
+		if (tab_focus_requested || g.IO.KeyCtrl || g.IO.MouseDoubleClicked[0])
+		{
+			start_text_input = true;
+			g.ScalarAsInputTextId = 0;
+		}
+	}
+	if (start_text_input || (g.ActiveId == id && g.ScalarAsInputTextId == id))
+		return InputScalarAsWidgetReplacement(frame_bb, label, ImGuiDataType_Float, v, id, decimal_precision);
+
+	// Actual drag behavior
+	ItemSize(total_bb, style.FramePadding.y);
+	const float value_changed = DragBehavior_Haphazard(frame_bb, id, v, v_speed, v_min, v_max, decimal_precision, power);
+
+	// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+	char value_buf[64];
+	const char* value_buf_end = value_buf + ImFormatString(value_buf, IM_ARRAYSIZE(value_buf), display_format, *v);
+	RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
+
+	if (label_size.x > 0.0f)
+		RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, inner_bb.Min.y), label);
+
+	return value_changed;
+}

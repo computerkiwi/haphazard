@@ -497,6 +497,11 @@ namespace ImGui
     static inline bool      IsRectClipped(const ImVec2& size) { return !IsRectVisible(size); } // OBSOLETE 1.39+
 #endif
 
+	// Addition -- Haphazard
+	bool ImGui::DragInt_ReturnOnClick(const char* label, int* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
+	float  DragFloat_Haphazard(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
+	bool   DragFloat_ReturnOnClick(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
+
 } // namespace ImGui
 
 // Flags for ImGui::Begin()

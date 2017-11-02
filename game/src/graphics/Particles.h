@@ -65,6 +65,45 @@ struct ParticleSettings
 	glm::vec2		TrailScale = {1,1};				 // Scale of trail particles RELATIVE TO SOURCE PARTICLE
 	glm::vec4		TrailStartColor = {1,1,1,1};	 // Color of trail near particle
 	glm::vec4		TrailEndColor = {1,1,1,1};		 // Color of trail near tail
+
+	META_REGISTER(ParticleSettings)
+	{
+		META_DefineType(ParticleSettings);
+
+		META_DefineMember(ParticleSettings, isLooping, "isLooping");
+
+		META_DefineMember(ParticleSettings, EmissionRate, "EmissionRate");
+		META_DefineMember(ParticleSettings, ParticlesPerEmission, "ParticlesPerEmisson");
+		META_DefineMember(ParticleSettings, BurstEmission, "BurstEmission");
+		META_DefineMember(ParticleSettings, EmissionShape, "EmissionShape");
+		META_DefineMember(ParticleSettings, EmissionShapeScale, "EmissionShapeScale");
+		META_DefineMember(ParticleSettings, ParticleSpace, "ParticleSpace");
+
+		META_DefineMember(ParticleSettings, EmitterLifeTime, "EmitterLifeTime");
+		META_DefineMember(ParticleSettings, ParticleLifetime, "ParticleLifetime");
+		META_DefineMember(ParticleSettings, ParticleLifetimeVariance, "ParticleLifetimeVariance");
+
+		META_DefineMember(ParticleSettings, StartingVelocity, "StartingVelocity");
+		META_DefineMember(ParticleSettings, StartingVelocityVariance, "StartingVelocityVariance");
+		META_DefineMember(ParticleSettings, Acceleration, "Acceleration");
+
+		META_DefineMember(ParticleSettings, ScaleOverTime, "ScaleOverTime");
+
+		META_DefineMember(ParticleSettings, StartRotation, "StartRotation");
+		META_DefineMember(ParticleSettings, StartRotationVariation, "StartRotationVariation");
+		META_DefineMember(ParticleSettings, RotationRate, "RotationRate");
+
+		META_DefineMember(ParticleSettings, StartColor, "StartColor");
+		META_DefineMember(ParticleSettings, EndColor, "EndColor");
+		META_DefineMember(ParticleSettings, Texture, "Texture");
+
+		META_DefineMember(ParticleSettings, HasTrail, "HasTrail");
+		META_DefineMember(ParticleSettings, TrailEmissionRate, "TrailEmissionRate");
+		META_DefineMember(ParticleSettings, TrailLifetime, "TrailLifetime");
+		META_DefineMember(ParticleSettings, TrailScale, "TrailScale");
+		META_DefineMember(ParticleSettings, TrailStartColor, "TrailStartColor");
+		META_DefineMember(ParticleSettings, TrailEndColor, "TrailEndColor");
+	}
 };
 
 class ParticleSystem 

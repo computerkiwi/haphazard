@@ -18,6 +18,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "graphics\DebugGraphic.h"
 
+#include "Input\Input.h"
+
 using namespace ImGui;
 
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
@@ -82,6 +84,49 @@ const char * ErrorList[] =
 
 #define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
 
+bool dragClicked = false;
+
+#define Drag(NAME, SAVE, ITEM)																					 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}																										 
+
+#define Drag_Int(NAME, SAVE, ITEM)																					 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}
+
+#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
+	if (Input::IsReleased(Key::A))																	 \
+	{																										 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
+		dragClicked = false;																				 \
+	}
+
+
+#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)														 \
+	if (Input::IsReleased(Key::A))																	 \
+	{																										 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });  \
+		dragClicked = false;																				 \
+	}
+
+// Transform Component Save Location
+TransformComponent transformSave;
+RigidBodyComponent rigidBodySave;
+Collider2D         colliderSave;
+ParticleSettings   particleSave;
+
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
@@ -99,6 +144,11 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		}
 		object = object_id;
 		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
+
+		if (child.Getid() == object_id)
+		{
+			continue;
+		}
 
 		// Save the buffer based off name size, max name size is 8
 		if (name.size() > 8)
@@ -422,7 +472,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (TreeNode("Position"))
 		{
-			glm::vec3 position = transform->m_position;
+			
 			if (transform->GetParent())
 			{
 				bool x_click = false;
@@ -431,21 +481,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				Text("X: %f", transform->GetPosition().x);
 				Text("Y: %f", transform->GetPosition().y);
 
-				if (DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0))
-				{
-					editor->Push_Action({ position, transform->m_position, "position", handle, Action_General<TransformComponent, glm::vec3> });
-				}
-				
+				// Position Widgets
+				Drag("X Offset##transform", transformSave.m_position.x, transform->m_position.x);
+				Drag("Y Offset##transform", transformSave.m_position.y, transform->m_position.y);
 
-				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
+				DragRelease(TransformComponent, transformSave.m_position, transform->m_position, "position");
 			}
 			else
 			{
-				if (DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0))
-				{
-					
-				}
-				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, SLIDER_STEP, 0);
+				Drag("X##transform_position", transformSave.m_position.x, transform->m_position.x);
+				Drag("Y##transform_position", transformSave.m_position.y, transform->m_position.y);
+
+				DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
 			}
 
 			TreePop();
@@ -453,25 +500,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		}
 		if (TreeNode("Scale"))
 		{
-			glm::vec3 scale = transform->m_scale;
-			PushItemWidth(120);
 
-			if (InputFloat("X##scale", &transform->m_scale.x, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
-			{
-				editor->Push_Action({ scale, transform->m_scale, "scale", handle, Action_General<TransformComponent, glm::vec3> });
-			}
+			Drag("X##scale", transformSave.m_scale.x, transform->m_scale.x);
+			Drag("Y##scale", transformSave.m_scale.y, transform->m_scale.y);
 
-			if (InputFloat("Y##scale", &transform->m_scale.y, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
-			{
-				editor->Push_Action({ scale, transform->m_scale, "scale", handle, Action_General<TransformComponent, glm::vec3> });
-			}
+			DragRelease_Type(TransformComponent, transformSave.m_scale, transform->m_scale, "scale", glm::vec2);
 			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 
-		DragFloat("Rotation##rotation_drag", &transform->m_rotation, 1, 0);
+		Drag("Rotation##transform", transform->m_rotation, transformSave.m_rotation);
+		DragRelease(TransformComponent, transform->m_rotation, transformSave.m_rotation, "rotation");
 	}
 }
 
@@ -497,60 +537,32 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 		}
 
 		if (TreeNode("Acceleration"))
-		{
-			glm::vec2 acc = rb->m_acceleration;
-			PushItemWidth(120);
-			
-			if (InputFloat("X##acceleration", &rb->m_acceleration.x))
-			{
-				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+		{			
+			Drag("X##acceleration", rigidBodySave.m_acceleration.x, rb->m_acceleration.x);
+			Drag("Y##acceleration", rigidBodySave.m_acceleration.y, rb->m_acceleration.y);
 
-			if (InputFloat("Y##acceleration", &rb->m_acceleration.y))
-			{
-				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_acceleration, rigidBodySave.m_acceleration, "acceleration");
 			
-			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Velocity"))
 		{
-			glm::vec3 vel = rb->m_velocity;
-			PushItemWidth(120);
+			Drag("X##rigidbody_velocity", rigidBodySave.m_velocity.x, rb->m_velocity.x);
+			Drag("Y##rigidbody_velocity", rigidBodySave.m_velocity.y, rb->m_velocity.y);
 
-			if (InputFloat("X##velocity", &rb->m_velocity.x))
-			{
-				editor->Push_Action({ vel, rb->m_velocity, "velocity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_velocity, rb->m_velocity, "velocity");
 
-			if (InputFloat("Y##velocity", &rb->m_velocity.y))
-			{
-				editor->Push_Action({ vel, rb->m_velocity, "velocity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
-			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Gravity"))
 		{
-			glm::vec3 gravity = rb->m_gravity;
-			PushItemWidth(120);
+			Drag("X##gravity", rigidBodySave.m_gravity.x, rb->m_gravity.x);
+			Drag("Y##gravity", rigidBodySave.m_gravity.y, rb->m_gravity.y);
 
-			if (InputFloat("X##gravity", &rb->m_gravity.x))
-			{
-				editor->Push_Action({ gravity, rb->m_gravity, "gravity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
-
-			if (InputFloat("Y##gravity", &rb->m_gravity.y))
-			{
-				editor->Push_Action({ gravity, rb->m_gravity, "gravity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_gravity, rb->m_gravity, "gravity");
 			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
@@ -650,64 +662,48 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			PushItemWidth(120);
+			Drag("X##collider_dim", colliderSave.m_dimensions.x, collider->m_dimensions.x);
+			Drag("Y##collider_dim", colliderSave.m_dimensions.y, collider->m_dimensions.y);
 
-			glm::vec3 dim = collider->m_dimensions;
-
-			if (InputFloat(" X##dim", &collider->m_dimensions.x))
-			{
+			if (Input::IsReleased(Key::A))																	 
+			{																										 
 				if (collider->isStatic())
 				{
-					editor->Push_Action({ dim, collider->m_collisionLayer, "collisionLayer",
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
 						handle, Action_General<StaticCollider2DComponent, int> });
 				}
 				else
 				{
-					editor->Push_Action({ dim, collider->m_collisionLayer, "collisionLayer",
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
 						handle, Action_General<DynamicCollider2DComponent, int> });
-				}
+				}  
+				dragClicked = false;																				 
 			}
 
-			if (InputFloat(" Y##dim", &collider->m_dimensions.y))
-			{
-				if (collider->isStatic())
-				{
-					editor->Push_Action({ dim, collider->m_dimensions, "collisionLayer",
-						handle, Action_General<StaticCollider2DComponent, int> });
-				}
-				else
-				{
-					editor->Push_Action({ dim, collider->m_dimensions, "collisionLayer",
-						handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
-				}
-			}
+			
 
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Offset"))
 		{
-			PushItemWidth(120);
-			glm::vec3 offset = collider->m_offset;
-			if (InputFloat(" X##offset", &collider->m_offset.x))
+			Drag("X##collider_offset", colliderSave.m_offset.x, collider->m_offset.x);
+			Drag("Y##collider_offset", colliderSave.m_offset.y, collider->m_offset.y);
+
+
+			if (Input::IsReleased(Key::A))
 			{
 				if (collider->isStatic())
 				{
-					editor->Push_Action({ offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
+					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
 				}
 				else
 				{
-					editor->Push_Action({ offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
+					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
 				}
+				dragClicked = false;
 			}
 
-			if (InputFloat(" Y##offset", &collider->m_offset.y))
-			{
-
-			}
-
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
@@ -815,6 +811,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 {
 	if (CollapsingHeader("Particle System"))
 	{
+		EditorComponentHandle handle = { object.Getid(), true };
 
 		if (Button("Remove##particles"))
 		{
@@ -827,17 +824,28 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		// PushItemWidth(115);
 		
 		Checkbox("Looping", &settings.isLooping);
-		SliderFloat("Rate", &settings.EmissionRate, SLIDER_STEP, 0);
-		DragInt("Count", &settings.ParticlesPerEmission);
 		
+		Drag("Rate##particles", particleSave.EmissionRate, settings.EmissionRate);
+		DragRelease(ParticleSystem, particleSave.EmissionRate, settings.EmissionRate, "EmissionRate");
+
+		DragInt("Count", &settings.ParticlesPerEmission, 0.25f);
+
+		Drag_Int("Count##particles", particleSave.ParticlesPerEmission, settings.ParticlesPerEmission);
+		if (settings.ParticlesPerEmission < 0)
+		{
+			settings.ParticlesPerEmission = 0;
+		}
+		DragRelease(ParticleSettings, particleSave.ParticlesPerEmission, settings.ParticlesPerEmission, "ParticlesPerEmission");
+
+
 		if (TreeNode("Burst##particles"))
 		{
 			InputFloat("Frequency", &settings.BurstEmission.z, SLIDER_STEP, 0);
 
-			DragFloat("Min Count", &settings.BurstEmission.x, SLIDER_STEP, 0);
+			Drag("Min Count##particle", particleSave.BurstEmission.x, settings.BurstEmission.x);
+			Drag("Max Count##particle", particleSave.BurstEmission.y, settings.BurstEmission.y);
 
-			DragFloat("Max Count", &settings.BurstEmission.y, SLIDER_STEP, 0);
-
+			DragRelease(ParticleSettings, particleSave.BurstEmission, settings.BurstEmission, "BurstEmission");
 			Separator();
 			TreePop();
 		}
@@ -850,9 +858,10 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Shape Scale##particles"))
 		{
-			DragFloat("X##emission_shape", &settings.EmissionShapeScale.x, SLIDER_STEP, 0);
+			Drag("X##particle_emission_rate", particleSave.EmissionShapeScale.x, settings.EmissionShapeScale.x);
+			Drag("Y##particle_emission_rate", particleSave.EmissionShapeScale.y, settings.EmissionShapeScale.y);
 
-			DragFloat("Y##emission_shape", &settings.EmissionShapeScale.y, SLIDER_STEP, 0);
+			DragRelease(ParticleSettings, particleSave.EmissionShapeScale, settings.EmissionShapeScale, "EmissionShapeScale");
 
 			TreePop();
 		}
@@ -861,21 +870,30 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		Combo("Simulation Space##particles", reinterpret_cast<int *>(&settings.ParticleSpace), SimulationSpace_Names, _countof(SimulationSpace_Names));
 
-		DragFloat("Emitter Lifetime", &settings.EmitterLifetime, SLIDER_STEP, 0);
-		DragFloat("Lifetime", &settings.ParticleLifetime, SLIDER_STEP, 0);
-		DragFloat("Lifetime Variance", &settings.ParticleLifetimeVariance, SLIDER_STEP, 0);
+		Drag("Emitter Lifetime##particles", particleSave.EmitterLifetime, settings.EmitterLifetime);
+		DragRelease(ParticleSettings, particleSave.EmitterLifetime, settings.EmitterLifetime, "EmitterLifetime");
+
+		Drag("Lifetime##particles", particleSave.ParticleLifetime, settings.ParticleLifetime);
+		DragRelease(ParticleSettings, particleSave.ParticleLifetime, settings.ParticleLifetime, "EmitterLifetime");
+
+		Drag("Lifetime Variance##particles", particleSave.ParticleLifetimeVariance, settings.ParticleLifetimeVariance);
+		DragRelease(ParticleSettings, particleSave.ParticleLifetimeVariance, settings.ParticleLifetimeVariance, "ParticleLifetimeVariance");
 
 		Separator();
 
 		if (TreeNode("Velocity##particles"))
 		{
-			DragFloat("X##init_velocity_particles", &settings.StartingVelocity.x, SLIDER_STEP, 0);
-			DragFloat("Y##init_velocity_particles", &settings.StartingVelocity.y, SLIDER_STEP, 0);
+			Drag("X##particles_init_velocity", particleSave.StartingVelocity.x, settings.StartingVelocity.x);
+			Drag("Y##particles_init_velocity", particleSave.StartingVelocity.y, settings.StartingVelocity.y);
+
+			DragRelease(ParticleSettings, particleSave.StartingVelocity, settings.StartingVelocity, "StartingVelocity");
 
 			if (TreeNode("Variance##particles"))
 			{
-				DragFloat("X##Variance_velocity_particles", &settings.StartingVelocityVariance.x, SLIDER_STEP);
-				DragFloat("Y##Variance_velocity_particles", &settings.StartingVelocityVariance.y, SLIDER_STEP);
+				Drag("X##particles_variance_velocity", particleSave.StartingVelocityVariance.x, settings.StartingVelocityVariance.x);
+				Drag("Y##particles_variance_velocity", particleSave.StartingVelocityVariance.y, settings.StartingVelocityVariance.y);
+
+				DragRelease(ParticleSettings, particleSave.StartingVelocityVariance, settings.StartingVelocityVariance, "StartingVelocityVariance");
 
 				TreePop();
 			}
@@ -885,8 +903,10 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Acceleration##particles"))
 		{
-			DragFloat("X##Acceleration_particles", &settings.Acceleration.x, SLIDER_STEP);
-			DragFloat("Y##Acceleration_particles", &settings.Acceleration.y, SLIDER_STEP);
+			Drag("X##particles_acceleration", particleSave.Acceleration.x, settings.Acceleration.x);
+			Drag("Y##particles_acceleration", particleSave.Acceleration.y, settings.Acceleration.y);
+
+			DragRelease(ParticleSettings, particleSave.Acceleration, settings.Acceleration, "Acceleration");
 
 			Separator();
 			TreePop();
@@ -894,8 +914,15 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Scale Progression##particles"))
 		{
-			DragFloat2("Start Scale##particles", &settings.ScaleOverTime.x, SLIDER_STEP);
-			DragFloat2("End Scale##particles", &settings.ScaleOverTime.z, SLIDER_STEP);
+			Text("Start");
+			Drag("X##particles_scale_start", particleSave.ScaleOverTime.x, settings.ScaleOverTime.x);
+			Drag("Y##particles_scale_start", particleSave.ScaleOverTime.y, settings.ScaleOverTime.y);
+
+			Text("End");
+			Drag("X##particles_scale_end", particleSave.ScaleOverTime.z, settings.ScaleOverTime.z);
+			Drag("X##particles_scale_end", particleSave.ScaleOverTime.w, settings.ScaleOverTime.w);
+
+			DragRelease(ParticleSettings, particleSave.ScaleOverTime, settings.ScaleOverTime, "ScaleOverTime");
 
 			Separator();
 			TreePop();
@@ -903,9 +930,9 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Rotation##rotation_particles"))
 		{
-			DragFloat("Start Rotation##particles", &settings.StartRotation, SLIDER_STEP);
-			DragFloat("Start Rotation Variance##particles", &settings.StartRotationVariation, SLIDER_STEP);
-			DragFloat("Rotation Rate##particles", &settings.RotationRate, SLIDER_STEP);
+			DragFloat("Start##particles", &settings.StartRotation, SLIDER_STEP);
+			DragFloat("Variance##particles", &settings.StartRotationVariation, SLIDER_STEP);
+			DragFloat("Rate##particles", &settings.RotationRate, SLIDER_STEP);
 
 			Separator();
 			TreePop();
@@ -913,8 +940,24 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Sprite Data##particles"))
 		{
-			DragFloat4("Start Color##particles", &settings.StartColor.x, SLIDER_STEP);
-			DragFloat4("End Color##particles", &settings.EndColor.x, SLIDER_STEP);
+			if (TreeNode("Color##particles"))
+			{
+				Text("Start Color");
+				DragFloat("R##particles", &settings.StartColor.x, SLIDER_STEP);
+				DragFloat("G##particles", &settings.StartColor.y, SLIDER_STEP);
+				DragFloat("B##particles", &settings.StartColor.z, SLIDER_STEP);
+				DragFloat("A##particles", &settings.StartColor.w, SLIDER_STEP);
+
+				Separator();
+
+				Text("End Color");
+				DragFloat("R##particles", &settings.EndColor.x, SLIDER_STEP);
+				DragFloat("G##particles", &settings.EndColor.y, SLIDER_STEP);
+				DragFloat("B##particles", &settings.EndColor.z, SLIDER_STEP);
+				DragFloat("A##particles", &settings.EndColor.w, SLIDER_STEP);
+
+				TreePop();
+			}
 
 			if (TreeNode("Sprite"))
 			{
@@ -931,8 +974,24 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			DragFloat("Rate##particles", &settings.TrailEmissionRate, SLIDER_STEP);
 			DragFloat("Lifetime##particles", &settings.TrailLifetime, SLIDER_STEP);
 
-			DragFloat4("Start Color##particles_trail", &settings.StartColor.x, SLIDER_STEP);
-			DragFloat4("End Color##particles_trail", &settings.EndColor.x, SLIDER_STEP);
+			if (TreeNode("Color##trail_particles"))
+			{
+				Text("Start Color");
+				DragFloat("R##particles_trail", &settings.TrailStartColor.x, SLIDER_STEP);
+				DragFloat("G##particles_trail", &settings.TrailStartColor.y, SLIDER_STEP);
+				DragFloat("B##particles_trail", &settings.TrailStartColor.z, SLIDER_STEP);
+				DragFloat("A##particles_trail", &settings.TrailStartColor.w, SLIDER_STEP);
+				
+				Separator();
+
+				Text("End Color");
+				DragFloat("R##particles_trail", &settings.TrailEndColor.x, SLIDER_STEP);
+				DragFloat("G##particles_trail", &settings.TrailEndColor.y, SLIDER_STEP);
+				DragFloat("B##particles_trail", &settings.TrailEndColor.z, SLIDER_STEP);
+				DragFloat("A##particles_trail", &settings.TrailEndColor.w, SLIDER_STEP);
+
+				TreePop();
+			}
 
 			Separator();
 			TreePop();
