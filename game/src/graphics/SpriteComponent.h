@@ -42,7 +42,7 @@ private:
 
 	Texture *GetDefaultTexture()
 	{
-		static Texture *tex = new Texture("default.png");
+		static Texture *tex = new Texture("assets/default_texture.png");
 
 		return tex;
 	}

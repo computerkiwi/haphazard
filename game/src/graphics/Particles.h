@@ -11,7 +11,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "glm\glm.hpp"
 #include "Texture.h"
 
-enum EmissionShape
+// Editor Forward Declares
+   class GameObject;
+   class Editor;
+// -----------------------
+
+enum EmissionShape : int
 {
 	POINT		  = 0,
 	CIRCLE_VOLUME = 1,
@@ -133,6 +138,8 @@ public:
 	void SetTrailColor(glm::vec4 start, glm::vec4 end) { m_settings.TrailStartColor = start; m_settings.TrailEndColor = end; }
 
 private:
+	friend void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
+
 	void UpdateParticles(float dt, glm::vec2 pos);
 	void RenderParticles(glm::vec2 pos);
 	void GenRandomTexture();

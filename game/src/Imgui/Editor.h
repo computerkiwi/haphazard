@@ -92,8 +92,6 @@ class Editor
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
 
-	std::string m_filename = "SaveData.json";
-
 	struct Actions
 	{
 		std::vector<EditorAction> history;

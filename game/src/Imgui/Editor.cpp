@@ -910,8 +910,22 @@ void Editor::MenuBar()
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				engine->FileSave(m_filename.c_str());
-				AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
+				ImGui::OpenPopup("SavePopUp");
+
+				if (ImGui::BeginPopup("SavePopUp"))
+				{
+					char filename[128] = { 'S', 'a', 'v', 'e', 'D', 'a', 't', 'a', '.', 'j', 's', 'o', 'n' };
+
+					ImGui::PushItemWidth(180);
+					ImGui::InputText("Filename", filename, 128);
+					ImGui::PopItemWidth();
+
+					if (ImGui::Button("Save"))
+					{
+						engine->FileSave(filename);
+						AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
+					}
+				}
 			}
 
 			if (ImGui::MenuItem("Load"))
@@ -949,19 +963,10 @@ void Editor::MenuBar()
 
 			ImGui::EndMenu();
 		}
-		if (ImGui::Button("PopUp"))
-		{
-			AddPopUp(PopUpWindow("Pop Up", 10.0f, PopUpPosition::BottomRight));
-		}
+
 		if (ImGui::Button("Console"))
 		{
 			m_show_console = !m_show_console;
-		}
-
-		char filename[512];
-		if (ImGui::InputText("Filename", filename, 512, ImGuiInputTextFlags_EnterReturnsTrue))
-		{
-			m_filename = filename;
 		}
 
 		ImGui::EndMainMenuBar();

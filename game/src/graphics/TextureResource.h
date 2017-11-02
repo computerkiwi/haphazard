@@ -9,6 +9,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Texture.h"
 #include "Engine/ResourceManager.h"
 
+#define INVALID_TEXTURE_ID 0
+
 class TextureResource : public Resource
 {
 private:

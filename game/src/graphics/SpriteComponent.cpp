@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "SpriteComponent.h"
+#include "TextureResource.h" // For INVALID_TEXTURE_ID
+
 
 // Constructs a unit mesh (1x1 white mesh) and sets texture to be used for that mesh
 SpriteComponent::SpriteComponent(Resource *res)
@@ -32,6 +34,7 @@ SpriteComponent::SpriteComponent(Resource *res)
 	{
 		// If no texture is given, display default texture (solid color)
 		SetTexture(GetDefaultTexture());
+		m_resID = INVALID_TEXTURE_ID;
 	}
 }
 
@@ -57,7 +60,7 @@ SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
 	else
 		assert(!"You passed a NULL animated texture to a sprite component");
 
-	m_resID = -1;
+	m_resID = INVALID_TEXTURE_ID;
 }
 
 void SpriteComponent::SetTextureResource(Resource *res)
@@ -65,7 +68,7 @@ void SpriteComponent::SetTextureResource(Resource *res)
 	if (res == nullptr)
 	{
 		SetTexture(GetDefaultTexture());
-		m_resID = -1;
+		m_resID = INVALID_TEXTURE_ID;
 		return;
 	}
 
@@ -78,10 +81,10 @@ void SpriteComponent::SetTextureResource(Resource *res)
 
 void SpriteComponent::SetTextureID(ResourceID res)
 {
-	if (res == -1)
+	if (res == INVALID_TEXTURE_ID)
 	{
 		SetTexture(GetDefaultTexture());
-		m_resID = -1;
+		m_resID = INVALID_TEXTURE_ID;
 		return;
 	}
 

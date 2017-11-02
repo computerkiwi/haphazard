@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Universal.h"
 #include "ResourceManager.h"
-
+#include "graphics/TextureResource.h"
 #include <experimental/filesystem>
 
 void Resource::Load()

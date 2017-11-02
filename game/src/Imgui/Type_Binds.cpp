@@ -12,8 +12,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameSpace.h"
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
+#include "graphics\Particles.h"
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
+
+#include "graphics\DebugGraphic.h"
 
 using namespace ImGui;
 
@@ -199,6 +202,17 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<SpriteComponent>();
 				}
 			}
+			else if (Button("Particle System"))
+			{
+				if (object.GetComponent<ParticleSystem>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<ParticleSystem>();
+				}
+			}
 			else if (Button("RigidBody"))
 			{
 				if (object.GetComponent<RigidBodyComponent>().IsValid())
@@ -315,6 +329,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object, editor);
 		}
 
+		if (object.GetComponent<ParticleSystem>().IsValid())
+		{
+			ImGui_Particles(object.GetComponent<ParticleSystem>().Get(), object, editor);
+		}
+
 		if (object.GetComponent<ScriptComponent>().IsValid())
 		{
 			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
@@ -368,6 +387,8 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
+	DebugGraphic::DrawShape(transform->GetPosition(), transform->GetScale(), 0.0f, glm::vec4(0,1,0,1));
+
 	if (CollapsingHeader("Transform"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
@@ -451,12 +472,13 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			{
 				editor->Push_Action({ scale, transform->m_scale, "scale", handle, Action_General<TransformComponent, glm::vec3> });
 			}
-
+			
+			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 
-		DragFloat("##rotation_drag", &transform->m_rotation, 1, 0);
+		DragFloat("Rotation##rotation_drag", &transform->m_rotation, 1, 0);
 	}
 }
 
@@ -572,11 +594,17 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		std::string name = rm.Get(id)->FileName();
 
-		Text("Image Source: %s", name.c_str());
 		Separator();
 		BeginChild("Sprites", ImVec2(0, 125), true);
 		for (auto resource : sprites)
 		{
+			if (resource->Id() == id)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4( 223/255.0f, 104/255.0f, 76/255.0f, 1.0f ));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
 			if (Selectable(resource->FileName().c_str()))
 			{
 				// Is resource ref counted, can I store pointers to them?
@@ -700,8 +728,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			}
 		}
 
-		float dummy = 0.0f;
-		SliderFloat("Elasticity", &dummy, 0.0f, 1.0f);
+		SliderFloat("Elasticity", &collider->m_selfElasticity, 0.0f, 1.0f);
 		
 
 		// Collision Type
@@ -774,5 +801,152 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 		}
 	}
 }
+
+
+const char * const EmissionShape_Names[] =
+{
+	"Point",
+	"Circle Volume",
+	"Circle Edge",
+	"Square Volume"
+};
+
+const char * const SimulationSpace_Names[] =
+{
+	"World",
+	"Local"
+};
+
+
+void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Particle System"))
+	{
+
+		if (Button("Remove##particles"))
+		{
+			object.DeleteComponent<ParticleSystem>();
+			return;
+		}
+
+		ParticleSettings& settings = particles->m_settings;
+		
+		// PushItemWidth(115);
+		
+		Checkbox("Looping", &settings.isLooping);
+		SliderFloat("Rate", &settings.EmissionRate, SLIDER_STEP, 0);
+		DragInt("Count", &settings.ParticlesPerEmission);
+		
+		if (TreeNode("Burst##particles"))
+		{
+			InputFloat("Frequency", &settings.BurstEmission.z, SLIDER_STEP, 0);
+
+			DragFloat("Min Count", &settings.BurstEmission.x, SLIDER_STEP, 0);
+
+			DragFloat("Max Count", &settings.BurstEmission.y, SLIDER_STEP, 0);
+
+			Separator();
+			TreePop();
+		}
+
+		
+
+		Combo("Shape##particles", reinterpret_cast<int *>(&settings.EmissionShape), EmissionShape_Names, _countof(EmissionShape_Names));
+
+		Separator();
+
+		if (TreeNode("Shape Scale##particles"))
+		{
+			DragFloat("X##emission_shape", &settings.EmissionShapeScale.x, SLIDER_STEP, 0);
+
+			DragFloat("Y##emission_shape", &settings.EmissionShapeScale.y, SLIDER_STEP, 0);
+
+			TreePop();
+		}
+
+		Separator();
+
+		Combo("Simulation Space##particles", reinterpret_cast<int *>(&settings.ParticleSpace), SimulationSpace_Names, _countof(SimulationSpace_Names));
+
+		DragFloat("Emitter Lifetime", &settings.EmitterLifetime, SLIDER_STEP, 0);
+		DragFloat("Lifetime", &settings.ParticleLifetime, SLIDER_STEP, 0);
+		DragFloat("Lifetime Variance", &settings.ParticleLifetimeVariance, SLIDER_STEP, 0);
+
+		Separator();
+
+		if (TreeNode("Velocity##particles"))
+		{
+			DragFloat("X##init_velocity_particles", &settings.StartingVelocity.x, SLIDER_STEP, 0);
+			DragFloat("Y##init_velocity_particles", &settings.StartingVelocity.y, SLIDER_STEP, 0);
+
+			if (TreeNode("Variance##particles"))
+			{
+				DragFloat("X##Variance_velocity_particles", &settings.StartingVelocityVariance.x, SLIDER_STEP);
+				DragFloat("Y##Variance_velocity_particles", &settings.StartingVelocityVariance.y, SLIDER_STEP);
+
+				TreePop();
+			}
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Acceleration##particles"))
+		{
+			DragFloat("X##Acceleration_particles", &settings.Acceleration.x, SLIDER_STEP);
+			DragFloat("Y##Acceleration_particles", &settings.Acceleration.y, SLIDER_STEP);
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Scale Progression##particles"))
+		{
+			DragFloat2("Start Scale##particles", &settings.ScaleOverTime.x, SLIDER_STEP);
+			DragFloat2("End Scale##particles", &settings.ScaleOverTime.z, SLIDER_STEP);
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Rotation##rotation_particles"))
+		{
+			DragFloat("Start Rotation##particles", &settings.StartRotation, SLIDER_STEP);
+			DragFloat("Start Rotation Variance##particles", &settings.StartRotationVariation, SLIDER_STEP);
+			DragFloat("Rotation Rate##particles", &settings.RotationRate, SLIDER_STEP);
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Sprite Data##particles"))
+		{
+			DragFloat4("Start Color##particles", &settings.StartColor.x, SLIDER_STEP);
+			DragFloat4("End Color##particles", &settings.EndColor.x, SLIDER_STEP);
+
+			if (TreeNode("Sprite"))
+			{
+				Separator();
+				TreePop();
+			}
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Trail##particles"))
+		{
+			Checkbox("Has Trail##particles", &settings.HasTrail);
+			DragFloat("Rate##particles", &settings.TrailEmissionRate, SLIDER_STEP);
+			DragFloat("Lifetime##particles", &settings.TrailLifetime, SLIDER_STEP);
+
+			DragFloat4("Start Color##particles_trail", &settings.StartColor.x, SLIDER_STEP);
+			DragFloat4("End Color##particles_trail", &settings.EndColor.x, SLIDER_STEP);
+
+			Separator();
+			TreePop();
+		}
+		// PopItemWidth();
+	}
+}
+
 
 
