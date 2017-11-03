@@ -62,8 +62,8 @@ public:
 
 	ResourceManager& GetResourceManager() { return m_resManager; }
 
-private:
 	float CalculateDt();
+private:
 
 	Init_EnginePointer m_init;
 

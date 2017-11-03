@@ -13,3 +13,17 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "meta/meta.h"
 #include "Util/Logging.h"
 #include <cassert>
+
+constexpr unsigned long hash(const char *str)
+{
+	unsigned long hash = 5381;
+	int c = *str;
+
+	while (c)
+	{
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+		c = *str++;
+	}
+
+	return hash;
+}

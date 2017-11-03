@@ -23,7 +23,7 @@ struct ScriptComponent;
 void ImGui_GameObject(GameObject object, Editor *editor);
 void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor);
 
-void ImGui_ObjectInfo(ObjectInfo *info);
+void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor);
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor);
 void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);

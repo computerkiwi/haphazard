@@ -57,6 +57,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_ed
 	style->GrabMinSize = 5.0f;
 	style->GrabRounding = 3.0f;
 
+	// Window Colors
 	style->Colors[ImGuiCol_Text] = ImVec4(0.95f, 0.75f, 0.48f, 1.00f);
 	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 
@@ -209,6 +210,15 @@ void Editor::Update()
 	// Check if Editor is being shown
 	if (m_show_editor)
 	{
+		if (m_freeze_time)
+		{
+			m_engine->GetDtObject() = 0;
+		}
+		else
+		{
+			m_engine->GetDtObject() = m_engine->CalculateDt();
+		}
+
 		// Check for click events
 		OnClick();
 
@@ -336,8 +346,10 @@ void Editor::Internal_Log(const char * log_message, ...)
 //   Order is Old Value, New Value, Field Name, handle to component, action function
 void Editor::Push_Action(EditorAction&& a)
 {
+	// Size keeps track of the number of actions
 	if (m_actions.size)
 	{
+		// Check if any undo has been done
 		if (m_actions.size == m_actions.history.size())
 		{
 			m_actions.history.emplace_back(a);
@@ -345,13 +357,15 @@ void Editor::Push_Action(EditorAction&& a)
 		}
 		else
 		{
+			// We need to catch back up to the actual size
 			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
 			++m_actions.size;
 		}
 	}
 	else
 	{
-		m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+		// Zero actions saved, so just start at the beginning
+		m_actions.history.emplace(m_actions.history.begin(), a);
 		++m_actions.size;
 	}
 }
@@ -359,7 +373,10 @@ void Editor::Push_Action(EditorAction&& a)
 
 void Editor::Undo_Action()
 {
+	// Go to previous action
 	m_actions.history[m_actions.size - 1].redo = false;
+
+	// Call the resolve function
 	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
 	--m_actions.size;
 }
@@ -367,8 +384,13 @@ void Editor::Undo_Action()
 
 void Editor::Redo_Action()
 {
+	// Set the redo flag
 	m_actions.history[m_actions.size].redo = true;
+
+	// Call the resolve function
 	m_actions.history[m_actions.size].func(m_actions.history[m_actions.size]);
+
+	// We redid an action, so it is valid to be undone
 	++m_actions.size;
 }
 
@@ -464,6 +486,7 @@ void Editor::Tools()
 		case Tool::Rotation:
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
 			break;
+
 		default:
 			break;
 		}
@@ -507,6 +530,7 @@ void Editor::UpdatePopUps(float dt)
 		ImVec2 pos;
 		ImVec2 size(text_padding * 2, 42);
 
+		// Find where to draw the popup
 		switch (popup.pos)
 		{
 		case PopUpPosition::BottomLeft:
@@ -533,11 +557,13 @@ void Editor::UpdatePopUps(float dt)
 			break;
 		}
 
+		// Check if the popup needs to be removed
 		if (popup.timer > 0)
 		{
 			// f = t * b + a(1 - t)
 			constexpr float factor = 0.25f;
 
+			// Do fading when we are close to the end, but none until then
 			float alpha = 1.0f;
 			if (popup.timer < 0.25f)
 			{
@@ -546,8 +572,8 @@ void Editor::UpdatePopUps(float dt)
 
 			popup.timer -= dt;
 
+			// Setup next window, including a special alpha value
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(size);
 
@@ -556,8 +582,10 @@ void Editor::UpdatePopUps(float dt)
 
 			ImGui::Text(popup.message);
 
+			// Save the alpha for next frame
 			popup.alpha = alpha;
 
+			// Clean Up
 			ImGui::PopAllowKeyboardFocus();
 			ImGui::End();
 			ImGui::PopStyleVar(1);
@@ -568,6 +596,7 @@ void Editor::UpdatePopUps(float dt)
 		}
 	}
 
+	// Clean Up
 	ImGui::PopStyleVar(1);
 }
 
@@ -601,8 +630,10 @@ void Editor::PrintObjects()
 				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
+		// Multiselect with Left Control + LClick
 		if (Input::IsHeldDown(Key::LeftControl))
 		{
+			// Draw each object
 			if (ImGui::Selectable(name_buffer))
 			{
 				if (m_multiselect.m_size < MAX_SELECT)
@@ -894,9 +925,12 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 void Editor::ToggleEditor()
 {
-	float& dt = m_engine->GetDtObject();
+	if (m_freeze_time)
+	{
+		float& dt = m_engine->GetDtObject();
 
-	dt = dt ? 0 : (1 / 60.0f);
+		dt = dt ? 0 : (1 / 60.0f);
+	}
 
 	m_show_editor = !m_show_editor;
 }
@@ -904,33 +938,21 @@ void Editor::ToggleEditor()
 
 void Editor::MenuBar()
 {
+	static bool save = false;
+	static bool load = false;
+
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				ImGui::OpenPopup("SavePopUp");
-
-				if (ImGui::BeginPopup("SavePopUp"))
-				{
-					char filename[128] = { 'S', 'a', 'v', 'e', 'D', 'a', 't', 'a', '.', 'j', 's', 'o', 'n' };
-
-					ImGui::PushItemWidth(180);
-					ImGui::InputText("Filename", filename, 128);
-					ImGui::PopItemWidth();
-
-					if (ImGui::Button("Save"))
-					{
-						engine->FileSave(filename);
-						AddPopUp(PopUpWindow("Game Saved", 1.5f, PopUpPosition::BottomRight));
-					}
-				}
+				save = true;
 			}
 
 			if (ImGui::MenuItem("Load"))
 			{
-
+				load = true;
 			}
 
 			ImGui::EndMenu();
@@ -964,6 +986,21 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Settings"))
+		{
+			if (ImGui::MenuItem("Play/Pause"))
+			{
+				m_freeze_time = !m_freeze_time;
+			}
+
+			if (ImGui::MenuItem("Editor Settings"))
+			{
+				AddPopUp(PopUpWindow("Coming Soon! Bug me about it!", 1.5f, PopUpPosition::Mouse));
+			}
+
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::Button("Console"))
 		{
 			m_show_console = !m_show_console;
@@ -971,6 +1008,53 @@ void Editor::MenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
+
+	if (save)
+	{
+		ImGui::OpenPopup("##menu_save_pop_up");
+	}
+	else if (load)
+	{
+		ImGui::OpenPopup("##menu_load_pop_up");
+	}
+
+
+	if (ImGui::BeginPopup("##menu_save_pop_up"))
+	{
+		char filename[128] = { 'S', 'a', 'v', 'e', 'D', 'a', 't', 'a', '.', 'j', 's', 'o', 'n' };
+
+		ImGui::PushItemWidth(180);
+		ImGui::InputText("Filename", filename, 128);
+		ImGui::PopItemWidth();
+
+		if (ImGui::Button("Save"))
+		{
+			engine->FileSave(filename);
+			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
+			save = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
+	if (ImGui::BeginPopup("##menu_load_pop_up"))
+	{
+		
+
+		ImGui::PushItemWidth(180);
+		ImGui::InputText("Filename", m_filename, 128);
+		ImGui::PopItemWidth();
+
+		if (ImGui::Button("Load"))
+		{
+			engine->FileLoad(m_filename);
+			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
+			load = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+
 }
 
 
@@ -1038,10 +1122,12 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 
 void Editor::Console()
 {
+	// Setup a char * buffer and tell imgui to draw the console the first time in the center
 	char command_buffer[1024] = { 0 };
 	ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
 
-	auto winflags = 0;
+	// Setup the console window flags
+	int winflags = 0;
 	if (m_state.m_popUp)
 	{
 		winflags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
@@ -1108,7 +1194,7 @@ void Editor::Console()
 
 
 
-	ImGui::Text("Command: ");
+	ImGui::Text("Command:");
 	ImGui::SameLine();
 
 	int flags = ImGuiInputTextFlags_EnterReturnsTrue     |

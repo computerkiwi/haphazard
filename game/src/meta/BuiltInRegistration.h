@@ -134,6 +134,8 @@ namespace meta
 			DefineBasicType(long double);
 			DefineBasicType(wchar_t);
 
+			META_DefineType(bool);
+
 			META_DefineType(std::string);
 			META_DefineSerializeFunction(std::string, SerializeString);
 			META_DefineDeserializeAssignFunction(std::string, DeserializeAssignString);

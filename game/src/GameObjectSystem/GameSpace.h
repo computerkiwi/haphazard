@@ -329,21 +329,6 @@ private:
 };
 
 
-constexpr unsigned long hash(const char *str)
-{
-	unsigned long hash = 5381;
-	int c = *str;
-
-	while (c)
-	{
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-		c = *str++;
-	}
-
-	return hash;
-}
-
-
 class GameSpaceManagerID
 {
 	std::vector<GameSpace> m_spaces;

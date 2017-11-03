@@ -85,20 +85,32 @@ class Editor
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
-	Engine * m_engine;
+	// Engine
+	Engine *m_engine;
 	bool m_show_editor;
+	bool m_freeze_time = true;
 
+	// Save/Load
+	bool m_save = false;
+	bool m_load = false;
+	char m_filename[128] = { 0 };
+
+	// GameObject Selection
 	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
+	
+	// List of all GameObjects
+	std::vector<GameObject_ID> m_objects;
 
+	// Undo/Redo Actions
 	struct Actions
 	{
 		std::vector<EditorAction> history;
 		size_t size = 0;
 	} m_actions;
-	std::vector<GameObject_ID> m_objects;
 
+	// Gizmos
 	enum Tool
 	{
 		none,
@@ -108,6 +120,7 @@ class Editor
 	};
 	Tool m_tool = none;
 
+	// Console
 	std::string m_line;
 
 	friend bool Command_StrCmp(const char *str1, const char *str2);
@@ -141,6 +154,7 @@ class Editor
 	ImGuiTextFilter m_log_filter;
 	ImVector<int>   m_offsets;
 
+	// PopUps
 	void UpdatePopUps(float dt);
 	std::vector<PopUpWindow> m_pop_ups;
 

@@ -107,31 +107,31 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 	Shaders::particleUpdateShader->SetVariable("Time", m_time);
 	// Emission
 	Shaders::particleUpdateShader->SetVariable("IsLooping", m_settings.isLooping);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", m_settings.EmissionRate);
-	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", m_settings.ParticlesPerEmission);
-	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.BurstEmission);
-	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.EmissionShape) );
-	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.EmissionShapeScale);
+	Shaders::particleUpdateShader->SetVariable("EmissionRate", m_settings.emissionRate);
+	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", m_settings.particlesPerEmission);
+	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.burstEmission);
+	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.emissionShape) );
+	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.emissionShapeScale);
 	Shaders::particleUpdateShader->SetVariable("EmitterPosition", pos);
 	// Lifetimes
-	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.EmitterLifetime);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", m_settings.ParticleLifetime);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", m_settings.ParticleLifetimeVariance);
+	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.emitterLifetime);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", m_settings.particleLifetime);
+	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", m_settings.particleLifetimeVariance);
 	// Movement
-	Shaders::particleUpdateShader->SetVariable("StartingVelocity", m_settings.StartingVelocity);
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", m_settings.StartingVelocityVariance);
-	Shaders::particleUpdateShader->SetVariable("Acceleration", m_settings.Acceleration);
+	Shaders::particleUpdateShader->SetVariable("StartingVelocity", m_settings.startingVelocity);
+	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", m_settings.startingVelocityVariance);
+	Shaders::particleUpdateShader->SetVariable("Acceleration", m_settings.acceleration);
 	// Scale
-	Shaders::particleUpdateShader->SetVariable("ScaleOverTime", m_settings.ScaleOverTime);
+	Shaders::particleUpdateShader->SetVariable("ScaleOverTime", m_settings.scaleOverTime);
 	// Rotation
-	Shaders::particleUpdateShader->SetVariable("StartRotation", m_settings.StartRotation);
-	Shaders::particleUpdateShader->SetVariable("StartRotationVariation", m_settings.StartRotationVariation);
-	Shaders::particleUpdateShader->SetVariable("RotationRate", m_settings.RotationRate);
+	Shaders::particleUpdateShader->SetVariable("StartRotation", m_settings.startRotation);
+	Shaders::particleUpdateShader->SetVariable("StartRotationVariation", m_settings.startRotationVariation);
+	Shaders::particleUpdateShader->SetVariable("RotationRate", m_settings.rotationRate);
 	// Trail
-	Shaders::particleUpdateShader->SetVariable("HasTrail", m_settings.HasTrail);
-	Shaders::particleUpdateShader->SetVariable("TrailEmissionRate", m_settings.TrailEmissionRate);
-	Shaders::particleUpdateShader->SetVariable("TrailLifetime", m_settings.TrailLifetime);
-	Shaders::particleUpdateShader->SetVariable("TrailScale", m_settings.TrailScale);
+	Shaders::particleUpdateShader->SetVariable("HasTrail", m_settings.hasTrail);
+	Shaders::particleUpdateShader->SetVariable("TrailEmissionRate", m_settings.trailEmissionRate);
+	Shaders::particleUpdateShader->SetVariable("TrailLifetime", m_settings.trailLifetime);
+	Shaders::particleUpdateShader->SetVariable("TrailScale", m_settings.trailScale);
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
 	glBeginTransformFeedback(GL_POINTS);
@@ -161,18 +161,18 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 	Texture::BindArray();
 
 	// Set rendering state (color, texture, etc)
-	Shaders::particleRenderShader->SetVariable("StartColor", m_settings.StartColor);
-	Shaders::particleRenderShader->SetVariable("EndColor", m_settings.EndColor);
+	Shaders::particleRenderShader->SetVariable("StartColor", m_settings.startColor);
+	Shaders::particleRenderShader->SetVariable("EndColor", m_settings.endColor);
 
-	Shaders::particleRenderShader->SetVariable("TrailStartColor", m_settings.TrailStartColor);
-	Shaders::particleRenderShader->SetVariable("TrailEndColor", m_settings.TrailEndColor);
+	Shaders::particleRenderShader->SetVariable("TrailStartColor", m_settings.trailStartColor);
+	Shaders::particleRenderShader->SetVariable("TrailEndColor", m_settings.trailEndColor);
 
-	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.ParticleSpace) );
+	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.particleSpace) );
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", pos);
-	if (m_settings.Texture)
+	if (m_settings.texture)
 	{
-		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.Texture->GetID());
-		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.Texture->GetBounds());
+		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.texture->GetID());
+		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.texture->GetBounds());
 	}
 	else
 	{
