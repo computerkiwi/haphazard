@@ -12,11 +12,115 @@
                             "meta_object_data": {
                                 "name": {
                                     "meta_type_name": "std::string",
-                                    "meta_object_data": "Parent"
+                                    "meta_object_data": "Main Camera"
                                 },
                                 "id": {
                                     "meta_type_name": "int",
                                     "meta_object_data": 1
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "Camera",
+                            "meta_object_data": {
+                                "zoom": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 3.0
+                                },
+                                "position": {
+                                    "meta_type_name": "glm::vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "farPlane": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 10.0
+                                },
+                                "aspectRatio": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.3333333730697632
+                                },
+                                "nearPlane": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "TransformComponent",
+                            "meta_object_data": {
+                                "position": {
+                                    "meta_type_name": "glm::vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "scale": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        }
+                                    }
+                                },
+                                "parent": {
+                                    "meta_type_name": "GameObject",
+                                    "meta_object_data": {
+                                        "id": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        }
+                                    }
+                                },
+                                "z-layer": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "rotation": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "objID": 2,
+                    "componentArray": [
+                        {
+                            "meta_type_name": "ObjectInfo",
+                            "meta_object_data": {
+                                "name": {
+                                    "meta_type_name": "std::string",
+                                    "meta_object_data": "Parent"
+                                },
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 2
                                 }
                             }
                         },
@@ -200,7 +304,7 @@
                     ]
                 },
                 {
-                    "objID": 2,
+                    "objID": 3,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -211,7 +315,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 2
+                                    "meta_object_data": 3
                                 }
                             }
                         },
@@ -342,7 +446,7 @@
                                             "meta_object_data": {
                                                 "layer": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 4
+                                                    "meta_object_data": 16
                                                 }
                                             }
                                         },
@@ -395,7 +499,7 @@
                     ]
                 },
                 {
-                    "objID": 3,
+                    "objID": 4,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -406,7 +510,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 3
+                                    "meta_object_data": 4
                                 }
                             }
                         },
@@ -594,7 +698,7 @@
                     ]
                 },
                 {
-                    "objID": 4,
+                    "objID": 5,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -605,7 +709,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 4
+                                    "meta_object_data": 5
                                 }
                             }
                         },
@@ -789,7 +893,7 @@
                     ]
                 },
                 {
-                    "objID": 5,
+                    "objID": 6,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -800,7 +904,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 5
+                                    "meta_object_data": 6
                                 }
                             }
                         },
@@ -859,7 +963,7 @@
                     ]
                 },
                 {
-                    "objID": 6,
+                    "objID": 7,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -870,7 +974,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 6
+                                    "meta_object_data": 7
                                 }
                             }
                         },
@@ -1005,80 +1109,6 @@
                                 "resourceID": {
                                     "meta_type_name": "unsigned long long",
                                     "meta_object_data": 154614
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "objID": 7,
-                    "componentArray": [
-                        {
-                            "meta_type_name": "ObjectInfo",
-                            "meta_object_data": {
-                                "name": {
-                                    "meta_type_name": "std::string",
-                                    "meta_object_data": "Main Camera"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 7
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "Camera",
-                            "meta_object_data": {}
-                        },
-                        {
-                            "meta_type_name": "TransformComponent",
-                            "meta_object_data": {
-                                "position": {
-                                    "meta_type_name": "glm::vec2",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        }
-                                    }
-                                },
-                                "scale": {
-                                    "meta_type_name": "glm::vec3",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        }
-                                    }
-                                },
-                                "parent": {
-                                    "meta_type_name": "GameObject",
-                                    "meta_object_data": {
-                                        "id": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 0
-                                        }
-                                    }
-                                },
-                                "z-layer": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                },
-                                "rotation": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
                                 }
                             }
                         }

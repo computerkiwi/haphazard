@@ -90,6 +90,15 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Resource *tex = m_resManager.Get("bird.png");
 
+
+	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
+	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
+	MainCamera.AddComponent<Camera>();
+	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
+	MainCamera.GetComponent<Camera>()->SetZoom(3);
+
 	// RigidBody and Collider Testing Objects
 
 	// object with velocity
@@ -146,15 +155,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf1.GetComponent<ParticleSystem>()->SetTexture(reinterpret_cast<Texture*>(tex->Data()));
 	//asdf1.GetComponent<ParticleSystem>()->SetSimulationSpace(SimulationSpace::LOCAL);
 
-	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
-	MainCamera.AddComponent<TransformComponent>(glm::vec3(0,0,0));
-	MainCamera.AddComponent<Camera>();
-	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	MainCamera.GetComponent<Camera>()->SetZoom(3);
-	//MainCamera.AddComponent<RigidBodyComponent>();
-	//MainCamera.AddComponent<ScriptComponent>("PlayerController.lua");
 
 	this->FileSave("test_out.json");
 #else

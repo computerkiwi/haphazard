@@ -28,9 +28,8 @@ void ScriptSystem::Update(float dt)
 	{
 		for (LuaScript script : scriptComp->scripts)
 		{
-			luabridge::push(script.GetLuaState(), scriptComp.GetGameObject());
 			luabridge::push(script.GetLuaState(), dt);
-			script.RunFunction("update", 2, 0);
+			script.RunFunction("Update", 1, 0);
 		}
 	}
 }

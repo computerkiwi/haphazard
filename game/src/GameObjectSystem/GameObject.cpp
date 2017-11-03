@@ -63,6 +63,16 @@ void GameObject::SetSpace(GameSpaceIndex index)
 	m_space = index;
 }
 
+std::string GameObject::GetName()
+{
+	return GetComponent<ObjectInfo>()->m_name;
+}
+
+void GameObject::SetName(const std::string & name)
+{
+	GetComponent<ObjectInfo>()->m_name = name;
+}
+
 
 GameObject_ID GameObject::Duplicate() const
 {

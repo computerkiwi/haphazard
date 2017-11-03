@@ -42,8 +42,8 @@ public:
 	// Getters
 	///
 
-	glm::vec2 GetPosition() { return glm::vec2(m_Position.x, m_Position.y); }
-	float GetZoom() { return m_Zoom; }
+	glm::vec2 GetPosition() const { return glm::vec2(m_Position.x, m_Position.y); }
+	float GetZoom() const { return m_Zoom; }
 
 	///
 	// Unique Movement
@@ -55,10 +55,15 @@ public:
 private:
 	void ApplyCameraMatrices();
 
+	// Private getters for meta purposes.
+	float GetAspectRatio() const { return m_AspectRatio; }
+	float GetNearPlane() const { return m_Near; }
+	float GetFarPlane() const { return m_Far; }
+
 	//View matrix
 	glm::vec3 m_Position = glm::vec3(0, 0, 5.0f);
 	glm::vec3 m_Center = glm::vec3(0, 0, 0);
-	glm::vec3 m_Up = glm::vec3(0, 0, 1);
+	glm::vec3 m_Up = glm::vec3(0, 1, 0);
 
 	//Projection matrix
 	float m_Zoom = 3.0f;
@@ -72,6 +77,14 @@ private:
 	META_REGISTER(Camera)
 	{
 		META_DefineType(Camera);
+
+		META_DefineGetterSetter(Camera, glm::vec2, GetPosition, SetPosition, "position");
+
+		META_DefineGetterSetter(Camera, float, GetZoom, SetZoom, "zoom");
+		META_DefineGetterSetter(Camera, float, GetAspectRatio, SetAspectRatio, "aspectRatio");
+		META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
+		META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
+
 	}
 };
 
