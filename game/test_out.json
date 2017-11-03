@@ -209,7 +209,37 @@
                         },
                         {
                             "meta_type_name": "Camera",
-                            "meta_object_data": {}
+                            "meta_object_data": {
+                                "zoom": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 3.0
+                                },
+                                "position": {
+                                    "meta_type_name": "glm::vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "farPlane": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 10.0
+                                },
+                                "aspectRatio": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.3333333730697632
+                                },
+                                "nearPlane": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                }
+                            }
                         },
                         {
                             "meta_type_name": "TransformComponent",
@@ -262,58 +292,6 @@
                                     "meta_object_data": 0.0
                                 }
                             }
-                        },
-                        {
-                            "meta_type_name": "RigidBodyComponent",
-                            "meta_object_data": {
-                                "acceleration": {
-                                    "meta_type_name": "glm::vec3",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        }
-                                    }
-                                },
-                                "velocity": {
-                                    "meta_type_name": "glm::vec3",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        }
-                                    }
-                                },
-                                "mass": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "ScriptComponent",
-                            "meta_object_data": [
-                                {
-                                    "meta_type_name": "LuaScript",
-                                    "meta_object_data": {}
-                                }
-                            ]
                         }
                     ]
                 },
@@ -507,7 +485,21 @@
                             "meta_object_data": [
                                 {
                                     "meta_type_name": "LuaScript",
-                                    "meta_object_data": {}
+                                    "meta_object_data": {
+                                        "thisObject": {
+                                            "meta_type_name": "GameObject",
+                                            "meta_object_data": {
+                                                "id": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 2
+                                                }
+                                            }
+                                        },
+                                        "resourceID": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 216397
+                                        }
+                                    }
                                 }
                             ]
                         }
@@ -703,7 +695,21 @@
                             "meta_object_data": [
                                 {
                                     "meta_type_name": "LuaScript",
-                                    "meta_object_data": {}
+                                    "meta_object_data": {
+                                        "thisObject": {
+                                            "meta_type_name": "GameObject",
+                                            "meta_object_data": {
+                                                "id": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 3
+                                                }
+                                            }
+                                        },
+                                        "resourceID": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 216397
+                                        }
+                                    }
                                 }
                             ]
                         }

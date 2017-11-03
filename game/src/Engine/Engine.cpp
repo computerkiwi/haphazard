@@ -113,8 +113,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
-	MainCamera.AddComponent<RigidBodyComponent>(RigidBodyComponent(glm::vec3(), glm::vec3(), glm::vec3()));
-	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), MainCamera));
 
 	// RigidBody and Collider Testing Objects
 	// object with velocity
@@ -214,8 +212,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	Brett_obj7.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	Brett_obj7.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::decor);
 
-	//MainCamera.AddComponent<RigidBodyComponent>();
-	//MainCamera.AddComponent<ScriptComponent>("PlayerController.lua");
+
 
 	this->FileSave("test_out.json");
 #else

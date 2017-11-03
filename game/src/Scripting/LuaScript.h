@@ -35,14 +35,40 @@ private:
 	// Puts the environment table for this script on the Lua stack.
 	void GetScriptEnvironment();
 
-	ResourceID m_id;
+	void SetScriptResource(Resource *resource);
+
+	void SetResourceID(ResourceID id);
+
+	ResourceID GetResourceID() const
+	{
+		return m_resID;
+	}
+
+	void UpdateThisObject();
+
+	GameObject m_thisObj;
+	ResourceID m_resID;
 	int m_environmentID;
 	lua_State *m_L;
+
+	void SetThisObject(GameObject obj)
+	{
+		m_thisObj = obj;
+		UpdateThisObject();
+	}
+
+	GameObject GetThisObject() const
+	{
+		return m_thisObj;
+	}
+
+
 
 	META_REGISTER(LuaScript)
 	{
 		META_DefineType(LuaScript);
 
-		// TODO: Add functions for getting and setting script resource and "this" object.
+		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
+		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
 	}
 };
