@@ -31,5 +31,4 @@ void main() {
     EmitVertex();
 
     EndPrimitive();
-
 }  

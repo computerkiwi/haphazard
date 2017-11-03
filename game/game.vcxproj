@@ -171,6 +171,7 @@
     <ClCompile Include="src\GameObjectSystem\GameSpace.cpp" />
     <ClCompile Include="src\GameObjectSystem\HierarchyComponent.cpp" />
     <ClCompile Include="src\GameObjectSystem\TransformComponent.cpp" />
+    <ClCompile Include="src\graphics\Background.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="src\GameObjectSystem\HierarchyComponent.h" />
     <ClInclude Include="src\GameObjectSystem\ObjectInfo.h" />
     <ClInclude Include="src\GameObjectSystem\TransformComponent.h" />
+    <ClInclude Include="src\graphics\Background.h" />
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\DebugGraphic.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
@@ -261,6 +263,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PlayerController.lua" />
+    <None Include="shaders\background.frag" />
+    <None Include="shaders\background.vert" />
     <None Include="shaders\debug.fragshader" />
     <None Include="shaders\debug.geoshader" />
     <None Include="shaders\debug.vertshader" />

@@ -71,7 +71,7 @@ private: // Variables
 	static float m_BlurAmount;
 
 
-public: // Private classes
+public: // Helper Classes
 	class FrameBuffer
 	{
 		friend Screen;

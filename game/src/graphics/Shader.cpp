@@ -119,14 +119,16 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::
 	if (isLinked == GL_FALSE) // Check for linking error
 	{
 		GLint logSize = 0;
-		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		glGetProgramiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0)
 		{
 			std::vector<char> log(logSize);
-			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			glGetProgramInfoLog(m_ID, logSize, &logSize, &log[0]);
 			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
-			glDeleteShader(m_ID);
+			glDeleteProgram(m_ID);
 		}
+		else
+			fprintf(stderr, "Could not link program, no log available\n");
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
@@ -146,15 +148,16 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fr
 	if (isLinked == GL_FALSE) // Check for linking error
 	{
 		GLint logSize = 0;
-		glGetShaderiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
+		glGetProgramiv(m_ID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0)
 		{
 			std::vector<char> log(logSize);
-			glGetShaderInfoLog(m_ID, logSize, &logSize, &log[0]);
+			glGetProgramInfoLog(m_ID, logSize, &logSize, &log[0]);
 			fprintf(stderr, "Could not link program \n%s\n", &log[0]);
-			glDeleteShader(m_ID);
-
+			glDeleteProgram(m_ID);
 		}
+		else
+			fprintf(stderr, "Could not link program, no log available\n");
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
@@ -272,6 +275,7 @@ namespace Shaders
 	ShaderProgram* textShader;
 	ShaderProgram* particleUpdateShader;
 	ShaderProgram* particleRenderShader;
+	ShaderProgram* backgroundShader;
 
 	ShaderProgram* debugShader;
 
@@ -330,6 +334,17 @@ namespace Shaders
 		textShader = LoadShaders(path + "text.vert", path + "text.frag", attribs);
 
 		if (!textShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadBackgroundShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 4, 0));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 4, 2));
+
+		backgroundShader = LoadShaders(path + "background.vert", path + "background.frag", attribs);
+		if (!backgroundShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -483,6 +498,7 @@ namespace Shaders
 		LoadSpriteShader();
 		LoadTextShader();
 		LoadParticleShaders();
+		LoadBackgroundShader();
 		LoadDebugShader();
 		LoadScreenShaders();
 

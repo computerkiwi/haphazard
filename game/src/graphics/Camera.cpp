@@ -13,6 +13,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Camera
 ///
 
+Camera* Camera::m_CurrActiveCamera = nullptr;
+
 Camera::Camera()
 {
 	glGenBuffers(1, &m_MatricesUbo);
@@ -21,6 +23,9 @@ Camera::Camera()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
+
+	if (m_CurrActiveCamera == nullptr)
+		m_CurrActiveCamera = this;
 }
 
 
@@ -29,7 +34,6 @@ void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 	m_Position = pos;
 	m_Center = target;
 	m_Up = upVector;
-	ApplyCameraMatrices();
 }
 
 void Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
@@ -38,16 +42,15 @@ void Camera::SetProjection(float zoom, float aspectRatio, float near, float far)
 	m_AspectRatio = aspectRatio;
 	m_Near = near;
 	m_Far = far;
-	ApplyCameraMatrices();
 }
 
 void Camera::SetRotation(float degrees)
 {
+	m_Rotation = degrees;
 	float r = degrees / 180.0f * 3.1416f;
 	glm::mat4 rotation;
 	rotation = glm::rotate(rotation, r, glm::vec3(0, 0, 1));
 	m_Up = rotation * glm::vec4(0,1,0,1);
-	ApplyCameraMatrices();
 }
 
 void Camera::ApplyCameraMatrices()
@@ -79,8 +82,6 @@ void Camera::Orbit(float degrees, glm::vec3 axis) // Rotates around target
 	}
 	else
 		m_Position = matrix * glm::vec4(m_Position, 1);
-
-	ApplyCameraMatrices();
 }
 
 void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rotates around center
@@ -99,6 +100,4 @@ void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rot
 	}
 	else
 		m_Position = matrix * glm::vec4(m_Position, 1);
-
-	ApplyCameraMatrices();
 }

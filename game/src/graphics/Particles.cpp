@@ -171,7 +171,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", pos);
 	if (m_settings.texture)
 	{
-		Shaders::particleRenderShader->SetVariable("TextureLayer", m_settings.texture->GetID());
+		Shaders::particleRenderShader->SetVariable("TextureLayer", static_cast<float>(m_settings.texture->GetID()));
 		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.texture->GetBounds());
 	}
 	else
@@ -216,4 +216,5 @@ void ParticleSystem::GenRandomTexture()
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
-
+
+

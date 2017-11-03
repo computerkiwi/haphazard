@@ -19,10 +19,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
+#include "Background.h"
 
 static bool resizeCameras = false;
 static int width;
 static int height;
+
+BackgroundComponent* bg;
+BackgroundComponent* bg1;
 
 RenderSystem::RenderSystem()
 {
@@ -33,6 +37,12 @@ void RenderSystem::Init()
 	Screen::InitScreen();
 	Font::InitFonts();
 
+	
+	bg = new BackgroundComponent(reinterpret_cast<Texture*>(engine->GetResourceManager().Get("sky.png")->Data()), BACKGROUND_PARALLAX);
+	bg->SetParallax(glm::vec2(0, 0), glm::vec2(50, 0), glm::vec2(0.5f, 1), glm::vec2(0,0));
+
+	bg1 = new BackgroundComponent(reinterpret_cast<Texture*>(engine->GetResourceManager().Get("treeboy.png")->Data()), BACKGROUND_PARALLAX);
+	bg1->SetParallax(glm::vec2(0, 0), glm::vec2(5, 0), glm::vec2(0.3f, 0.3f), glm::vec2(0,0.7f));
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
@@ -42,6 +52,7 @@ void RenderSystem::UpdateCameras(float dt)
 {
 	ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
 
+	int numCameras = 0;
 	for (auto& camera : *cameras)
 	{
 		// Check for valid transform
@@ -50,6 +61,7 @@ void RenderSystem::UpdateCameras(float dt)
 		{
 			continue;
 		}
+		numCameras++;
 		//Update Cameras
 
 		if (resizeCameras)
@@ -61,8 +73,18 @@ void RenderSystem::UpdateCameras(float dt)
 		// If transform moved, update camera matrices
 		if (transform->GetPosition() != camera->GetPosition())
 			camera->SetPosition(transform->GetPosition());
+
+		if (transform->GetRotation() != camera->GetRotation())
+			camera->SetRotation(transform->GetRotation());
 	}
 	resizeCameras = false;
+
+	if (numCameras == 0)
+	{
+		Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "There are no cameras in the scene!");
+	}
+	else if(Camera::GetActiveCamera())
+		Camera::GetActiveCamera()->Use();
 }
 
 void RenderSystem::RenderSprites(float dt)
@@ -99,6 +121,9 @@ void RenderSystem::RenderSprites(float dt)
 		if (numVerts == 0) 
 			numVerts = spriteHandle->NumVerts();
 	}
+
+	if (numMeshes == 0)
+		return;
 
 	// Bind sprite shader
 	Shaders::spriteShader->Use();
@@ -148,6 +173,42 @@ void RenderSystem::RenderParticles(float dt)
 	}
 }
 
+void RenderSystem::RenderBackgrounds(float dt)
+{
+	glm::vec2 camPos = Camera::GetActiveCamera()->GetPosition();
+
+	ComponentMap<BackgroundComponent> *backgrounds = GetGameSpace()->GetComponentMap<BackgroundComponent>();
+	for (auto& bgHandle : *backgrounds)
+	{
+		ComponentHandle<TransformComponent> transform = bgHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+		
+		if(bgHandle->IsBackground())
+			bgHandle->Render(camPos);
+	}
+}
+
+void RenderSystem::RenderForegrounds(float dt)
+{
+	glm::vec2 camPos = Camera::GetActiveCamera()->GetPosition();
+
+	ComponentMap<BackgroundComponent> *backgrounds = GetGameSpace()->GetComponentMap<BackgroundComponent>();
+	for (auto& bgHandle : *backgrounds)
+	{
+		ComponentHandle<TransformComponent> transform = bgHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+
+		if (!bgHandle->IsBackground())
+			bgHandle->Render(camPos);
+	}
+}
+
 // Called each frame.
 void RenderSystem::Update(float dt)
 {
@@ -160,16 +221,16 @@ void RenderSystem::Update(float dt)
 
 	//Start Loop
 	UpdateCameras(dt);
+	RenderBackgrounds(dt);
 	RenderSprites(dt);
 	RenderText(dt);
-
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	RenderParticles(dt);
-	
+	RenderForegrounds(dt);
+
 	//End loop
 	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
 	glDisable(GL_BLEND);
-	DebugGraphic::DrawAll();
+	//DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
 }
 

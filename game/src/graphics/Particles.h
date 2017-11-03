@@ -4,6 +4,13 @@ PRIMARY AUTHOR: Max Rauffer
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
+
+/*
+Note to future self: Possible future optimizations
+-Instead of using SetVariable, do it manually to save time with uniform setting
+-In pixel renderer geo shader, texVerts can be optimized to not do calculations (may already be optimized out by compiler)
+-Blendmode
+*/
 #pragma once
 
 #include "Universal.h"
