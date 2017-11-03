@@ -18,6 +18,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Camera.h"
 #include "graphics\Particles.h"
 #include "graphics\Text.h"
+#include "graphics\Background.h"
 
 // Systems to register.
 #include "graphics\RenderSystem.h"
@@ -275,6 +276,7 @@ void GameSpace::RegisterInitial()
 	RegisterComponentType<Camera>();
 	RegisterComponentType<TextComponent>();
 	RegisterComponentType<HierarchyComponent>();
+	RegisterComponentType<BackgroundComponent>();
 
 	RegisterSystem(new PhysicsSystem());
 	RegisterSystem(new RenderSystem());

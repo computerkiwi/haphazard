@@ -9,8 +9,8 @@ Screen::Mesh* BackgroundComponent::m_Mesh;
 static GLuint VAO, VBO;
 static bool firstBackground = true;
 
-BackgroundComponent::BackgroundComponent(Texture* texture, BACKGROUND_TYPE type, int layer)
-	: m_Texture{texture}, m_Type{type}, m_Layer{layer}
+BackgroundComponent::BackgroundComponent(Texture* texture, BACKGROUND_TYPE type)
+	: m_Texture{texture}, m_Type{type}
 {
 	if (firstBackground)
 	{
@@ -25,10 +25,12 @@ BackgroundComponent::BackgroundComponent(Texture* texture, BACKGROUND_TYPE type,
 	}
 }
 
-void BackgroundComponent::SetParallax(glm::vec2 minimumPosition, glm::vec2 maximumPosition, glm::vec2 subTextureSize)
+void BackgroundComponent::SetParallax(glm::vec2 minimumPosition, glm::vec2 maximumPosition, glm::vec2 subTextureSize, glm::vec2 subTexturePos)
 {
 	m_ParallaxBounds = glm::vec4(minimumPosition, maximumPosition);
 	m_SubTextureSize = subTextureSize;
+	m_SubTexturePosition = subTexturePos;
+
 }
 
 void BackgroundComponent::Render(glm::vec2 pos)
@@ -48,30 +50,31 @@ void BackgroundComponent::Render(glm::vec2 pos)
 		box.z = t.x; // Upper x
 		box.w = t.y; // Upper y
 		break;
-	case BACKGROUND_TYPE::PARALLAX:
+	case BACKGROUND_TYPE::BACKGROUND_PARALLAX:
+	case BACKGROUND_TYPE::FOREGROUND_PARALLAX:
 		// Get progress in x and y directions
 		glm::vec2 p = glm::vec2( (pos.x + m_ParallaxBounds.x) / m_ParallaxBounds.z,
-														 (pos.y + m_ParallaxBounds.y) / m_ParallaxBounds.w);
+								 (pos.y + m_ParallaxBounds.y) / m_ParallaxBounds.w);
 
 
 		if (m_ParallaxBounds.z == 0 || p.x > 1)
 			p.x = 1;
 		if (m_ParallaxBounds.w == 0 || p.y > 1)
 			p.y = 1;
-		// Linearly interpolate between minimum and maximum 
+		// Linearly interpolate between minimum and maximum
 
 		// Lower bounds
-		glm::vec2 l = glm::vec2((m_TextureXRange.x + p.x * ((m_TextureXRange.y - (m_TextureXRange.x)))) * t.x, // Percent from 0 to max
-														0);
+        glm::vec2 l = glm::vec2( (m_TextureXRange.x + p.x * (m_TextureXRange.y - m_TextureXRange.x)) * t.x, // Percent from 0 to max
+                                 (m_TextureYRange.x + p.y * (m_TextureYRange.y - m_TextureYRange.x)) * t.y);
 
 		// Upper bound (lower + offset)
 		glm::vec2 u = glm::vec2(t.x * m_SubTextureSize.x + l.x,
-														t.y);
+								t.y * m_SubTextureSize.y + l.y);
 
-		box.x = l.x; // Lower x
-		box.y = l.y; // Lower y
-		box.z = u.x; // Upper x
-		box.w = u.y; // Upper y
+		box.x = l.x + m_SubTexturePosition.x * t.x; // Lower x
+		box.y = l.y + m_SubTexturePosition.y * t.y; // Lower y
+		box.z = u.x + m_SubTexturePosition.x * t.x; // Upper x
+		box.w = u.y + m_SubTexturePosition.y * t.y; // Upper y
 		break;
 	}
 

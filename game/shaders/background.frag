@@ -9,7 +9,7 @@ uniform sampler2DArray tex;
 
 void main()
 {
-	vec4 texColor = texture(tex, vec3(texCoord,0));
+	vec4 texColor = texture(tex, vec3(texCoord,texLayer));
 
 	if(texColor.a < 0.1)
 		discard;

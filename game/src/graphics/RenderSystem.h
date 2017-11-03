@@ -32,4 +32,6 @@ private:
 	void RenderSprites(float dt);
 	void RenderText(float dt);
 	void RenderParticles(float dt);
+	void RenderBackgrounds(float dt);
+	void RenderForegrounds(float dt);
 };

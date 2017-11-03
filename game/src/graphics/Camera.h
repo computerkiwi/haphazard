@@ -19,7 +19,7 @@ public:
 	///
 
 	Camera();
-	void Use() { ApplyCameraMatrices(); }
+	void Use() { m_CurrActiveCamera = this; ApplyCameraMatrices(); }
 
 	///
 	// Setters
@@ -28,22 +28,25 @@ public:
 	void SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector);
 	void SetProjection(float zoom, float aspectRatio, float near, float far);
 
-	void SetPosition(glm::vec2 pos) { m_Position = m_Center = glm::vec3(pos, 2); m_Center.z = 0; ApplyCameraMatrices(); }
-	void SetUp(glm::vec3 up) { m_Up = up; ApplyCameraMatrices(); }
+	void SetPosition(glm::vec2 pos) { m_Position = m_Center = glm::vec3(pos, 2); m_Center.z = 0; }
+	void SetUp(glm::vec3 up) { m_Up = up; }
 
 	void SetRotation(float degrees);
 
-	void SetZoom(float zoom) { m_Zoom = zoom; ApplyCameraMatrices(); }
-	void SetAspectRatio(float ar) { m_AspectRatio = ar; ApplyCameraMatrices(); }
-	void SetNearPlane(float near) { m_Near = near; ApplyCameraMatrices(); }
-	void SetFarPlane(float far) { m_Far = far; ApplyCameraMatrices(); }
+	void SetZoom(float zoom) { m_Zoom = zoom; }
+	void SetAspectRatio(float ar) { m_AspectRatio = ar; }
+	void SetNearPlane(float near) { m_Near = near; }
+	void SetFarPlane(float far) { m_Far = far; }
 
 	///
 	// Getters
 	///
 
 	glm::vec2 GetPosition() { return glm::vec2(m_Position.x, m_Position.y); }
+	float GetRotation() { return m_Rotation; }
 	float GetZoom() { return m_Zoom; }
+
+	static Camera* GetActiveCamera() { return m_CurrActiveCamera; }
 
 	///
 	// Unique Movement
@@ -55,10 +58,14 @@ public:
 private:
 	void ApplyCameraMatrices();
 
+	static Camera* m_CurrActiveCamera;
+
 	//View matrix
 	glm::vec3 m_Position = glm::vec3(0, 0, 5.0f);
 	glm::vec3 m_Center = glm::vec3(0, 0, 0);
 	glm::vec3 m_Up = glm::vec3(0, 0, 1);
+
+	float m_Rotation = 0;
 
 	//Projection matrix
 	float m_Zoom = 3.0f;
