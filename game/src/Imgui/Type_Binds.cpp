@@ -98,6 +98,16 @@ bool dragClicked = false;
 		}																									 \
 	}																										 
 
+#define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}
+
 #define Drag_Int(NAME, SAVE, ITEM)																					 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -480,11 +490,11 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
 	glm::vec2 scale(transform->GetScale());
-	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0,1,0,1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), 0, glm::vec4(0,1,0,1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
 
 
 	if (CollapsingHeader("Transform"))
@@ -558,8 +568,8 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			Separator();
 		}
 
-		Drag("Rotation##transform", transform->m_rotation, transformSave.m_rotation);
-		DragRelease(TransformComponent, transform->m_rotation, transformSave.m_rotation, "rotation");
+		Drag_Float_Speed("Rotation##transform", transformSave.m_rotation, transform->m_rotation, 1.0f);
+		DragRelease(TransformComponent, transformSave.m_rotation, transform->m_rotation, "rotation");
 	}
 }
 
