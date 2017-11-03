@@ -9,7 +9,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 #include "Component.h"
 
-#include <vector>
+#include <map>
+#include <string>
 
 typedef unsigned ObjectTag;
 
@@ -18,7 +19,7 @@ class ObjectInfo
 public:
 	std::string m_name;
 	GameObject_ID m_id;
-	std::vector<ObjectTag> m_tags;
+	std::map<size_t, std::string> m_tags;
 
 	ObjectInfo() : m_name(""), m_id(INVALID_GAMEOBJECT_ID) {}
 
@@ -26,7 +27,7 @@ public:
 
 	ObjectInfo(GameObject_ID id, const char *name) : m_name(name), m_id(id) {}
 
-	void AddTag(ObjectTag tag) { m_tags.push_back(tag); }
+	void AddTag(const char *name) { m_tags.emplace(hash(name), name); }
 
 	META_REGISTER(ObjectInfo)
 	{

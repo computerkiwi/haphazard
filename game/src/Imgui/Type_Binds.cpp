@@ -12,8 +12,13 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameSpace.h"
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
+#include "graphics\Particles.h"
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
+
+#include "graphics\DebugGraphic.h"
+
+#include "Input\Input.h"
 
 using namespace ImGui;
 
@@ -79,6 +84,51 @@ const char * ErrorList[] =
 
 #define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
 
+bool dragClicked = false;
+
+#define Drag_Key Key::A
+
+#define Drag(NAME, SAVE, ITEM)																					 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}																										 
+
+#define Drag_Int(NAME, SAVE, ITEM)																					 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}
+
+#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
+	if (Input::IsReleased(Drag_Key) && dragClicked == true)																	 \
+	{																										 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
+		dragClicked = false;																				 \
+	}
+
+
+#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)														 \
+	if (Input::IsReleased(Key::A))																	 \
+	{																										 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });  \
+		dragClicked = false;																				 \
+	}
+
+// Transform Component Save Location
+TransformComponent transformSave;
+RigidBodyComponent rigidBodySave;
+Collider2D         colliderSave;
+ParticleSettings   particleSave;
+
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
@@ -97,6 +147,12 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		object = object_id;
 		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
+		// You cannot parent yourself!
+		if (child.Getid() == object_id)
+		{
+			continue;
+		}
+
 		// Save the buffer based off name size, max name size is 8
 		if (name.size() > 8)
 		{
@@ -109,7 +165,7 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
-
+		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
 			transform->SetParent(object);
@@ -199,6 +255,17 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<SpriteComponent>();
 				}
 			}
+			else if (Button("Particle System"))
+			{
+				if (object.GetComponent<ParticleSystem>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<ParticleSystem>();
+				}
+			}
 			else if (Button("RigidBody"))
 			{
 				if (object.GetComponent<RigidBodyComponent>().IsValid())
@@ -280,7 +347,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		}
 
 
-		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get());
+		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 
 
 		// if object - > component
@@ -313,6 +380,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (object.GetComponent<SpriteComponent>().IsValid())
 		{
 			ImGui_Sprite(object.GetComponent<SpriteComponent>().Get(), object, editor);
+		}
+
+		if (object.GetComponent<ParticleSystem>().IsValid())
+		{
+			ImGui_Particles(object.GetComponent<ParticleSystem>().Get(), object, editor);
 		}
 
 		if (object.GetComponent<ScriptComponent>().IsValid())
@@ -354,12 +426,58 @@ void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *e
 // Component ImGui stuff
 // ----------------------
 
-void ImGui_ObjectInfo(ObjectInfo *info)
+void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 {
 	if (info)
 	{
 		Separator();
 		Text("ID: %d | %s", info->m_id & 0xFFFFFF, info->m_name.c_str());
+
+		if (Button("Tags"))
+		{
+			if (info->m_tags.size())
+			{
+				OpenPopup("##object_info_tags");
+			}
+			else
+			{
+				editor->AddPopUp(PopUpWindow("This object has no tags.", 1.5f, PopUpPosition::Mouse));
+			}
+		}
+
+		if (BeginPopup("##object_info_tags"))
+		{
+			for (auto& tag : info->m_tags)
+			{
+				if (Button("x##object_info_remove_tag"))
+				{
+					info->m_tags.erase(tag.first);
+					break;
+				}
+				SameLine();
+				Text(tag.second.c_str());
+			}
+
+			EndPopup();
+		}
+
+		SameLine();
+
+		if (Button("Add Tag"))
+		{
+			OpenPopup("##object_info_tags_add");
+		}
+
+		if (BeginPopup("##object_info_tags_add"))
+		{
+			char buffer[128] = { 0 };
+			if (InputText("Tag", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				info->AddTag(buffer);
+			}
+
+			EndPopup();
+		}
 	}
 }
 
@@ -368,6 +486,8 @@ void ImGui_ObjectInfo(ObjectInfo *info)
 
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
+	DebugGraphic::DrawShape(transform->GetPosition(), transform->GetScale(), 0.0f, glm::vec4(0,1,0,1));
+
 	if (CollapsingHeader("Transform"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
@@ -392,7 +512,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				OpenPopup("Add Parent##add_parent_popup");
 			}
 
-			int parent_id = 0;
 			if (BeginPopup("Add Parent##add_parent_popup"))
 			{
 				Choose_Parent_ObjectList(editor, transform, object);
@@ -402,7 +521,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (TreeNode("Position"))
 		{
-			glm::vec3 position = transform->m_position;
+			
 			if (transform->GetParent())
 			{
 				bool x_click = false;
@@ -411,27 +530,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				Text("X: %f", transform->GetPosition().x);
 				Text("Y: %f", transform->GetPosition().y);
 
-				if (DragFloat("X Offset##position_drag", &transform->m_position.x, SLIDER_STEP, 0))
-				{
-					x_click = true;
-				}
-				else
-				{
-					x_click = false;
-				}
+				// Position Widgets
+				Drag("X Offset##transform", transformSave.m_position.x, transform->m_position.x);
+				Drag("Y Offset##transform", transformSave.m_position.y, transform->m_position.y);
 
-				if (!x_click && position.x != transform->m_position.x)
-				{
-					editor->Push_Action({ position, transform->m_position, "position", handle, Action_General<TransformComponent, glm::vec3> });
-					x_click = false;
-				}
-
-				DragFloat("Y Offset##position_drag", &transform->m_position.y, SLIDER_STEP, 0);
+				DragRelease_Type(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
 			}
 			else
 			{
-				DragFloat("X##position_drag", &transform->GetRelativePosition().x, SLIDER_STEP, 0);
-				DragFloat("Y##position_drag", &transform->GetRelativePosition().y, SLIDER_STEP, 0);
+				Drag("X##transform_position", transformSave.m_position.x, transform->m_position.x);
+				Drag("Y##transform_position", transformSave.m_position.y, transform->m_position.y);
+
+				DragRelease(TransformComponent, glm::vec2(transformSave.m_position), glm::vec2(transform->m_position), "position");
 			}
 
 			TreePop();
@@ -439,24 +549,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		}
 		if (TreeNode("Scale"))
 		{
-			glm::vec3 scale = transform->m_scale;
-			PushItemWidth(120);
 
-			if (InputFloat("X##scale", &transform->m_scale.x, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
-			{
-				editor->Push_Action({ scale, transform->m_scale, "scale", handle, Action_General<TransformComponent, glm::vec3> });
-			}
+			Drag("X##scale", transformSave.m_scale.x, transform->m_scale.x);
+			Drag("Y##scale", transformSave.m_scale.y, transform->m_scale.y);
 
-			if (InputFloat("Y##scale", &transform->m_scale.y, 0.0f, 0.0f, -1, ImGuiInputTextFlags_EnterReturnsTrue))
-			{
-				editor->Push_Action({ scale, transform->m_scale, "scale", handle, Action_General<TransformComponent, glm::vec3> });
-			}
-
+			DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
+			
 			TreePop();
 			Separator();
 		}
 
-		DragFloat("##rotation_drag", &transform->m_rotation, 1, 0);
+		Drag("Rotation##transform", transform->m_rotation, transformSave.m_rotation);
+		DragRelease(TransformComponent, transform->m_rotation, transformSave.m_rotation, "rotation");
 	}
 }
 
@@ -482,60 +586,32 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 		}
 
 		if (TreeNode("Acceleration"))
-		{
-			glm::vec2 acc = rb->m_acceleration;
-			PushItemWidth(120);
-			
-			if (InputFloat(" X##acceleration", &rb->m_acceleration.x))
-			{
-				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+		{			
+			Drag("X##acceleration", rigidBodySave.m_acceleration.x, rb->m_acceleration.x);
+			Drag("Y##acceleration", rigidBodySave.m_acceleration.y, rb->m_acceleration.y);
 
-			if (InputFloat(" Y##acceleration", &rb->m_acceleration.y))
-			{
-				editor->Push_Action({ acc, rb->m_acceleration, "acceleration", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_acceleration, rigidBodySave.m_acceleration, "acceleration");
 			
-			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Velocity"))
 		{
-			glm::vec3 vel = rb->m_velocity;
-			PushItemWidth(120);
+			Drag("X##rigidbody_velocity", rigidBodySave.m_velocity.x, rb->m_velocity.x);
+			Drag("Y##rigidbody_velocity", rigidBodySave.m_velocity.y, rb->m_velocity.y);
 
-			if (InputFloat("X##velocity", &rb->m_velocity.x))
-			{
-				editor->Push_Action({ vel, rb->m_velocity, "velocity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_velocity, rb->m_velocity, "velocity");
 
-			if (InputFloat("Y##velocity", &rb->m_velocity.y))
-			{
-				editor->Push_Action({ vel, rb->m_velocity, "velocity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
-			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Gravity"))
 		{
-			glm::vec3 gravity = rb->m_gravity;
-			PushItemWidth(120);
+			Drag("X##gravity", rigidBodySave.m_gravity.x, rb->m_gravity.x);
+			Drag("Y##gravity", rigidBodySave.m_gravity.y, rb->m_gravity.y);
 
-			if (InputFloat("X##gravity", &rb->m_gravity.x))
-			{
-				editor->Push_Action({ gravity, rb->m_gravity, "gravity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
-
-			if (InputFloat("Y##gravity", &rb->m_gravity.y))
-			{
-				editor->Push_Action({ gravity, rb->m_gravity, "gravity", handle, Action_General<RigidBodyComponent, glm::vec3> });
-			}
+			DragRelease(RigidBodyComponent, rigidBodySave.m_gravity, rb->m_gravity, "gravity");
 			
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
@@ -572,11 +648,17 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		std::string name = rm.Get(id)->FileName();
 
-		Text("Image Source: %s", name.c_str());
 		Separator();
 		BeginChild("Sprites", ImVec2(0, 125), true);
 		for (auto resource : sprites)
 		{
+			if (resource->Id() == id)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4( 223/255.0f, 104/255.0f, 76/255.0f, 1.0f ));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
 			if (Selectable(resource->FileName().c_str()))
 			{
 				// Is resource ref counted, can I store pointers to them?
@@ -629,64 +711,50 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			PushItemWidth(120);
+			Drag("X##collider_dim", colliderSave.m_dimensions.x, collider->m_dimensions.x);
+			Drag("Y##collider_dim", colliderSave.m_dimensions.y, collider->m_dimensions.y);
 
-			glm::vec3 dim = collider->m_dimensions;
-
-			if (InputFloat(" X##dim", &collider->m_dimensions.x))
-			{
+			if (Input::IsReleased(Drag_Key))
+			{						
+				// Check if we need to save the action for static or dynamic
 				if (collider->isStatic())
 				{
-					editor->Push_Action({ dim, collider->m_collisionLayer, "collisionLayer",
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
 						handle, Action_General<StaticCollider2DComponent, int> });
 				}
 				else
 				{
-					editor->Push_Action({ dim, collider->m_collisionLayer, "collisionLayer",
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
 						handle, Action_General<DynamicCollider2DComponent, int> });
-				}
+				}  
+				dragClicked = false;																				 
 			}
 
-			if (InputFloat(" Y##dim", &collider->m_dimensions.y))
-			{
-				if (collider->isStatic())
-				{
-					editor->Push_Action({ dim, collider->m_dimensions, "collisionLayer",
-						handle, Action_General<StaticCollider2DComponent, int> });
-				}
-				else
-				{
-					editor->Push_Action({ dim, collider->m_dimensions, "collisionLayer",
-						handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
-				}
-			}
+			
 
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
 		if (TreeNode("Offset"))
 		{
-			PushItemWidth(120);
-			glm::vec3 offset = collider->m_offset;
-			if (InputFloat(" X##offset", &collider->m_offset.x))
+			Drag("X##collider_offset", colliderSave.m_offset.x, collider->m_offset.x);
+			Drag("Y##collider_offset", colliderSave.m_offset.y, collider->m_offset.y);
+
+
+			if (Input::IsReleased(Drag_Key))
 			{
+				// Check if we need to save the action for static or dynamic
 				if (collider->isStatic())
 				{
-					editor->Push_Action({ offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
+					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
 				}
 				else
 				{
-					editor->Push_Action({ offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
+					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
 				}
+				dragClicked = false;
 			}
 
-			if (InputFloat(" Y##offset", &collider->m_offset.y))
-			{
-
-			}
-
-			PopItemWidth();
 			TreePop();
 			Separator();
 		}
@@ -700,8 +768,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			}
 		}
 
-		float dummy = 0.0f;
-		SliderFloat("Elasticity", &dummy, 0.0f, 1.0f);
+		SliderFloat("Elasticity", &collider->m_selfElasticity, 0.0f, 1.0f);
 		
 
 		// Collision Type
@@ -729,6 +796,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			RadioButton("Enemy",		   &layer, collisionLayers::enemy);
 			Columns();
 
+			// Check if we need to save the action for static or dynamic
 			if (collider->isStatic())
 			{
 				editor->Push_Action({ layer, collider->m_collisionLayer, "collisionLayer", 
@@ -774,5 +842,234 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 		}
 	}
 }
+
+
+const char * const EmissionShape_Names[] =
+{
+	"Point",
+	"Circle Volume",
+	"Circle Edge",
+	"Square Volume"
+};
+
+const char * const SimulationSpace_Names[] =
+{
+	"World",
+	"Local"
+};
+
+
+void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Particle System"))
+	{
+		EditorComponentHandle handle = { object.Getid(), true };
+
+		if (Button("Remove##particles"))
+		{
+			object.DeleteComponent<ParticleSystem>();
+			return;
+		}
+
+		ParticleSettings& settings = particles->m_settings;
+		
+		// PushItemWidth(115);
+		
+		Checkbox("Looping", &settings.isLooping);
+		
+		Drag("Rate##particles", particleSave.emissionRate, settings.emissionRate);
+		DragRelease(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate");
+
+		DragInt("Count", &settings.particlesPerEmission, 0.25f);
+
+		Drag_Int("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission);
+		if (settings.particlesPerEmission < 0)
+		{
+			settings.particlesPerEmission = 0;
+		}
+		DragRelease(ParticleSettings, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission");
+
+
+		if (TreeNode("Burst##particles"))
+		{
+			InputFloat("Frequency", &settings.burstEmission.z, SLIDER_STEP, 0);
+
+			Drag("Min Count##particle", particleSave.burstEmission.x, settings.burstEmission.x);
+			Drag("Max Count##particle", particleSave.burstEmission.y, settings.burstEmission.y);
+
+			DragRelease(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission");
+			Separator();
+			TreePop();
+		}
+
+		
+
+		Combo("Shape##particles", reinterpret_cast<int *>(&settings.emissionShape), EmissionShape_Names, _countof(EmissionShape_Names));
+
+		Separator();
+
+		if (TreeNode("Shape Scale##particles"))
+		{
+			Drag("X##particle_emission_rate", particleSave.emissionShapeScale.x, settings.emissionShapeScale.x);
+			Drag("Y##particle_emission_rate", particleSave.emissionShapeScale.y, settings.emissionShapeScale.y);
+
+			DragRelease(ParticleSettings, particleSave.emissionShapeScale, settings.emissionShapeScale, "EmissionShapeScale");
+
+			TreePop();
+		}
+
+		Separator();
+
+		Combo("Simulation Space##particles", reinterpret_cast<int *>(&settings.particleSpace), SimulationSpace_Names, _countof(SimulationSpace_Names));
+
+		Drag("Emitter Lifetime##particles", particleSave.emitterLifetime, settings.emitterLifetime);
+		DragRelease(ParticleSettings, particleSave.emitterLifetime, settings.emitterLifetime, "EmitterLifetime");
+
+		Drag("Lifetime##particles", particleSave.particleLifetime, settings.particleLifetime);
+		DragRelease(ParticleSettings, particleSave.particleLifetime, settings.particleLifetime, "EmitterLifetime");
+
+		Drag("Lifetime Variance##particles", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance);
+		DragRelease(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance");
+
+		Separator();
+
+		if (TreeNode("Velocity##particles"))
+		{
+			Drag("X##particles_init_velocity", particleSave.startingVelocity.x, settings.startingVelocity.x);
+			Drag("Y##particles_init_velocity", particleSave.startingVelocity.y, settings.startingVelocity.y);
+
+			DragRelease(ParticleSettings, particleSave.startingVelocity, settings.startingVelocity, "StartingVelocity");
+
+			if (TreeNode("Variance##particles"))
+			{
+				Drag("X##particles_variance_velocity", particleSave.startingVelocityVariance.x, settings.startingVelocityVariance.x);
+				Drag("Y##particles_variance_velocity", particleSave.startingVelocityVariance.y, settings.startingVelocityVariance.y);
+
+				DragRelease(ParticleSettings, particleSave.startingVelocityVariance, settings.startingVelocityVariance, "StartingVelocityVariance");
+
+				TreePop();
+			}
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Acceleration##particles"))
+		{
+			Drag("X##particles_acceleration", particleSave.acceleration.x, settings.acceleration.x);
+			Drag("Y##particles_acceleration", particleSave.acceleration.y, settings.acceleration.y);
+
+			DragRelease(ParticleSettings, particleSave.acceleration, settings.acceleration, "Acceleration");
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Scale Progression##particles"))
+		{
+			Text("Start");
+			Drag("X##particles_scale_start", particleSave.scaleOverTime.x, settings.scaleOverTime.x);
+			Drag("Y##particles_scale_start", particleSave.scaleOverTime.y, settings.scaleOverTime.y);
+
+			Text("End");
+			Drag("X##particles_scale_end", particleSave.scaleOverTime.z, settings.scaleOverTime.z);
+			Drag("X##particles_scale_end", particleSave.scaleOverTime.w, settings.scaleOverTime.w);
+
+			DragRelease(ParticleSettings, particleSave.scaleOverTime, settings.scaleOverTime, "ScaleOverTime");
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Rotation##rotation_particles"))
+		{
+			Drag("Start##particles_rotation", particleSave.startRotation, settings.startRotation);
+			DragRelease(ParticleSystem, particleSave.startRotation, settings.startRotation, "StartRotation");
+
+
+			Drag("Variance##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation);
+			DragRelease(ParticleSystem, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation");
+			
+			Drag("Rate##particles_rot_rate", particleSave.rotationRate, settings.rotationRate);
+			DragRelease(ParticleSystem, particleSave.rotationRate, settings.rotationRate, "RotationRate");
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Sprite Data##particles"))
+		{
+			if (TreeNode("Color##particles"))
+			{
+				Text("Start Color");
+				Drag("R##particles_startColor", particleSave.startColor.x, settings.startColor.x);
+				Drag("G##particles_startColor", particleSave.startColor.y, settings.startColor.y);
+				Drag("B##particles_startColor", particleSave.startColor.z, settings.startColor.z);
+				Drag("A##particles_startColor", particleSave.startColor.w, settings.startColor.w);
+
+				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
+
+				Separator();
+
+				Text("End Color");
+				Drag("R##particles_endColor", particleSave.endColor.x, settings.endColor.x);
+				Drag("G##particles_endColor", particleSave.endColor.y, settings.endColor.y);
+				Drag("B##particles_endColor", particleSave.endColor.z, settings.endColor.z);
+				Drag("A##particles_endColor", particleSave.endColor.w, settings.endColor.w);
+
+				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
+
+
+				TreePop();
+			}
+
+			if (TreeNode("Sprite"))
+			{
+				// Add Texture * on the ParticleSettings struct
+				Separator();
+				TreePop();
+			}
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Trail##particles"))
+		{
+			Checkbox("Has Trail##particles", &settings.hasTrail);
+			Drag("Rate##particles_trail", particleSave.trailEmissionRate, settings.trailEmissionRate);
+			DragRelease(ParticleSystem, particleSave.trailEmissionRate, settings.trailEmissionRate, "TrailEmissionRate");
+
+			Drag("Lifetime##particles_trail", particleSave.trailLifetime, settings.trailLifetime);
+			DragRelease(ParticleSystem, particleSave.trailLifetime, settings.trailLifetime, "TrailLifetime");
+
+			if (TreeNode("Color##trail_particles"))
+			{
+				Text("Start Color");
+				Drag("R##particles_trail_startColor", particleSave.trailStartColor.x, settings.trailStartColor.x);
+				Drag("G##particles_trail_startColor", particleSave.trailStartColor.y, settings.trailStartColor.y);
+				Drag("B##particles_trail_startColor", particleSave.trailStartColor.z, settings.trailStartColor.z);
+				Drag("A##particles_trail_startColor", particleSave.trailStartColor.w, settings.trailStartColor.w);
+				
+				DragRelease(ParticleSystem, particleSave.trailStartColor, settings.trailStartColor, "TrailStartColor");
+
+				Separator();
+
+				Text("End Color");
+				Drag("R##particles_trail_endColor", particleSave.trailEndColor.x, settings.trailEndColor.x);
+				Drag("G##particles_trail_endColor", particleSave.trailEndColor.y, settings.trailEndColor.y);
+				Drag("B##particles_trail_endColor", particleSave.trailEndColor.z, settings.trailEndColor.z);
+				Drag("A##particles_trail_endColor", particleSave.trailEndColor.w, settings.trailEndColor.w);
+
+				DragRelease(ParticleSystem, particleSave.trailEndColor, settings.trailEndColor, "TrailEndColor");
+
+				TreePop();
+			}
+
+			Separator();
+			TreePop();
+		}
+		// PopItemWidth();
+	}
+}
+
 
 

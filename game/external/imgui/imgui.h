@@ -497,6 +497,11 @@ namespace ImGui
     static inline bool      IsRectClipped(const ImVec2& size) { return !IsRectVisible(size); } // OBSOLETE 1.39+
 #endif
 
+	// Addition -- Haphazard
+	bool   DragInt_ReturnOnClick(const char* label, int* v, float v_speed = 1.0f, int v_min = 0, int v_max = 0, const char* display_format = "%.0f");
+	float  DragFloat_Haphazard(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
+	bool   DragFloat_ReturnOnClick(const char* label, float* v, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* display_format = "%.3f", float power = 1.0f);
+
 } // namespace ImGui
 
 // Flags for ImGui::Begin()
@@ -595,6 +600,11 @@ enum ImGuiKey_
     ImGuiKey_Delete,    // for text edit
     ImGuiKey_Backspace, // for text edit
     ImGuiKey_Enter,     // for text edit
+
+	// Addition -- Haphazard
+	ImGuiKey_NumPadEnter, // for other enter
+	// End Addition
+
     ImGuiKey_Escape,    // for text edit
     ImGuiKey_A,         // for text edit CTRL+A: select all
     ImGuiKey_C,         // for text edit CTRL+C: copy
