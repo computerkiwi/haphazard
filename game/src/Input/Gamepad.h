@@ -32,7 +32,7 @@ class Gamepad
 
     // Include dead zone
 
-//    void GamepadDebug();
+    void GamepadDebug();
     void BitPrint(const unsigned char * const array, int count);
 
   public:
@@ -41,7 +41,7 @@ class Gamepad
     void Update();
 
     void UpdateButtons();
-//    void UpdateAxes();
+    void UpdateAxes();
 
     void EnableGamepad();
     void DisableGamepad();

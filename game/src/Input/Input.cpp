@@ -238,9 +238,18 @@ namespace Input
   void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod)
   {
     // Button was pressed
-    if ((button >= 0) && (action == KeyState::Pressed))
+    if (button >= 0)
     {
-      SetKeyState(button, KeyState::Pressed);
+      // Mouse button pressed
+      if (action == KeyState::Pressed)
+      {
+        SetKeyState(button, KeyState::Pressed);
+      }
+      // Mouse button released
+      else
+      {
+        SetKeyState(button, KeyState::Released);
+      }
     }
   }
 
@@ -293,10 +302,18 @@ namespace Input
       if (gamepads[i]->IsConnected() == true)
       {
         gamepads[i]->Update();
-        if (gamepads[i]->IsPressed(GamepadButton::B))
-        {
-          std::cout << "Gamepad button B pressed" << std::endl;
-        }
+        //if (gamepads[i]->IsPressed(GamepadButton::B))
+        //{
+        //  std::cout << "UpdateGamepads: player " << i + 1
+        //            << " pressed button B" << std::endl;
+        //}
+
+        //float axis = GamepadGetAxis(static_cast<PlayerNum>(i), GamepadAxis::LeftAnalog_X);
+
+        //if (axis != 0)
+        //{
+        //  std::cout << "Player " << i << "X axis: " << axis << std::endl;
+        //}
       }
     }
   }
