@@ -1,15 +1,15 @@
 #version 330 core
-layout (points) in;
-layout (triangle_strip, max_vertices = 4) out;
+layout (triangles) in;
+layout (points, max_vertices = 4) out;
 
 in vec4 texBox[];
 in float texLayer[];
 
 out vec3 Texcoord;
-out vec4 Color;
+//out vec4 Color;
 
 void main() {
-	Color = color[0];
+	//Color = color[0];
 
 	vec2 texVerts[4];
 	texVerts[0] = texBox[0].xy + (vec2(0,0) * (texBox[0].zw - texBox[0].xy));	// TL
@@ -36,4 +36,4 @@ void main() {
     EmitVertex();
 
     EndPrimitive();
-}  
+}

@@ -37,12 +37,14 @@ void RenderSystem::Init()
 	Font::InitFonts();
 
 	
-	bg = new BackgroundComponent(new Texture("flyboy.png"));
+	bg = new BackgroundComponent(new Texture("flyboy.png"), PARALLAX);
+	bg->SetParallax(glm::vec2(0, 0), glm::vec2(5, 0), glm::vec2(0.5f, 0.1f));
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
 }
 
+glm::vec2 cam;
 void RenderSystem::UpdateCameras(float dt)
 {
 	ComponentMap<Camera> *cameras = GetGameSpace()->GetComponentMap<Camera>();
@@ -63,9 +65,12 @@ void RenderSystem::UpdateCameras(float dt)
 			camera->SetAspectRatio(width / (float)height);
 		}
 
+		transform->SetPosition(transform->GetPosition() + glm::vec2(dt, 0));
 		// If transform moved, update camera matrices
 		if (transform->GetPosition() != camera->GetPosition())
 			camera->SetPosition(transform->GetPosition());
+
+		cam = camera->GetPosition();
 	}
 	resizeCameras = false;
 }
@@ -165,9 +170,9 @@ void RenderSystem::Update(float dt)
 
 	//Start Loop
 	UpdateCameras(dt);
+	bg->Render(cam);
 	RenderSprites(dt);
 	RenderText(dt);
-	bg->Render(glm::vec2(0, 0));
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	RenderParticles(dt);
