@@ -7,6 +7,7 @@ Collisionlayer definitions and interactions
 Copyright © 2017 DigiPen (USA) Corporation.
 */
 #include "CollisionLayer.h"
+#include "../../Input/Input.h"
 
 /*
 enum collisionLayers
@@ -34,7 +35,115 @@ int CollisionMasks[collisionLayers::numLayers] =
 	0b0001010	// decor
 };
 
+// set two layers to collide with each other
+void CollisionLayer_SetLayersColliding(collisionLayers layer1, collisionLayers layer2)
+{
+	int index1 = 0;
+	int index2 = 0;
 
+	int shiftedLayer1 = layer1;
+	int shiftedLayer2 = layer2;
+
+	// get the layermask indices
+	while (shiftedLayer1 > 1)
+	{
+		++index1;
+		shiftedLayer1 >>= 1;
+	}
+	while (shiftedLayer2 > 1)
+	{
+		++index2;
+		shiftedLayer2 >>= 1;
+	}
+
+	CollisionMasks[index1] |= layer2;
+	CollisionMasks[index2] |= layer1;
+}
+
+// set two layers not to collide with each other
+void CollisionLayer_SetLayersNotColliding(collisionLayers layer1, collisionLayers layer2)
+{
+	int index1 = 0;
+	int index2 = 0;
+
+	int shiftedLayer1 = layer1;
+	int shiftedLayer2 = layer2;
+
+	// get the layermask indices
+	while (shiftedLayer1 > 1)
+	{
+		++index1;
+		shiftedLayer1 >>= 1;
+	}
+	while (shiftedLayer2 > 1)
+	{
+		++index2;
+		shiftedLayer2 >>= 1;
+	}
+
+	CollisionMasks[index1] &= ~layer2;
+	CollisionMasks[index2] &= ~layer1;
+}
+
+// this will make the layer collide ONLY with the layers passed and nothing else. (Or( | ) the layers together in the second parameter)
+void CollisionLayer_SetCollidingLayers(collisionLayers layerToSet, int layersToCollideWith)
+{
+	// a mask to shift and depackage the passed layers
+	int layerDepackageMask = 1;
+
+	// get the collision mask index
+	int index = 0;
+	int shiftedLayerToSet = layerToSet;
+	while (shiftedLayerToSet > 1)
+	{
+		++index;
+		shiftedLayerToSet >>= 1;
+	}
+
+	// clear the layermask
+	CollisionMasks[index] = 0;
+
+	// depackage and set collison between each passed layer
+	while (layerDepackageMask)
+	{
+		// will be 0 if the layer was specified, otherise it will be that layer
+		int addedLayer = layerDepackageMask & layersToCollideWith;
+
+		if (addedLayer)
+		{
+			CollisionMasks[index] |= addedLayer;
+		}
+
+		layerDepackageMask <<= 1;
+	}
+}
+
+void CollisionLayerTestFuction(void)
+{
+	int groundMask = CollisionMasks[3];
+
+	if (Input::IsPressed(Key::I))
+	{
+		CollisionLayer_SetCollidingLayers(collisionLayers::ground, collisionLayers::allCollision | collisionLayers::decor | collisionLayers::enemy);
+		groundMask = CollisionMasks[3];
+	}
+
+	if (Input::IsPressed(Key::O))
+	{
+		CollisionLayer_SetLayersColliding(collisionLayers::ground, collisionLayers::player);
+		groundMask = CollisionMasks[3];
+	}
+	
+	if (Input::IsPressed(Key::P))
+	{
+		CollisionLayer_SetLayersNotColliding(collisionLayers::ground, collisionLayers::enemy);
+		groundMask = CollisionMasks[3];
+	}
+
+	return;
+}
+
+// ********** CollisionLayer Class ********** //
 // conversion constructor
 CollisionLayer::CollisionLayer(int layers) : m_layer(layers)
 {

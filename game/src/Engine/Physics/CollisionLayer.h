@@ -10,7 +10,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 
 #include "meta/meta.h"
 
-enum /*class */collisionLayers
+void CollisionLayerTestFuction(void);
+
+enum collisionLayers
 {
 	noCollision = 1 << 0,  // Collides with nothing
 	allCollision = 1 << 1, // Collides with everything
@@ -22,6 +24,8 @@ enum /*class */collisionLayers
 
 	numLayers = 7
 };
+
+
 
 class CollisionLayer
 {

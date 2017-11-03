@@ -502,6 +502,8 @@ void PhysicsSystem::Update(float dt)
 	// update the position and velocity of all objects according to their velocity and acceleration
 	MoveAllDynamicObjects(dt, *rigidBodies);
 
+	CollisionLayerTestFuction();
+
 
 	/************************** TEST STUFF **************************/
 	float range = 6;
