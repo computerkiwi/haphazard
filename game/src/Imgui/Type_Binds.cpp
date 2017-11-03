@@ -930,9 +930,15 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Rotation##rotation_particles"))
 		{
-			DragFloat("Start##particles", &settings.StartRotation, SLIDER_STEP);
-			DragFloat("Variance##particles", &settings.StartRotationVariation, SLIDER_STEP);
-			DragFloat("Rate##particles", &settings.RotationRate, SLIDER_STEP);
+			Drag("Start##particles_rotation", particleSave.StartRotation, settings.StartRotation);
+			DragRelease(ParticleSystem, particleSave.StartRotation, settings.StartRotation, "StartRotation");
+
+
+			Drag("Variance##particles_rot_variance", particleSave.StartRotationVariation, settings.StartRotationVariation);
+			DragRelease(ParticleSystem, particleSave.StartRotationVariation, settings.StartRotationVariation, "StartRotationVariation");
+			
+			Drag("Rate##particles_rot_rate", particleSave.RotationRate, settings.RotationRate);
+			DragRelease(ParticleSystem, particleSave.RotationRate, settings.RotationRate, "RotationRate");
 
 			Separator();
 			TreePop();
@@ -943,24 +949,30 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			if (TreeNode("Color##particles"))
 			{
 				Text("Start Color");
-				DragFloat("R##particles", &settings.StartColor.x, SLIDER_STEP);
-				DragFloat("G##particles", &settings.StartColor.y, SLIDER_STEP);
-				DragFloat("B##particles", &settings.StartColor.z, SLIDER_STEP);
-				DragFloat("A##particles", &settings.StartColor.w, SLIDER_STEP);
+				Drag("R##particles_startColor", particleSave.StartColor.x, settings.StartColor.x);
+				Drag("G##particles_startColor", particleSave.StartColor.y, settings.StartColor.y);
+				Drag("B##particles_startColor", particleSave.StartColor.z, settings.StartColor.z);
+				Drag("A##particles_startColor", particleSave.StartColor.w, settings.StartColor.w);
+
+				DragRelease(ParticleSystem, particleSave.StartColor, settings.StartColor, "StartColor");
 
 				Separator();
 
 				Text("End Color");
-				DragFloat("R##particles", &settings.EndColor.x, SLIDER_STEP);
-				DragFloat("G##particles", &settings.EndColor.y, SLIDER_STEP);
-				DragFloat("B##particles", &settings.EndColor.z, SLIDER_STEP);
-				DragFloat("A##particles", &settings.EndColor.w, SLIDER_STEP);
+				Drag("R##particles_endColor", particleSave.EndColor.x, settings.EndColor.x);
+				Drag("G##particles_endColor", particleSave.EndColor.y, settings.EndColor.y);
+				Drag("B##particles_endColor", particleSave.EndColor.z, settings.EndColor.z);
+				Drag("A##particles_endColor", particleSave.EndColor.w, settings.EndColor.w);
+
+				DragRelease(ParticleSystem, particleSave.EndColor, settings.EndColor, "EndColor");
+
 
 				TreePop();
 			}
 
 			if (TreeNode("Sprite"))
 			{
+				// Add Texture * on the ParticleSettings struct
 				Separator();
 				TreePop();
 			}
@@ -971,24 +983,31 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		if (TreeNode("Trail##particles"))
 		{
 			Checkbox("Has Trail##particles", &settings.HasTrail);
-			DragFloat("Rate##particles", &settings.TrailEmissionRate, SLIDER_STEP);
-			DragFloat("Lifetime##particles", &settings.TrailLifetime, SLIDER_STEP);
+			Drag("Rate##particles_trail", particleSave.TrailEmissionRate, settings.TrailEmissionRate);
+			DragRelease(ParticleSystem, particleSave.TrailEmissionRate, settings.TrailEmissionRate, "TrailEmissionRate");
+
+			Drag("Lifetime##particles_trail", particleSave.TrailLifetime, settings.TrailLifetime);
+			DragRelease(ParticleSystem, particleSave.TrailLifetime, settings.TrailLifetime, "TrailLifetime");
 
 			if (TreeNode("Color##trail_particles"))
 			{
 				Text("Start Color");
-				DragFloat("R##particles_trail", &settings.TrailStartColor.x, SLIDER_STEP);
-				DragFloat("G##particles_trail", &settings.TrailStartColor.y, SLIDER_STEP);
-				DragFloat("B##particles_trail", &settings.TrailStartColor.z, SLIDER_STEP);
-				DragFloat("A##particles_trail", &settings.TrailStartColor.w, SLIDER_STEP);
+				Drag("R##particles_trail_startColor", particleSave.TrailStartColor.x, settings.TrailStartColor.x);
+				Drag("G##particles_trail_startColor", particleSave.TrailStartColor.y, settings.TrailStartColor.y);
+				Drag("B##particles_trail_startColor", particleSave.TrailStartColor.z, settings.TrailStartColor.z);
+				Drag("A##particles_trail_startColor", particleSave.TrailStartColor.w, settings.TrailStartColor.w);
 				
+				DragRelease(ParticleSystem, particleSave.TrailStartColor, settings.TrailStartColor, "TrailStartColor");
+
 				Separator();
 
 				Text("End Color");
-				DragFloat("R##particles_trail", &settings.TrailEndColor.x, SLIDER_STEP);
-				DragFloat("G##particles_trail", &settings.TrailEndColor.y, SLIDER_STEP);
-				DragFloat("B##particles_trail", &settings.TrailEndColor.z, SLIDER_STEP);
-				DragFloat("A##particles_trail", &settings.TrailEndColor.w, SLIDER_STEP);
+				Drag("R##particles_trail_endColor", particleSave.TrailEndColor.x, settings.TrailEndColor.x);
+				Drag("G##particles_trail_endColor", particleSave.TrailEndColor.y, settings.TrailEndColor.y);
+				Drag("B##particles_trail_endColor", particleSave.TrailEndColor.z, settings.TrailEndColor.z);
+				Drag("A##particles_trail_endColor", particleSave.TrailEndColor.w, settings.TrailEndColor.w);
+
+				DragRelease(ParticleSystem, particleSave.TrailEndColor, settings.TrailEndColor, "TrailEndColor");
 
 				TreePop();
 			}

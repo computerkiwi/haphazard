@@ -79,7 +79,7 @@ struct ParticleSettings
 		META_DefineMember(ParticleSettings, EmissionShapeScale, "EmissionShapeScale");
 		META_DefineMember(ParticleSettings, ParticleSpace, "ParticleSpace");
 
-		META_DefineMember(ParticleSettings, EmitterLifeTime, "EmitterLifeTime");
+		META_DefineMember(ParticleSettings, EmitterLifetime, "EmitterLifetime");
 		META_DefineMember(ParticleSettings, ParticleLifetime, "ParticleLifetime");
 		META_DefineMember(ParticleSettings, ParticleLifetimeVariance, "ParticleLifetimeVariance");
 
@@ -95,7 +95,6 @@ struct ParticleSettings
 
 		META_DefineMember(ParticleSettings, StartColor, "StartColor");
 		META_DefineMember(ParticleSettings, EndColor, "EndColor");
-		META_DefineMember(ParticleSettings, Texture, "Texture");
 
 		META_DefineMember(ParticleSettings, HasTrail, "HasTrail");
 		META_DefineMember(ParticleSettings, TrailEmissionRate, "TrailEmissionRate");
