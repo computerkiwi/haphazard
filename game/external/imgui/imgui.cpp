@@ -10727,7 +10727,7 @@ bool ImGui::DragFloat_ReturnOnClick(const char* label, float* v, float v_speed, 
 	if (label_size.x > 0.0f)
 		RenderText(ImVec2(frame_bb.Max.x + style.ItemInnerSpacing.x, inner_bb.Min.y), label);
 
-	return value_changed;
+	return hovered && value_changed;
 }
 
 

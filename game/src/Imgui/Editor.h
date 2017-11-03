@@ -49,8 +49,8 @@ struct EditorComponentHandle
 
 struct EditorAction
 {
-	meta::Any old_value;
-	meta::Any new_value;
+	meta::Any save;
+	meta::Any current;
 	const char *name;
 	EditorComponentHandle handle;
 	actionFunc func;

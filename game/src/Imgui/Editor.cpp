@@ -1021,15 +1021,13 @@ void Editor::MenuBar()
 
 	if (ImGui::BeginPopup("##menu_save_pop_up"))
 	{
-		char filename[128] = { 'S', 'a', 'v', 'e', 'D', 'a', 't', 'a', '.', 'j', 's', 'o', 'n' };
-
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", filename, 128);
+		ImGui::InputText("Filename", m_filename, 128);
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Save"))
 		{
-			engine->FileSave(filename);
+			engine->FileSave(m_filename);
 			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
 			save = false;
 			ImGui::CloseCurrentPopup();
