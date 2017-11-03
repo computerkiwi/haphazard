@@ -134,7 +134,7 @@
                                             "meta_type_name": "float",
                                             "meta_object_data": 1.0
                                         },
-                                        "selfElasticity": {
+                                        "y": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 1.0
                                         }
@@ -147,11 +147,32 @@
                                             "meta_type_name": "float",
                                             "meta_object_data": 0.25
                                         },
-                                        "appliedElasticity": {
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.25
+                                        },
+                                        "z": {
                                             "meta_type_name": "float",
                                             "meta_object_data": 1.0
                                         }
                                     }
+                                },
+                                "parent": {
+                                    "meta_type_name": "GameObject",
+                                    "meta_object_data": {
+                                        "id": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        }
+                                    }
+                                },
+                                "z-layer": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.0
+                                },
+                                "rotation": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
                                 }
                             }
                         },
@@ -283,7 +304,7 @@
                     ]
                 },
                 {
-                    "objID": 2,
+                    "objID": 3,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
@@ -294,7 +315,7 @@
                                 },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 2
+                                    "meta_object_data": 3
                                 }
                             }
                         },

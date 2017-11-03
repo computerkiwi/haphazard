@@ -275,13 +275,6 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<RigidBodyComponent>();
-					if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
-					{
-					}
-					else
-					{
-						object.AddComponent<DynamicCollider2DComponent>();
-					}
 				}
 			}
 			else if (Button("Dynamic Collider"))
@@ -486,7 +479,13 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
-	DebugGraphic::DrawShape(transform->GetPosition(), transform->GetScale(), 0.0f, glm::vec4(0,1,0,1));
+	glm::vec2 scale(transform->GetScale());
+	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0,1,0,1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), transform->GetRotation(), glm::vec4(0, 1, 0, 1));
+
 
 	if (CollapsingHeader("Transform"))
 	{
@@ -972,7 +971,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 			Text("End");
 			Drag("X##particles_scale_end", particleSave.scaleOverTime.z, settings.scaleOverTime.z);
-			Drag("X##particles_scale_end", particleSave.scaleOverTime.w, settings.scaleOverTime.w);
+			Drag("Y##particles_scale_end", particleSave.scaleOverTime.w, settings.scaleOverTime.w);
 
 			DragRelease(ParticleSettings, particleSave.scaleOverTime, settings.scaleOverTime, "ScaleOverTime");
 
