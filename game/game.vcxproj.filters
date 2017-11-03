@@ -53,6 +53,7 @@
     <ClCompile Include="src\Engine\ResourceRegistration.cpp" />
     <ClCompile Include="src\graphics\TextureResource.cpp" />
     <ClCompile Include="src\Engine\Physics\PhysicsUtils.cpp" />
+    <ClCompile Include="src\graphics\Background.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -77,9 +78,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphics\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\Settings.cpp">
@@ -159,10 +157,14 @@
     <None Include="src\meta\meta.inl" />
     <None Include="src\meta\MemberGetSet.inl" />
     <None Include="src\meta\Any.inl" />
+    <None Include="shaders\background.frag" />
+    <None Include="shaders\background.vert" />
+    <None Include="shaders\background.geo" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
     <ClInclude Include="src\graphics\Particles.h" />
+    <ClInclude Include="src\graphics\Background.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

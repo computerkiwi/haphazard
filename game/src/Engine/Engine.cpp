@@ -43,6 +43,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Text.h"
 #include "graphics\Camera.h"
 #include "graphics\Particles.h"
+#include "graphics\Background.h"
 
 GLFWwindow* WindowInit(); 
 
@@ -155,6 +156,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
 	//MainCamera.AddComponent<RigidBodyComponent>();
 	//MainCamera.AddComponent<ScriptComponent>("PlayerController.lua");
+
 
 	this->FileSave("test_out.json");
 #else

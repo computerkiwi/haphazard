@@ -19,10 +19,13 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
+#include "Background.h"
 
 static bool resizeCameras = false;
 static int width;
 static int height;
+
+BackgroundComponent* bg;
 
 RenderSystem::RenderSystem()
 {
@@ -33,6 +36,8 @@ void RenderSystem::Init()
 	Screen::InitScreen();
 	Font::InitFonts();
 
+	
+	bg = new BackgroundComponent(new Texture("flyboy.png"));
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);
@@ -162,6 +167,7 @@ void RenderSystem::Update(float dt)
 	UpdateCameras(dt);
 	RenderSprites(dt);
 	RenderText(dt);
+	bg->Render(glm::vec2(0, 0));
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	RenderParticles(dt);

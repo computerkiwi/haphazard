@@ -272,6 +272,7 @@ namespace Shaders
 	ShaderProgram* textShader;
 	ShaderProgram* particleUpdateShader;
 	ShaderProgram* particleRenderShader;
+	ShaderProgram* backgroundShader;
 
 	ShaderProgram* debugShader;
 
@@ -330,6 +331,16 @@ namespace Shaders
 		textShader = LoadShaders(path + "text.vert", path + "text.frag", attribs);
 
 		if (!textShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadBackgroundShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		
+		backgroundShader = LoadShaders(path + "background.vert", path + "background.geo", path + "background.frag", attribs);
+
+		if (!backgroundShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -483,6 +494,7 @@ namespace Shaders
 		LoadSpriteShader();
 		LoadTextShader();
 		LoadParticleShaders();
+		LoadBackgroundShader();
 		LoadDebugShader();
 		LoadScreenShaders();
 

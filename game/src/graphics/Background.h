@@ -1,8 +1,10 @@
 #pragma once
-#include "glm\glm.hpp"
-#include "Texture.h"
 #include <vector>
+#include "Texture.h"
 #include "GameObjectSystem\TransformComponent.h"
+#include "glm\glm.hpp"
+
+typedef unsigned int GLuint;
 
 enum BACKGROUND_TYPE
 {
@@ -16,6 +18,7 @@ public:
 	
 	// Set speed in x and y directions, and starting sub-texture that will be displayed
 	void SetParallax(glm::vec2 minimumPosition, glm::vec2 maximumPosition, glm::vec4 subTextureBox);
+	void SetTexture(Texture* texture);
 
 	void Render(glm::vec2 pos);
 
@@ -25,4 +28,8 @@ private:
 	int m_Layer;
 	glm::vec4 m_ParallaxBounds;
 	glm::vec4 m_SubTextureBounds;
+
+	// Uniform Locations
+	static GLuint m_UniTexBox;
+	static GLuint m_UniTexLayer;
 };

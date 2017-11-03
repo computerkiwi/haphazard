@@ -32,6 +32,7 @@ namespace Shaders
 	extern ShaderProgram* textShader;
 	extern ShaderProgram* particleUpdateShader;
 	extern ShaderProgram* particleRenderShader;
+	extern ShaderProgram* backgroundShader;
 
 	extern ShaderProgram* debugShader;
 
