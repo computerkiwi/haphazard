@@ -86,7 +86,7 @@ const char * ErrorList[] =
 
 bool dragClicked = false;
 
-#define Drag_Key Key::A
+#define Drag_Key Key::Mouse_1
 
 #define Drag(NAME, SAVE, ITEM)																					 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
