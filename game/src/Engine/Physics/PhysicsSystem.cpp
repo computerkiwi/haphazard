@@ -324,7 +324,7 @@ void printAMatrix(glm::mat3 matrix)
 
 }
 
-void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<TransformComponent> transform1, ComponentHandle<DynamicCollider2DComponent> collider2, ComponentHandle<TransformComponent> transform2)
+void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<TransformComponent> transform1, ComponentHandle<DynamicCollider2DComponent> collider2, ComponentHandle<TransformComponent> transform2)
 {
 	ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 	ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
@@ -392,7 +392,7 @@ void ResolveDynDynCollision(glm::vec3* collisionData, ComponentHandle<DynamicCol
 	}
 }
 
-void ResolveDynStcCollision(glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<StaticCollider2DComponent> collider2)
+void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<StaticCollider2DComponent> collider2)
 {
 	ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 	// make sure rigidbodies were successfully retrieved
@@ -573,7 +573,7 @@ void PhysicsSystem::Update(float dt)
 					// register collision between the layers
 					RegisterCollision(dynamicCollider->ColliderData(), tStaticColliderHandle->ColliderData());
 					// resolve the collision
-					ResolveDynStcCollision(&resolutionVector, dynamicCollider, tStaticColliderHandle);
+					ResolveDynStcCollision(dt, &resolutionVector, dynamicCollider, tStaticColliderHandle);
 
 					// Call the collision function on scripts.
 					ComponentHandle<ScriptComponent> script1 = dynamicCollider.GetSiblingComponent<ScriptComponent>();
@@ -628,7 +628,7 @@ void PhysicsSystem::Update(float dt)
 					// register collision between the layers
 					RegisterCollision(dynamicCollider->ColliderData(), tDynamiColliderHandle->ColliderData());
 					// resolve the collision
-					ResolveDynDynCollision(&resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
+					ResolveDynDynCollision(dt, &resolutionVector, dynamicCollider, transform, tDynamiColliderHandle, otherTransform);
 
 					// Call the collision function on scripts.
 					ComponentHandle<ScriptComponent> script1 = dynamicCollider.GetSiblingComponent<ScriptComponent>();
