@@ -425,7 +425,7 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::V))
+	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
 
@@ -528,13 +528,13 @@ void Editor::UpdatePopUps(float dt)
 	for (int i = 0; i < m_pop_ups.size(); ++i)
 	{
 		PopUpWindow& popup = m_pop_ups[i];
-		float text_padding = strlen(popup.message) * 5.75f;
 
 		// float offset = m_pop_ups.size() - i;
 		glm::vec2 padding(65, 65);
 		
 		ImVec2 pos;
-		ImVec2 size(text_padding * 2, 42);
+		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, 42);
+		float text_padding = size.x;  //strlen(popup.message) * 5.75f;
 
 		// Find where to draw the popup
 		switch (popup.pos)
@@ -678,8 +678,17 @@ void Editor::ObjectsList()
 
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
-		char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue);
+		static char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>();
+
+			m_selected_object = object.Getid();
+		}
+
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
 
 		if (ImGui::Button("Create###createObjectListButton"))
@@ -1010,7 +1019,7 @@ static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long t
 	unsigned long long totalTicksSinceLastTime = totalTicks - _previousTotalTicks;
 	unsigned long long idleTicksSinceLastTime = idleTicks - _previousIdleTicks;
 
-	float ret = 1.0f - ((totalTicksSinceLastTime > 0) ? ((float)idleTicksSinceLastTime) / totalTicksSinceLastTime : 0);
+	float ret = 1.0f - ((totalTicksSinceLastTime > 0) ? static_cast<float>(idleTicksSinceLastTime) / totalTicksSinceLastTime : 0);
 
 	_previousTotalTicks = totalTicks;
 	_previousIdleTicks = idleTicks;
@@ -1033,7 +1042,12 @@ void Editor::SaveLoad()
 	if (ImGui::BeginPopup("##menu_save_pop_up"))
 	{
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", m_filename, 128);
+		if (ImGui::InputText("Filename", m_filename, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			engine->FileSave(m_filename);
+			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Save"))
@@ -1049,7 +1063,12 @@ void Editor::SaveLoad()
 	if (ImGui::BeginPopup("##menu_load_pop_up"))
 	{
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", m_filename, 128);
+		if (ImGui::InputText("Filename", m_filename, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			engine->FileLoad(m_filename);
+			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Load"))
@@ -1066,7 +1085,7 @@ void Editor::SaveLoad()
 
 static unsigned long long FileTimeToInt64(const FILETIME & ft) 
 {
-	return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); 
+	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
 }
 
 // Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
@@ -1098,7 +1117,7 @@ void Editor::SettingsPanel(float dt)
 	PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
 
 	timer += dt;
-	if (timer > 0.25f)
+	if (timer > 0.75f)
 	{
 		m_cpu_load.push_back_pop_front(GetCPULoad() * 100.0f);
 		if (m_cpu_peak < m_cpu_load[m_cpu_load.m_size - 1])

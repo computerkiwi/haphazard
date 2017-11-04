@@ -270,6 +270,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			if (InputText("Edit Name", name_buffer, 128, ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+				CloseCurrentPopup();
 			}
 
 			EndPopup();
@@ -469,7 +470,13 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 	if (info)
 	{
 		Separator();
-		Text("ID: %d | %s", info->m_id & 0xFFFFFF, info->m_name.c_str());
+		Text("ID: %d | ", info->m_id & 0xFFFFFF);
+
+		SameLine();
+		if (Selectable(info->m_name.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick, ImVec2(CalcTextSize(info->m_name.c_str()).x, 0)))
+		{
+			OpenPopup("Edit Name###name_popup");
+		}
 
 		if (Button("Tags"))
 		{

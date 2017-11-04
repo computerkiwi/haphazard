@@ -104,7 +104,8 @@ class Editor
 	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
-	
+	std::string m_name;
+
 	// List of all GameObjects
 	std::vector<GameObject_ID> m_objects;
 
