@@ -42,9 +42,9 @@ private:
 
 	Texture *GetDefaultTexture()
 	{
-		static Texture *tex = new Texture("assets/default_texture.png");
+		Resource *res = engine->GetResourceManager().Get("default.png");
 
-		return tex;
+		return reinterpret_cast<Texture *>(res->Data());
 	}
 
 	META_REGISTER(SpriteComponent)

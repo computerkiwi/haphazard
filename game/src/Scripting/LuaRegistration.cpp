@@ -13,6 +13,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Input/Input.h"
 
+#include "Engine/Physics/CollisionLayer.h"
+
 //-------
 // Input
 //-------
@@ -25,6 +27,9 @@ bool LuaIsPressed(int val)
 void RegisterLua(lua_State * L)
 {
 	luabridge::getGlobalNamespace(L)
-		.addFunction("IsPressed", &LuaIsPressed);
+		.addFunction("IsPressed", &LuaIsPressed)
+
+		.addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
+		.addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding);
 		
 }

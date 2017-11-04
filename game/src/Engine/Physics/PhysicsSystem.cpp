@@ -507,23 +507,7 @@ void PhysicsSystem::Update(float dt)
 
 
 	/************************** TEST STUFF **************************/
-	float range = 6;
-	glm::vec3 castPosition(-2, 2.5, 0);
-	
-	glm::vec3 normalizedDirection(2, -1.5f, 0);
-
-	normalizedDirection /= glm::length(normalizedDirection);
-
-	Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, normalizedDirection, range);
-
-	DrawSmallBoxAtPosition(castPosition);
-	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
-	DrawSmallBoxAtPosition(testCast.Intersection());
-
-	glm::vec2 testPoint(1, 0);
-	glm::vec2 pointEscape = CollidePointOnLayer(allDynamicColliders, allStaticColliders, testPoint);
-	testPoint += pointEscape;
-	DrawSmallBoxAtPosition(testPoint);
+	// place for brett to put nonsense.
 	/****************************************************************/
 
 	for (auto& tRigidBodyHandle : *rigidBodies)

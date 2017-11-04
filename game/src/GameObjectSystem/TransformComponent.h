@@ -80,7 +80,7 @@ private:
 
 		META_DefineGetterSetter(TransformComponent, glm::vec3, GetScale, SetScale, "scale");
 
-		META_DefineGetterSetter(TransformComponent, float, GetZLayer, SetZLayer, "z-layer");
+		META_DefineGetterSetter(TransformComponent, float, GetZLayer, SetZLayer, "zLayer");
 
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
 

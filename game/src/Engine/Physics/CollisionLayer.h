@@ -25,7 +25,11 @@ enum collisionLayers
 	numLayers = 7
 };
 
+// set two layers to collide with each other
+void CollisionLayer_SetLayersColliding(int layer1, int layer2);
 
+// set two layers not to collide with each other
+void CollisionLayer_SetLayersNotColliding(int layer1, int layer2);
 
 class CollisionLayer
 {
