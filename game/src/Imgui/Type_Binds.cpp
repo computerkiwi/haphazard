@@ -33,11 +33,11 @@ void Action_General(EditorAction& a)
 
 	if (a.redo)
 	{
-		obj.SetPointerMember(a.name, a.new_value.GetData<T>());
+		obj.SetPointerMember(a.name, a.current.GetData<T>());
 	}
 	else
 	{
-		obj.SetPointerMember(a.name, a.old_value.GetData<T>());
+		obj.SetPointerMember(a.name, a.save.GetData<T>());
 	}
 }
 
@@ -49,11 +49,11 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 
 	if (a.redo)
 	{
-		handle->SetResourceID(a.new_value.GetData<ResourceID>());
+		handle->SetResourceID(a.current.GetData<ResourceID>());
 	}
 	else
 	{
-		handle->SetResourceID(a.old_value.GetData<ResourceID>());
+		handle->SetResourceID(a.save.GetData<ResourceID>());
 	}
 }
 
@@ -86,7 +86,7 @@ const char * ErrorList[] =
 
 bool dragClicked = false;
 
-#define Drag_Key Key::A
+#define Drag_Key Key::Mouse_1
 
 #define Drag(NAME, SAVE, ITEM)																					 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
@@ -97,6 +97,16 @@ bool dragClicked = false;
 			dragClicked = true;																				 \
 		}																									 \
 	}																										 
+
+#define Drag_Vec(NAME, SAVE, ITEM, VEC)																					 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = VEC;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}
 
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))													 \
@@ -137,6 +147,7 @@ bool dragClicked = false;
 TransformComponent transformSave;
 RigidBodyComponent rigidBodySave;
 Collider2D         colliderSave;
+
 ParticleSettings   particleSave;
 
 
@@ -251,10 +262,12 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (BeginPopup("Components"))
 		{
 
+			#define	COMPONENT_BUTTON_SIZE ImVec2(120, 0)
+
 			// Everything has a transform
 			// Everything is going to have a data component
-			
-			if (Button("Sprite"))
+
+			if (Button("Sprite", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<SpriteComponent>().IsValid())
 				{
@@ -265,7 +278,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<SpriteComponent>();
 				}
 			}
-			else if (Button("Particle System"))
+			if (Button("Particle System", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<ParticleSystem>().IsValid())
 				{
@@ -276,7 +289,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<ParticleSystem>();
 				}
 			}
-			else if (Button("RigidBody"))
+			Separator();
+			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<RigidBodyComponent>().IsValid())
 				{
@@ -287,7 +301,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<RigidBodyComponent>();
 				}
 			}
-			else if (Button("Dynamic Collider"))
+			if (Button("Dynamic Collider", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 				{
@@ -310,7 +324,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 				}
 			}
-			else if (Button("Static Collider"))
+			if (Button("Static Collider", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 				{
@@ -328,7 +342,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 				}
 			}
-			else if (Button("Script"))
+			Separator();
+			if (Button("Script", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<ScriptComponent>().IsValid())
 				{
@@ -450,9 +465,10 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 
 		if (BeginPopup("##object_info_tags"))
 		{
+			PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
 			for (auto& tag : info->m_tags)
 			{
-				if (Button("x##object_info_remove_tag"))
+				if (Button("X##object_info_remove_tag", ImVec2(25, 0)))
 				{
 					info->m_tags.erase(tag.first);
 					break;
@@ -460,6 +476,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 				SameLine();
 				Text(tag.second.c_str());
 			}
+			PopStyleVar();
 
 			EndPopup();
 		}
@@ -477,6 +494,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 			if (InputText("Tag", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				info->AddTag(buffer);
+				CloseCurrentPopup();
 			}
 
 			EndPopup();
@@ -540,15 +558,15 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				Text("Y: %f", transform->GetPosition().y);
 
 				// Position Widgets
-				Drag("X Offset##transform", transformSave.m_position.x, transform->m_position.x);
-				Drag("Y Offset##transform", transformSave.m_position.y, transform->m_position.y);
+				Drag_Vec("X Offset##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
+				Drag_Vec("Y Offset##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
 
 				DragRelease_Type(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
 			}
 			else
 			{
-				Drag("X##transform_position", transformSave.m_position.x, transform->m_position.x);
-				Drag("Y##transform_position", transformSave.m_position.y, transform->m_position.y);
+				Drag_Vec("X##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
+				Drag_Vec("Y##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
 
 				DragRelease(TransformComponent, glm::vec2(transformSave.m_position), glm::vec2(transform->m_position), "position");
 			}
@@ -559,8 +577,8 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		if (TreeNode("Scale"))
 		{
 
-			Drag("X##scale", transformSave.m_scale.x, transform->m_scale.x);
-			Drag("Y##scale", transformSave.m_scale.y, transform->m_scale.y);
+			Drag_Vec("X##scale", transformSave.m_scale, transform->m_scale.x, transform->m_scale);
+			Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
 
 			DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
 			
@@ -583,6 +601,8 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 
 		if (Button("Remove##rigidbody"))
 		{
+			// rigidBodySave = *rb;
+			// editor->Push_Action({ rigidBodySave, *rb, "RigidBody", handle, Action_General<RigidBodyComponent, RigidBodyComponent> });
 			object.DeleteComponent<RigidBodyComponent>();
 
 			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
@@ -596,8 +616,8 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 
 		if (TreeNode("Acceleration"))
 		{			
-			Drag("X##acceleration", rigidBodySave.m_acceleration.x, rb->m_acceleration.x);
-			Drag("Y##acceleration", rigidBodySave.m_acceleration.y, rb->m_acceleration.y);
+			Drag_Vec("X##acceleration", rigidBodySave.m_acceleration, rb->m_acceleration.x, rb->m_acceleration);
+			Drag_Vec("Y##acceleration", rigidBodySave.m_acceleration, rb->m_acceleration.y, rb->m_acceleration);
 
 			DragRelease(RigidBodyComponent, rigidBodySave.m_acceleration, rigidBodySave.m_acceleration, "acceleration");
 			
@@ -606,8 +626,8 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 		}
 		if (TreeNode("Velocity"))
 		{
-			Drag("X##rigidbody_velocity", rigidBodySave.m_velocity.x, rb->m_velocity.x);
-			Drag("Y##rigidbody_velocity", rigidBodySave.m_velocity.y, rb->m_velocity.y);
+			Drag_Vec("X##rigidbody_velocity", rigidBodySave.m_velocity, rb->m_velocity.x, rb->m_velocity);
+			Drag_Vec("Y##rigidbody_velocity", rigidBodySave.m_velocity, rb->m_velocity.y, rb->m_velocity);
 
 			DragRelease(RigidBodyComponent, rigidBodySave.m_velocity, rb->m_velocity, "velocity");
 
@@ -616,8 +636,8 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 		}
 		if (TreeNode("Gravity"))
 		{
-			Drag("X##gravity", rigidBodySave.m_gravity.x, rb->m_gravity.x);
-			Drag("Y##gravity", rigidBodySave.m_gravity.y, rb->m_gravity.y);
+			Drag_Vec("X##gravity", rigidBodySave.m_gravity, rb->m_gravity.x, rb->m_gravity);
+			Drag_Vec("Y##gravity", rigidBodySave.m_gravity, rb->m_gravity.y, rb->m_gravity);
 
 			DragRelease(RigidBodyComponent, rigidBodySave.m_gravity, rb->m_gravity, "gravity");
 			
@@ -720,8 +740,8 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			Drag("X##collider_dim", colliderSave.m_dimensions.x, collider->m_dimensions.x);
-			Drag("Y##collider_dim", colliderSave.m_dimensions.y, collider->m_dimensions.y);
+			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, colliderSave.m_dimensions);
+			Drag_Vec("Y##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.y, colliderSave.m_dimensions);
 
 			if (Input::IsReleased(Drag_Key))
 			{						
@@ -746,8 +766,8 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		}
 		if (TreeNode("Offset"))
 		{
-			Drag("X##collider_offset", colliderSave.m_offset.x, collider->m_offset.x);
-			Drag("Y##collider_offset", colliderSave.m_offset.y, collider->m_offset.y);
+			Drag_Vec("X##collider_offset", colliderSave.m_offset, collider->m_offset.x, collider->m_offset);
+			Drag_Vec("Y##collider_offset", colliderSave.m_offset, collider->m_offset.y, collider->m_offset);
 
 
 			if (Input::IsReleased(Drag_Key))
@@ -825,30 +845,68 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 }
 
 
+bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
+{
+	for (auto& script : scripts)
+	{
+		if (script.GetResourceID() == resource)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
 	{
+		ResourceManager& rm = engine->GetResourceManager();
+		std::vector<Resource *> scripts = rm.GetResourcesOfType(ResourceType::SCRIPT);
+
 		if (Button("Remove##script"))
 		{
 			object.DeleteComponent<ScriptComponent>();
 			return;
 		}
-		char buffer[2048];
-		if (InputText("", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
+		Separator();
+		if (Button("Add##script"))
 		{
-			SameLine();
-			if (Button("Add##script"))
-			{
-				script_c->scripts.emplace_back(LuaScript(engine->GetResourceManager().Get(buffer), object));
-			}
+			OpenPopup("##script_add_script");
 		}
 
-		for (auto& script : script_c->scripts)
+		if (BeginPopup("##script_add_script"))
 		{
-			(void)script;
-			Text("SomeDrive:/Folder/Wow/Harambe/scripts/die.lua");
+			for (auto& script : scripts)
+			{
+				if (!ObjectHasScript(script->Id(), script_c->scripts))
+				{
+					if (Selectable(script->FileName().c_str()))
+					{
+						script_c->scripts.emplace_back(LuaScript(script, object));
+					}
+				}
+			}
+
+			EndPopup();
 		}
+
+		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
+		for (int i = 0; i < script_c->scripts.size(); i++)
+		{
+			LuaScript& script = script_c->scripts[i];
+			
+			if (Button("X##script_remove_script", ImVec2(25, 0)))
+			{
+				script_c->scripts.erase(script_c->scripts.begin() + i);
+				break;
+			}
+			SameLine();
+
+			Text(rm.Get(script.GetResourceID())->FileName().c_str());
+		}
+		PopStyleVar();
 	}
 }
 
@@ -876,6 +934,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (Button("Remove##particles"))
 		{
+
 			object.DeleteComponent<ParticleSystem>();
 			return;
 		}
@@ -903,8 +962,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		{
 			InputFloat("Frequency", &settings.burstEmission.z, SLIDER_STEP, 0);
 
-			Drag("Min Count##particle", particleSave.burstEmission.x, settings.burstEmission.x);
-			Drag("Max Count##particle", particleSave.burstEmission.y, settings.burstEmission.y);
+			Drag_Vec("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission);
+			Drag_Vec("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission);
 
 			DragRelease(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission");
 			Separator();
@@ -919,8 +978,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Shape Scale##particles"))
 		{
-			Drag("X##particle_emission_rate", particleSave.emissionShapeScale.x, settings.emissionShapeScale.x);
-			Drag("Y##particle_emission_rate", particleSave.emissionShapeScale.y, settings.emissionShapeScale.y);
+			Drag_Vec("X##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.x, settings.emissionShapeScale);
+			Drag_Vec("Y##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.y, settings.emissionShapeScale);
 
 			DragRelease(ParticleSettings, particleSave.emissionShapeScale, settings.emissionShapeScale, "EmissionShapeScale");
 
@@ -944,15 +1003,15 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Velocity##particles"))
 		{
-			Drag("X##particles_init_velocity", particleSave.startingVelocity.x, settings.startingVelocity.x);
-			Drag("Y##particles_init_velocity", particleSave.startingVelocity.y, settings.startingVelocity.y);
+			Drag_Vec("X##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.x, settings.startingVelocity);
+			Drag_Vec("Y##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.y, settings.startingVelocity);
 
 			DragRelease(ParticleSettings, particleSave.startingVelocity, settings.startingVelocity, "StartingVelocity");
 
 			if (TreeNode("Variance##particles"))
 			{
-				Drag("X##particles_variance_velocity", particleSave.startingVelocityVariance.x, settings.startingVelocityVariance.x);
-				Drag("Y##particles_variance_velocity", particleSave.startingVelocityVariance.y, settings.startingVelocityVariance.y);
+				Drag_Vec("X##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.x, settings.startingVelocityVariance);
+				Drag_Vec("Y##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.y, settings.startingVelocityVariance);
 
 				DragRelease(ParticleSettings, particleSave.startingVelocityVariance, settings.startingVelocityVariance, "StartingVelocityVariance");
 
@@ -964,8 +1023,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Acceleration##particles"))
 		{
-			Drag("X##particles_acceleration", particleSave.acceleration.x, settings.acceleration.x);
-			Drag("Y##particles_acceleration", particleSave.acceleration.y, settings.acceleration.y);
+			Drag_Vec("X##particles_acceleration", particleSave.acceleration, settings.acceleration.x, settings.acceleration);
+			Drag_Vec("Y##particles_acceleration", particleSave.acceleration, settings.acceleration.y, settings.acceleration);
 
 			DragRelease(ParticleSettings, particleSave.acceleration, settings.acceleration, "Acceleration");
 
@@ -976,12 +1035,12 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		if (TreeNode("Scale Progression##particles"))
 		{
 			Text("Start");
-			Drag("X##particles_scale_start", particleSave.scaleOverTime.x, settings.scaleOverTime.x);
-			Drag("Y##particles_scale_start", particleSave.scaleOverTime.y, settings.scaleOverTime.y);
+			Drag_Vec("X##particles_scale_start", particleSave.scaleOverTime, settings.scaleOverTime.x, settings.scaleOverTime);
+			Drag_Vec("Y##particles_scale_start", particleSave.scaleOverTime, settings.scaleOverTime.y, settings.scaleOverTime);
 
 			Text("End");
-			Drag("X##particles_scale_end", particleSave.scaleOverTime.z, settings.scaleOverTime.z);
-			Drag("Y##particles_scale_end", particleSave.scaleOverTime.w, settings.scaleOverTime.w);
+			Drag_Vec("X##particles_scale_end", particleSave.scaleOverTime, settings.scaleOverTime.z, particleSave.scaleOverTime);
+			Drag_Vec("Y##particles_scale_end", particleSave.scaleOverTime, settings.scaleOverTime.w, particleSave.scaleOverTime);
 
 			DragRelease(ParticleSettings, particleSave.scaleOverTime, settings.scaleOverTime, "ScaleOverTime");
 
@@ -1010,20 +1069,20 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			if (TreeNode("Color##particles"))
 			{
 				Text("Start Color");
-				Drag("R##particles_startColor", particleSave.startColor.x, settings.startColor.x);
-				Drag("G##particles_startColor", particleSave.startColor.y, settings.startColor.y);
-				Drag("B##particles_startColor", particleSave.startColor.z, settings.startColor.z);
-				Drag("A##particles_startColor", particleSave.startColor.w, settings.startColor.w);
+				Drag_Vec("R##particles_startColor", particleSave.startColor, settings.startColor.x, settings.startColor);
+				Drag_Vec("G##particles_startColor", particleSave.startColor, settings.startColor.y, settings.startColor);
+				Drag_Vec("B##particles_startColor", particleSave.startColor, settings.startColor.z, settings.startColor);
+				Drag_Vec("A##particles_startColor", particleSave.startColor, settings.startColor.w, settings.startColor);
 
 				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
 
 				Separator();
 
 				Text("End Color");
-				Drag("R##particles_endColor", particleSave.endColor.x, settings.endColor.x);
-				Drag("G##particles_endColor", particleSave.endColor.y, settings.endColor.y);
-				Drag("B##particles_endColor", particleSave.endColor.z, settings.endColor.z);
-				Drag("A##particles_endColor", particleSave.endColor.w, settings.endColor.w);
+				Drag_Vec("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor);
+				Drag_Vec("G##particles_endColor", particleSave.endColor, settings.endColor.y, settings.endColor);
+				Drag_Vec("B##particles_endColor", particleSave.endColor, settings.endColor.z, settings.endColor);
+				Drag_Vec("A##particles_endColor", particleSave.endColor, settings.endColor.w, settings.endColor);
 
 				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
 
@@ -1053,20 +1112,20 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			if (TreeNode("Color##trail_particles"))
 			{
 				Text("Start Color");
-				Drag("R##particles_trail_startColor", particleSave.trailStartColor.x, settings.trailStartColor.x);
-				Drag("G##particles_trail_startColor", particleSave.trailStartColor.y, settings.trailStartColor.y);
-				Drag("B##particles_trail_startColor", particleSave.trailStartColor.z, settings.trailStartColor.z);
-				Drag("A##particles_trail_startColor", particleSave.trailStartColor.w, settings.trailStartColor.w);
+				Drag_Vec("R##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.x, settings.trailStartColor);
+				Drag_Vec("G##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.y, settings.trailStartColor);
+				Drag_Vec("B##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.z, settings.trailStartColor);
+				Drag_Vec("A##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.w, settings.trailStartColor);
 				
 				DragRelease(ParticleSystem, particleSave.trailStartColor, settings.trailStartColor, "TrailStartColor");
 
 				Separator();
 
 				Text("End Color");
-				Drag("R##particles_trail_endColor", particleSave.trailEndColor.x, settings.trailEndColor.x);
-				Drag("G##particles_trail_endColor", particleSave.trailEndColor.y, settings.trailEndColor.y);
-				Drag("B##particles_trail_endColor", particleSave.trailEndColor.z, settings.trailEndColor.z);
-				Drag("A##particles_trail_endColor", particleSave.trailEndColor.w, settings.trailEndColor.w);
+				Drag_Vec("R##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.x, settings.trailEndColor);
+				Drag_Vec("G##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.y, settings.trailEndColor);
+				Drag_Vec("B##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.z, settings.trailEndColor);
+				Drag_Vec("A##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.w, settings.trailEndColor);
 
 				DragRelease(ParticleSystem, particleSave.trailEndColor, settings.trailEndColor, "TrailEndColor");
 
