@@ -230,7 +230,7 @@ void RenderSystem::Update(float dt)
 	//End loop
 	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
 	glDisable(GL_BLEND);
-	//DebugGraphic::DrawAll();
+	DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
 }
 
