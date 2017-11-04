@@ -270,7 +270,7 @@ void Editor::Update()
 			if (rand() % 1000000 == 0)
 			{
 				extern const char *ErrorList[];
-				AddPopUp(PopUpWindow(ErrorList[0], 2.5f, PopUpPosition::Center));
+				AddPopUp(PopUpWindow(ErrorList[0], 5.0f, PopUpPosition::Center));
 			}
 		#endif
 
@@ -515,7 +515,6 @@ void Editor::UpdatePopUps(float dt)
 		ImGuiWindowFlags_NoInputs |
 		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_ShowBorders |
-		ImGuiWindowFlags_NoFocusOnAppearing |
 		ImGuiWindowFlags_NoScrollbar;
 
 
@@ -1021,19 +1020,17 @@ void Editor::MenuBar()
 
 	if (ImGui::BeginPopup("##menu_save_pop_up"))
 	{
-		char filename[128] = { 'S', 'a', 'v', 'e', 'D', 'a', 't', 'a', '.', 'j', 's', 'o', 'n' };
-
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", filename, 128);
+		ImGui::InputText("Filename", m_filename, 128);
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Save"))
 		{
-			engine->FileSave(filename);
+			engine->FileSave(m_filename);
 			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
-			save = false;
 			ImGui::CloseCurrentPopup();
 		}
+		save = false;
 		ImGui::EndPopup();
 	}
 
@@ -1049,9 +1046,9 @@ void Editor::MenuBar()
 		{
 			engine->FileLoad(m_filename);
 			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
-			load = false;
 			ImGui::CloseCurrentPopup();
 		}
+		load = false;
 		ImGui::EndPopup();
 	}
 

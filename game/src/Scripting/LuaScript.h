@@ -31,10 +31,6 @@ public:
 		lua_pop(m_L, 1);
 	}
 
-private:
-	// Puts the environment table for this script on the Lua stack.
-	void GetScriptEnvironment();
-
 	void SetScriptResource(Resource *resource);
 
 	void SetResourceID(ResourceID id);
@@ -43,6 +39,10 @@ private:
 	{
 		return m_resID;
 	}
+
+private:
+	// Puts the environment table for this script on the Lua stack.
+	void GetScriptEnvironment();
 
 	void UpdateThisObject();
 
