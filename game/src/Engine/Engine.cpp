@@ -78,19 +78,10 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
-#define GENERATE_SCENE 
-#ifdef GENERATE_SCENE 
 
 	m_spaces.AddSpace();
-	m_spaces.AddSpace();
-
 	// Initialize the system.
 	m_spaces[0]->Init();
-	m_spaces[1]->Init();
-
-
-	Resource *tex = m_resManager.Get("bird.png");
-
 
 	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
 	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
@@ -100,79 +91,50 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
+	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
 
-	// RigidBody and Collider Testing Objects
 
-	// object with velocity
-	GameObject asdf3 = m_spaces[0]->NewGameObject("Parent");
-	asdf3.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.25f, .25f, 1));
-	asdf3.AddComponent<SpriteComponent>(tex);
-	asdf3.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.1f, 0, 0));
-	asdf3.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
+	Resource *tex = m_resManager.Get("bird.png");
+	for (int i = 0; i < 3; ++i)
+	{
+		GameObject asdf3 = m_spaces[0]->NewGameObject("GodBox");
+		asdf3.AddComponent<TransformComponent>(glm::vec3(10000, 1, 1));
+		asdf3.AddComponent<SpriteComponent>(tex);
+	}
 
-	GameObject asdf2 = m_spaces[0]->NewGameObject("Parent");
-	asdf2.AddComponent<TransformComponent>(glm::vec3(1, 2, 1), glm::vec3(.25f, .25f, 1));
-	asdf2.AddComponent<SpriteComponent>(tex);
-	asdf2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.1f, 0, 0));
-	asdf2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::enemy, .5f);
+	for (int i = 0; i < 5; ++i)
+	{
+		const int WIDTH = 4;
 
-	// object with velocity
-	GameObject asdf1 = m_spaces[0]->NewGameObject("Parent");
-	asdf1.AddComponent<TransformComponent>(glm::vec3(-1, 1, 1), glm::vec3(.25f, .25f, 1));
-	asdf1.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	asdf1.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(.2f, 0, 0));
-	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
+		GameObject ground = m_spaces[0]->NewGameObject("Ground");
+		ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(i * WIDTH, -2, 0), glm::vec3(WIDTH, 1, 1)));
+		ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(Collider2D::colliderBox, glm::vec3(WIDTH, 1, 1)));
+		ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
+	}
 
-	// object with velocity
-	GameObject asdf4 = m_spaces[0]->NewGameObject("Parent");
-	asdf4.AddComponent<TransformComponent>(glm::vec3(2.5, 1, 1), glm::vec3(.25f, .25f, 1));
-	asdf4.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	asdf4.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.3f, 0, 0));
-	asdf4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player, 0);
-	
-	GameObject child = m_spaces[0]->NewGameObject("Child");
-	child.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
+	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
+	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.65, 1, 0));
+	player1.AddComponent<RigidBodyComponent>();
+	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(Collider2D::colliderBox, glm::vec3(0.45, 0.71, 0), collisionLayers::player));
+	player1.AddComponent<SpriteComponent>(m_resManager.Get("GnomeRed.png"));
+	player1.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player1));
 
-	// static colliders: box of cats
-	GameObject Brett_obj4 = m_spaces[0]->NewGameObject("Ground");
-	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(0, -1, -1), glm::vec3(10, .1, 1));
-	Brett_obj4.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj4.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::ground, 1, 0);
 
-	asdf1.AddComponent<ParticleSystem>();
-	asdf1.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 1));
-	asdf1.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
-	asdf1.GetComponent<ParticleSystem>()->SetScaleOverLife(glm::vec2(0.1f, 0.1f), glm::vec2(0, 0));
-	asdf1.GetComponent<ParticleSystem>()->SetColor(glm::vec4(1,0,0,0.5f), glm::vec4(1,1,0,0));
-	asdf1.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
-	asdf1.GetComponent<ParticleSystem>()->SetParticleLifetime(0.75f);
-	asdf1.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
-	asdf1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
-	asdf1.GetComponent<ParticleSystem>()->SetHasTrail(false);
-	asdf1.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
-	asdf1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
-	asdf1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1,0,0,0.5f), glm::vec4(1, 1, 0, 0));
-	asdf1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
-	asdf1.GetComponent<ParticleSystem>()->SetRotationRate(1);
-	asdf1.GetComponent<ParticleSystem>()->SetTexture(reinterpret_cast<Texture*>(m_resManager.Get("bird.png")->Data()));
-	//asdf1.GetComponent<ParticleSystem>()->SetSimulationSpace(SimulationSpace::LOCAL);
-
+	GameObject player2 = m_spaces[0]->NewGameObject("Player2");
+	player2.AddComponent<TransformComponent>(glm::vec3(1, 0, 0), glm::vec3(0.65, 1, 0));
+	player2.AddComponent<RigidBodyComponent>();
+	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(Collider2D::colliderBox, glm::vec3(0.45, 0.71, 0), collisionLayers::player));
+	player2.AddComponent<SpriteComponent>(m_resManager.Get("GnomeBlue.png"));
+	player2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player2));
 
 	GameObject background = m_spaces[0]->NewGameObject("Background");
-	background.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	background.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("sky.png")->Data()), BACKGROUND_PARALLAX);
+	background.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, 0), glm::vec2(50, 0), glm::vec2(0.5f, 1), glm::vec2(0, 0));
-
 	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
 	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	foreground.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("treeboy.png")->Data()), FOREGROUND_PARALLAX);
 	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, 0), glm::vec2(5, 0), glm::vec2(0.3f, 0.3f), glm::vec2(0, 0.7f));
-
-	this->FileSave("test_out.json");
-#else
-	this->FileLoad("test_out.json");
-	m_spaces[0]->Init();
-#endif
 }
 
 

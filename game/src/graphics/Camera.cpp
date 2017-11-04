@@ -25,7 +25,7 @@ Camera::Camera()
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
 
 	if (m_CurrActiveCamera == nullptr)
-		m_CurrActiveCamera = this;
+		Use();
 }
 
 

@@ -130,6 +130,18 @@ void GameObject::DeserializeObject(rapidjson::Value& jsonValue)
 	GameObjectDeserializeAssign(this, jsonValue);
 }
 
+GameObject GameObject::FindByName(const char * name)
+{
+	// TODO: Make this deal with multiple spaces.
+	for (auto& info : *engine->GetSpace(0)->GetComponentMap<ObjectInfo>())
+	{
+		if (info->m_name == name)
+		{
+			return GameObject(info->m_id);
+		}
+	}
+}
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
