@@ -36,7 +36,7 @@ int CollisionMasks[collisionLayers::numLayers] =
 };
 
 // set two layers to collide with each other
-void CollisionLayer_SetLayersColliding(collisionLayers layer1, collisionLayers layer2)
+void CollisionLayer_SetLayersColliding(int layer1, int layer2)
 {
 	int index1 = 0;
 	int index2 = 0;
@@ -61,7 +61,7 @@ void CollisionLayer_SetLayersColliding(collisionLayers layer1, collisionLayers l
 }
 
 // set two layers not to collide with each other
-void CollisionLayer_SetLayersNotColliding(collisionLayers layer1, collisionLayers layer2)
+void CollisionLayer_SetLayersNotColliding(int layer1, int layer2)
 {
 	int index1 = 0;
 	int index2 = 0;

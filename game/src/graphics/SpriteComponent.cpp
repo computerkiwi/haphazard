@@ -33,8 +33,7 @@ SpriteComponent::SpriteComponent(Resource *res)
 	else
 	{
 		// If no texture is given, display default texture (solid color)
-		SetTexture(GetDefaultTexture());
-		m_resID = INVALID_TEXTURE_ID;
+		SetTextureResource(engine->GetResourceManager().Get("default.png"));
 	}
 }
 
