@@ -91,6 +91,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
+	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
 
 
 	Resource *tex = m_resManager.Get("bird.png");

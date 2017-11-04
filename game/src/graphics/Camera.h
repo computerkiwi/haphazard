@@ -33,7 +33,7 @@ public:
 
 	void SetRotation(float degrees);
 
-	void SetZoom(float zoom) { m_Zoom = zoom; }
+	void SetZoom(float zoom) { m_Zoom = zoom;}
 	void SetAspectRatio(float ar) { m_AspectRatio = ar; }
 	void SetNearPlane(float near) { m_Near = near; }
 	void SetFarPlane(float far) { m_Far = far; }
@@ -81,6 +81,21 @@ private:
 	// Uniform buffer object location
 	GLuint m_MatricesUbo;
 
+	// For serialization.
+	bool IsActiveCam() const { return m_CurrActiveCamera == this; }
+
+	void SetIsActiveCam(bool isActive)
+	{
+		if (true)
+		{
+			this->Use();
+		}
+		else
+		{
+			// Don't bother doing anything if we set this to false.
+		}
+	}
+
 	META_REGISTER(Camera)
 	{
 		META_DefineType(Camera);
@@ -91,6 +106,8 @@ private:
 		META_DefineGetterSetter(Camera, float, GetAspectRatio, SetAspectRatio, "aspectRatio");
 		META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
 		META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
+
+		META_DefineGetterSetter(Camera, bool, IsActiveCam, SetIsActiveCam, "isActiveCam");
 
 	}
 };

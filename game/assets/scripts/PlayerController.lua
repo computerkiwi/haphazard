@@ -1,3 +1,9 @@
+--[[
+FILE: PlayerController.lua
+PRIMARY AUTHOR: Kieran
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]
 
 STACK_HEIGHT = 0.5
 
@@ -112,9 +118,10 @@ function UnstackedUpdate(dt)
 		tempVel.x = 0
 	end
 	
-	if (IsPressed(KEY_JUMP)) --SPACE
+	if (IsPressed(KEY_JUMP) and grounded) --SPACE
 	then
 		tempVel.y = jumpSpeed
+		grounded = false
 	end
 	
 	rBody.velocity = tempVel
@@ -145,9 +152,11 @@ function OnCollisionEnter(collidedObject)
 	local thisPos  = thisTransform.position;
 	local otherPos = otherTransform.position;
 
-	if(collidedObject:GetName() == otherPlayerName and not stacked)
+	local collName = collidedObject:GetName()
+	
+	if(collName == otherPlayerName and not stacked)
 	then
-		if thisPos.y > otherPos.y
+		if (thisPos.y > otherPos.y)
 		then
 			stacked = true
 			stackedObj = collidedObject
@@ -160,6 +169,8 @@ function OnCollisionEnter(collidedObject)
 				thisTransform.zLayer = otherTransform.zLayer - 1
 			end
 		end
-
+	elseif (collName == "Ground")
+	then
+		grounded = true
 	end
 end

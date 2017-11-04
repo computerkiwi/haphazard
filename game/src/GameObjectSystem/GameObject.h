@@ -99,6 +99,8 @@ public:
 	rapidjson::Value SerializeObject(rapidjson::Document::AllocatorType& allocator) const;
 	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
 
+	static GameObject FindByName(const char *name);
+
 private:
 	union
 	{
@@ -131,8 +133,12 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<StaticCollider2DComponent>, "GetStaticCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>, "GetSprite");
+		META_DefineFunction(GameObject, GetComponentPointer<Camera>, "GetCamera");
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
+
+		// TODO: Make this use the meta function.
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();
 	}
 };
