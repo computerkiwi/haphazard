@@ -147,6 +147,7 @@ bool dragClicked = false;
 TransformComponent transformSave;
 RigidBodyComponent rigidBodySave;
 Collider2D         colliderSave;
+
 ParticleSettings   particleSave;
 
 
@@ -261,10 +262,12 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (BeginPopup("Components"))
 		{
 
+			#define	COMPONENT_BUTTON_SIZE ImVec2(120, 0)
+
 			// Everything has a transform
 			// Everything is going to have a data component
-			
-			if (Button("Sprite"))
+
+			if (Button("Sprite", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<SpriteComponent>().IsValid())
 				{
@@ -275,7 +278,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<SpriteComponent>();
 				}
 			}
-			else if (Button("Particle System"))
+			if (Button("Particle System", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<ParticleSystem>().IsValid())
 				{
@@ -286,7 +289,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<ParticleSystem>();
 				}
 			}
-			else if (Button("RigidBody"))
+			Separator();
+			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<RigidBodyComponent>().IsValid())
 				{
@@ -297,7 +301,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					object.AddComponent<RigidBodyComponent>();
 				}
 			}
-			else if (Button("Dynamic Collider"))
+			if (Button("Dynamic Collider", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 				{
@@ -320,7 +324,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 				}
 			}
-			else if (Button("Static Collider"))
+			if (Button("Static Collider", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
 				{
@@ -338,7 +342,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 				}
 			}
-			else if (Button("Script"))
+			Separator();
+			if (Button("Script", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<ScriptComponent>().IsValid())
 				{
@@ -460,9 +465,10 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 
 		if (BeginPopup("##object_info_tags"))
 		{
+			PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
 			for (auto& tag : info->m_tags)
 			{
-				if (Button("x##object_info_remove_tag"))
+				if (Button("X##object_info_remove_tag", ImVec2(25, 0)))
 				{
 					info->m_tags.erase(tag.first);
 					break;
@@ -470,6 +476,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 				SameLine();
 				Text(tag.second.c_str());
 			}
+			PopStyleVar();
 
 			EndPopup();
 		}
@@ -487,6 +494,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 			if (InputText("Tag", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				info->AddTag(buffer);
+				CloseCurrentPopup();
 			}
 
 			EndPopup();
@@ -593,6 +601,8 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 
 		if (Button("Remove##rigidbody"))
 		{
+			// rigidBodySave = *rb;
+			// editor->Push_Action({ rigidBodySave, *rb, "RigidBody", handle, Action_General<RigidBodyComponent, RigidBodyComponent> });
 			object.DeleteComponent<RigidBodyComponent>();
 
 			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
@@ -835,30 +845,68 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 }
 
 
+bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
+{
+	for (auto& script : scripts)
+	{
+		if (script.GetResourceID() == resource)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
 	{
+		ResourceManager& rm = engine->GetResourceManager();
+		std::vector<Resource *> scripts = rm.GetResourcesOfType(ResourceType::SCRIPT);
+
 		if (Button("Remove##script"))
 		{
 			object.DeleteComponent<ScriptComponent>();
 			return;
 		}
-		char buffer[2048];
-		if (InputText("", buffer, 2048, ImGuiInputTextFlags_EnterReturnsTrue))
+		Separator();
+		if (Button("Add##script"))
 		{
-			SameLine();
-			if (Button("Add##script"))
-			{
-				script_c->scripts.emplace_back(LuaScript(engine->GetResourceManager().Get(buffer), object));
-			}
+			OpenPopup("##script_add_script");
 		}
 
-		for (auto& script : script_c->scripts)
+		if (BeginPopup("##script_add_script"))
 		{
-			(void)script;
-			Text("SomeDrive:/Folder/Wow/Harambe/scripts/die.lua");
+			for (auto& script : scripts)
+			{
+				if (!ObjectHasScript(script->Id(), script_c->scripts))
+				{
+					if (Selectable(script->FileName().c_str()))
+					{
+						script_c->scripts.emplace_back(LuaScript(script, object));
+					}
+				}
+			}
+
+			EndPopup();
 		}
+
+		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
+		for (int i = 0; i < script_c->scripts.size(); i++)
+		{
+			LuaScript& script = script_c->scripts[i];
+			
+			if (Button("X##script_remove_script", ImVec2(25, 0)))
+			{
+				script_c->scripts.erase(script_c->scripts.begin() + i);
+				break;
+			}
+			SameLine();
+
+			Text(rm.Get(script.GetResourceID())->FileName().c_str());
+		}
+		PopStyleVar();
 	}
 }
 
@@ -886,6 +934,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (Button("Remove##particles"))
 		{
+
 			object.DeleteComponent<ParticleSystem>();
 			return;
 		}
