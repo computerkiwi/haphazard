@@ -18,6 +18,8 @@ class Collider2D;
 class ParticleSystem;
 struct ScriptComponent;
 
+class Camera;
+
 #define MAX_SELECT 10
 
 void ImGui_GameObject(GameObject object, Editor *editor);
@@ -30,3 +32,5 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor);
 void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
+void ImGui_Camera(Camera *camera, Editor *editor);
+

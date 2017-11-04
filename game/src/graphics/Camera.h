@@ -10,6 +10,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "GL\glew.h"
 #include <glm/glm.hpp>
 
+class Editor;
+
 class Camera
 {
 public:
@@ -56,6 +58,8 @@ public:
 	void OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis); // Rotates around center
 
 private:
+	friend void ImGui_Camera(Camera *camera, Editor *editor);
+
 	void ApplyCameraMatrices();
 
 	// Private getters for meta purposes.

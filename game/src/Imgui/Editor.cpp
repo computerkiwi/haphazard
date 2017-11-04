@@ -32,6 +32,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "graphics\DebugGraphic.h"
 
+#include <Windows.h>
+#include <psapi.h>
 
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
@@ -234,11 +236,16 @@ void Editor::Update()
 		MenuBar();
 
 		// Render the console
+		if (m_show_settings)
+		{
+			SettingsPanel(1 / 60.0f);
+		}
+		
 		if (m_show_console)
 		{
 			Console();
 		}
-		
+
 		if (Input::IsPressed(Key::Y))
 		{
 			m_tool = Editor::Tool::Translation;
@@ -937,21 +944,18 @@ void Editor::ToggleEditor()
 
 void Editor::MenuBar()
 {
-	static bool save = false;
-	static bool load = false;
-
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				save = true;
+				m_save = true;
 			}
 
 			if (ImGui::MenuItem("Load"))
 			{
-				load = true;
+				m_load = true;
 			}
 
 			ImGui::EndMenu();
@@ -985,34 +989,42 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Settings"))
+		if (ImGui::Button("Settings"))
 		{
-			if (ImGui::MenuItem("Play/Pause"))
-			{
-				m_freeze_time = !m_freeze_time;
-			}
-
-			if (ImGui::MenuItem("Editor Settings"))
-			{
-				AddPopUp(PopUpWindow("Coming Soon! Bug me about it!", 1.5f, PopUpPosition::Mouse));
-			}
-
-			ImGui::EndMenu();
+			m_show_settings = !m_show_settings;
 		}
 
-		if (ImGui::Button("Console"))
-		{
-			m_show_console = !m_show_console;
-		}
+		SaveLoad();
 
 		ImGui::EndMainMenuBar();
 	}
 
-	if (save)
+}
+
+
+static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
+{
+	static unsigned long long _previousTotalTicks = 0;
+	static unsigned long long _previousIdleTicks = 0;
+
+	unsigned long long totalTicksSinceLastTime = totalTicks - _previousTotalTicks;
+	unsigned long long idleTicksSinceLastTime = idleTicks - _previousIdleTicks;
+
+	float ret = 1.0f - ((totalTicksSinceLastTime > 0) ? ((float)idleTicksSinceLastTime) / totalTicksSinceLastTime : 0);
+
+	_previousTotalTicks = totalTicks;
+	_previousIdleTicks = idleTicks;
+	return ret;
+}
+
+
+void Editor::SaveLoad()
+{
+	if (m_save)
 	{
 		ImGui::OpenPopup("##menu_save_pop_up");
 	}
-	else if (load)
+	else if (m_load)
 	{
 		ImGui::OpenPopup("##menu_load_pop_up");
 	}
@@ -1030,14 +1042,12 @@ void Editor::MenuBar()
 			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
 			ImGui::CloseCurrentPopup();
 		}
-		save = false;
+		m_save = false;
 		ImGui::EndPopup();
 	}
 
 	if (ImGui::BeginPopup("##menu_load_pop_up"))
 	{
-		
-
 		ImGui::PushItemWidth(180);
 		ImGui::InputText("Filename", m_filename, 128);
 		ImGui::PopItemWidth();
@@ -1048,10 +1058,77 @@ void Editor::MenuBar()
 			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
 			ImGui::CloseCurrentPopup();
 		}
-		load = false;
+		m_load = false;
 		ImGui::EndPopup();
 	}
+}
 
+
+static unsigned long long FileTimeToInt64(const FILETIME & ft) 
+{
+	return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime); 
+}
+
+// Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
+// You'll need to call this at regular intervals, since it measures the load between
+// the previous call and the current one.  Returns -1.0 on error.
+float GetCPULoad()
+{
+	FILETIME idleTime, kernelTime, userTime;
+	return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;
+}
+
+
+void Editor::SettingsPanel(float dt)
+{
+	using namespace ImGui;
+	static float timer = 0.0f;
+	static float CPU = GetCPULoad() * 100.0f;
+
+	SetNextWindowSize(ImVec2(250, 400));
+	Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
+
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+	SIZE_T virtualMemUsedByMe = pmc.WorkingSetSize;
+
+	Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
+	Text("CPU: %f%%", m_cpu_load[0]);
+
+	PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
+
+	timer += dt;
+	if (timer > 0.25f)
+	{
+		m_cpu_load.push_back_pop_front(GetCPULoad() * 100.0f);
+		if (m_cpu_peak < m_cpu_load[m_cpu_load.m_size - 1])
+		{
+			m_cpu_peak = m_cpu_load[m_cpu_load.m_size - 1];
+		}
+		timer = 0.0f;
+	}
+
+	if (Button("Save##editor_settings"))
+	{
+		m_save = true;
+	}
+	SameLine();
+	if (Button("Load##editor_settings"))
+	{
+		m_load = true;
+	}
+
+	if (Button("Play/Pause##editor_panel"))
+	{
+		m_freeze_time = !m_freeze_time;
+	}
+	SameLine();
+	if (ImGui::Button("Console"))
+	{
+		m_show_console = !m_show_console;
+	}
+
+	End();
 }
 
 

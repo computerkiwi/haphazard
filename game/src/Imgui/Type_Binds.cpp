@@ -15,6 +15,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "graphics\Particles.h"
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
+#include "graphics\Camera.h"
 
 #include "graphics\DebugGraphic.h"
 
@@ -149,6 +150,25 @@ RigidBodyComponent rigidBodySave;
 Collider2D         colliderSave;
 
 ParticleSettings   particleSave;
+
+struct CameraSave
+{
+	//View matrix
+	glm::vec3 m_Position = glm::vec3(0, 0, 5.0f);
+	glm::vec3 m_Center = glm::vec3(0, 0, 0);
+	glm::vec3 m_Up = glm::vec3(0, 1, 0);
+
+	float m_Rotation = 0;
+
+	//Projection matrix
+	float m_Zoom = 3.0f;
+	float m_AspectRatio;
+	float m_Near = 1.0f;
+	float m_Far = 10.0f;
+
+	// Uniform buffer object location
+	GLuint m_MatricesUbo;
+} cameraSave;
 
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
@@ -1140,4 +1160,11 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 }
 
 
-
+void ImGui_Camera(Camera *camera, Editor *editor)
+{
+	if (CollapsingHeader("Camera"))
+	{
+		Drag_Vec("X##camear_position", cameraSave.m_Position, camera->m_Position.x, camera->m_Position);
+		Drag_Vec("Y##camear_position", cameraSave.m_Position, camera->m_Position.y, camera->m_Position);
+	}
+}

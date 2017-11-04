@@ -46,9 +46,25 @@ struct Array
 		return &object;
 	}
 
+	void push_back_pop_front(T&& object)
+	{
+
+		for (size_t i = size - 1; i > 0; --i)
+		{
+			m_array[i - 1] = m_array[i];
+		}
+
+		m_array[size - 1] = object;
+	}
+
 	void pop()
 	{
 		--m_size;
+	}
+
+	size_t capacity()
+	{
+		return size;
 	}
 
 	void clear()

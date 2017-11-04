@@ -85,6 +85,11 @@ class Editor
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
+	// System
+	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
+	float m_cpu_peak = 0.0f;
+	bool m_show_settings = false;
+
 	// Engine
 	Engine *m_engine;
 	bool m_show_editor;
@@ -164,6 +169,11 @@ private:
 	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
+	void SaveLoad();
+
+	void MenuBar();
+	void SettingsPanel(float dt);
+	void Console();
 
 	void OnClick();
 
@@ -194,7 +204,5 @@ public:
 
 	void Tools();
 
-	void MenuBar();
-	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };
