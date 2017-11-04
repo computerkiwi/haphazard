@@ -379,7 +379,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		}
 
 
-		if (Button("Add"))
+		if (Button("Add Component"))
 		{
 			OpenPopup("Components");
 		}
