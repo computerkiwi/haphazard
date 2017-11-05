@@ -58,6 +58,44 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 	}
 }
 
+
+template <class Component>
+void Action_DeleteComponent(EditorAction& a)
+{
+	ComponentHandle<Component> handle(a.handle);
+
+	if (a.redo)
+	{
+		handle.GetGameObject().DeleteComponent<Component>();
+	}
+	else
+	{
+		handle.GetGameObject().AddComponent<Component>(a.save.GetData<Component>());
+	}
+}
+
+
+//template <>
+//void Action_DeleteComponent<RigidBodyComponent>(EditorAction& a)
+//{
+//	ComponentHandle<RigidBodyComponent> handle(a.handle);
+//	GameObject object = handle.GetGameObject();
+//	if (a.redo)
+//	{
+//		// We are using a.current to save a whether the object had a dynamic collider as well.
+//		if (a.current.GetData<bool>() == true)
+//		{
+//			object.DeleteComponent<DynamicCollider2DComponent>();
+//		}
+//		handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
+//	}
+//	else
+//	{
+//		handle.GetGameObject().AddComponent<RigidBodyComponent>(a.save.GetData<RigidBodyComponent>());
+//	}
+//}
+
+
 enum ErrorIndex
 {
 	FailedToStartEditor = 1,
@@ -89,7 +127,7 @@ bool dragClicked = false;
 
 #define Drag_Key Key::Mouse_1
 
-#define Drag(NAME, SAVE, ITEM)																					 \
+#define Drag(NAME, SAVE, ITEM)																				 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
 		if (dragClicked == false)																			 \
@@ -99,18 +137,18 @@ bool dragClicked = false;
 		}																									 \
 	}																										 
 
-#define Drag_Vec(NAME, SAVE, ITEM, VEC)																					 \
+#define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
 		if (dragClicked == false)																			 \
 		{																									 \
-			SAVE = VEC;																					 \
+			SAVE = VEC;																						 \
 			dragClicked = true;																				 \
 		}																									 \
 	}
 
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))													 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
 	{																										 \
 		if (dragClicked == false)																			 \
 		{																									 \
@@ -119,7 +157,7 @@ bool dragClicked = false;
 		}																									 \
 	}
 
-#define Drag_Int(NAME, SAVE, ITEM)																					 \
+#define Drag_Int(NAME, SAVE, ITEM)																			 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
 		if (dragClicked == false)																			 \
@@ -129,18 +167,28 @@ bool dragClicked = false;
 		}																									 \
 	}
 
+#define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
+	{																										 \
+		if (dragClicked == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			dragClicked = true;																				 \
+		}																									 \
+	}
+
 #define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
-	if (Input::IsReleased(Drag_Key) && dragClicked == true)																	 \
+	if (Input::IsReleased(Drag_Key) && dragClicked == true)													 \
 	{																										 \
 		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
 		dragClicked = false;																				 \
 	}
 
 
-#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)														 \
-	if (Input::IsReleased(Key::A))																	 \
+#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
+	if (Input::IsReleased(Key::A))																			 \
 	{																										 \
-		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });  \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
 		dragClicked = false;																				 \
 	}
 
@@ -521,6 +569,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 			if (InputText("Tag", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				info->AddTag(buffer);
+				editor->AddPopUp(PopUpWindow("Tag Added.", 1.0f, PopUpPosition::Mouse));
 				CloseCurrentPopup();
 			}
 
@@ -575,7 +624,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (TreeNode("Position"))
 		{
-			
 			if (transform->GetParent())
 			{
 				bool x_click = false;
@@ -628,16 +676,16 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 
 		if (Button("Remove##rigidbody"))
 		{
-			// rigidBodySave = *rb;
-			// editor->Push_Action({ rigidBodySave, *rb, "RigidBody", handle, Action_General<RigidBodyComponent, RigidBodyComponent> });
-			object.DeleteComponent<RigidBodyComponent>();
-
+			//bool hasDynCollider = false;
 			if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
 			{
-				object.AddComponent<StaticCollider2DComponent>(object.GetComponent<DynamicCollider2DComponent>().Get());
 				object.DeleteComponent<DynamicCollider2DComponent>();
-				editor->AddPopUp(PopUpWindow("Converted to Static Collider.", 1.5f, PopUpPosition::Mouse));
+				//hasDynCollider = true;
+				editor->AddPopUp(PopUpWindow("Removed Dynamic Collider.", 1.5f, PopUpPosition::Mouse));
 			}
+
+			editor->Push_Action({ *rb, 0, nullptr, handle, Action_DeleteComponent<RigidBodyComponent> });
+			object.DeleteComponent<RigidBodyComponent>();
 			return;
 		}
 
@@ -684,6 +732,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		EditorComponentHandle handle = { object.Getid(), true };
 		if (Button("Remove##sprite"))
 		{
+			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
 			object.DeleteComponent<SpriteComponent>();
 			return;
 		}
@@ -736,10 +785,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		{
 			if (collider->isStatic())
 			{
+				editor->Push_Action({ *collider, 0, nullptr, handle, Action_DeleteComponent<StaticCollider2DComponent> });
 				object.DeleteComponent<StaticCollider2DComponent>();
 			}
 			else
 			{
+				editor->Push_Action({ *collider, 0, nullptr, handle, Action_DeleteComponent<DynamicCollider2DComponent> });
 				object.DeleteComponent<DynamicCollider2DComponent>();
 			}
 			return;
@@ -786,8 +837,6 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				dragClicked = false;																				 
 			}
 
-			
-
 			TreePop();
 			Separator();
 		}
@@ -795,7 +844,6 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		{
 			Drag_Vec("X##collider_offset", colliderSave.m_offset, collider->m_offset.x, collider->m_offset);
 			Drag_Vec("Y##collider_offset", colliderSave.m_offset, collider->m_offset.y, collider->m_offset);
-
 
 			if (Input::IsReleased(Drag_Key))
 			{
@@ -889,11 +937,13 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
 	{
+		EditorComponentHandle handle = { object.Getid(), true };
 		ResourceManager& rm = engine->GetResourceManager();
 		std::vector<Resource *> scripts = rm.GetResourcesOfType(ResourceType::SCRIPT);
 
 		if (Button("Remove##script"))
 		{
+			editor->Push_Action({ *script_c, 0, nullptr, handle, Action_DeleteComponent<ScriptComponent> });
 			object.DeleteComponent<ScriptComponent>();
 			return;
 		}
@@ -946,6 +996,7 @@ const char * const EmissionShape_Names[] =
 	"Square Volume"
 };
 
+
 const char * const SimulationSpace_Names[] =
 {
 	"World",
@@ -961,21 +1012,20 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (Button("Remove##particles"))
 		{
-
+			editor->Push_Action({ *particles, 0, nullptr, handle, Action_DeleteComponent<ParticleSystem> });
 			object.DeleteComponent<ParticleSystem>();
 			return;
 		}
 
 		ParticleSettings& settings = particles->m_settings;
 		
-		// PushItemWidth(115);
-		
 		Checkbox("Looping", &settings.isLooping);
 		
 		Drag("Rate##particles", particleSave.emissionRate, settings.emissionRate);
 		DragRelease(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate");
 
-		DragInt("Count", &settings.particlesPerEmission, 0.25f);
+		Drag_Int_Speed("Count", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.25f);
+		DragRelease(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission");
 
 		Drag_Int("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission);
 		if (settings.particlesPerEmission < 0)
@@ -1162,7 +1212,6 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Separator();
 			TreePop();
 		}
-		// PopItemWidth();
 	}
 }
 

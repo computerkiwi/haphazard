@@ -625,15 +625,15 @@ void Editor::PrintObjects()
 		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
 		// Save the buffer based off name size, max name size is 8
-		if (name.size() > 8)
+		if (name.size() > 10)
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 		else
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
 		// Multiselect with Left Control + LClick
@@ -1145,6 +1145,18 @@ void Editor::SettingsPanel(float dt)
 	if (ImGui::Button("Console"))
 	{
 		m_show_console = !m_show_console;
+	}
+
+	if (ImGui::Button("Style Editor"))
+	{
+		OpenPopup("##editor_settings_style");
+	}
+
+	if (ImGui::BeginPopup("##editor_settings_style"))
+	{
+		ImGui::ShowStyleEditor();
+
+		EndPopup();
 	}
 
 	End();
