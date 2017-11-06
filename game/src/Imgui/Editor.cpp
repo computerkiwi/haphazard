@@ -1102,7 +1102,6 @@ void Editor::SettingsPanel(float dt)
 {
 	using namespace ImGui;
 	static float timer = 0.0f;
-	static float CPU = GetCPULoad() * 100.0f;
 
 	SetNextWindowSize(ImVec2(250, 400));
 	Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
