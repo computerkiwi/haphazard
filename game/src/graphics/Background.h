@@ -32,7 +32,7 @@ private:
 	glm::vec2 m_SubTextureSize = glm::vec2(0.1f,1);
 	glm::vec2 m_SubTexturePosition = glm::vec2(0, 0);
 	glm::vec2 m_TextureXRange = glm::vec2(0,1);
-	glm::vec2 m_TextureYRange = glm::vec2(0,0);
+	glm::vec2 m_TextureYRange = glm::vec2(1,0);
 
 	// Uniform Locations
 	static GLuint m_UniTexBox;

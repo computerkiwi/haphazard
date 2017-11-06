@@ -25,9 +25,6 @@ static bool resizeCameras = false;
 static int width;
 static int height;
 
-BackgroundComponent* bg;
-BackgroundComponent* bg1;
-
 RenderSystem::RenderSystem()
 {
 }
@@ -36,13 +33,6 @@ void RenderSystem::Init()
 {
 	Screen::InitScreen();
 	Font::InitFonts();
-
-	
-	bg = new BackgroundComponent(reinterpret_cast<Texture*>(engine->GetResourceManager().Get("sky.png")->Data()), BACKGROUND_PARALLAX);
-	bg->SetParallax(glm::vec2(0, 0), glm::vec2(50, 0), glm::vec2(0.5f, 1), glm::vec2(0,0));
-
-	bg1 = new BackgroundComponent(reinterpret_cast<Texture*>(engine->GetResourceManager().Get("treeboy.png")->Data()), BACKGROUND_PARALLAX);
-	bg1->SetParallax(glm::vec2(0, 0), glm::vec2(5, 0), glm::vec2(0.3f, 0.3f), glm::vec2(0,0.7f));
 //	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
 //	Screen::GetView().AddEffect(FX::BLOOM);
 //	Screen::GetView().SetBlurAmount(0.9f);

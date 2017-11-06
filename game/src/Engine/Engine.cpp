@@ -130,11 +130,12 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject background = m_spaces[0]->NewGameObject("Background");
 	background.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("sky.png")->Data()), BACKGROUND_PARALLAX);
 	background.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
-	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, 0), glm::vec2(50, 0), glm::vec2(0.5f, 1), glm::vec2(0, 0));
+	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -25), glm::vec2(50, 25), glm::vec2(0.5f, 1.0f), glm::vec2(0, 0));
+
 	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
 	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	foreground.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("treeboy.png")->Data()), FOREGROUND_PARALLAX);
-	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, 0), glm::vec2(5, 0), glm::vec2(0.3f, 0.3f), glm::vec2(0, 0.7f));
+	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(-2.5f, -1), glm::vec2(2.5f, 5), glm::vec2(0.5f, 1.0f), glm::vec2(0, 0.0f));
 }
 
 
