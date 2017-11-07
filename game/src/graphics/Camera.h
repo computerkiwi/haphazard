@@ -45,6 +45,7 @@ public:
 	glm::vec2 GetPosition() const { return glm::vec2(m_Position.x, m_Position.y); }
 	float GetRotation() const { return m_Rotation; }
 	float GetZoom() const { return m_Zoom; }
+	float GetAspectRatio() const { return m_AspectRatio; }
 
 	static Camera* GetActiveCamera() { return m_CurrActiveCamera; }
 
@@ -59,7 +60,6 @@ private:
 	void ApplyCameraMatrices();
 
 	// Private getters for meta purposes.
-	float GetAspectRatio() const { return m_AspectRatio; }
 	float GetNearPlane() const { return m_Near; }
 	float GetFarPlane() const { return m_Far; }
 

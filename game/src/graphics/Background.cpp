@@ -1,6 +1,7 @@
 #include "GL\glew.h"
 #include "Background.h"
 #include "Shaders.h"
+#include "Camera.h"
 
 GLuint BackgroundComponent::m_UniTexBox = 0;
 GLuint BackgroundComponent::m_UniTexLayer = 0;
@@ -69,7 +70,7 @@ void BackgroundComponent::Render(glm::vec2 pos)
 
 		// Upper bound (lower + offset)
     glm::vec2 u = glm::vec2(t.x * m_SubTextureSize.x + l.x,
-                            t.y * m_SubTextureSize.y + l.y);
+                            t.y * m_SubTextureSize.y / Camera::GetActiveCamera()->GetAspectRatio() + l.y);
 
 		box.x = l.x + m_SubTexturePosition.x * t.x; // Lower x (Left)
 		box.y = l.y - (1 - m_SubTexturePosition.y) * t.y; // Lower y (Bottom)
