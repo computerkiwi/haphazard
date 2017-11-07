@@ -163,8 +163,6 @@ void Engine::Update()
 
 	Input::Update();
 
-  Input::InputDebug(Key::A, Key::B, Key::A);
-
 	Audio::Update();
 
 	if (Input::IsPressed(Key::GraveAccent))
