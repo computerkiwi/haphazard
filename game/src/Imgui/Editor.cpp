@@ -293,12 +293,18 @@ void Editor::KeyBindings()
 {
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
 	{
-		Undo_Action();
+		if (m_actions.size)
+		{
+			Undo_Action();
+		}
 	}
 
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
 	{
-		Redo_Action();
+		if (m_actions.history.size() > m_actions.size)
+		{
+			Redo_Action();
+		}
 	}
 }
 
@@ -681,7 +687,7 @@ void Editor::ObjectsList()
 
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
-		static char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
 		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
@@ -690,6 +696,8 @@ void Editor::ObjectsList()
 			object.AddComponent<TransformComponent>();
 
 			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
 		}
 
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
@@ -702,6 +710,8 @@ void Editor::ObjectsList()
 			object.AddComponent<TransformComponent>();
 
 			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
 		}
 
 		ImGui::EndPopup();
@@ -1045,7 +1055,7 @@ void Editor::SaveLoad()
 	if (ImGui::BeginPopup("##menu_save_pop_up"))
 	{
 		ImGui::PushItemWidth(180);
-		if (ImGui::InputText("Filename", m_filename, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			engine->FileSave(m_filename);
 			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
@@ -1066,7 +1076,7 @@ void Editor::SaveLoad()
 	if (ImGui::BeginPopup("##menu_load_pop_up"))
 	{
 		ImGui::PushItemWidth(180);
-		if (ImGui::InputText("Filename", m_filename, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			engine->FileLoad(m_filename);
 			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
@@ -1310,7 +1320,7 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, 512, flags, Input_Editor, this))
+	if (ImGui::InputText("", command_buffer, sizeof(command_buffer), flags, Input_Editor, this))
 	{
 		// Get the line data and save it for parameters
 		m_line = command_buffer;

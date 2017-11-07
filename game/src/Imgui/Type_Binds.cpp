@@ -70,30 +70,9 @@ void Action_DeleteComponent(EditorAction& a)
 	}
 	else
 	{
-		handle.GetGameObject().AddComponent<Component>(a.save.GetData<Component>());
+		handle.GetGameObject().AddComponent<Component>(std::move(a.save.GetData<Component>()));
 	}
 }
-
-
-//template <>
-//void Action_DeleteComponent<RigidBodyComponent>(EditorAction& a)
-//{
-//	ComponentHandle<RigidBodyComponent> handle(a.handle);
-//	GameObject object = handle.GetGameObject();
-//	if (a.redo)
-//	{
-//		// We are using a.current to save a whether the object had a dynamic collider as well.
-//		if (a.current.GetData<bool>() == true)
-//		{
-//			object.DeleteComponent<DynamicCollider2DComponent>();
-//		}
-//		handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
-//	}
-//	else
-//	{
-//		handle.GetGameObject().AddComponent<RigidBodyComponent>(a.save.GetData<RigidBodyComponent>());
-//	}
-//}
 
 
 enum ErrorIndex
@@ -315,7 +294,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		{
 			char name_buffer[128] = { 0 };
 			
-			if (InputText("Edit Name", name_buffer, 128, ImGuiInputTextFlags_EnterReturnsTrue))
+			if (InputText("Edit Name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
 				CloseCurrentPopup();
