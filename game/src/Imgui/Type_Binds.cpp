@@ -491,12 +491,14 @@ void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *e
 //
 // Component ImGui stuff
 // ----------------------
-
+// Binds the imgui function calls to the ObjectInfo Component
 void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 {
 	if (info)
 	{
 		Separator();
+
+		// Display the ID and make the name clickable for editing
 		Text("ID: %d | ", info->m_id & 0xFFFFFF);
 
 		SameLine();
@@ -507,6 +509,7 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 
 		if (Button("Tags"))
 		{
+			// Check if we have tags
 			if (info->m_tags.size())
 			{
 				OpenPopup("##object_info_tags");
@@ -560,8 +563,10 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 #define SLIDER_STEP 0.01f
 #define ID_MASK 0xFFFFFF
 
+// Binds the imgui function calls to the Transform Component
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
+	// Draws the Selection Box
 	glm::vec2 scale(transform->GetScale());
 	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), 0, glm::vec4(0,1,0,1));
 	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
@@ -646,6 +651,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 }
 
 
+// Binds the imgui function calls to the RigidBody Component
 void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("RigidBody"))
@@ -704,6 +710,7 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 }
 
 
+// Binds the imgui function calls to the Sprite Component
 void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Sprite"))
@@ -755,6 +762,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 }
 
 
+// Binds the imgui function calls to the Collider Component
 void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Collider"))
@@ -912,6 +920,7 @@ bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
 }
 
 
+// Binds the imgui function calls to the Script Component
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
@@ -982,7 +991,7 @@ const char * const SimulationSpace_Names[] =
 	"Local"
 };
 
-
+// Binds the imgui function calls to the Particles Component
 void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor)
 {
 	if (CollapsingHeader("Particle System"))

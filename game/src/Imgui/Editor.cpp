@@ -360,7 +360,7 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 // Adds an action to the history
 //   Order is Old Value, New Value, Field Name, handle to component, action function
-void Editor::Push_Action(EditorAction&& a)
+void Editor::Push_Action(EditorAction&& action)
 {
 	// Size keeps track of the number of actions
 	if (m_actions.size)
@@ -368,20 +368,21 @@ void Editor::Push_Action(EditorAction&& a)
 		// Check if any undo has been done
 		if (m_actions.size == m_actions.history.size())
 		{
-			m_actions.history.emplace_back(a);
+			m_actions.history.emplace_back(action);
 			m_actions.size = m_actions.history.size();
 		}
 		else
 		{
 			// We need to catch back up to the actual size
-			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, action);
 			++m_actions.size;
 		}
 	}
 	else
 	{
 		// Zero actions saved, so just start at the beginning
-		m_actions.history.emplace(m_actions.history.begin(), a);
+		m_actions.history.clear();
+		m_actions.history.emplace(m_actions.history.begin(), action);
 		++m_actions.size;
 	}
 }

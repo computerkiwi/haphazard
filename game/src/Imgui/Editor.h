@@ -17,6 +17,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "meta\meta.h"
 
+#include "graphics\Camera.h"
+
 class Engine;
 class TransformComponent;
 struct GLFWwindow;
@@ -84,6 +86,9 @@ class Editor
 {
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
+
+	// Editor
+	Camera m_editor_cam;
 
 	// System
 	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
