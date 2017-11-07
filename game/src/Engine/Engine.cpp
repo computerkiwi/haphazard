@@ -106,27 +106,27 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	asdf3.AddComponent<TransformComponent>(glm::vec3(1, 1, 1), glm::vec3(.25f, .25f, 1));
 	asdf3.AddComponent<SpriteComponent>(tex);
 	asdf3.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.1f, 0, 0));
-	asdf3.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
+	asdf3.AddComponent<DynamicCollider2DComponent>(glm::vec3(.25f, .25f, 0), collisionLayers::enemy, Collider2D::colliderType::colliderBox, 1);
 
 	GameObject asdf2 = m_spaces[0]->NewGameObject("Parent");
 	asdf2.AddComponent<TransformComponent>(glm::vec3(1, 2, 1), glm::vec3(.25f, .25f, 1));
 	asdf2.AddComponent<SpriteComponent>(tex);
 	asdf2.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.1f, 0, 0));
-	asdf2.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::enemy, .5f);
+	asdf2.AddComponent<DynamicCollider2DComponent>(glm::vec3(.25f, .25f, 0), collisionLayers::enemy, Collider2D::colliderType::colliderBox, .5f);
 
 	// object with velocity
 	GameObject asdf1 = m_spaces[0]->NewGameObject("Parent");
 	asdf1.AddComponent<TransformComponent>(glm::vec3(-1, 1, 1), glm::vec3(.25f, .25f, 1));
 	asdf1.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	asdf1.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(.2f, 0, 0));
-	asdf1.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player);
+	asdf1.AddComponent<DynamicCollider2DComponent>(glm::vec3(.25f, .25f, 0), collisionLayers::player, Collider2D::colliderType::colliderBox, 1);
 
 	// object with velocity
 	GameObject asdf4 = m_spaces[0]->NewGameObject("Parent");
 	asdf4.AddComponent<TransformComponent>(glm::vec3(2.5, 1, 1), glm::vec3(.25f, .25f, 1));
 	asdf4.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
 	asdf4.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.3f, 0, 0));
-	asdf4.AddComponent<DynamicCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(.25f, .25f, 0), collisionLayers::player, 0);
+	asdf4.AddComponent<DynamicCollider2DComponent>(glm::vec3(.25f, .25f, 0), collisionLayers::player, Collider2D::colliderType::colliderBox, 0);
 	
 	GameObject child = m_spaces[0]->NewGameObject("Child");
 	child.AddComponent<TransformComponent>(glm::vec3(0.5f, 0.5f, 1), glm::vec3(.5f, .5f, 1));
@@ -135,7 +135,14 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject Brett_obj4 = m_spaces[0]->NewGameObject("Ground");
 	Brett_obj4.AddComponent<TransformComponent>(glm::vec3(0, -1, -1), glm::vec3(10, .1, 1));
 	Brett_obj4.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
-	Brett_obj4.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(10, .1, 0), collisionLayers::ground, 1, 0);
+	Brett_obj4.AddComponent<StaticCollider2DComponent>(glm::vec3(10, .1, 0), collisionLayers::ground, Collider2D::colliderType::colliderBox, 1, 0);
+
+	// pass-through trigger
+	GameObject asdf5 = m_spaces[0]->NewGameObject("Trigger");
+	asdf5.AddComponent<TransformComponent>(glm::vec3(3.5f, 1, 1), glm::vec3(.25f, 5, 1));
+	asdf5.AddComponent<SpriteComponent>(m_resManager.Get("sampleBlend.png"));
+	asdf5.AddComponent<RigidBodyComponent>(glm::vec3(0, 0, 0), glm::vec3(-.5f, 0, 0), glm::vec3(0));
+	asdf5.AddComponent<DynamicCollider2DComponent>(glm::vec3(.25f, 5, 0), collisionLayers::allyProjectile, Collider2D::colliderType::colliderBox, 0, 0, Collider2D::collisionType::passthrough);
 
 	asdf1.AddComponent<ParticleSystem>();
 	asdf1.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 1));

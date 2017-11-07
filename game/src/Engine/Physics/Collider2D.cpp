@@ -9,9 +9,9 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 
 // getters
-int Collider2D::GetColliderType()
+int Collider2D::GetColliderShape()
 {
-	return m_colliderType & ~(colliderType::staticCollider);
+	return m_colliderShape & ~(colliderType::staticCollider);
 }
 
 glm::vec3 Collider2D::GetDimensions()
@@ -44,19 +44,24 @@ float Collider2D::GetAppliedElasticity()
 	return m_appliedElasticity;
 }
 
-// setters
-void Collider2D::SetColliderType(colliderType colliderType)
+Collider2D::collisionType Collider2D::GetCollisionType()
 {
-	m_colliderType = colliderType;
+	return m_collisionType;
+}
+
+// setters
+void Collider2D::SetColliderShape(colliderType colliderType)
+{
+	m_colliderShape = colliderType;
 }
 
 void Collider2D::SetStatic()
 {
-	m_colliderType |= colliderType::staticCollider;
+	m_colliderShape |= colliderType::staticCollider;
 }
 void Collider2D::SetDynamic()
 {
-	m_colliderType &= ~colliderType::staticCollider;
+	m_colliderShape &= ~colliderType::staticCollider;
 }
 
 void Collider2D::SetDimensions(glm::vec3 newDimensions)
@@ -115,6 +120,11 @@ void Collider2D::AmplifyAppliedElasticity(float scalar)
 	m_appliedElasticity *= scalar;
 }
 
+void Collider2D::SetCollisionType(Collider2D::collisionType type)
+{
+	m_collisionType = type;
+}
+
 // methods
 	// Passed only one parameter, scales both axes by the same thing
 void Collider2D::ScaleDimensions(float xScale, float yScale)
@@ -138,7 +148,7 @@ void Collider2D::AdjustRotationOffset(float rotationAdjustment)
 
 bool Collider2D::isStatic()
 {
-	return m_colliderType & colliderType::staticCollider;
+	return m_colliderShape & colliderType::staticCollider;
 }
 
 Collider2D& StaticCollider2DComponent::ColliderData()

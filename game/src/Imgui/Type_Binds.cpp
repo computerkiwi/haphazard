@@ -324,7 +324,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 					else
 					{
-						object.AddComponent<StaticCollider2DComponent>(Collider2D::colliderType::colliderBox, glm::vec3(1, 1, 0));
+						object.AddComponent<StaticCollider2DComponent>(glm::vec3(1, 1, 0), collisionLayers::allCollision, Collider2D::colliderType::colliderBox);
 					}
 				}
 			}
@@ -767,7 +767,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			TreePop();
 			Separator();
 		}
-		int index = collider->m_colliderType;
+		int index = collider->m_colliderShape;
 		for (int i = 0; i < sizeof(Collider2D::colliderType) * 8; i++)
 		{
 			if (index & (1 << i))
@@ -785,7 +785,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		switch (index)
 		{
 		case 0:
-			collider->m_colliderType = Collider2D::colliderType::colliderBox;
+			collider->m_colliderShape = Collider2D::colliderType::colliderBox;
 			break;
 		};
 		Separator();
