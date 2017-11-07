@@ -31,27 +31,36 @@ public:
 		collider_max // Used by the editor
 	};
 
+	enum collisionType : int
+	{
+		solid,
+		passthrough,
+
+		collision_types
+	};
+
 	// constructor
-	Collider2D(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, 
-		       float selfElasticity = 0, float appliedElasticity = 0, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) : 
-			   m_colliderType(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset),
-		       m_layersCollidedWith(0), m_selfElasticity(selfElasticity), m_appliedElasticity(appliedElasticity)
+	Collider2D(glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, int colliderType = Collider2D::colliderType::colliderBox,
+		       float selfElasticity = 0, float appliedElasticity = 0, Collider2D::collisionType collisionType = Collider2D::collisionType::solid, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+			   m_colliderShape(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset),
+		       m_layersCollidedWith(0), m_selfElasticity(selfElasticity), m_appliedElasticity(appliedElasticity), m_collisionType(collisionType)
 	{
 	}
 
 	Collider2D(const Collider2D&) = default;
 
 	// getters
-	int GetColliderType();
+	int GetColliderShape();
 	glm::vec3 GetDimensions();
 	glm::vec3 GetOffset();
 	float GetRotationOffset();
 	CollisionLayer GetCollisionLayer();
 	float GetSelfElasticity();
 	float GetAppliedElasticity();
+	collisionType GetCollisionType();
 
 	// setters
-	void SetColliderType(colliderType colliderType);
+	void SetColliderShape(colliderType colliderType);
 	void SetStatic();
 	void SetDynamic();
 	void SetDimensions(glm::vec3 newDimensions);
@@ -64,6 +73,7 @@ public:
 	void AmplifySelfElasticity(float scalar);
 	void SetAppliedElasticity(float newElasticity);
 	void AmplifyAppliedElasticity(float scalar);
+	void SetCollisionType(collisionType type);
 
 	// methods
 	// Passed only one parameter, scales both axes by the same thing
@@ -75,7 +85,7 @@ public:
 
 private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
-	int m_colliderType;
+	int m_colliderShape;
 	glm::vec3 m_dimensions;
 	CollisionLayer m_collisionLayer;
 	glm::vec3 m_offset;
@@ -83,6 +93,7 @@ private:
 	int m_layersCollidedWith;
 	float m_selfElasticity;
 	float m_appliedElasticity;
+	collisionType m_collisionType;
 
 	META_REGISTER(Collider2D)
 	{
@@ -91,9 +102,10 @@ private:
 		META_DefineType(float);
 		META_DefineType(glm::vec3);
 		META_DefineType(CollisionLayer);
+		META_DefineType(collisionType);
 
 		META_DefineType(Collider2D);
-		META_DefineMember(Collider2D, m_colliderType, "colliderType");
+		META_DefineMember(Collider2D, m_colliderShape, "colliderShape");
 		META_DefineMember(Collider2D, m_offset, "offset");
 		META_DefineMember(Collider2D, m_dimensions, "dimensions");
 		META_DefineMember(Collider2D, m_rotationOffset, "rotationOffset");
@@ -101,6 +113,7 @@ private:
 		META_DefineMember(Collider2D, m_layersCollidedWith, "layersCollidedWith");
 		META_DefineMember(Collider2D, m_selfElasticity, "selfElasticity");
 		META_DefineMember(Collider2D, m_appliedElasticity, "appliedElasticity");
+		META_DefineMember(Collider2D, m_collisionType, "collisionType");
 	}
 };
 
@@ -109,9 +122,9 @@ class StaticCollider2DComponent
 {
 public:
 	// constructor
-	StaticCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, 
-							  float selfElasticity = 0, float appliedElasticity = 0, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
-							  m_colliderData(colliderType | Collider2D::colliderType::staticCollider, dimensions, collisionLayer, selfElasticity, appliedElasticity, offset, rotationOffset)
+	StaticCollider2DComponent(glm::vec3 dimensions = glm::vec3(1,1,1), int collisionLayer = collisionLayers::allCollision, int colliderType = Collider2D::colliderType::colliderBox,
+							  float selfElasticity = 0, float appliedElasticity = 0, Collider2D::collisionType collisionType = Collider2D::collisionType::solid, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							  m_colliderData(dimensions, collisionLayer, colliderType | Collider2D::colliderType::staticCollider, selfElasticity, appliedElasticity, collisionType, offset, rotationOffset)
 	{
 	}
 
@@ -139,9 +152,9 @@ class DynamicCollider2DComponent
 {
 public:
 	// constructor
-	DynamicCollider2DComponent(int colliderType = Collider2D::colliderType::colliderBox, glm::vec3 dimensions = glm::vec3(1, 1, 1), int collisionLayer = collisionLayers::allCollision, 
-							   float selfElasticity = 0, float appliedElasticity = 0, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
-							   m_colliderData(colliderType, dimensions, collisionLayer, selfElasticity, appliedElasticity, offset, rotationOffset)
+	DynamicCollider2DComponent(glm::vec3 dimensions = glm::vec3(1, 1, 1), int collisionLayer = collisionLayers::allCollision, int colliderType = Collider2D::colliderType::colliderBox,
+							   float selfElasticity = 0, float appliedElasticity = 0, Collider2D::collisionType collisionType = Collider2D::collisionType::solid, glm::vec3 offset = glm::vec3(0), float rotationOffset = 0) :
+							   m_colliderData(dimensions, collisionLayer, colliderType, selfElasticity, appliedElasticity, collisionType, offset, rotationOffset)
 	{
 	}
 

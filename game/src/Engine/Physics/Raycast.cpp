@@ -134,7 +134,7 @@ public:
 void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData)
 {
 	// if the collider is a box
-	if (colliderData.GetColliderType() == Collider2D::colliderType::colliderBox)
+	if (colliderData.GetColliderShape() == Collider2D::colliderType::colliderBox)
 	{
 		glm::vec2 boxCenter = transform->GetPosition();
 		glm::vec2 colliderOffset = colliderData.GetOffset();

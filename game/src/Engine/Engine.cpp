@@ -108,14 +108,14 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 		GameObject ground = m_spaces[0]->NewGameObject("Ground");
 		ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(i * WIDTH, -2, 0), glm::vec3(WIDTH, 1, 1)));
-		ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(Collider2D::colliderBox, glm::vec3(WIDTH, 1, 1)));
+		ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));
 		ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
 	}
 
 	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
 	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.65, 1, 0));
 	player1.AddComponent<RigidBodyComponent>();
-	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(Collider2D::colliderBox, glm::vec3(0.45, 0.71, 0), collisionLayers::player));
+	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderBox));
 	player1.AddComponent<SpriteComponent>(m_resManager.Get("GnomeRed.png"));
 	player1.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player1));
 
@@ -123,7 +123,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject player2 = m_spaces[0]->NewGameObject("Player2");
 	player2.AddComponent<TransformComponent>(glm::vec3(1, 0, 0), glm::vec3(0.65, 1, 0));
 	player2.AddComponent<RigidBodyComponent>();
-	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(Collider2D::colliderBox, glm::vec3(0.45, 0.71, 0), collisionLayers::player));
+	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderBox));
 	player2.AddComponent<SpriteComponent>(m_resManager.Get("GnomeBlue.png"));
 	player2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player2));
 
