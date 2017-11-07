@@ -36,7 +36,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <psapi.h>
 
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
 	m_objects.reserve(256);
 
@@ -230,10 +230,13 @@ void Editor::Update()
 		// Get all the active gameobjects
 		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
 
+		// Updates all the popups that could be on screen
 		UpdatePopUps(1 / 60.0f);
 
 		// Top Bar
 		MenuBar();
+
+		KeyBindings();
 
 		// Render the console
 		if (m_show_settings)
@@ -293,7 +296,7 @@ void Editor::KeyBindings()
 		Undo_Action();
 	}
 
-	if (Input::IsPressed(Key::LeftControl) && Input::IsPressed(Key::Y))
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
 	{
 		Redo_Action();
 	}
@@ -668,7 +671,7 @@ void Editor::ObjectsList()
 	using namespace ImGui;
 
 	SetNextWindowSize(ImVec2(260, 400));
-	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
+	SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Once);
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
 	if (Button("Create"))
@@ -1088,9 +1091,7 @@ static unsigned long long FileTimeToInt64(const FILETIME & ft)
 	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
 }
 
-// Returns 1.0f for "CPU fully pinned", 0.0f for "CPU idle", or somewhere in between
-// You'll need to call this at regular intervals, since it measures the load between
-// the previous call and the current one.  Returns -1.0 on error.
+
 float GetCPULoad()
 {
 	FILETIME idleTime, kernelTime, userTime;
@@ -1104,6 +1105,7 @@ void Editor::SettingsPanel(float dt)
 	static float timer = 0.0f;
 
 	SetNextWindowSize(ImVec2(250, 400));
+	SetNextWindowPos(ImVec2(0, 432), ImGuiCond_Once);
 	Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
 
 	PROCESS_MEMORY_COUNTERS pmc;

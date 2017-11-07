@@ -24,7 +24,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 using namespace ImGui;
 
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
-#define GAMEOBJECT_WINDOW_POS  ImVec2(15, 20)
+#define GAMEOBJECT_WINDOW_POS  ImVec2(1200, 30)
 
 template <class Component, typename T>
 void Action_General(EditorAction& a)
