@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Universal.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -16,6 +17,7 @@ enum class ResourceType : int
 	INVALID = -1,
 	TEXTURE,
 	SCRIPT,
+	SOUND,
 	COUNT
 };
 
@@ -79,6 +81,16 @@ public:
 	Resource *Get(ResourceID id);
 	Resource *Get(const char *fileName);
 
+	static ResourceManager& GetManager();
+
 private:
 	std::map<ResourceID, Resource *> m_resources;
+
+	META_REGISTER(ResourceManager)
+	{
+		META_DefineType(ResourceManager);
+
+		// TODO: Make a proper static function meta registration.
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<ResourceManager>("ResourceManager").addStaticFunction("GetManager", &ResourceManager::GetManager).endClass();
+	}
 };

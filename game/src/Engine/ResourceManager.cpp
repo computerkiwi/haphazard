@@ -10,6 +10,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics/TextureResource.h"
 #include <experimental/filesystem>
 
+#include "Engine/Engine.h"
+
 void Resource::Load()
 {
 	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Loading resource: ", m_folderPath, m_fileName);
@@ -178,4 +180,9 @@ Resource *ResourceManager::Get(ResourceID id)
 Resource *ResourceManager::Get(const char *fileName)
 {
 	return Get(Resource::FilenameToID(fileName));
+}
+
+ResourceManager& ResourceManager::GetManager()
+{
+	return engine->GetResourceManager();
 }

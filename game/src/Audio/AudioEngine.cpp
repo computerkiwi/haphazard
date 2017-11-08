@@ -15,10 +15,11 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "fmod_errors.h"
 #include "AudioEngine.h"
 
+#include "Engine/ResourceManager.h"
+
 namespace Audio
 {
 	static FMOD::System *fmodSystem = nullptr;
-	static std::unordered_map<std::string, FMOD::Sound *> loadedSounds;
 
 	static void CheckErrorFMODInternal(FMOD_RESULT value, const char *function_name = "")
 	{
@@ -52,30 +53,16 @@ namespace Audio
 		fmodSystem->update();
 	}
 
-	void LoadSound(const char *fileName)
-	{
-		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
-
-		std::string path = AudioAssetPath(fileName);
-
-		FMOD::Sound **soundSlot = &loadedSounds[path];
-		if ( *soundSlot == nullptr)
-		{
-			CheckErrorFMOD(fmodSystem->createSound(path.c_str(), FMOD_DEFAULT, nullptr, soundSlot));
-		}
-	}
-
 	// Plays a given sound once.
 	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
 	{
 		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
-		std::string path = AudioAssetPath(fileName);
-		FMOD::Sound *sound = loadedSounds[path];
+		FMOD::Sound *sound = reinterpret_cast<FMOD::Sound *>(ResourceManager::GetManager().Get(fileName)->Data());
 
 		if (sound == nullptr)
 		{
-			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to play not loaded file", path);
+			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to play not loaded file", fileName);
 			return SoundHandle(nullptr);
 		}
 
@@ -90,10 +77,15 @@ namespace Audio
 		{
 			channel->setMode(FMOD_LOOP_OFF);
 		}
-		channel->setVolume(volume);
+		channel->setVolume(volume); // TODO: Fix volume not taking effect on music until another sound plays.
 		channel->setPitch(pitch);
 
 		return(SoundHandle(channel));
+	}
+
+	FMOD::System *GetSystem()
+	{
+		return fmodSystem;
 	}
 
 	SoundHandle::SoundHandle(FMOD::Channel *fmodChannel) : m_fmodChannel(fmodChannel)
