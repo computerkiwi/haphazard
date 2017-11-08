@@ -18,6 +18,8 @@ Note to future self: Possible future optimizations
 #include "glm\glm.hpp"
 #include "Texture.h"
 
+#include "Engine\ResourceManager.h"
+
 // Editor Forward Declares
    class GameObject;
    class Editor;
@@ -64,7 +66,7 @@ struct ParticleSettings
 	// Render
 	glm::vec4		startColor = {1,1,1,1};			 // Blend color of particle at start of life
 	glm::vec4		endColor = {1,1,1,1};			 // Blend color of particle at end of life, linearly interpolated from start color through lifetime
-	Texture*		texture = nullptr;				 // Texture of particle
+	ResourceID		texture_resourceID = -1;		 // Texture of particle
 	// Trail										 
 	bool			hasTrail = false;				 // Spawn trail particles
 	float			trailEmissionRate = 0.05f;		 // Emission rate of trail particles, lower for smoother trail
@@ -79,6 +81,7 @@ struct ParticleSettings
 		META_DefineType(bool);       // HACK
 		META_DefineType(glm::vec2);  // HACK
 		META_DefineType(glm::vec4);  // HACK
+		META_DefineType(ResourceID);  // HACK
 
 		META_DefineType(EmissionShape);
 		META_DefineType(SimulationSpace);
@@ -110,6 +113,7 @@ struct ParticleSettings
 
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
 		META_DefineMember(ParticleSettings, endColor, "EndColor");
+		META_DefineMember(ParticleSettings, texture_resourceID, "TextureResourceID");
 
 		META_DefineMember(ParticleSettings, hasTrail, "HasTrail");
 		META_DefineMember(ParticleSettings, trailEmissionRate, "TrailEmissionRate");
@@ -173,7 +177,7 @@ public:
 	void SetColor(glm::vec4 start, glm::vec4 end) { m_settings.startColor = start; m_settings.endColor = end; }
 
 	// Set's particle texture. Does not apply to trail particles. Particle color will be blended with texture
-	void SetTexture(Texture* texture) { m_settings.texture = texture; }
+	void SetTexture(ResourceID texture) { m_settings.texture_resourceID = texture; }
 
 	// True to spawn trail particles
 	void SetHasTrail(bool trail) { m_settings.hasTrail = trail; }

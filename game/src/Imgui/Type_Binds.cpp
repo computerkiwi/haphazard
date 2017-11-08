@@ -100,75 +100,91 @@ const char * ErrorList[] =
 };
 
 
+struct EditorBoolWrapper
+{
+	bool value = false;
+	operator bool() { return value; }
+	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
+};
+
+typedef std::map<const char *, EditorBoolWrapper> ClickedList;
+ClickedList widget_click;
+
 #define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
 
-bool dragClicked = false;
 
 #define Drag_Key Key::Mouse_1
 
 #define Drag(NAME, SAVE, ITEM)																				 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
-		if (dragClicked == false)																			 \
+		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
 			SAVE = ITEM;																					 \
-			dragClicked = true;																				 \
+			widget_click[#SAVE] = true;																				 \
 		}																									 \
 	}																										 
 
 #define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
-		if (dragClicked == false)																			 \
+		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
 			SAVE = VEC;																						 \
-			dragClicked = true;																				 \
+			widget_click[#SAVE] = true;																				 \
 		}																									 \
 	}
 
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
 	{																										 \
-		if (dragClicked == false)																			 \
+		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
 			SAVE = ITEM;																					 \
-			dragClicked = true;																				 \
+			widget_click[#SAVE] = true;																				 \
 		}																									 \
 	}
 
 #define Drag_Int(NAME, SAVE, ITEM)																			 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
-		if (dragClicked == false)																			 \
+		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
 			SAVE = ITEM;																					 \
-			dragClicked = true;																				 \
+			widget_click[#SAVE] = true;																				 \
 		}																									 \
 	}
 
 #define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
 	{																										 \
-		if (dragClicked == false)																			 \
+		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
 			SAVE = ITEM;																					 \
-			dragClicked = true;																				 \
+			widget_click[#SAVE] = true;																				 \
 		}																									 \
 	}
 
 #define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
-	if (Input::IsReleased(Drag_Key) && dragClicked == true)													 \
+	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
 		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
-		dragClicked = false;																				 \
+		widget_click[#SAVE] = false;																				 \
 	}
 
 
 #define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
-	if (Input::IsReleased(Key::A))																			 \
+	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
 		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
-		dragClicked = false;																				 \
+		widget_click[#SAVE] = false;																				 \
+	}
+
+#define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
+	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
+	{																										 \
+		editor->Push_Action({ TYPE(SAVE), TYPE(ITEM),  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
+		widget_click[#SAVE] = false;																				 \
 	}
 
 // Transform Component Save Location
@@ -568,17 +584,18 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 {
 	// Draws the Selection Box
 	glm::vec2 scale(transform->GetScale());
-	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), 0, glm::vec4(0,1,0,1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
+	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
+	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
 
 
-	if (CollapsingHeader("Transform"))
-	{
+	//if (CollapsingHeader("Transform"))
+	//{
 		EditorComponentHandle handle = { object.Getid(), true };
 		
+		SameLine();
 		if (transform->GetParent())
 		{
 			if (Button("Remove Parent##remove_parent_button"))
@@ -610,9 +627,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		{
 			if (transform->GetParent())
 			{
-				bool x_click = false;
-				bool y_click = false;
-
 				Text("X: %f", transform->GetPosition().x);
 				Text("Y: %f", transform->GetPosition().y);
 
@@ -620,14 +634,14 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				Drag_Vec("X Offset##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
 				Drag_Vec("Y Offset##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
 
-				DragRelease_Type(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
+				DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
 			}
 			else
 			{
 				Drag_Vec("X##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
 				Drag_Vec("Y##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
 
-				DragRelease(TransformComponent, glm::vec2(transformSave.m_position), glm::vec2(transform->m_position), "position");
+				DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
 			}
 
 			TreePop();
@@ -647,7 +661,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		Drag_Float_Speed("Rotation##transform", transformSave.m_rotation, transform->m_rotation, 1.0f);
 		DragRelease(TransformComponent, transformSave.m_rotation, transform->m_rotation, "rotation");
-	}
+	//}
 }
 
 
@@ -808,7 +822,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, colliderSave.m_dimensions);
 			Drag_Vec("Y##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.y, colliderSave.m_dimensions);
 
-			if (Input::IsReleased(Drag_Key))
+			if (Input::IsReleased(Drag_Key) && widget_click["colliderSave.m_dimensions"] == true)
 			{						
 				// Check if we need to save the action for static or dynamic
 				if (collider->isStatic())
@@ -821,7 +835,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
 						handle, Action_General<DynamicCollider2DComponent, int> });
 				}  
-				dragClicked = false;																				 
+				widget_click["colliderSave.m_dimensions"] = false;
 			}
 
 			TreePop();
@@ -835,7 +849,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			if (Input::IsReleased(Drag_Key))
 			{
 				// Check if we need to save the action for static or dynamic
-				if (collider->isStatic())
+				if (collider->isStatic() && widget_click["colliderSave.m_offset"] == true)
 				{
 					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
 				}
@@ -843,7 +857,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				{
 					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
 				}
-				dragClicked = false;
+				widget_click["colliderSave.m_offset"] = false;
 			}
 
 			TreePop();
@@ -1155,12 +1169,36 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				TreePop();
 			}
 
-			if (TreeNode("Sprite"))
+			if (TreeNode("Sprite") && settings.texture_resourceID != static_cast<ResourceID>(-1))
 			{
-				// Add Texture * on the ParticleSettings struct
+				ResourceManager& rm = engine->GetResourceManager();
+
+				std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
+
+				Separator();
+				BeginChild("Sprites", ImVec2(0, 125), true);
+				for (auto resource : sprites)
+				{
+					if (resource->Id() == settings.texture_resourceID)
+					{
+						PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+						Selectable(resource->FileName().c_str(), true);
+						PopStyleColor();
+						continue;
+					}
+					if (Selectable(resource->FileName().c_str()))
+					{
+						// Is resource ref counted, can I store pointers to them?
+						editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+						settings.texture_resourceID = resource->Id();
+					}
+				}
+				EndChild();
+
 				Separator();
 				TreePop();
 			}
+
 			Separator();
 			TreePop();
 		}

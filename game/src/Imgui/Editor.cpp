@@ -36,8 +36,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <psapi.h>
 
 
+// Toggle Hitboxes
+void debugDisplayHitboxes(bool hitboxesShown);
+
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
+	debugDisplayHitboxes(false);
 	m_objects.reserve(256);
 
 	// Style information
@@ -212,6 +216,8 @@ void Editor::Update()
 	// Check if Editor is being shown
 	if (m_show_editor)
 	{
+		debugDisplayHitboxes(true);
+
 		if (m_freeze_time)
 		{
 			m_engine->GetDtObject() = 0;
@@ -369,7 +375,7 @@ void Editor::Push_Action(EditorAction&& action)
 		if (m_actions.size == m_actions.history.size())
 		{
 			m_actions.history.emplace_back(action);
-			m_actions.size = m_actions.history.size();
+			++m_actions.size;
 		}
 		else
 		{
@@ -438,6 +444,7 @@ void Editor::OnClick()
 	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
+		std::cout << "Mouse: " << mouse.x << ", " << mouse.y << "\n";
 
 		for (auto id : m_objects)
 		{

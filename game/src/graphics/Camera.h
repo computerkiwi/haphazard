@@ -10,6 +10,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "GL\glew.h"
 #include <glm/glm.hpp>
 
+#include "Input\Input.h"
+
 class Editor;
 
 class Camera
@@ -37,14 +39,15 @@ public:
 
 	void SetZoom(float zoom) { m_Zoom = zoom;}
 	void SetAspectRatio(float ar) { m_AspectRatio = ar; }
-	void SetNearPlane(float near) { m_Near = near; }
-	void SetFarPlane(float far) { m_Far = far; }
+	void SetNearPlane(float near);
+	void SetFarPlane(float far);
 
 	///
 	// Getters
 	///
 
 	glm::vec2 GetPosition() const { return glm::vec2(m_Position.x, m_Position.y); }
+	glm::vec2 GetCenter() const { return m_Center; }
 	float GetRotation() const { return m_Rotation; }
 	float GetZoom() const { return m_Zoom; }
 
@@ -59,6 +62,7 @@ public:
 
 private:
 	friend void ImGui_Camera(Camera *camera, Editor *editor);
+	friend glm::vec2 Input::ScreenToWorld(glm::vec2 cursor);
 
 	void ApplyCameraMatrices();
 
@@ -108,8 +112,8 @@ private:
 
 		META_DefineGetterSetter(Camera, float, GetZoom, SetZoom, "zoom");
 		META_DefineGetterSetter(Camera, float, GetAspectRatio, SetAspectRatio, "aspectRatio");
-		META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
-		META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
+		//META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
+		//META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
 
 		META_DefineGetterSetter(Camera, bool, IsActiveCam, SetIsActiveCam, "isActiveCam");
 
