@@ -3,7 +3,7 @@
 #include "Screen.h"
 #include "Shaders.h"
 
-static FrameBuffer* fb_FX = nullptr;
+FrameBuffer* FrameBuffer::fb_FX = nullptr;
 static Screen::Mesh* fullscreenMesh = nullptr;
 
 ///
@@ -36,11 +36,6 @@ FrameBuffer::~FrameBuffer()
 {
 	glDeleteFramebuffers(1, &m_ID);
 	glDeleteTextures(m_NumColBfrs, m_ColorBuffers);
-}
-
-bool FrameBuffer::operator<(const FrameBuffer& fb) const
-{
-	return m_Layer < fb.m_Layer;
 }
 
 void FrameBuffer::SetDimensions(int width, int height)

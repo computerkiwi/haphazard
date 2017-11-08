@@ -17,8 +17,7 @@ typedef unsigned int GLuint;
 class Screen
 {
 	friend FrameBuffer; // Give access to add framebuffers to screen's list
-	//Disable Defaults
-	Screen() = delete;
+	Screen() = delete; // Disable Default constructor
 public:
 	// Declaration
 	class Mesh;
@@ -43,9 +42,8 @@ public:
 
 private: // Variables
 	static FrameBuffer* m_View;
-	//static FrameBuffer* m_FX;
 	static Mesh* m_Fullscreen;
-	static std::set<FrameBuffer*> m_LayerList;
+	static std::set<FrameBuffer*, LayerComp> m_LayerList;
 
 public: // Helper Classes
 	

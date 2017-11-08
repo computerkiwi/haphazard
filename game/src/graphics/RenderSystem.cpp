@@ -213,13 +213,16 @@ void RenderSystem::Update(float dt)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//Start Loop
-	Screen::GetLayerFrameBuffer(3)->Use();
+	Screen::GetLayerFrameBuffer(1)->Use();
+
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
-	Screen::GetLayerFrameBuffer(2)->Use();
-	FX fx[] = { FX::BLUR};
-	Screen::GetLayerFrameBuffer(2)->SetEffects(1, fx);
+
+	Screen::GetLayerFrameBuffer(10)->Use();
+	FX fx[] = { FX::BLUR };
+	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
+
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
@@ -228,6 +231,7 @@ void RenderSystem::Update(float dt)
 	//End loop
 	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
 	glDisable(GL_BLEND);
+	Screen::GetLayerFrameBuffer(99)->Use(); // Render in front
 	DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
 }

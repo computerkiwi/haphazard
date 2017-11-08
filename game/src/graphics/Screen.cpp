@@ -24,7 +24,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 FrameBuffer* Screen::m_View;
 Screen::Mesh* Screen::m_Fullscreen;
-std::set<FrameBuffer*> Screen::m_LayerList;
+std::set<FrameBuffer*, LayerComp> Screen::m_LayerList;
 
 
 void Screen::InitScreen()
@@ -93,6 +93,7 @@ void Screen::ResizeScreen(int width, int height)
 	glViewport(0, 0, width, height);
 
 	m_View->SetDimensions(width, height);
+	FrameBuffer::fb_FX->SetDimensions(width, height);
 	
 	for (FrameBuffer* fb : m_LayerList)
 	{

@@ -34,7 +34,7 @@ public:
 	void SetEffects(int count, FX fx[]);
 	void RenderEffects();
 
-	bool operator<(const FrameBuffer& fb) const;
+	int GetLayer() const { return m_Layer; }
 	
 	void SetBlurAmount(float amt);
 
@@ -48,6 +48,7 @@ private:
 	static void RenderBlur(GLuint colorBuffer, FrameBuffer& target);
 	void ApplyFXSettings(FX fx);
 
+	static FrameBuffer* fb_FX;
 
 	int m_Layer;
 	GLuint m_ID;
@@ -60,4 +61,12 @@ private:
 
 	// FX Variables
 	float m_BlurAmount = 1;
+};
+
+struct LayerComp 
+{ 
+	bool operator()(const FrameBuffer* lhs, const FrameBuffer* rhs)
+	{
+		return lhs->GetLayer() < rhs->GetLayer();
+	}
 };
