@@ -85,6 +85,10 @@ function StackedUpdate(dt)
 		stacked = false
 		thisVel.y = jumpSpeed
 		unstackTimer = UNSTACK_TIME
+		
+		PlaySound("stack_off.wav", 1, 1, false)
+		
+		PlaySound("jump.wav", 1, 1, false)
 	end
 	
 	-- Set the velocity.
@@ -122,6 +126,8 @@ function UnstackedUpdate(dt)
 	then
 		tempVel.y = jumpSpeed
 		grounded = false
+		
+		PlaySound("jump.wav", 1, 1, false)
 	end
 	
 	rBody.velocity = tempVel
@@ -161,6 +167,8 @@ function OnCollisionEnter(collidedObject)
 			stacked = true
 			stackedObj = collidedObject
 			SetLayersNotColliding(PLAYER_LAYER, PLAYER_LAYER)
+			
+			PlaySound("stack_on.wav", 1, 1, false)
 			
 			-- Make one gnome go in front of the other. (This doesn't work from engine-side as right now - 11/03/2017)
 			if (thisTransform.zLayer > otherTransform.zLayer)

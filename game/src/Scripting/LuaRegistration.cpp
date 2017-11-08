@@ -15,6 +15,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Engine/Physics/CollisionLayer.h"
 
+#include "Audio/AudioEngine.h"
+
 //-------
 // Input
 //-------
@@ -30,6 +32,8 @@ void RegisterLua(lua_State * L)
 		.addFunction("IsPressed", &LuaIsPressed)
 
 		.addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
-		.addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding);
+		.addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
+
+		.addFunction("PlaySound", Audio::PlaySound);
 		
 }

@@ -65,16 +65,16 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 {
 	m_resManager.Init();
 
-	// For debug purposes.
-	// TODO: Come up with a smarter resource loading strategy.
-	m_resManager.LoadAll();
-
 	// Load Shaders
 	Shaders::Init();
 
 	Audio::Init();
 	meta::Init();
 	Input::Init(m_window);
+
+	// For debug purposes.
+	// TODO: Come up with a smarter resource loading strategy.
+	m_resManager.LoadAll();
 
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
@@ -131,6 +131,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	background.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("sky.png")->Data()), BACKGROUND_PARALLAX);
 	background.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -25), glm::vec2(50, 25), glm::vec2(0.5f, 1.0f), glm::vec2(0, 0.5f));
+	background.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayMusicOnCreate.lua"), background));
 
 	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
 	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));

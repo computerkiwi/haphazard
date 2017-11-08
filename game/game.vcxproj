@@ -156,6 +156,7 @@
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\Audio\AudioResource.cpp" />
     <ClCompile Include="src\Engine\Allocators\Stack\Stack.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="src\Engine\Physics\Collider2D.cpp" />
@@ -209,6 +210,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Audio\AudioEngine.h" />
+    <ClInclude Include="src\Audio\AudioResource.h" />
     <ClInclude Include="src\Engine\Allocators\Stack\Stack.h" />
     <ClInclude Include="src\Engine\Engine.h" />
     <ClInclude Include="src\Engine\Physics\Collider2D.h" />
