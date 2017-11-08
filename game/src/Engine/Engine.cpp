@@ -144,6 +144,22 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
 	foreground.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("treeboy.png")->Data()), FOREGROUND_PARALLAX);
 	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -1), glm::vec2(5.0f, 5), glm::vec2(0.4f, 0.8f), glm::vec2(0, 0.5f));
+
+	player1.AddComponent<ParticleSystem>();
+	player1.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 1));
+	player1.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
+	player1.GetComponent<ParticleSystem>()->SetScaleOverLife(glm::vec2(0.1f, 0.1f), glm::vec2(0, 0));
+	player1.GetComponent<ParticleSystem>()->SetColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
+	player1.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
+	player1.GetComponent<ParticleSystem>()->SetParticleLifetime(0.75f);
+	player1.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
+	player1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
+	player1.GetComponent<ParticleSystem>()->SetHasTrail(false);
+	player1.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
+	player1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
+	player1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
+	player1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
+	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);
 }
 
 

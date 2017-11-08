@@ -190,7 +190,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 	Shaders::particleRenderShader->ApplyAttributes();
 
 	// Render it (with additive blending)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
 	//glDrawArrays(GL_POINTS, 0, 3);
 
