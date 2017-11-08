@@ -93,12 +93,12 @@ namespace Input
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
-	Camera *cam = Camera::GetActiveCamera();
-	glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
-	glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
-	glm::mat4 matrix = glm::inverse(proj * view);
-
-	glm::mat3 matrix;
+	//Camera *cam = Camera::GetActiveCamera();
+	//glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
+	//glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+	//glm::mat4 matrix = glm::inverse(proj * view);
+	//
+	//glm::mat3 matrix;
 
 
     return cursor;

@@ -59,6 +59,23 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 }
 
 
+void Action_General_Collider(EditorAction& a)
+{
+	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
+
+	meta::Any colliderData(&handle->ColliderData());
+
+	if (a.redo)
+	{
+		colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
+	}
+	else
+	{
+		colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+	}
+}
+
+
 template <class Component>
 void Action_DeleteComponent(EditorAction& a)
 {
@@ -819,23 +836,25 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, colliderSave.m_dimensions);
-			Drag_Vec("Y##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.y, colliderSave.m_dimensions);
+			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, collider->m_dimensions);
+			Drag_Vec("Y##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.y, collider->m_dimensions);
 
-			if (Input::IsReleased(Drag_Key) && widget_click["colliderSave.m_dimensions"] == true)
+			if (Input::IsReleased(Drag_Key))
 			{						
-				// Check if we need to save the action for static or dynamic
-				if (collider->isStatic())
+				if (widget_click["colliderSave.m_dimensions"] == true)
 				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General<StaticCollider2DComponent, int> });
+					if (collider->isStatic())
+					{
+						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+							handle, Action_General_Collider });
+					}
+					else
+					{
+						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+							handle, Action_General_Collider });
+					}
+					widget_click["colliderSave.m_dimensions"] = false;
 				}
-				else
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General<DynamicCollider2DComponent, int> });
-				}  
-				widget_click["colliderSave.m_dimensions"] = false;
 			}
 
 			TreePop();
@@ -849,15 +868,19 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			if (Input::IsReleased(Drag_Key))
 			{
 				// Check if we need to save the action for static or dynamic
-				if (collider->isStatic() && widget_click["colliderSave.m_offset"] == true)
+				if (widget_click["colliderSave.m_offset"] == true)
 				{
-					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<StaticCollider2DComponent, glm::vec3> });
+					// Check if we need to save the action for static or dynamic
+					if (collider->isStatic())
+					{
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+					}
+					else
+					{
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+					}
+					widget_click["colliderSave.m_offset"] = false;
 				}
-				else
-				{
-					editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General<DynamicCollider2DComponent, glm::vec3> });
-				}
-				widget_click["colliderSave.m_offset"] = false;
 			}
 
 			TreePop();

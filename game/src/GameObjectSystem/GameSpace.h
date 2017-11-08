@@ -28,6 +28,8 @@ class GameSpace;
 class Engine;
 extern Engine *engine;
 
+struct EditorAction;
+
 // GameObject ID Gen
 GameObject_ID GenerateID();
 #define EXTRACTION_SHIFT (8 * 3)

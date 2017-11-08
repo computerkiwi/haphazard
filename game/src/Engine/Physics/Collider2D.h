@@ -12,12 +12,14 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "../../GameObjectSystem/GameSpace.h"
 #include "CollisionLayer.h"
 
+
 constexpr char *collider_types[] =
 {
 	"Box"
 };
 
 class DynamicCollider2DComponent;
+class StaticCollider2DComponent;
 
 class Collider2D
 {
@@ -85,6 +87,7 @@ public:
 
 private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
+	friend void Action_General_Collider(EditorAction& a);
 	int m_colliderShape;
 	glm::vec3 m_dimensions;
 	CollisionLayer m_collisionLayer;

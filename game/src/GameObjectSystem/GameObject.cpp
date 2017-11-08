@@ -140,6 +140,7 @@ GameObject GameObject::FindByName(const char * name)
 			return GameObject(info->m_id);
 		}
 	}
+	return GameObject();
 }
 
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
