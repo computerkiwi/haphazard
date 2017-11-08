@@ -8,7 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Shaders.h"
 #include "Texture.h"
 #include <cstdlib>
-
+#include "Engine\Engine.h"
 #define MAX_PARTICLES 500
 
 ///
@@ -42,6 +42,7 @@ struct Particle
 ///
 
 GLuint ParticleSystem::m_randTexture = -1;
+
 
 ParticleSystem::ParticleSystem()
 {
@@ -169,10 +170,11 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 
 	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.particleSpace) );
 	Shaders::particleRenderShader->SetVariable("EmitterPosition", pos);
-	if (m_settings.texture)
+	if (m_settings.texture_resourceID != -1)
 	{
-		Shaders::particleRenderShader->SetVariable("TextureLayer", static_cast<float>(m_settings.texture->GetID()));
-		Shaders::particleRenderShader->SetVariable("TextureBox", m_settings.texture->GetBounds());
+		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
+		Shaders::particleRenderShader->SetVariable("TextureLayer", static_cast<float>(texture->GetID()));
+		Shaders::particleRenderShader->SetVariable("TextureBox", texture->GetBounds());
 	}
 	else
 	{

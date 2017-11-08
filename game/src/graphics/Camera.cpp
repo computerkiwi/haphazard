@@ -101,3 +101,15 @@ void Camera::OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis) // Rot
 	else
 		m_Position = matrix * glm::vec4(m_Position, 1);
 }
+
+
+void Camera::SetNearPlane(float near)
+{
+	m_Near = near;
+}
+
+
+void Camera::SetFarPlane(float far)
+{
+	m_Far = far;
+}

@@ -17,6 +17,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "meta\meta.h"
 
+#include "graphics\Camera.h"
+
 class Engine;
 class TransformComponent;
 struct GLFWwindow;
@@ -85,6 +87,14 @@ class Editor
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
+	// Editor
+	Camera m_editor_cam;
+
+	// System
+	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
+	float m_cpu_peak = 0.0f;
+	bool m_show_settings = false;
+
 	// Engine
 	Engine *m_engine;
 	bool m_show_editor;
@@ -99,7 +109,8 @@ class Editor
 	int m_current_space_index = 0;
 	GameObject_ID m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
-	
+	std::string m_name;
+
 	// List of all GameObjects
 	std::vector<GameObject_ID> m_objects;
 
@@ -164,6 +175,11 @@ private:
 	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
+	void SaveLoad();
+
+	void MenuBar();
+	void SettingsPanel(float dt);
+	void Console();
 
 	void OnClick();
 
@@ -194,7 +210,5 @@ public:
 
 	void Tools();
 
-	void MenuBar();
-	void Console();
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 };

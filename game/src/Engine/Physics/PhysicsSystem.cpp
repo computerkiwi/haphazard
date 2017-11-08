@@ -428,7 +428,7 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
-	transform->SetPosition(glm::vec3(transform->GetPosition(), 0) + velocity * dt);
+	transform->SetPosition(transform->GetRelativePosition() + velocity * dt);
 	rigidBody->AddVelocity(acceleration * dt);
 }
 

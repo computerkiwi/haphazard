@@ -32,10 +32,16 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "graphics\DebugGraphic.h"
 
+#include <Windows.h>
+#include <psapi.h>
 
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }
+// Toggle Hitboxes
+void debugDisplayHitboxes(bool hitboxesShown);
+
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
+	debugDisplayHitboxes(false);
 	m_objects.reserve(256);
 
 	// Style information
@@ -210,6 +216,8 @@ void Editor::Update()
 	// Check if Editor is being shown
 	if (m_show_editor)
 	{
+		debugDisplayHitboxes(true);
+
 		if (m_freeze_time)
 		{
 			m_engine->GetDtObject() = 0;
@@ -228,17 +236,25 @@ void Editor::Update()
 		// Get all the active gameobjects
 		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
 
+		// Updates all the popups that could be on screen
 		UpdatePopUps(1 / 60.0f);
 
 		// Top Bar
 		MenuBar();
 
+		KeyBindings();
+
 		// Render the console
+		if (m_show_settings)
+		{
+			SettingsPanel(1 / 60.0f);
+		}
+		
 		if (m_show_console)
 		{
 			Console();
 		}
-		
+
 		if (Input::IsPressed(Key::Y))
 		{
 			m_tool = Editor::Tool::Translation;
@@ -265,7 +281,7 @@ void Editor::Update()
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
 
-		#ifdef _DEBUG
+		#ifdef _DEBUG_NOPE
 			// Please don't delete, super important
 			if (rand() % 1000000 == 0)
 			{
@@ -283,12 +299,18 @@ void Editor::KeyBindings()
 {
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
 	{
-		Undo_Action();
+		if (m_actions.size)
+		{
+			Undo_Action();
+		}
 	}
 
-	if (Input::IsPressed(Key::LeftControl) && Input::IsPressed(Key::Y))
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
 	{
-		Redo_Action();
+		if (m_actions.history.size() > m_actions.size)
+		{
+			Redo_Action();
+		}
 	}
 }
 
@@ -344,7 +366,7 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 // Adds an action to the history
 //   Order is Old Value, New Value, Field Name, handle to component, action function
-void Editor::Push_Action(EditorAction&& a)
+void Editor::Push_Action(EditorAction&& action)
 {
 	// Size keeps track of the number of actions
 	if (m_actions.size)
@@ -352,20 +374,21 @@ void Editor::Push_Action(EditorAction&& a)
 		// Check if any undo has been done
 		if (m_actions.size == m_actions.history.size())
 		{
-			m_actions.history.emplace_back(a);
-			m_actions.size = m_actions.history.size();
+			m_actions.history.emplace_back(action);
+			++m_actions.size;
 		}
 		else
 		{
 			// We need to catch back up to the actual size
-			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, a);
+			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, action);
 			++m_actions.size;
 		}
 	}
 	else
 	{
 		// Zero actions saved, so just start at the beginning
-		m_actions.history.emplace(m_actions.history.begin(), a);
+		m_actions.history.clear();
+		m_actions.history.emplace(m_actions.history.begin(), action);
 		++m_actions.size;
 	}
 }
@@ -418,9 +441,10 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::V))
+	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
+		std::cout << "Mouse: " << mouse.x << ", " << mouse.y << "\n";
 
 		for (auto id : m_objects)
 		{
@@ -521,13 +545,13 @@ void Editor::UpdatePopUps(float dt)
 	for (int i = 0; i < m_pop_ups.size(); ++i)
 	{
 		PopUpWindow& popup = m_pop_ups[i];
-		float text_padding = strlen(popup.message) * 5.75f;
 
 		// float offset = m_pop_ups.size() - i;
 		glm::vec2 padding(65, 65);
 		
 		ImVec2 pos;
-		ImVec2 size(text_padding * 2, 42);
+		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, 42);
+		float text_padding = size.x;  //strlen(popup.message) * 5.75f;
 
 		// Find where to draw the popup
 		switch (popup.pos)
@@ -618,15 +642,15 @@ void Editor::PrintObjects()
 		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
 		// Save the buffer based off name size, max name size is 8
-		if (name.size() > 8)
+		if (name.size() > 10)
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 		else
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 		}
 
 		// Multiselect with Left Control + LClick
@@ -661,7 +685,7 @@ void Editor::ObjectsList()
 	using namespace ImGui;
 
 	SetNextWindowSize(ImVec2(260, 400));
-	SetNextWindowPos(ImVec2(0, 20), ImGuiCond_Once);
+	SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Once);
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
 	if (Button("Create"))
@@ -671,8 +695,19 @@ void Editor::ObjectsList()
 
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
-		char name[512] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue);
+		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>();
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
 
 		if (ImGui::Button("Create###createObjectListButton"))
@@ -683,6 +718,8 @@ void Editor::ObjectsList()
 			object.AddComponent<TransformComponent>();
 
 			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
 		}
 
 		ImGui::EndPopup();
@@ -937,21 +974,18 @@ void Editor::ToggleEditor()
 
 void Editor::MenuBar()
 {
-	static bool save = false;
-	static bool load = false;
-
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Save"))
 			{
-				save = true;
+				m_save = true;
 			}
 
 			if (ImGui::MenuItem("Load"))
 			{
-				load = true;
+				m_load = true;
 			}
 
 			ImGui::EndMenu();
@@ -985,34 +1019,42 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Settings"))
+		if (ImGui::Button("Settings"))
 		{
-			if (ImGui::MenuItem("Play/Pause"))
-			{
-				m_freeze_time = !m_freeze_time;
-			}
-
-			if (ImGui::MenuItem("Editor Settings"))
-			{
-				AddPopUp(PopUpWindow("Coming Soon! Bug me about it!", 1.5f, PopUpPosition::Mouse));
-			}
-
-			ImGui::EndMenu();
+			m_show_settings = !m_show_settings;
 		}
 
-		if (ImGui::Button("Console"))
-		{
-			m_show_console = !m_show_console;
-		}
+		SaveLoad();
 
 		ImGui::EndMainMenuBar();
 	}
 
-	if (save)
+}
+
+
+static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
+{
+	static unsigned long long _previousTotalTicks = 0;
+	static unsigned long long _previousIdleTicks = 0;
+
+	unsigned long long totalTicksSinceLastTime = totalTicks - _previousTotalTicks;
+	unsigned long long idleTicksSinceLastTime = idleTicks - _previousIdleTicks;
+
+	float ret = 1.0f - ((totalTicksSinceLastTime > 0) ? static_cast<float>(idleTicksSinceLastTime) / totalTicksSinceLastTime : 0);
+
+	_previousTotalTicks = totalTicks;
+	_previousIdleTicks = idleTicks;
+	return ret;
+}
+
+
+void Editor::SaveLoad()
+{
+	if (m_save)
 	{
 		ImGui::OpenPopup("##menu_save_pop_up");
 	}
-	else if (load)
+	else if (m_load)
 	{
 		ImGui::OpenPopup("##menu_load_pop_up");
 	}
@@ -1021,7 +1063,12 @@ void Editor::MenuBar()
 	if (ImGui::BeginPopup("##menu_save_pop_up"))
 	{
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", m_filename, 128);
+		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			engine->FileSave(m_filename);
+			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Save"))
@@ -1030,16 +1077,19 @@ void Editor::MenuBar()
 			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
 			ImGui::CloseCurrentPopup();
 		}
-		save = false;
+		m_save = false;
 		ImGui::EndPopup();
 	}
 
 	if (ImGui::BeginPopup("##menu_load_pop_up"))
 	{
-		
-
 		ImGui::PushItemWidth(180);
-		ImGui::InputText("Filename", m_filename, 128);
+		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			engine->FileLoad(m_filename);
+			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Load"))
@@ -1048,10 +1098,87 @@ void Editor::MenuBar()
 			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
 			ImGui::CloseCurrentPopup();
 		}
-		load = false;
+		m_load = false;
 		ImGui::EndPopup();
 	}
+}
 
+
+static unsigned long long FileTimeToInt64(const FILETIME & ft) 
+{
+	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
+}
+
+
+float GetCPULoad()
+{
+	FILETIME idleTime, kernelTime, userTime;
+	return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;
+}
+
+
+void Editor::SettingsPanel(float dt)
+{
+	using namespace ImGui;
+	static float timer = 0.0f;
+
+	SetNextWindowSize(ImVec2(250, 400));
+	SetNextWindowPos(ImVec2(0, 432), ImGuiCond_Once);
+	Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
+
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+	SIZE_T virtualMemUsedByMe = pmc.WorkingSetSize;
+
+	Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
+	Text("CPU: %f%%", m_cpu_load[0]);
+
+	PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
+
+	timer += dt;
+	if (timer > 0.75f)
+	{
+		m_cpu_load.push_back_pop_front(GetCPULoad() * 100.0f);
+		if (m_cpu_peak < m_cpu_load[m_cpu_load.m_size - 1])
+		{
+			m_cpu_peak = m_cpu_load[m_cpu_load.m_size - 1];
+		}
+		timer = 0.0f;
+	}
+
+	if (Button("Save##editor_settings"))
+	{
+		m_save = true;
+	}
+	SameLine();
+	if (Button("Load##editor_settings"))
+	{
+		m_load = true;
+	}
+
+	if (Button("Play/Pause##editor_panel"))
+	{
+		m_freeze_time = !m_freeze_time;
+	}
+	SameLine();
+	if (ImGui::Button("Console"))
+	{
+		m_show_console = !m_show_console;
+	}
+
+	if (ImGui::Button("Style Editor"))
+	{
+		OpenPopup("##editor_settings_style");
+	}
+
+	if (ImGui::BeginPopup("##editor_settings_style"))
+	{
+		ImGui::ShowStyleEditor();
+
+		EndPopup();
+	}
+
+	End();
 }
 
 
@@ -1201,7 +1328,7 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, 512, flags, Input_Editor, this))
+	if (ImGui::InputText("", command_buffer, sizeof(command_buffer), flags, Input_Editor, this))
 	{
 		// Get the line data and save it for parameters
 		m_line = command_buffer;

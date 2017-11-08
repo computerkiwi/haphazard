@@ -19,7 +19,7 @@ class ObjectInfo
 public:
 	std::string m_name;
 	GameObject_ID m_id;
-	std::map<size_t, std::string> m_tags;
+	std::map<std::size_t, std::string> m_tags;
 
 	ObjectInfo() : m_name(""), m_id(INVALID_GAMEOBJECT_ID) {}
 

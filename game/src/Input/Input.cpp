@@ -7,11 +7,16 @@ PROJECT:
 
 Copyright 2017 DigiPen (USA) Corporation.
 *******************************************************/
+#include "graphics\Camera.h"
+
 #include "Input.h"
 #include <iostream>
 
+
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Input
 {
@@ -88,23 +93,15 @@ namespace Input
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
-    glm::vec2 origin;
-    int world_x;
-    int world_y;
+	Camera *cam = Camera::GetActiveCamera();
+	glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
+	glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+	glm::mat4 matrix = glm::inverse(proj * view);
 
-    // Retrieve screen size
-    glfwGetWindowSize(inputWindow, &world_x, &world_y);
-
-    origin.x = world_x / 2;
-    origin.y = world_y / 2;
-
-    printf("GLFW world: x = %d, y = %d\n", world_x, world_y);
-    printf("GLFW cursor pos: x = %f, y = %f\n", cursorPos.x, cursorPos.y);
-
- //   glm::
+	glm::mat3 matrix;
 
 
-    return glm::vec2(cursor.x/ world_x, cursor.y/ world_y);
+    return cursor;
   }
 
   // Check if key is pressed; takes the key to check
