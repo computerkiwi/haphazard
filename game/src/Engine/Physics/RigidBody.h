@@ -52,9 +52,12 @@ private:
 	META_REGISTER(RigidBodyComponent)
 	{
 		META_DefineType(RigidBodyComponent);
+		META_DefineType(glm::vec3);
+		META_DefineType(float);
 
 		META_DefineGetterSetter(RigidBodyComponent, glm::vec3, Acceleration, SetAcceleration, "acceleration");
 		META_DefineGetterSetter(RigidBodyComponent, glm::vec3, Velocity, SetVelocity, "velocity");
+		META_DefineGetterSetter(RigidBodyComponent, glm::vec3, Gravity, SetGravity, "gravity");
 		META_DefineGetterSetter(RigidBodyComponent, float, Mass, SetMass, "mass");
 	}
 };

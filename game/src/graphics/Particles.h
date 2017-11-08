@@ -141,7 +141,7 @@ public:
 	void SetParticlesPerEmission(int amt) { m_settings.particlesPerEmission = amt; }
 	
 	// Set Burst minimum and maximum amount of particles spawned in each burst (Also set Burst Emission Rate!)
-	void SetBurstEmissionParticles(int minParticles, int maxParticles) { m_settings.burstEmission.x = minParticles; m_settings.burstEmission.y = maxParticles; }
+	void SetBurstEmissionParticles(int minParticles, int maxParticles) { m_settings.burstEmission.x = static_cast<float>(minParticles); m_settings.burstEmission.y = static_cast<float>(maxParticles); }
 	
 	// Set reoccurance rate for burst particles in seconds (Also set Burst Emission Particles!)
 	void SetBurstEmissionRate(float repeatRate) { m_settings.burstEmission.z = repeatRate; }
