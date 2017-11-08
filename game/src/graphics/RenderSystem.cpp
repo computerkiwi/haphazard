@@ -21,6 +21,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Imgui\imgui-setup.h"
 #include "Background.h"
 
+#include "RenderLayer.h"
+
 static bool resizeCameras = false;
 static int width;
 static int height;
@@ -33,9 +35,10 @@ void RenderSystem::Init()
 {
 	Screen::InitScreen();
 	Font::InitFonts();
-//	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
-//	Screen::GetView().AddEffect(FX::BLOOM);
-//	Screen::GetView().SetBlurAmount(0.9f);
+	
+	//Screen::AddEffect(FX::EDGE_DETECTION);
+	//Screen::AddEffect(FX::BLUR);
+	//Screen::SetBlurAmount(0.9f);
 }
 
 void RenderSystem::UpdateCameras(float dt)
@@ -210,12 +213,17 @@ void RenderSystem::Update(float dt)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//Start Loop
+	Screen::GetLayerFrameBuffer(3)->Use();
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
+	Screen::GetLayerFrameBuffer(2)->Use();
+	FX fx[] = { FX::BLUR};
+	Screen::GetLayerFrameBuffer(2)->SetEffects(1, fx);
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
+	//Screen::GetLayerFrameBuffer(3)->Use();
 
 	//End loop
 	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
