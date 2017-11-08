@@ -1,6 +1,6 @@
 started = false
 
-VOLUME = 0.1
+VOLUME = 0.4
 
 SONG_NAME = "level_1.wav"
 

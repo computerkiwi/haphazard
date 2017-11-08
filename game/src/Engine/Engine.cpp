@@ -102,7 +102,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 		asdf3.AddComponent<SpriteComponent>(tex);
 	}
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		const int WIDTH = 4;
 
@@ -111,6 +111,13 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 		ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));
 		ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
 	}
+
+	const int WIDTH = 4;
+
+	GameObject ground = m_spaces[0]->NewGameObject("Ground");
+	ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(3 * WIDTH - .1f, -1.66666f, 0), glm::vec3(WIDTH, 1, 1), 10));
+	ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));
+	ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
 
 	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
 	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.65, 1, 0));
