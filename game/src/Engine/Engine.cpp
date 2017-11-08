@@ -149,6 +149,9 @@ void Engine::MainLoop()
 	Logging::Exit();
 }
 
+// for recording framerate
+float timeCounter = 0;
+int frameCounter = 0;
 
 void Engine::Update()
 {
@@ -175,6 +178,23 @@ void Engine::Update()
 	glfwPollEvents();
 
 	frameCap.waitUntil(16666);
+
+	++frameCounter;
+	timeCounter += frameCap.timePassed();
+
+	if (timeCounter >= 1000000.0f)
+	{
+		char windowTitle[32];
+
+		sprintf(windowTitle, "<3 FrameRate: %d", frameCounter);
+		
+		glfwSetWindowTitle(m_window, windowTitle);
+
+		frameCounter = 0;
+		timeCounter -= 1000000;
+	}
+
+
 }
 
 
@@ -252,6 +272,7 @@ GLFWwindow *WindowInit()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_REFRESH_RATE, 120);
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
 

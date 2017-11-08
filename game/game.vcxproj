@@ -95,6 +95,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)external\include;$(ProjectDir)src;$(ProjectDir)external\glm;$(ProjectDir)external\lua;$(ProjectDir)external\fmod\inc;$(ProjectDir)\external\imgui\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions); _CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
