@@ -281,7 +281,7 @@ void Editor::Update()
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
 
-		#ifdef _DEBUG
+		#ifdef _DEBUG_NOPE
 			// Please don't delete, super important
 			if (rand() % 1000000 == 0)
 			{
