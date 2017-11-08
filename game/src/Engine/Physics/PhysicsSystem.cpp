@@ -531,7 +531,7 @@ void PhysicsSystem::Update(float dt)
 		// get the transform from the same gameobject, and leave the loop if it isn't valid
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
 		ComponentHandle<DynamicCollider2DComponent> dynamicCollider = tRigidBodyHandle.GetSiblingComponent<DynamicCollider2DComponent>();
-		
+
 		// if transform and collider are valid, collide it with things
 		if (transform.IsValid() && dynamicCollider.IsValid())
 		{
@@ -553,7 +553,7 @@ void PhysicsSystem::Update(float dt)
 
 				ComponentHandle<TransformComponent> otherTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 				assert(otherTransform.IsValid() && "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
-				
+
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
 
@@ -653,27 +653,36 @@ void PhysicsSystem::Update(float dt)
 	}
 
 	/************************** TEST STUFF **************************/
-	/*CollisionLayerTestFuction();
+	CollisionLayerTestFuction();
 
-	float range = 6;
-	glm::vec3 castPosition(-2, 2.5, 0);
+	const int numDir = 90;
 
-	glm::vec3 normalizedDirection(2, -1.5f, 0);
+	glm::vec2 castPosition(7, 2);
 
-	normalizedDirection /= glm::length(normalizedDirection);
+	glm::vec2 direction[numDir];
 
-	Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, normalizedDirection, range);
+	float range = 4;
 
-	DrawSmallBoxAtPosition(castPosition);
-	DebugGraphic::DrawShape(castPosition + (normalizedDirection * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(normalizedDirection.y, normalizedDirection.x), glm::vec4(1, 1, 1, 1));
-	DrawSmallBoxAtPosition(testCast.Intersection());
+	for (int i = 0; i < numDir; ++i)
+	{
+		direction[i] = glm::vec2(-1.0f + ((2.0f * i) / numDir), -1);
+	}
 
-	glm::vec2 testPoint(1, 0);
+	for (int i = 0; i < numDir; ++i)
+	{
+		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range);
+
+		DrawSmallBoxAtPosition(castPosition);
+		DebugGraphic::DrawShape(castPosition + (glm::normalize(direction[i]) * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(direction[i].y, direction[i].x), glm::vec4(1, 0, 1, 1));
+		DrawSmallBoxAtPosition(testCast.Intersection());
+	}
+
+	/*glm::vec2 testPoint(1, 0);
 	glm::vec2 pointEscape = CollidePointOnLayer(allDynamicColliders, allStaticColliders, testPoint);
 	testPoint += pointEscape;
-	DrawSmallBoxAtPosition(testPoint);
+	DrawSmallBoxAtPosition(testPoint);*/
 
-	BrettsFunMagicalTestLoop(allDynamicColliders, allStaticColliders);*/
+	//BrettsFunMagicalTestLoop(allDynamicColliders, allStaticColliders);
 	/****************************************************************/
 
 	if (debugShowHitboxes)
