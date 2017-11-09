@@ -13,5 +13,7 @@ namespace Settings
 	int ScreenWidth();
 	int ScreenHeight();
 	int AntiAliasing();
+
+	void SetScreenSize(int w, int h);
 };
 

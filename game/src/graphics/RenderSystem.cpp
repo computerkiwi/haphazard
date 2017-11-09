@@ -229,6 +229,8 @@ void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int w, int h)
 	width = w;
 	height = h;
 
+	Settings::SetScreenSize(w, h);
+
 	Screen::ResizeScreen(width, height);
 	resizeCameras = true;
 }
