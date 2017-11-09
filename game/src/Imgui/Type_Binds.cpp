@@ -107,6 +107,50 @@ void Action_DeleteComponent(EditorAction& a)
 }
 
 
+
+#define Push_AddComponent(TYPE) editor->Push_Action({ 0, 0, nullptr, { object.Getid(), true }, Action_AddComponent<TYPE> });
+template <class Component>
+void Action_AddComponent(EditorAction& a)
+{
+	ComponentHandle<Component> handle(a.handle);
+
+	if (a.redo)
+	{
+		handle.GetGameObject().AddComponent<Component>();
+	}
+	else
+	{
+		handle.GetGameObject().DeleteComponent<Component>();
+	}
+}
+
+
+template <>
+void Action_AddComponent<DynamicCollider2DComponent>(EditorAction& a)
+{
+	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
+
+	if (a.redo)
+	{
+		handle.GetGameObject().AddComponent<DynamicCollider2DComponent>();
+
+		if (a.save.GetData<bool>())
+		{
+			handle.GetGameObject().AddComponent<RigidBodyComponent>();
+		}
+	}
+	else
+	{
+		handle.GetGameObject().DeleteComponent<DynamicCollider2DComponent>();
+
+		if (a.save.GetData<bool>())
+		{
+			handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
+		}
+	}
+}
+
+
 enum ErrorIndex
 {
 	FailedToStartEditor = 1,
@@ -135,7 +179,7 @@ const char * ErrorList[] =
 struct EditorBoolWrapper
 {
 	bool value = false;
-	operator bool() { return value; }
+	operator bool() const { return value; }
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
@@ -372,6 +416,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<SpriteComponent>();
+					Push_AddComponent(SpriteComponent);
 				}
 			}
 			if (Button("Particle System", COMPONENT_BUTTON_SIZE))
@@ -383,6 +428,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<ParticleSystem>();
+					Push_AddComponent(ParticleSystem);
 				}
 			}
 			Separator();
@@ -395,6 +441,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<RigidBodyComponent>();
+					Push_AddComponent(RigidBodyComponent);
 				}
 			}
 			if (Button("Dynamic Collider", COMPONENT_BUTTON_SIZE))
@@ -411,12 +458,17 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					}
 					else
 					{
+						bool added_rigidbody = false;
+
 						object.AddComponent<DynamicCollider2DComponent>();
 						if (!object.GetComponent<RigidBodyComponent>().IsValid())
 						{
+							added_rigidbody = true;
 							object.AddComponent<RigidBodyComponent>();
 							editor->AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
 						}
+
+						editor->Push_Action({ 0, added_rigidbody, nullptr,{ object.Getid(), true }, Action_AddComponent<DynamicCollider2DComponent> });
 					}
 				}
 			}
@@ -435,6 +487,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					else
 					{
 						object.AddComponent<StaticCollider2DComponent>(glm::vec3(1, 1, 0), collisionLayers::allCollision, Collider2D::colliderType::colliderBox);
+						Push_AddComponent(StaticCollider2DComponent);
 					}
 				}
 			}
@@ -448,6 +501,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 				else
 				{
 					object.AddComponent<ScriptComponent>();
+					Push_AddComponent(ScriptComponent);
 				}
 			}
 
@@ -790,8 +844,6 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		
 		ResourceID id = sprite->GetResourceID();
 
-		std::string name = rm.Get(id)->FileName();
-
 		Separator();
 		BeginChild("Sprites", ImVec2(0, 125), true);
 		for (auto resource : sprites)
@@ -927,6 +979,9 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		{
 		case 0:
 			collider->m_colliderShape = Collider2D::colliderType::colliderBox;
+			break;
+
+		default:
 			break;
 		};
 		Separator();

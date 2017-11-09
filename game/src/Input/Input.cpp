@@ -17,6 +17,9 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "Imgui\imgui-setup.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "Engine/Physics/RigidBody.h"
+
+#include "Engine/Engine.h"
 
 namespace Input
 {
@@ -93,15 +96,32 @@ namespace Input
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
-	//Camera *cam = Camera::GetActiveCamera();
-	//glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
-	//glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
-	//glm::mat4 matrix = glm::inverse(proj * view);
-	//
-	//glm::mat3 matrix;
+	  Camera *cam = Camera::GetActiveCamera();
+	  //glm::mat3 world2camera;
+	  //glm::mat3 screen2camera;
+	  //
+	  //world2camera[0] = glm::vec3(cam->m_Up.y, -cam->m_Up.x, 0);
+	  //world2camera[1] = cam->m_Up;
+	  //world2camera[2] = cam->m_Position;
+	  //
+	  //screen2camera[0] = glm::vec3(cam->m_AspectRatio);
+	  	
+
+	  int width, height;
+	  glfwGetWindowSize(engine->GetWindow(), &width, &height);
+
+	  const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+	glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
+	glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+	glm::mat4 matrix = glm::inverse(view * proj);
+	glm::vec4 mouse(
+		((2.0f * cursor.x) / width) - 1.0f,
+		1.0f - ((2.0f * cursor.y) / height),
+		1.0f, 1.0f);
 
 
-    return cursor;
+    return ((mouse * matrix) / mouse.w);
   }
 
   // Check if key is pressed; takes the key to check
