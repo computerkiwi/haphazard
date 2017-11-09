@@ -214,9 +214,10 @@ Editor::~Editor()
 void Editor::Update()
 {
 	// Check if Editor is being shown
+	debugDisplayHitboxes(m_show_editor);
+
 	if (m_show_editor)
 	{
-		debugDisplayHitboxes(true);
 
 		if (m_freeze_time)
 		{

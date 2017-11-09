@@ -10,6 +10,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem/GameObject.h"
 #include "GameObjectSystem\GameSpace.h"
+#include "GameObjectSystem\ObjectInfo.h"
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "graphics\Particles.h"
@@ -55,6 +56,20 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 	else
 	{
 		handle->SetResourceID(a.save.GetData<ResourceID>());
+	}
+}
+
+
+void Action_General_Tags(EditorAction& a)
+{
+	ComponentHandle<ObjectInfo> handle(a.handle);
+	if (a.redo)
+	{
+		handle->AddTag(a.current.GetData<std::string>().c_str());
+	}
+	else
+	{
+		handle->m_tags.erase(a.save.GetData<std::size_t>());
 	}
 }
 
@@ -531,6 +546,8 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 	{
 		Separator();
 
+		EditorComponentHandle handle = { info->m_id, true };
+
 		// Display the ID and make the name clickable for editing
 		Text("ID: %d | ", info->m_id & 0xFFFFFF);
 
@@ -585,6 +602,11 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 			{
 				info->AddTag(buffer);
 				editor->AddPopUp(PopUpWindow("Tag Added.", 1.0f, PopUpPosition::Mouse));
+
+				std::string name_save = buffer;
+
+				editor->Push_Action({ hash(buffer), name_save, nullptr, handle, Action_General_Tags });
+
 				CloseCurrentPopup();
 			}
 
@@ -1192,7 +1214,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				TreePop();
 			}
 
-			if (TreeNode("Sprite") && settings.texture_resourceID != static_cast<ResourceID>(-1))
+			if (TreeNode("Sprite"))
 			{
 				ResourceManager& rm = engine->GetResourceManager();
 
@@ -1228,7 +1250,11 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Trail##particles"))
 		{
-			Checkbox("Has Trail##particles", &settings.hasTrail);
+			if (Checkbox("Has Trail##particles", &settings.hasTrail))
+			{
+				editor->Push_Action({ !settings.hasTrail, settings.hasTrail, "HasTrail", handle, Action_General<ParticleSystem, bool> });
+			}
+
 			Drag("Rate##particles_trail", particleSave.trailEmissionRate, settings.trailEmissionRate);
 			DragRelease(ParticleSystem, particleSave.trailEmissionRate, settings.trailEmissionRate, "TrailEmissionRate");
 
