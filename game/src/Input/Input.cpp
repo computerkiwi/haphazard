@@ -8,6 +8,7 @@ PROJECT:
 Copyright 2017 DigiPen (USA) Corporation.
 *******************************************************/
 #include "graphics\Camera.h"
+#include "graphics\Settings.h"
 
 #include "Input.h"
 #include <iostream>
@@ -93,15 +94,17 @@ namespace Input
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
-	//Camera *cam = Camera::GetActiveCamera();
-	//glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
-	//glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
-	//glm::mat4 matrix = glm::inverse(proj * view);
-	//
-	//glm::mat3 matrix;
+	Camera *cam = Camera::GetActiveCamera();
 
+	glm::vec2 screenPos = glm::vec2((cursor.x / (Settings::ScreenWidth() / 2)) - 1.0f, 1.0f - (cursor.y / (Settings::ScreenHeight() / 2)));
 
-    return cursor;
+	glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
+	glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+	glm::mat4 matrix = glm::inverse(proj * view);
+
+	glm::vec4 cPos = matrix * glm::vec4(screenPos, 0.0f, 1);
+
+    return cPos;
   }
 
   // Check if key is pressed; takes the key to check

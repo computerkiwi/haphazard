@@ -444,7 +444,7 @@ void Editor::OnClick()
 	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
-		std::cout << "Mouse: " << mouse.x << ", " << mouse.y << "\n";
+		//std::cout << "Mouse: " << mouse.x << ", " << mouse.y << "\n";
 
 		for (auto id : m_objects)
 		{
