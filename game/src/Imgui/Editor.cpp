@@ -32,6 +32,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "graphics\DebugGraphic.h"
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW\glfw3native.h>
+
 #include <Windows.h>
 #include <psapi.h>
 
@@ -39,7 +42,52 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Toggle Hitboxes
 void debugDisplayHitboxes(bool hitboxesShown);
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_show_editor(false), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
+
+void Editor::OpenLevel()
+{
+	char filename[MAX_PATH] = { 0 };
+
+	OPENFILENAME file;
+	ZeroMemory(&file, sizeof(file));
+	file.lStructSize = sizeof(file);
+	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+	file.lpstrFile = filename;
+	file.nMaxFile = MAX_PATH;
+	file.lpstrFileTitle = "Load a level";
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+
+	if (GetOpenFileName(&file))
+	{
+		m_engine->FileLoad(filename);
+	}
+	else
+	{
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		default: Logging::Log("User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
 	debugDisplayHitboxes(false);
 	m_objects.reserve(256);
@@ -214,12 +262,18 @@ Editor::~Editor()
 void Editor::Update()
 {
 	// Check if Editor is being shown
-	debugDisplayHitboxes(m_show_editor);
+	debugDisplayHitboxes(m_editorState.show);
 
-	if (m_show_editor)
+	if (m_editorState.show)
 	{
+		if (m_editorState.first_update)
+		{
+			//prev_camera = Camera::GetActiveCamera();
+			//m_editor_cam.Use();
+			m_editorState.first_update = false;
+		}
 
-		if (m_freeze_time)
+		if (m_editorState.freeze)
 		{
 			m_engine->GetDtObject() = 0;
 		}
@@ -256,11 +310,6 @@ void Editor::Update()
 			Console();
 		}
 
-		if (Input::IsPressed(Key::Y))
-		{
-			m_tool = Editor::Tool::Translation;
-		}
-
 		// Move, Scale, Rotate
 		Tools();
 
@@ -272,10 +321,7 @@ void Editor::Update()
 		// Pass the current object in the editor
 		if (m_multiselect.m_size)
 		{
-			for (size_t i = 0; i < m_multiselect.m_size; i++)
-			{
-				ImGui_GameObject_Multi(m_multiselect, this);
-			}
+			ImGui_GameObject_Multi(m_multiselect, this);
 		}
 		else
 		{
@@ -292,25 +338,14 @@ void Editor::Update()
 		#endif
 
 		ImGui::Render();
-	}
-}
 
-
-void Editor::KeyBindings()
-{
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
-	{
-		if (m_actions.size)
+		if (m_editorState.exiting)
 		{
-			Undo_Action();
-		}
-	}
+			m_editorState.first_update = true;
+			m_editorState.show = false;
+			m_editorState.exiting = false;
 
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
-	{
-		if (m_actions.history.size() > m_actions.size)
-		{
-			Redo_Action();
+			//prev_camera->Use();
 		}
 	}
 }
@@ -445,16 +480,84 @@ void Editor::OnClick()
 	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
-		//std::cout << "Mouse: " << mouse.x << ", " << mouse.y << "\n";
+		
+		//bool cache_set = false;
 
+		//for (size_t i = 0; i < m_cache_objects.size(); ++i)
+		//{
+		//	CacheCount& id = m_cache_objects[i];
+		//	if (id.id)
+		//	{
+
+		//		if (id.id == m_selected_object)
+		//		{
+		//			continue;
+		//		}
+
+		//		GameObject object = id.id;
+		//		ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+		//		const glm::vec2 scale = transform.Get()->GetScale();
+		//		const glm::vec2 pos = transform.Get()->GetPosition();
+
+		//		if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
+		//		{
+		//			if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
+		//			{
+		//				// Save the GameObject data
+		//				m_selected_object = transform.GetGameObject().Getid();
+		//				cache_set = true;
+		//				++id.count;
+		//			}
+		//			else
+		//			{
+		//				--id.count;
+		//			}
+		//		}
+		//		else
+		//		{
+		//			--id.count;
+		//		}
+		//	}
+
+		//	if (id.count == 0)
+		//	{
+		//		m_cache_objects.erase(m_cache_objects.begin() + i);
+		//	}
+		//}
+
+		//if (cache_set)
+		//{
+		//	return;
+		//}
+
+		glm::vec2 pos;
+		glm::vec2 scale;
+
+		if (m_selected_object)
+		{
+			ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+			pos = transform.Get()->GetPosition();
+			scale = transform.Get()->GetScale();
+
+			// Check the selected object first
+			if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
+			{
+				if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
+				{
+					return;
+				}
+			}
+		}
+
+		// Check EVERY object
 		for (auto id : m_objects)
 		{
 			if (id)
 			{
 				GameObject object = id;
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				const glm::vec2 scale = transform.Get()->GetScale();
-				const glm::vec2 pos = transform.Get()->GetPosition();
+				scale = transform.Get()->GetScale();
+				pos = transform.Get()->GetPosition();
 
 				if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
 				{
@@ -462,10 +565,84 @@ void Editor::OnClick()
 					{
 						// Save the GameObject data
 						m_selected_object = transform.GetGameObject().Getid();
+						//m_cache_objects.emplace_back(m_selected_object);
 					}
 				}
 			}
 		}
+	}
+}
+
+
+
+void Editor::KeyBindings()
+{
+	// Widget
+	if (Input::IsPressed(Key::Q))
+	{
+		m_tool = Editor::Tool::none;
+	}
+
+	// Translation
+	else if (Input::IsPressed(Key::W))
+	{
+		m_tool = Editor::Tool::Translation;
+	}
+
+	// Scale
+	else if (Input::IsPressed(Key::E))
+	{
+		m_tool = Editor::Tool::Scale;
+	}
+
+	// Rotation
+	else if (Input::IsPressed(Key::R))
+	{
+		m_tool = Editor::Tool::Rotation;
+	}
+
+
+	// Undo
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
+	{
+		if (m_actions.size)
+		{
+			Undo_Action();
+		}
+	}
+
+	// Redo
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
+	{
+		if (m_actions.history.size() > m_actions.size)
+		{
+			Redo_Action();
+		}
+	}
+
+	// Save the Level
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
+	{
+		if (m_actions.history.size())
+		{
+			m_engine->FileSave(m_filename);
+		}
+		else
+		{
+			AddPopUp(PopUpWindow("No Changes Made.", 2.0f, PopUpPosition::BottomLeft));
+		}
+	}
+
+	// Open Dialog Box
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
+	{
+		OpenLevel();
+	}
+
+	if (Input::IsPressed(Key::Space))
+	{
+		// Move Camera to object
+		m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
 	}
 }
 
@@ -491,17 +668,37 @@ void Editor::Tools()
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
 		{
-			pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
+			pos = Lerp_Pos(m_multiselect);
 		}
 		else
 		{
-			pos = Lerp_Pos(m_multiselect);
+			pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
 		}
 
 		switch (m_tool)
 		{
 		case Tool::Translation:
-			DebugGraphic::DrawShape(pos, glm::vec2(5, 5));
+			DebugGraphic::DrawShape(pos, glm::vec2(0.25f, 0.1f));
+			DebugGraphic::DrawShape(pos, glm::vec2(0.1f, 0.25f));
+
+			if (Input::IsHeldDown(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
+			{
+				if (m_multiselect.m_size)
+				{
+					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
+					{
+						GameObject object = m_multiselect[i];
+
+						object.GetComponent<TransformComponent>()->SetPosition(object.GetComponent<TransformComponent>()->GetPosition() + pos);
+					}
+				}
+				else
+				{
+					GameObject(m_selected_object).GetComponent<TransformComponent>()->SetPosition(Input::GetMousePos_World());
+				}
+				return;
+			}
+
 			break;
 
 		case Tool::Scale:
@@ -962,14 +1159,14 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 void Editor::ToggleEditor()
 {
-	if (m_freeze_time)
+	if (m_editorState.freeze)
 	{
 		float& dt = m_engine->GetDtObject();
 
 		dt = dt ? 0 : (1 / 60.0f);
 	}
 
-	m_show_editor = !m_show_editor;
+	m_editorState.show = !m_editorState.show;
 }
 
 
@@ -1057,7 +1254,8 @@ void Editor::SaveLoad()
 	}
 	else if (m_load)
 	{
-		ImGui::OpenPopup("##menu_load_pop_up");
+		OpenLevel();
+		m_load = false;
 	}
 
 
@@ -1079,27 +1277,6 @@ void Editor::SaveLoad()
 			ImGui::CloseCurrentPopup();
 		}
 		m_save = false;
-		ImGui::EndPopup();
-	}
-
-	if (ImGui::BeginPopup("##menu_load_pop_up"))
-	{
-		ImGui::PushItemWidth(180);
-		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
-		{
-			engine->FileLoad(m_filename);
-			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::PopItemWidth();
-
-		if (ImGui::Button("Load"))
-		{
-			engine->FileLoad(m_filename);
-			AddPopUp(PopUpWindow("Loaded", 2.0f, PopUpPosition::Mouse));
-			ImGui::CloseCurrentPopup();
-		}
-		m_load = false;
 		ImGui::EndPopup();
 	}
 }
@@ -1159,7 +1336,7 @@ void Editor::SettingsPanel(float dt)
 
 	if (Button("Play/Pause##editor_panel"))
 	{
-		m_freeze_time = !m_freeze_time;
+		m_editorState.freeze = !m_editorState.freeze;
 	}
 	SameLine();
 	if (ImGui::Button("Console"))

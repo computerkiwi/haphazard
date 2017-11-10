@@ -22,6 +22,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Input\Input.h"
 
+#include <cfloat>
+
 using namespace ImGui;
 
 #define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
@@ -211,8 +213,28 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+#define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
+	{																										 \
+		if (widget_click[#SAVE] == false)																			 \
+		{																									 \
+			SAVE = VEC;																						 \
+			widget_click[#SAVE] = true;																				 \
+		}																									 \
+	}
+
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
+	{																										 \
+		if (widget_click[#SAVE] == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			widget_click[#SAVE] = true;																				 \
+		}																									 \
+	}
+
+#define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)															 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
 	{																										 \
 		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
@@ -233,6 +255,16 @@ ClickedList widget_click;
 
 #define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
+	{																										 \
+		if (widget_click[#SAVE] == false)																			 \
+		{																									 \
+			SAVE = ITEM;																					 \
+			widget_click[#SAVE] = true;																				 \
+		}																									 \
+	}
+
+#define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)																 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))															 \
 	{																										 \
 		if (widget_click[#SAVE] == false)																			 \
 		{																									 \
@@ -577,12 +609,17 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 
 void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor)
 {
-#if 0
-	for (size_t i = 0; i < objects.m_size; i++)
+#if 1
+	for (size_t i = 0; i < objects.m_size - 1; i++)
 	{
 		GameObject object = objects[i];
-		(void)object;
+		
+		TransformComponent *transform = object.GetComponent<TransformComponent>().Get();
+		DebugGraphic::DrawShape(transform->GetPosition(), glm::vec2(transform->GetScale()) + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0, 1, 1, 1));
 	}
+
+	ImGui_GameObject(objects[objects.m_size - 1], editor);
+
 #else
 	(void)objects;
 	(void)editor;
@@ -678,83 +715,75 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	// Draws the Selection Box
 	glm::vec2 scale(transform->GetScale());
 	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
-	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2( scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2, -scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
-	// DebugGraphic::DrawShape(transform->GetPosition() + glm::vec2(-scale.x / 2,  scale.y / 2), glm::vec2(0.025f, 0.025f), 0, glm::vec4(0, 1, 0, 1));
 
-
-	//if (CollapsingHeader("Transform"))
-	//{
-		EditorComponentHandle handle = { object.Getid(), true };
+	EditorComponentHandle handle = { object.Getid(), true };
 		
-		SameLine();
-		if (transform->GetParent())
+	SameLine();
+	if (transform->GetParent())
+	{
+		if (Button("Remove Parent##remove_parent_button"))
 		{
-			if (Button("Remove Parent##remove_parent_button"))
-			{
-				transform->m_parent.GetComponent<HierarchyComponent>()->Remove(object);
-				transform->SetParent(0);
-			}
-			else
-			{
-				SameLine();
-				Text("Parent Object: %d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
-			}
+			transform->m_parent.GetComponent<HierarchyComponent>()->Remove(object);
+			transform->SetParent(0);
 		}
 		else
 		{
-			if (Button("Add Parent"))
-			{
-				OpenPopup("Add Parent##add_parent_popup");
-			}
-
-			if (BeginPopup("Add Parent##add_parent_popup"))
-			{
-				Choose_Parent_ObjectList(editor, transform, object);
-				EndPopup();
-			}
+			SameLine();
+			Text("Parent Object: %d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+		}
+	}
+	else
+	{
+		if (Button("Add Parent"))
+		{
+			OpenPopup("Add Parent##add_parent_popup");
 		}
 
-		if (TreeNode("Position"))
+		if (BeginPopup("Add Parent##add_parent_popup"))
 		{
-			if (transform->GetParent())
-			{
-				Text("X: %f", transform->GetPosition().x);
-				Text("Y: %f", transform->GetPosition().y);
-
-				// Position Widgets
-				Drag_Vec("X Offset##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
-				Drag_Vec("Y Offset##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
-
-				DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
-			}
-			else
-			{
-				Drag_Vec("X##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
-				Drag_Vec("Y##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
-
-				DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
-			}
-
-			TreePop();
-			Separator();
+			Choose_Parent_ObjectList(editor, transform, object);
+			EndPopup();
 		}
-		if (TreeNode("Scale"))
+	}
+
+	if (TreeNode("Position"))
+	{
+		if (transform->GetParent())
 		{
+			Text("X: %f", transform->GetPosition().x);
+			Text("Y: %f", transform->GetPosition().y);
 
-			Drag_Vec("X##scale", transformSave.m_scale, transform->m_scale.x, transform->m_scale);
-			Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
+			// Position Widgets
+			Drag_Vec("X Offset##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
+			Drag_Vec("Y Offset##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
 
-			DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
+			DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
+		}
+		else
+		{
+			Drag_Vec("X##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
+			Drag_Vec("Y##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
+
+			DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
+		}
+
+		TreePop();
+		Separator();
+	}
+	if (TreeNode("Scale"))
+	{
+
+		Drag_Vec("X##scale", transformSave.m_scale, transform->m_scale.x, transform->m_scale);
+		Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
+
+		DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
 			
-			TreePop();
-			Separator();
-		}
+		TreePop();
+		Separator();
+	}
 
-		Drag_Float_Speed("Rotation##transform", transformSave.m_rotation, transform->m_rotation, 1.0f);
-		DragRelease(TransformComponent, transformSave.m_rotation, transform->m_rotation, "rotation");
-	//}
+	Drag_Float_Speed("Rotation##transform", transformSave.m_rotation, transform->m_rotation, 1.0f);
+	DragRelease(TransformComponent, transformSave.m_rotation, transform->m_rotation, "rotation");
 }
 
 
@@ -1123,26 +1152,19 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		
 		Checkbox("Looping", &settings.isLooping);
 		
-		Drag("Rate##particles", particleSave.emissionRate, settings.emissionRate);
+		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, 0.005f, FLT_MAX);
 		DragRelease(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate");
 
-		Drag_Int_Speed("Count", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.25f);
+		Drag_Int_Speed_MinMax("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.05f, 1, INT_MAX);
 		DragRelease(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission");
-
-		Drag_Int("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission);
-		if (settings.particlesPerEmission < 0)
-		{
-			settings.particlesPerEmission = 0;
-		}
-		DragRelease(ParticleSettings, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission");
 
 
 		if (TreeNode("Burst##particles"))
 		{
 			InputFloat("Frequency", &settings.burstEmission.z, SLIDER_STEP, 0);
 
-			Drag_Vec("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission);
-			Drag_Vec("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission);
+			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, FLT_MAX);
+			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, FLT_MAX);
 
 			DragRelease(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission");
 			Separator();
@@ -1248,20 +1270,20 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			if (TreeNode("Color##particles"))
 			{
 				Text("Start Color");
-				Drag_Vec("R##particles_startColor", particleSave.startColor, settings.startColor.x, settings.startColor);
-				Drag_Vec("G##particles_startColor", particleSave.startColor, settings.startColor.y, settings.startColor);
-				Drag_Vec("B##particles_startColor", particleSave.startColor, settings.startColor.z, settings.startColor);
-				Drag_Vec("A##particles_startColor", particleSave.startColor, settings.startColor.w, settings.startColor);
+				Drag_Vec_MinMax("R##particles_startColor", particleSave.startColor, settings.startColor.x, settings.startColor, 0, 1);
+				Drag_Vec_MinMax("G##particles_startColor", particleSave.startColor, settings.startColor.y, settings.startColor, 0, 1);
+				Drag_Vec_MinMax("B##particles_startColor", particleSave.startColor, settings.startColor.z, settings.startColor, 0, 1);
+				Drag_Vec_MinMax("A##particles_startColor", particleSave.startColor, settings.startColor.w, settings.startColor, 0, 1);
 
 				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
 
 				Separator();
 
 				Text("End Color");
-				Drag_Vec("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor);
-				Drag_Vec("G##particles_endColor", particleSave.endColor, settings.endColor.y, settings.endColor);
-				Drag_Vec("B##particles_endColor", particleSave.endColor, settings.endColor.z, settings.endColor);
-				Drag_Vec("A##particles_endColor", particleSave.endColor, settings.endColor.w, settings.endColor);
+				Drag_Vec_MinMax("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor, 0, 1);
+				Drag_Vec_MinMax("G##particles_endColor", particleSave.endColor, settings.endColor.y, settings.endColor, 0, 1);
+				Drag_Vec_MinMax("B##particles_endColor", particleSave.endColor, settings.endColor.z, settings.endColor, 0, 1);
+				Drag_Vec_MinMax("A##particles_endColor", particleSave.endColor, settings.endColor.w, settings.endColor, 0, 1);
 
 				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
 

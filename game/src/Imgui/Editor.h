@@ -88,7 +88,15 @@ class Editor
 	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	// Editor
+	Camera *prev_camera;
 	Camera m_editor_cam;
+	struct EditorState
+	{
+		bool first_update = true;
+		bool show = false;
+		bool freeze = true;
+		bool exiting = false;
+	} m_editorState;
 
 	// System
 	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
@@ -97,8 +105,6 @@ class Editor
 
 	// Engine
 	Engine *m_engine;
-	bool m_show_editor;
-	bool m_freeze_time = true;
 
 	// Save/Load
 	bool m_save = false;
@@ -112,6 +118,13 @@ class Editor
 	std::string m_name;
 
 	// List of all GameObjects
+	/*struct CacheCount
+	{
+		CacheCount(GameObject_ID object) : id(object), count(1) {}
+		GameObject_ID id;
+		size_t count;
+	};
+	std::vector<CacheCount> m_cache_objects;*/
 	std::vector<GameObject_ID> m_objects;
 
 	// Undo/Redo Actions
@@ -171,11 +184,14 @@ class Editor
 
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
+
 	bool PopUp(ImVec2& pos, ImVec2& size);
+	
 	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
 	void ObjectsList();
 
 	void SaveLoad();
+	void OpenLevel();
 
 	void MenuBar();
 	void SettingsPanel(float dt);
