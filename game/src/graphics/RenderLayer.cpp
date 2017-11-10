@@ -36,6 +36,7 @@ FrameBuffer::~FrameBuffer()
 {
 	glDeleteFramebuffers(1, &m_ID);
 	glDeleteTextures(m_NumColBfrs, m_ColorBuffers);
+	glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
 }
 
 void FrameBuffer::SetDimensions(int width, int height)
@@ -44,6 +45,12 @@ void FrameBuffer::SetDimensions(int width, int height)
 	{
 		m_Width = width;
 		m_Height = height;
+		
+		// Free old buffers
+		//glDeleteTextures(m_NumColBfrs, m_ColorBuffers);
+		//glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
+
+		// Generate new buffers
 		GenerateColorBuffers();
 		GenerateDepthStencilObject();
 	}
@@ -65,9 +72,17 @@ void FrameBuffer::GenerateColorBuffers()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorBuffers[i], 0);
 	}
 
-	// Tell OpenGL we are rendering to multiple colorbuffers
-	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
+	if (m_NumColBfrs > 1)
+	{
+		// Tell OpenGL we are rendering to multiple colorbuffers
+		unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, attachments);
+	}
+	else
+	{
+		unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, attachments);
+	}
 }
 
 void FrameBuffer::GenerateDepthStencilObject()

@@ -26,6 +26,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 static bool resizeCameras = false;
 static int width;
 static int height;
+static int currLayer;
 
 RenderSystem::RenderSystem()
 {
@@ -220,8 +221,8 @@ void RenderSystem::Update(float dt)
 	RenderSprites(dt);
 
 	Screen::GetLayerFrameBuffer(10)->Use();
-	FX fx[] = { FX::BLUR };
-	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
+	//FX fx[] = { FX::BLUR };
+	//Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
 
 	RenderText(dt);
 	RenderParticles(dt);
