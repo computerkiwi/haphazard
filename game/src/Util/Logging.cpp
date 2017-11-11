@@ -88,9 +88,8 @@ namespace
 }
 
 
+// std::cout of logging
 Logging logger;
-
-
 
 bool Logging::m_logToFile = true;
 bool Logging::m_logToConsole = true;
