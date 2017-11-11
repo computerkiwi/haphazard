@@ -222,6 +222,7 @@ void Engine::Update()
 
 std::string Engine::StringSave()
 {
+	logger << "Saving Game -> String";
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
 	rapidjson::Document doc;
@@ -231,6 +232,8 @@ std::string Engine::StringSave()
 
 void Engine::FileSave(const char *fileName)
 {
+	logger << "Saving Game -> File: " << fileName;
+
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
 	rapidjson::Document doc;
@@ -240,12 +243,14 @@ void Engine::FileSave(const char *fileName)
 
 void Engine::StringLoad(const char *jsonString)
 {
+	logger << "Loading game -> String";
 	rapidjson::Document doc;
 	doc.Parse(jsonString);
 }
 
 void Engine::FileLoad(const char *fileName)
 {
+	logger << "Loading Game -> File: " << fileName;
 	rapidjson::Document doc = LoadJsonFile(fileName);
 
 	meta::DeserializeAssign(*this, doc);

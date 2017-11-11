@@ -12,7 +12,27 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <mutex>
 
 class Engine;
+class Logging;
+class LoggingProxy;
 //typedef char va_list;
+
+class LoggingProxy
+{
+	Logging& m_logger;
+public:
+	LoggingProxy(Logging& logger_) : m_logger(logger_) {}
+
+	template <typename T>
+	LoggingProxy& operator <<(T& rhs)
+	{
+		std::stringstream ss;
+		ss << rhs;
+		m_logger.ObjectLog_ProxyAppend(ss.str().c_str());
+
+		return *this;
+	}
+};
+
 
 class Logging
 {
@@ -47,8 +67,11 @@ public:
 	static void Init();
 	static void Exit();
 
-	static void Log(const char *message, Logging::Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
-	static void Log_StartUp(const char *message, Logging::Channel channel, Priority priority);
+	static void Log(const char *message, Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
+	static void Log_StartUp(const char *message, Channel channel, Priority priority);
+
+	void ObjectLog(const char * message, Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
+	void ObjectLog_ProxyAppend(const char * message, Channel channel = Channel::DEFAULT, Priority priority = MEDIUM_PRIORITY);
 
 	template <typename... Args>
 	static void Log(Logging::Channel channel, Priority priority, Args&&... args)
@@ -64,6 +87,16 @@ public:
 		std::stringstream str;
 		ConstructVariadicLogString(str, std::forward<Args>(args)...);
 		Log_StartUp(str.str().c_str(), channel, priority);
+	}
+
+	template <typename T>
+	LoggingProxy operator <<(T& rhs)
+	{
+		std::stringstream ss;
+		ss << rhs;
+		ObjectLog(ss.str().c_str());
+
+		return LoggingProxy(*this);
 	}
 
 private:
@@ -103,8 +136,13 @@ private:
 		ConstructVariadicLogString(str, args...);
 	}
 
+
 	static void ConstructVariadicLogString(std::stringstream& str)
 	{
 		return;
 	}
 };
+
+
+extern Logging logger;
+

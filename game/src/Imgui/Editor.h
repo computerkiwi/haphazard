@@ -73,7 +73,10 @@ enum PopUpPosition
 struct PopUpWindow
 {
 	PopUpWindow(const char *msg, float time, PopUpPosition position) 
-		: message(msg), timer(time), max_time(time), alpha(1), pos(position) {}
+		: message(msg), timer(time), max_time(time), alpha(1), pos(position) 
+	{
+		logger << "PopUp Window: " << msg << "\n";
+	}
 	const char *message;
 	float timer;
 	float max_time;
@@ -105,6 +108,14 @@ class Editor
 
 	// Engine
 	Engine *m_engine;
+
+	// Settings
+	struct EditorSettings
+	{
+		bool default_collider_match_scale = true;
+
+	} m_editorSettings;
+
 
 	// Save/Load
 	bool m_save = false;

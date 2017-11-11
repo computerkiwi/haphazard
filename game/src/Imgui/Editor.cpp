@@ -37,11 +37,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include <Windows.h>
 #include <psapi.h>
+#include "graphics/Settings.h"
 
 
 // Toggle Hitboxes
 void debugDisplayHitboxes(bool hitboxesShown);
-
+extern const char *ErrorList[];
 
 void Editor::OpenLevel()
 {
@@ -66,21 +67,21 @@ void Editor::OpenLevel()
 	{
 		switch (CommDlgExtendedError())
 		{
-		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
-		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY);   break;
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
 		default: Logging::Log("User closed OpenLevel Dialog.");
 		}
 	}
@@ -89,6 +90,7 @@ void Editor::OpenLevel()
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
+	logger << "Creating Editor.";
 	debugDisplayHitboxes(false);
 	m_objects.reserve(256);
 
@@ -203,6 +205,8 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 	// Exit the game, probably should be editor?
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
 
+	RegisterCommand("reload", [this]() { m_engine->Exit(); });
+
 	// Display past commands
 	RegisterCommand("history",
 	[this]()
@@ -270,6 +274,11 @@ void Editor::Update()
 		{
 			//prev_camera = Camera::GetActiveCamera();
 			//m_editor_cam.Use();
+			//m_editor_cam.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+			//m_editor_cam.SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+			//m_editor_cam.SetPosition(glm::vec2(0, 0));
+			//m_editor_cam.SetZoom(3);
+
 			m_editorState.first_update = false;
 		}
 
@@ -332,7 +341,6 @@ void Editor::Update()
 			// Please don't delete, super important
 			if (rand() % 1000000 == 0)
 			{
-				extern const char *ErrorList[];
 				AddPopUp(PopUpWindow(ErrorList[0], 5.0f, PopUpPosition::Center));
 			}
 		#endif
@@ -346,6 +354,7 @@ void Editor::Update()
 			m_editorState.exiting = false;
 
 			//prev_camera->Use();
+			//prev_camera = nullptr;
 		}
 	}
 }
@@ -1254,6 +1263,7 @@ void Editor::SaveLoad()
 	}
 	else if (m_load)
 	{
+		logger << "Opening Level\n";
 		OpenLevel();
 		m_load = false;
 	}
@@ -1311,7 +1321,7 @@ void Editor::SettingsPanel(float dt)
 	Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
 	Text("CPU: %f%%", m_cpu_load[0]);
 
-	PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
+	// PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
 
 	timer += dt;
 	if (timer > 0.75f)
@@ -1324,27 +1334,47 @@ void Editor::SettingsPanel(float dt)
 		timer = 0.0f;
 	}
 
-	if (Button("Save##editor_settings"))
-	{
-		m_save = true;
-	}
-	SameLine();
-	if (Button("Load##editor_settings"))
-	{
-		m_load = true;
-	}
+#define SETTINGS_BUTTON_SIZE 
 
-	if (Button("Play/Pause##editor_panel"))
-	{
-		m_editorState.freeze = !m_editorState.freeze;
-	}
-	SameLine();
-	if (ImGui::Button("Console"))
+	if (ImGui::Button("Console" SETTINGS_BUTTON_SIZE))
 	{
 		m_show_console = !m_show_console;
 	}
 
-	if (ImGui::Button("Style Editor"))
+	ImGui::Separator();
+
+	if (Button("Save##editor_settings" SETTINGS_BUTTON_SIZE))
+	{
+		m_save = true;
+	}
+	SameLine();
+	if (Button("Load##editor_settings" SETTINGS_BUTTON_SIZE))
+	{
+		m_load = true;
+	}
+
+	ImGui::Separator();
+
+	if (Button("Play/Pause##editor_panel" SETTINGS_BUTTON_SIZE))
+	{
+		m_editorState.freeze = !m_editorState.freeze;
+	}
+	
+	SameLine();
+	if (ImGui::Button("Reload" SETTINGS_BUTTON_SIZE))
+	{
+
+	}
+
+
+	ImGui::Separator();
+
+	if (ImGui::Button("Keybinds" SETTINGS_BUTTON_SIZE))
+	{
+		
+	}
+	SameLine();
+	if (ImGui::Button("Style Editor" SETTINGS_BUTTON_SIZE))
 	{
 		OpenPopup("##editor_settings_style");
 	}
@@ -1564,6 +1594,7 @@ void Editor::Console()
 
 	if (m_state.clickedIndex != -1)
 	{
+		// Puts keyboard focus back to the text input
 		ImGui::SetKeyboardFocusHere(-1);
 		m_state.m_popUp = false;
 	}

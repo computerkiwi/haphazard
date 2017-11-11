@@ -88,6 +88,10 @@ namespace
 }
 
 
+Logging logger;
+
+
+
 bool Logging::m_logToFile = true;
 bool Logging::m_logToConsole = true;
 bool Logging::m_log = true;
@@ -218,6 +222,35 @@ int Logging::vprintf(Logging::Channel channel, Priority priority, const char *fo
 	
 	Logging::Log(buffer);
 	return ret;
+}
+
+
+void Logging::ObjectLog(const char * message, Logging::Channel channel, Priority priority)
+{
+	if (priority >= m_consolePriority)
+	{
+		std::stringstream ss;
+		ss << GetTimeString("%X") << " [" << GetLoggingChannelString(channel) << "] " << message;
+
+		m_mutex.lock();
+		m_writeBufferConsole += ss.str();
+		m_mutex.unlock();
+
+		engine->GetEditor()->Internal_Log(ss.str().c_str());
+	}
+}
+
+
+void Logging::ObjectLog_ProxyAppend(const char * message, Logging::Channel channel, Priority priority)
+{
+	if (priority >= m_consolePriority)
+	{
+		m_mutex.lock();
+		m_writeBufferConsole += message;
+		m_mutex.unlock();
+
+		engine->GetEditor()->Internal_Log(message);
+	}
 }
 
 

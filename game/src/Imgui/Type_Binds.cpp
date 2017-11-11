@@ -168,7 +168,7 @@ const char * ErrorList[] =
 	"Error 02: Already has this Component Type.",
 	"Error 03: This Object has a RigidBody or a Dynamic Collider.",
 	"Error 04: This Object has a Static Collider.",
-	"Error 04: ",
+	"Error 04: Unable to Open File. Check Log.",
 	"Error 05: ",
 	"Error 06: ",
 	"Error 07: ",
@@ -939,6 +939,27 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
+			bool matchScale;
+			Checkbox("Match Scale", &matchScale);
+
+			if (matchScale)
+			{
+				colliderSave.m_dimensions = collider->m_dimensions;
+
+				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
+
+				if (collider->isStatic())
+				{
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+						handle, Action_General_Collider });
+				}
+				else
+				{
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+						handle, Action_General_Collider });
+				}
+			}
+
 			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, collider->m_dimensions);
 			Drag_Vec("Y##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.y, collider->m_dimensions);
 
@@ -999,8 +1020,8 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			}
 		}
 
-		SliderFloat("Elasticity", &collider->m_selfElasticity, 0.0f, 1.0f);
-		
+		Drag_Float_Speed_MinMax("Elasticity##collider", colliderSave.m_selfElasticity, collider->m_selfElasticity, SLIDER_STEP, 0, 1);
+		DragRelease(Collider2D, colliderSave.m_selfElasticity, collider->m_selfElasticity, "selfElasticity");
 
 		// Collision Type
 		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
@@ -1033,12 +1054,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 			// Check if we need to save the action for static or dynamic
 			if (collider->isStatic())
 			{
-				editor->Push_Action({ layer, collider->m_collisionLayer, "collisionLayer", 
+				editor->Push_Action({ collider->m_collisionLayer, layer, "collisionLayer",
 								handle, Action_General<StaticCollider2DComponent, int> });
 			}
 			else
 			{
-				editor->Push_Action({ layer, collider->m_collisionLayer, "collisionLayer", 
+				editor->Push_Action({ collider->m_collisionLayer, layer, "collisionLayer",
 								handle, Action_General<DynamicCollider2DComponent, int> });
 			}
 
