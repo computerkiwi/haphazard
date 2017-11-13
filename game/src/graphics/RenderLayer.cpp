@@ -13,7 +13,7 @@ static Screen::Mesh* fullscreenMesh = nullptr;
 void FrameBuffer::InitFrameBuffers()
 {
 	fb_FX = new FrameBuffer(-999);
-	fullscreenMesh = new Screen::Mesh();
+	fullscreenMesh = Screen::m_Fullscreen; //new Screen::Mesh();
 	Screen::m_LayerList.clear(); // Take out the fx buffer framebuffer from the render list
 }
 
@@ -23,7 +23,18 @@ FrameBuffer::FrameBuffer(int layer, int numColBuffers)
 	glGenFramebuffers(1, &m_ID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
 	glGenTextures(m_NumColBfrs, m_ColorBuffers);
-	SetDimensions(Settings::ScreenWidth(), Settings::ScreenHeight());
+
+	m_Width = Settings::ScreenWidth();
+	m_Height = Settings::ScreenHeight();
+
+	glBindTexture(GL_TEXTURE_2D, m_ColorBuffers[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	// Attach to framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorBuffers[0], 0);
 
 	Screen::m_LayerList.insert(this);
 
@@ -36,7 +47,7 @@ FrameBuffer::~FrameBuffer()
 {
 	glDeleteFramebuffers(1, &m_ID);
 	glDeleteTextures(m_NumColBfrs, m_ColorBuffers);
-	glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
+	//glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
 }
 
 void FrameBuffer::SetDimensions(int width, int height)
@@ -52,7 +63,7 @@ void FrameBuffer::SetDimensions(int width, int height)
 
 		// Generate new buffers
 		GenerateColorBuffers();
-		GenerateDepthStencilObject();
+		//GenerateDepthStencilObject();
 	}
 }
 
@@ -64,29 +75,12 @@ void FrameBuffer::GenerateColorBuffers()
 	{
 		glBindTexture(GL_TEXTURE_2D, m_ColorBuffers[i]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		// Attach to framebuffer
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorBuffers[i], 0);
-	}
-
-	if (m_NumColBfrs > 1)
-	{
-		// Tell OpenGL we are rendering to multiple colorbuffers
-		unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		glDrawBuffers(2, attachments);
-	}
-	else
-	{
-		unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, attachments);
 	}
 }
 
 void FrameBuffer::GenerateDepthStencilObject()
 {
+	return;
 	// create a renderbuffer object for depth and stencil attachment (won't be sampling these)
 	glGenRenderbuffers(1, &m_DepthStencilBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_DepthStencilBuffer);
