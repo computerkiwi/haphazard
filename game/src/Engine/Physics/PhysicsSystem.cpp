@@ -354,7 +354,7 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
 
 		//!?!? quick cheap solution - replace with a real one later
-		if (collider1->ColliderData().GetRotationOffset() + collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() + transform2->GetRotation() == 0)
+		if (collider1->ColliderData().GetRotationOffset() - collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() - transform2->GetRotation() == 0)
 		{
 			glm::vec2 pos1 = transform1->GetPosition();
 			glm::vec2 pos2 = transform2->GetPosition();
@@ -471,6 +471,7 @@ void MoveAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>& rigidBodi
 	for (auto tRigidBodyHandle : rigidBodies)
 	{
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
+		assert(transform.IsValid() && "Invalid Transform from Rigidbody in MoveAllDynamicObjects in PhysicsSystem.cpp");
 
 		// update position, velocity, and acceleration using stored values
 		UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
@@ -499,6 +500,7 @@ void BrettsFunMagicalTestLoop(ComponentMap<DynamicCollider2DComponent> *allDynam
 		if (tDynamiColliderHandle->ColliderData().IsCollidingWithLayer(collisionLayers::allyProjectile))
 		{
 			ComponentHandle<RigidBodyComponent> rigidBody = tDynamiColliderHandle.GetSiblingComponent<RigidBodyComponent>();
+			assert(rigidBody.IsValid() && "Invalid Transform from Rigidbody in ApplyGravityToAllDynamicObjects in PhysicsSystem.cpp");
 
 			rigidBody->AddVelocity(glm::vec3(-.1, .2, 0));
 		}
@@ -506,6 +508,14 @@ void BrettsFunMagicalTestLoop(ComponentMap<DynamicCollider2DComponent> *allDynam
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
 		
+	}
+}
+
+void ApplyGravityToAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>& rigidBodies)
+{
+	for (auto tRigidBodyHandle : rigidBodies)
+	{
+		tRigidBodyHandle->AddVelocity(tRigidBodyHandle->Gravity() * dt);
 	}
 }
 
@@ -652,10 +662,13 @@ void PhysicsSystem::Update(float dt)
 		}
 	}
 
+	//Add Gravity to objects
+	ApplyGravityToAllDynamicObjects(dt, *rigidBodies);
+
 	/************************** TEST STUFF **************************/
 	CollisionLayerTestFuction();
 
-	const int numDir = 90;
+	const int numDir = 3;
 
 	glm::vec2 castPosition(7, 2);
 
