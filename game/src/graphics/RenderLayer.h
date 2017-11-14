@@ -38,6 +38,8 @@ public:
 	
 	void SetBlurAmount(float amt);
 
+	static void ResizePrivateFrameBuffers(int w, int h);
+
 private:
 	void GenerateColorBuffers();
 	void GenerateDepthStencilObject();

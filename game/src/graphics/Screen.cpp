@@ -93,7 +93,8 @@ void Screen::ResizeScreen(int width, int height)
 	glViewport(0, 0, width, height);
 
 	m_View->SetDimensions(width, height);
-	FrameBuffer::fb_FX->SetDimensions(width, height);
+
+	FrameBuffer::ResizePrivateFrameBuffers(width, height);
 	
 	for (FrameBuffer* fb : m_LayerList)
 	{

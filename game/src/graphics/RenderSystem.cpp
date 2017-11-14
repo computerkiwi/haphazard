@@ -221,7 +221,7 @@ void RenderSystem::Update(float dt)
 	RenderSprites(dt);
 
 	Screen::GetLayerFrameBuffer(10)->Use();
-	FX fx[] = { FX::EDGE_DETECTION };
+	FX fx[] = { FX::BLUR };
 	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
 
 	RenderText(dt);

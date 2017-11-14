@@ -5,6 +5,7 @@
 
 FrameBuffer* FrameBuffer::fb_FX = nullptr;
 static Screen::Mesh* fullscreenMesh = nullptr;
+static FrameBuffer* blur_pingpongFBO[2];
 
 ///
 // FrameBuffer
@@ -15,6 +16,15 @@ void FrameBuffer::InitFrameBuffers()
 	fb_FX = new FrameBuffer(-999);
 	fullscreenMesh = Screen::m_Fullscreen; //new Screen::Mesh();
 	Screen::m_LayerList.clear(); // Take out the fx buffer framebuffer from the render list
+	blur_pingpongFBO[0] = new FrameBuffer(1);
+	blur_pingpongFBO[1] = new FrameBuffer(1);
+}
+
+void FrameBuffer::ResizePrivateFrameBuffers(int w, int h)
+{
+	fb_FX->SetDimensions(w, h);
+	blur_pingpongFBO[0]->SetDimensions(w, h);
+	blur_pingpongFBO[1]->SetDimensions(w, h);
 }
 
 FrameBuffer::FrameBuffer(int layer, int numColBuffers)
@@ -233,8 +243,6 @@ bool FrameBuffer::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
 
 void FrameBuffer::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 {
-	static FrameBuffer pingpongFBO[2] = { FrameBuffer(1), FrameBuffer(1) };
-
 	bool horizontal = true, first_iteration = true;
 
 	int blurSmooth = 4;
@@ -244,7 +252,7 @@ void FrameBuffer::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 
 	for (int i = 0; i < blurSmooth /*blurAmount*/; i++)
 	{
-		pingpongFBO[horizontal].Use();
+		blur_pingpongFBO[horizontal]->Use();
 		Shaders::ScreenShader::Blur->SetVariable("Horizontal", horizontal);
 		if (first_iteration)
 		{
@@ -252,13 +260,17 @@ void FrameBuffer::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 			first_iteration = false;
 		}
 		else
-			pingpongFBO[!horizontal].BindColorBuffer();
+			blur_pingpongFBO[!horizontal]->BindColorBuffer();
 
 		fullscreenMesh->DrawTris();
 		horizontal = !horizontal;
 	}
-	target.Use();
-	fullscreenMesh->DrawTris(); // Draw final product onto target
+	//target.Use();
+	//fullscreenMesh->DrawTris(); // Draw final product onto target
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, blur_pingpongFBO[!horizontal]->m_ID);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target.m_ID);
+	glBlitFramebuffer(0, 0, target.m_Width, target.m_Height, 0, 0, target.m_Width, target.m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 void FrameBuffer::RenderBloom(FrameBuffer& source, FrameBuffer& target)
