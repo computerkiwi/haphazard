@@ -53,6 +53,49 @@ struct MinMax
 	}
 };
 
+struct AABBAroundRotatedRectangle
+{
+	AABBAroundRotatedRectangle(const BoxCorners& object) : 
+	                           minX(object.m_corners[0].x), maxX(object.m_corners[0].x), minY(object.m_corners[0].y), maxY(object.m_corners[0].x)
+	{
+		// go through the other corners
+		for (int i = 1; i < 4; ++i)
+		{
+			float xValue = object.m_corners[i].x;
+			float yValue = object.m_corners[i].y;
+
+			// keep track of lowest and highest values
+			if (xValue > maxX)
+			{
+				maxX = xValue;
+			}
+			else if (xValue < minX)
+			{
+				minX = xValue;
+			}
+
+			if (yValue < minY)
+			{
+				minY = yValue;
+			}
+			else if (yValue > maxY)
+			{
+				maxY = yValue;
+			}
+		}
+	}
+
+	// default constructor
+	AABBAroundRotatedRectangle() : minX(0), maxX(0), minY(0), maxY(0)
+	{
+	}
+
+	float minX;
+	float maxX;
+	float minY;
+	float maxY;
+};
+
 std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
 {
 	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
@@ -123,7 +166,18 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 	float smallestOverlap = -1;
 	glm::vec2 smallestAxis;
 
-	//!?!? do an optimized AABB check to first rule out distant collisions
+	// do an optimized AABB check to first rule out distant collisions
+	AABBAroundRotatedRectangle AABB1(Box1);
+	AABBAroundRotatedRectangle AABB2(Box2);
+
+	bool AABBsAreColliding = Collision_AABBToAABBbool(glm::vec2(AABB1.minX, AABB1.minY), glm::vec2(AABB1.maxX, AABB1.maxY),
+		                                              glm::vec2(AABB2.minX, AABB2.minY), glm::vec2(AABB2.maxX, AABB2.maxY));
+
+		// if bounding boxes are not colliding, objects are not colliding
+	if (!AABBsAreColliding)
+	{
+		return glm::vec3(0, 0, 0);
+	}
 
 	// the vectors onto which each shape will be projected
 	glm::vec2 edgeNormals[num_projections] = { { 0,0 } };
@@ -169,9 +223,6 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 
 	// if we get here it is guarunteed that there was a collision and all sides have been tested for the shortest overlap
 	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
-
-	//std::cout << "smallestAxis: " << smallestAxis << std::endl;
-	//std::cout << "escapeVector: " << escapeVector << std::endl;
 
 	return escapeVector;
 }
@@ -264,6 +315,32 @@ glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transfo
 	return Collision_AABBToAABB(Box1, Box2);
 }
 
+bool Collision_AABBToAABBbool(glm::vec2 botLeft1, glm::vec2 topRight1, glm::vec2 botLeft2, glm::vec2 topRight2)
+{
+	// if object1 is above object2
+	if (botLeft1.y >= topRight2.y)
+	{
+		return false;
+	}
+	// if object1 is left of object2
+	if (topRight1.x <= botLeft2.x)
+	{
+		return false;
+	}
+	// if object1 is right of object2
+	if (botLeft1.x >= topRight2.x)
+	{
+		return false;
+	}
+	// if the point is below the object, return false
+	if (topRight1.y <= botLeft2.y)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 bool Collision_PointToBoxQuick(const glm::vec2& point, const BoxCorners& box, float boxRotation)
 {
 	// use AABB collision if the box is not rotated
@@ -354,7 +431,7 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
 
 		//!?!? quick cheap solution - replace with a real one later
-		if (collider1->ColliderData().GetRotationOffset() - collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() - transform2->GetRotation() == 0)
+		if (collider1->ColliderData().GetRotationOffset() + collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() + transform2->GetRotation() == 0)
 		{
 			glm::vec2 pos1 = transform1->GetPosition();
 			glm::vec2 pos2 = transform2->GetPosition();
