@@ -692,6 +692,7 @@ void Editor::Tools()
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 			{
+				GameObject object = m_selected_object;
 				if (m_multiselect.m_size)
 				{
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
@@ -703,7 +704,11 @@ void Editor::Tools()
 				}
 				else
 				{
-					GameObject(m_selected_object).GetComponent<TransformComponent>()->SetPosition(Input::GetMousePos_World());
+					glm::vec2 position = object.GetComponent<TransformComponent>()->GetPosition();
+					glm::vec2 mouse = Input::GetMousePos_World();
+					glm::vec2 diff = mouse - position;
+
+					object.GetComponent<TransformComponent>()->SetPosition(position + diff);
 				}
 				return;
 			}
