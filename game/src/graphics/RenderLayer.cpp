@@ -5,7 +5,10 @@
 
 FrameBuffer* FrameBuffer::fb_FX = nullptr;
 static Screen::Mesh* fullscreenMesh = nullptr;
+
+// Shader Framebuffers
 static FrameBuffer* blur_pingpongFBO[2];
+static FrameBuffer* bloom_blurredBrights;
 
 ///
 // FrameBuffer
@@ -16,8 +19,9 @@ void FrameBuffer::InitFrameBuffers()
 	fb_FX = new FrameBuffer(-999);
 	fullscreenMesh = Screen::m_Fullscreen; //new Screen::Mesh();
 	Screen::m_LayerList.clear(); // Take out the fx buffer framebuffer from the render list
-	blur_pingpongFBO[0] = new FrameBuffer(1);
-	blur_pingpongFBO[1] = new FrameBuffer(1);
+	blur_pingpongFBO[0] = new FrameBuffer(-999);
+	blur_pingpongFBO[1] = new FrameBuffer(-999);
+	bloom_blurredBrights = new FrameBuffer(-999);
 }
 
 void FrameBuffer::ResizePrivateFrameBuffers(int w, int h)
@@ -25,6 +29,7 @@ void FrameBuffer::ResizePrivateFrameBuffers(int w, int h)
 	fb_FX->SetDimensions(w, h);
 	blur_pingpongFBO[0]->SetDimensions(w, h);
 	blur_pingpongFBO[1]->SetDimensions(w, h);
+	bloom_blurredBrights->SetDimensions(w, h);
 }
 
 FrameBuffer::FrameBuffer(int layer, int numColBuffers)
@@ -245,6 +250,9 @@ void FrameBuffer::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 {
 	bool horizontal = true, first_iteration = true;
 
+	blur_pingpongFBO[0]->Clear();
+	blur_pingpongFBO[1]->Clear();
+
 	int blurSmooth = 4;
 
 	Shaders::ScreenShader::Blur->Use();
@@ -275,8 +283,7 @@ void FrameBuffer::RenderBlur(GLuint colorBuffer, FrameBuffer& target)
 
 void FrameBuffer::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 {
-	static FrameBuffer blurredBrights(0); // Framebuffer to hold blurred brights in
-	blurredBrights.Clear();
+	bloom_blurredBrights->Clear();
 
 	// Draw extracted brights to target color buffers
 	Shaders::ScreenShader::ExtractBrights->Use();
@@ -287,7 +294,7 @@ void FrameBuffer::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	fullscreenMesh->DrawTris();
 
 	// Target now contains (0) source screen, and (1) extracted brights (raw)
-	RenderBlur(target.GetColorBuffer(0), blurredBrights); // Draw blurred brights onto new framebuffer
+	RenderBlur(target.GetColorBuffer(0), *bloom_blurredBrights); // Draw blurred brights onto new framebuffer
 
 													   // Add blurred brights onto scene 
 	Shaders::ScreenShader::Bloom->Use();
@@ -297,7 +304,7 @@ void FrameBuffer::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	glActiveTexture(GL_TEXTURE0);
 	source.BindColorBuffer();
 	glActiveTexture(GL_TEXTURE1);
-	blurredBrights.BindColorBuffer();
+	bloom_blurredBrights->BindColorBuffer();
 
 	fullscreenMesh->DrawTris();
 
