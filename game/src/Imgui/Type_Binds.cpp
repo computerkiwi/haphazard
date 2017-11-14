@@ -418,12 +418,14 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		{
 			char name_buffer[128] = { 0 };
 			
-			if (InputText("Edit Name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
+			if (InputText("Edit Name##object_name_edit", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
-				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+				if (name_buffer[0] != '\0')
+				{
+					object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+				}
 				CloseCurrentPopup();
 			}
-
 			EndPopup();
 		}
 
