@@ -179,6 +179,7 @@
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\Particles.cpp" />
+    <ClCompile Include="src\graphics\RenderLayer.cpp" />
     <ClCompile Include="src\graphics\RenderSystem.cpp" />
     <ClCompile Include="src\graphics\Screen.cpp" />
     <ClCompile Include="src\graphics\Settings.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\graphics\DebugGraphic.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\Particles.h" />
+    <ClInclude Include="src\graphics\RenderLayer.h" />
     <ClInclude Include="src\graphics\RenderSystem.h" />
     <ClInclude Include="src\graphics\Screen.h" />
     <ClInclude Include="src\graphics\Settings.h" />

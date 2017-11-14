@@ -21,6 +21,10 @@ public:
 	// Sprite Contructor for animated sprite
 	SpriteComponent(AnimatedTexture* t, float fps);
 	
+	// Sets render layer. Higher layers are displayed on top. Default Layer = 0
+	void SetLayer(int layer) { m_Layer = layer; }
+	int GetLayer() { return m_Layer; }
+
 	// Resource functions
 
 	void SetResourceID(ResourceID resID) 
@@ -36,6 +40,7 @@ public:
 
 private:
 	ResourceID m_resID;
+	int m_Layer = 0;
 
 	void SetTextureResource(Resource *resource);
 	void SetTextureID(ResourceID res);

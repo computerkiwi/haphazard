@@ -21,9 +21,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Imgui\imgui-setup.h"
 #include "Background.h"
 
+#include "RenderLayer.h"
+
 static bool resizeCameras = false;
 static int width;
 static int height;
+static int currLayer;
 
 RenderSystem::RenderSystem()
 {
@@ -33,9 +36,10 @@ void RenderSystem::Init()
 {
 	Screen::InitScreen();
 	Font::InitFonts();
-//	Screen::GetView().AddEffect(FX::EDGE_DETECTION);
-//	Screen::GetView().AddEffect(FX::BLOOM);
-//	Screen::GetView().SetBlurAmount(0.9f);
+	
+	//Screen::AddEffect(FX::EDGE_DETECTION);
+	//Screen::AddEffect(FX::BLUR);
+	//Screen::SetBlurAmount(0.9f);
 }
 
 void RenderSystem::UpdateCameras(float dt)
@@ -210,16 +214,25 @@ void RenderSystem::Update(float dt)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//Start Loop
+	Screen::GetLayerFrameBuffer(1)->Use();
+
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
+
+	Screen::GetLayerFrameBuffer(10)->Use();
+	FX fx[] = { FX::EDGE_DETECTION };
+	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
+
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
+	//Screen::GetLayerFrameBuffer(3)->Use();
 
 	//End loop
 	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
 	glDisable(GL_BLEND);
+	Screen::GetLayerFrameBuffer(99)->Use(); // Render in front
 	DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
 }
