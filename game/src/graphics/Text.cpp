@@ -121,7 +121,7 @@ void TextComponent::Draw(glm::mat4& matrix)
 	glBindBuffer(GL_ARRAY_BUFFER, m_CharVBO);
 	
 	Shaders::textShader->SetVariable("model", matrix);
-	Shaders::textShader->SetVariable<int>("font", m_Font->GetTextureLayer());
+	Shaders::textShader->SetVariable("font", m_Font->GetTextureLayer());
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_CharData.size(), m_CharData.data(), GL_STATIC_DRAW);
 

@@ -788,6 +788,17 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		Separator();
 	}
 
+	int z_layer = static_cast<int>(transform->GetZLayer());
+	if (InputInt("Z-Layer##transform", &z_layer, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
+	{
+		if (z_layer < 0)
+		{
+			z_layer = 0;
+		}
+		editor->Push_Action({ transform->m_position.z, z_layer, "zLayer", handle, Action_General<TransformComponent, float> });
+		transform->SetZLayer(static_cast<float>(z_layer));
+	}
+
 	Drag_Float_Speed("Rotation##transform", transformSave.m_rotation, transform->m_rotation, 1.0f);
 	DragRelease(TransformComponent, transformSave.m_rotation, transform->m_rotation, "rotation");
 }

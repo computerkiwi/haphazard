@@ -314,7 +314,7 @@ void Editor::Update()
 			SettingsPanel(1 / 60.0f);
 		}
 		
-		if (m_show_console)
+		if (m_editorState.console)
 		{
 			Console();
 		}
@@ -1339,7 +1339,7 @@ void Editor::SettingsPanel(float dt)
 
 	if (ImGui::Button("Console" SETTINGS_BUTTON_SIZE))
 	{
-		m_show_console = !m_show_console;
+		m_editorState.console = !m_editorState.console;
 	}
 
 	ImGui::Separator();
