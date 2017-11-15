@@ -43,5 +43,5 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor);
 void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
-void ImGui_Camera(Camera *camera, Editor *editor);
+void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
 

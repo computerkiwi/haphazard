@@ -417,12 +417,14 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		{
 			char name_buffer[128] = { 0 };
 			
-			if (InputText("Edit Name", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
+			if (InputText("Edit Name##object_name_edit", name_buffer, sizeof(name_buffer), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
-				object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+				if (name_buffer[0] != '\0')
+				{
+					object.GetComponent<ObjectInfo>()->m_name = name_buffer;
+				}
 				CloseCurrentPopup();
 			}
-
 			EndPopup();
 		}
 
@@ -589,6 +591,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (object.GetComponent<ScriptComponent>().IsValid())
 		{
 			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
+		}
+
+		if (object.GetComponent<Camera>().IsValid())
+		{
+			ImGui_Camera(object.GetComponent<Camera>().Get(), object, editor);
 		}
 
 		End();
@@ -1388,11 +1395,21 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 }
 
 
-void ImGui_Camera(Camera *camera, Editor *editor)
+void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 {
 	if (CollapsingHeader("Camera"))
 	{
-		Drag_Vec("X##camear_position", cameraSave.m_Position, camera->m_Position.x, camera->m_Position);
-		Drag_Vec("Y##camear_position", cameraSave.m_Position, camera->m_Position.y, camera->m_Position);
+		EditorComponentHandle handle = { object.Getid(), true };
+
+		Drag_Float_Speed_MinMax("Zoom##camera", cameraSave.m_Zoom, camera->m_Zoom, SLIDER_STEP, 0, FLT_MAX);
+		DragRelease(Camera, cameraSave.m_Zoom, camera->m_Zoom, "zoom");
 	}
 }
+
+
+// Background Component
+// Text Component
+
+// Light Component
+// UI Component
+

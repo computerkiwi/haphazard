@@ -110,12 +110,6 @@ MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis) const
 	return minMax;
 }
 
-std::ostream& operator<<(std::ostream& lhs, glm::vec2 rhs)
-{
-	lhs << rhs.x << "\t" << rhs.y;
-
-	return lhs;
-}
 
 glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 {

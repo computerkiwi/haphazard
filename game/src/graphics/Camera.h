@@ -13,6 +13,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Input\Input.h"
 
 class Editor;
+class GameObject;
 
 class Camera
 {
@@ -62,7 +63,7 @@ public:
 	void OrbitAround(glm::vec3 center, float degrees, glm::vec3 axis); // Rotates around center
 
 private:
-	friend void ImGui_Camera(Camera *camera, Editor *editor);
+	friend void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
 	friend glm::vec2 Input::ScreenToWorld(glm::vec2 cursor);
 
 	void ApplyCameraMatrices();
