@@ -235,8 +235,8 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
 
-	Particle p[3];
-	glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
+	//Particle p[3];
+	//glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 3, &p);
 
 	Shaders::particleRenderShader->ApplyAttributes();
 

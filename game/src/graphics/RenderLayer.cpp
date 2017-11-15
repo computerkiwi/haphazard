@@ -102,6 +102,7 @@ void FrameBuffer::GenerateDepthStencilObject()
 void FrameBuffer::Use()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
+	m_UsedThisUpdate = true;
 }
 
 void FrameBuffer::AddEffect(FX fx)

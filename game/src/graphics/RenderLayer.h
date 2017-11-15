@@ -61,13 +61,15 @@ private:
 	glm::vec4 m_ClearColor = glm::vec4(0,0,0,0);
 	std::vector<FX> m_FXList;
 
+	bool m_UsedThisUpdate = false;
+
 	// FX Variables
 	float m_BlurAmount = 1;
 };
 
 struct LayerComp 
 { 
-	bool operator()(const FrameBuffer* lhs, const FrameBuffer* rhs)
+	bool operator()(const FrameBuffer* lhs, const FrameBuffer* rhs) const
 	{
 		return lhs->GetLayer() < rhs->GetLayer();
 	}

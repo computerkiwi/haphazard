@@ -16,6 +16,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "DebugGraphic.h"
 #include "Text.h"
 #include "Particles.h"
+#include <set>
+#include <vector>
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
@@ -96,55 +98,78 @@ void RenderSystem::RenderSprites(float dt)
 	int numMeshes = 0;
 	static int numVerts = 0; // All sprites will be the same size, so numVerts only has to be set once
 
+	std::set<int> layers;
 	for (auto& spriteHandle : *sprites)
 	{
-		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())
 		{
 			continue;
 		}
 
-		// Update animated sprites
-		spriteHandle->UpdateAnimatedTexture(dt);
-
-		// Places vertex data into data vector to be used in Vertex VBO
-		spriteHandle->SetRenderData(transform->GetMatrix4(), &data);
-
-		// Places texture in tex vector to be used in Texture VBO
-		tex.push_back(spriteHandle->GetRenderTextureID());
-
-		// Keep count of all meshes used in instancing call
-		numMeshes++;
-
-		if (numVerts == 0) 
-			numVerts = spriteHandle->NumVerts();
+		layers.insert(static_cast<int>(transform->GetZLayer()));
 	}
 
-	if (numMeshes == 0)
-		return;
+	int last = -1234;
+	for (int layer : layers)
+	{
+		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
+		Screen::GetLayerFrameBuffer(layer)->Use();
 
-	// Bind sprite shader
-	Shaders::spriteShader->Use();
+		for (auto& spriteHandle : *sprites)
+		{
+			// Check for valid transform
+			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
+			if (!transform.IsValid())
+			{
+				continue;
+			}
 
-	// Bind buffers and set instance data of all sprites
-	Mesh::BindTextureVBO();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
+			if (static_cast<int>(transform->GetZLayer()) != layer)
+				continue;
 
-	Mesh::BindInstanceVBO();
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+			// Update animated sprites
+			spriteHandle->UpdateAnimatedTexture(dt);
 
-	// Bind first sprite VAO, all sprite have the same vertex attributes
-	if(sprites->begin() != sprites->end())
-		sprites->begin()->BindVAO();
+			// Places vertex data into data vector to be used in Vertex VBO
+			spriteHandle->SetRenderData(transform->GetMatrix4(), &data);
 
-	// Draw all sprites
-	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
+			// Places texture in tex vector to be used in Texture VBO
+			tex.push_back(spriteHandle->GetRenderTextureID());
+
+			// Keep count of all meshes used in instancing call
+			numMeshes++;
+
+			if (numVerts == 0) 
+				numVerts = spriteHandle->NumVerts();
+		}
+
+		if (numMeshes == 0)
+			return;
+
+		// Bind sprite shader
+		Shaders::spriteShader->Use();
+
+		// Bind buffers and set instance data of all sprites
+		Mesh::BindTextureVBO();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
+
+		Mesh::BindInstanceVBO();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+
+		// Bind first sprite VAO, all sprite have the same vertex attributes
+		if(sprites->begin() != sprites->end())
+			sprites->begin()->BindVAO();
+
+		// Draw all sprites in this layer
+		glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
+	}
 }
 
 void RenderSystem::RenderText(float dt)
 {
 	ComponentMap<TextComponent> *text = GetGameSpace()->GetComponentMap<TextComponent>();
+	int lastLayer = -999;
 
 	for (auto& textHandle : *text)
 	{
@@ -155,6 +180,13 @@ void RenderSystem::RenderText(float dt)
 			continue;
 		}
 
+		int layer = static_cast<int>(transform->GetZLayer());
+		if (lastLayer != layer)
+		{
+			Screen::GetLayerFrameBuffer(layer)->Use();
+			lastLayer = layer;
+		}
+
 		textHandle->Draw(transform->GetMatrix4());
 	}
 }
@@ -162,6 +194,8 @@ void RenderSystem::RenderText(float dt)
 void RenderSystem::RenderParticles(float dt)
 {
 	ComponentMap<ParticleSystem> *particles = GetGameSpace()->GetComponentMap<ParticleSystem>();
+	int lastLayer = -999;
+
 	for (auto& particleHandle : *particles)
 	{
 		ComponentHandle<TransformComponent> transform = particleHandle.GetSiblingComponent<TransformComponent>();
@@ -169,6 +203,14 @@ void RenderSystem::RenderParticles(float dt)
 		{
 			continue;
 		}
+
+		int layer = static_cast<int>(transform->GetZLayer());
+		if (lastLayer != layer)
+		{
+			Screen::GetLayerFrameBuffer(layer)->Use();
+			lastLayer = layer;
+		}
+
 		particleHandle->Render(dt, transform->GetPosition());
 	}
 }
@@ -176,6 +218,7 @@ void RenderSystem::RenderParticles(float dt)
 void RenderSystem::RenderBackgrounds(float dt)
 {
 	glm::vec2 camPos = Camera::GetActiveCamera()->GetPosition();
+	int lastLayer = -999;
 
 	ComponentMap<BackgroundComponent> *backgrounds = GetGameSpace()->GetComponentMap<BackgroundComponent>();
 	for (auto& bgHandle : *backgrounds)
@@ -185,7 +228,14 @@ void RenderSystem::RenderBackgrounds(float dt)
 		{
 			continue;
 		}
-		
+
+		int layer = static_cast<int>(transform->GetZLayer());
+		if (lastLayer != layer)
+		{
+			Screen::GetLayerFrameBuffer(layer)->Use();
+			lastLayer = layer;
+		}
+
 		if(bgHandle->IsBackground())
 			bgHandle->Render(camPos);
 	}
@@ -194,6 +244,7 @@ void RenderSystem::RenderBackgrounds(float dt)
 void RenderSystem::RenderForegrounds(float dt)
 {
 	glm::vec2 camPos = Camera::GetActiveCamera()->GetPosition();
+	int lastLayer = -999;
 
 	ComponentMap<BackgroundComponent> *backgrounds = GetGameSpace()->GetComponentMap<BackgroundComponent>();
 	for (auto& bgHandle : *backgrounds)
@@ -202,6 +253,13 @@ void RenderSystem::RenderForegrounds(float dt)
 		if (!transform.IsValid())
 		{
 			continue;
+		}
+
+		int layer = static_cast<int>(transform->GetZLayer());
+		if (lastLayer != layer)
+		{
+			Screen::GetLayerFrameBuffer(layer)->Use();
+			lastLayer = layer;
 		}
 
 		if (!bgHandle->IsBackground())
@@ -216,19 +274,19 @@ void RenderSystem::Update(float dt)
 	Screen::Use();
 
 	//Start Loop
-	Screen::GetLayerFrameBuffer(1)->Use();
-
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
 
-	Screen::GetLayerFrameBuffer(10)->Use();
+	/*Screen::GetLayerFrameBuffer(10)->Use();
 	FX fx[] = { FX::BLUR, FX::BLOOM };
 	Screen::GetLayerFrameBuffer(10)->SetEffects(2, fx);
-
+	Screen::GetLayerFrameBuffer(10)->SetBlurAmount(1.25f);
+	*/
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
+
 
 	//End loop
 	Screen::Draw(); // Draw to screen and apply post processing effects

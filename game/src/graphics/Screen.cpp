@@ -29,21 +29,23 @@ std::set<FrameBuffer*, LayerComp> Screen::m_LayerList;
 
 void Screen::InitScreen()
 {
-	m_View = new FrameBuffer(0);
 	m_Fullscreen = new Mesh();
 
 	FrameBuffer::InitFrameBuffers();
+	m_View = new FrameBuffer(0);
 }
 
 void Screen::Use() 
 { 
-	m_View->Use(); 
 	m_View->Clear(); 
 
 	for (FrameBuffer* fb : m_LayerList)
 	{
 		fb->Clear();
+		fb->m_UsedThisUpdate = false;
 	}
+
+	m_View->Use(); 
 }
 
 void Screen::SetBackgroundColor(float r, float g, float b, float a)
@@ -91,6 +93,18 @@ void Screen::Draw()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, m_View->m_Width, m_View->m_Height, 0, 0, Settings::ScreenWidth(), Settings::ScreenHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	*/
+
+	for (auto fb = m_LayerList.begin(); fb != m_LayerList.end();)
+	{
+		auto test = fb++;
+		if (!(*test)->m_UsedThisUpdate)
+		{
+			delete *test;
+			m_LayerList.erase(test); // Empty framebuffer, remove
+		}
+	}
+	if (!(*m_LayerList.begin())->m_UsedThisUpdate)
+		m_LayerList.erase(m_LayerList.begin());
 }
 
 void Screen::ResizeScreen(int width, int height)
