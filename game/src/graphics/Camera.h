@@ -23,7 +23,9 @@ public:
 	///
 
 	Camera();
+	Camera(const Camera& other);
 	void Use() { m_CurrActiveCamera = this; ApplyCameraMatrices(); }
+	bool IsActiveCam() const { return this == m_CurrActiveCamera; };
 
 	///
 	// Setters
@@ -89,12 +91,9 @@ private:
 	// Uniform buffer object location
 	GLuint m_MatricesUbo;
 
-	// For serialization.
-	bool IsActiveCam() const { return m_CurrActiveCamera == this; }
-
 	void SetIsActiveCam(bool isActive)
 	{
-		if (true)
+		if (isActive)
 		{
 			this->Use();
 		}

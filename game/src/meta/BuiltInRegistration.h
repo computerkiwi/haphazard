@@ -108,6 +108,23 @@ namespace
 		assert(jsonObject.IsString());
 		string = jsonObject.GetString();
 	}
+
+	rapidjson::Value SerializeBool(const void *object, rapidjson::Document::AllocatorType& allocator)
+	{
+		const bool& boolData = *reinterpret_cast<const bool *>(object);
+
+		rapidjson::Value jsonBool;
+		jsonBool.SetBool(boolData);
+
+		return jsonBool;
+	}
+	void DeserializeAssignBool(void *objectPtr, rapidjson::Value& jsonObject)
+	{
+		bool& boolData = *reinterpret_cast<bool *>(objectPtr);
+
+		assert(jsonObject.IsBool());
+		boolData = jsonObject.GetBool();
+	}
 }
 
 #define DefineBasicType(TYPE) META_DefineType(TYPE); META_DefineSerializeFunction(TYPE, SerializeBasicType<TYPE>); META_DefineDeserializeAssignFunction(TYPE, DeserializeAssignBasicType<TYPE>)
@@ -135,6 +152,8 @@ namespace meta
 			DefineBasicType(wchar_t);
 
 			META_DefineType(bool);
+			META_DefineSerializeFunction(bool, SerializeBool);
+			META_DefineDeserializeAssignFunction(bool, DeserializeAssignBool);
 
 			META_DefineType(std::string);
 			META_DefineSerializeFunction(std::string, SerializeString);
