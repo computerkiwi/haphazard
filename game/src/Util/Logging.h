@@ -6,6 +6,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Util.h"
 #include <fstream>
 #include <sstream>
 #include <thread>

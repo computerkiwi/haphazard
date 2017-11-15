@@ -594,6 +594,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
 		}
 
+		if (object.GetComponent<Camera>().IsValid())
+		{
+			ImGui_Camera(object.GetComponent<Camera>().Get(), object, editor);
+		}
+
 		End();
 	}
 	else
@@ -1391,11 +1396,21 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 }
 
 
-void ImGui_Camera(Camera *camera, Editor *editor)
+void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 {
 	if (CollapsingHeader("Camera"))
 	{
-		Drag_Vec("X##camear_position", cameraSave.m_Position, camera->m_Position.x, camera->m_Position);
-		Drag_Vec("Y##camear_position", cameraSave.m_Position, camera->m_Position.y, camera->m_Position);
+		EditorComponentHandle handle = { object.Getid(), true };
+
+		Drag_Float_Speed_MinMax("Zoom##camera", cameraSave.m_Zoom, camera->m_Zoom, SLIDER_STEP, 0, FLT_MAX);
+		DragRelease(Camera, cameraSave.m_Zoom, camera->m_Zoom, "zoom");
 	}
 }
+
+
+// Background Component
+// Text Component
+
+// Light Component
+// UI Component
+

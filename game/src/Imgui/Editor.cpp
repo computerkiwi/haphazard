@@ -704,11 +704,8 @@ void Editor::Tools()
 				}
 				else
 				{
-					glm::vec2 position = object.GetComponent<TransformComponent>()->GetPosition();
-					glm::vec2 mouse = Input::GetMousePos_World();
-					glm::vec2 diff = mouse - position;
-
-					object.GetComponent<TransformComponent>()->SetPosition(position + diff);
+					glm::vec2 mouseChange = Input::GetMousePos_World(); /* -Input::GetPrevMousePos_World();*/
+					object.GetComponent<TransformComponent>()->SetPosition(mouseChange);
 				}
 				return;
 			}

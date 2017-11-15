@@ -105,6 +105,7 @@ class Editor
 	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
 	float m_cpu_peak = 0.0f;
 	bool m_show_settings = false;
+	glm::vec2 m_prevMouse;
 
 	// Engine
 	Engine *m_engine;

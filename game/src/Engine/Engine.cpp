@@ -216,7 +216,7 @@ void Engine::Update()
 		timeCounter -= 1000000;
 	}
 
-
+	Input::RecordMousePos();
 }
 
 
