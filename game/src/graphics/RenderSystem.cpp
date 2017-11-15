@@ -233,6 +233,7 @@ void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int w, int h)
 
 	Screen::ResizeScreen(width, height);
 	resizeCameras = true;
+	engine->GetEditor()->ResizeEvent(w, h);
 }
 
 SystemBase *RenderSystem::NewDuplicate()

@@ -75,7 +75,7 @@ struct PopUpWindow
 	PopUpWindow(const char *msg, float time, PopUpPosition position) 
 		: message(msg), timer(time), max_time(time), alpha(1), pos(position) 
 	{
-		logger << "PopUp Window: " << msg << "\n";
+		logger << "[EDITOR] PopUp Window: " << msg << "\n";
 	}
 	const char *message;
 	float timer;
@@ -211,13 +211,15 @@ private:
 
 	void OnClick();
 
+	void KeyBindings();
+
 public:
 	Editor(Engine *engine, GLFWwindow *window);
 	~Editor();
 
 	void Update();
 
-	void KeyBindings();
+	void ResizeEvent(int w, int h);
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);

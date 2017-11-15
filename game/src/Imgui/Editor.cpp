@@ -67,22 +67,22 @@ void Editor::OpenLevel()
 	{
 		switch (CommDlgExtendedError())
 		{
-		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[4], 2.0f, PopUpPosition::Mouse));  break;
-		default: Logging::Log("User closed OpenLevel Dialog.");
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
 		}
 	}
 }
@@ -273,11 +273,11 @@ void Editor::Update()
 		if (m_editorState.first_update)
 		{
 			//prev_camera = Camera::GetActiveCamera();
-			//m_editor_cam.Use();
 			//m_editor_cam.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			//m_editor_cam.SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 			//m_editor_cam.SetPosition(glm::vec2(0, 0));
 			//m_editor_cam.SetZoom(3);
+			//m_editor_cam.Use();
 
 			m_editorState.first_update = false;
 		}
@@ -638,7 +638,7 @@ void Editor::KeyBindings()
 		}
 		else
 		{
-			AddPopUp(PopUpWindow("No Changes Made.", 2.0f, PopUpPosition::BottomLeft));
+			AddPopUp(PopUpWindow("No Changes to save.", 2.0f, PopUpPosition::BottomLeft));
 		}
 	}
 
@@ -1237,7 +1237,6 @@ void Editor::MenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
-
 }
 
 
@@ -1630,4 +1629,10 @@ void Editor::Clear()
 	{
 		m_log_buffer.clear();
 	}
+}
+
+
+void Editor::ResizeEvent(int w, int h)
+{
+	m_editor_cam.SetAspectRatio(static_cast<float>(w) / h);
 }
