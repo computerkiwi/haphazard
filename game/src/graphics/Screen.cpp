@@ -38,7 +38,6 @@ void Screen::InitScreen()
 void Screen::Use() 
 { 
 	m_View->Use(); 
-	glEnable(GL_DEPTH_TEST);
 	m_View->Clear(); 
 
 	for (FrameBuffer* fb : m_LayerList)
@@ -54,6 +53,7 @@ void Screen::SetBackgroundColor(float r, float g, float b, float a)
 
 void Screen::Draw()
 {
+	glDisable(GL_BLEND);
 	for (FrameBuffer* fb : m_LayerList)
 		fb->RenderEffects();
 
@@ -62,7 +62,7 @@ void Screen::Draw()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_View->m_ID);
 	m_Fullscreen->Bind();
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (FrameBuffer* fb : m_LayerList)
 	{ 
 		//glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->m_ID);
@@ -85,7 +85,6 @@ void Screen::Draw()
 	glDisable(GL_DEPTH_TEST); // Dont want to lose screen to near clipping
 	m_View->BindColorBuffer();
 	m_Fullscreen->DrawTris();
-	glEnable(GL_DEPTH_TEST);
 }
 
 void Screen::ResizeScreen(int width, int height)

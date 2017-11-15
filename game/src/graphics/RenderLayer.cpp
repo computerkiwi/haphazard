@@ -52,10 +52,6 @@ FrameBuffer::FrameBuffer(int layer, int numColBuffers)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorBuffers[0], 0);
 
 	Screen::m_LayerList.insert(this);
-
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 FrameBuffer::~FrameBuffer()
@@ -148,7 +144,6 @@ void FrameBuffer::RenderEffects()
 	FrameBuffer* target = fb_FX;
 
 	fb_FX->Clear();
-	glDisable(GL_DEPTH_TEST);
 
 	fullscreenMesh->Bind(); // Bind screen mesh
 
@@ -180,7 +175,7 @@ void FrameBuffer::RenderEffects()
 		// Blit fx framebuffer to this framebuffer
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb_FX->m_ID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_ID);
-		glBlitFramebuffer(0, 0, m_Width, m_Height, 0, 0, m_Width, m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, fb_FX->m_Width, fb_FX->m_Height, 0, 0, m_Width, m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 }
 

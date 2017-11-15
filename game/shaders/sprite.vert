@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec4 color;
@@ -15,7 +15,7 @@ out vec4 Color;
 out vec2 Texcoord;
 flat out int TexLayer;
 
-layout (std140) uniform Matrices
+layout (std140, binding = 1) uniform Matrices
 {
 	uniform mat4 view;
 	uniform mat4 proj;

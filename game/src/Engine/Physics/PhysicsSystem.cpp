@@ -655,7 +655,7 @@ void PhysicsSystem::Update(float dt)
 	/************************** TEST STUFF **************************/
 	CollisionLayerTestFuction();
 
-	const int numDir = 90;
+	const int numDir = 4;
 
 	glm::vec2 castPosition(7, 2);
 

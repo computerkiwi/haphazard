@@ -9,10 +9,10 @@ uniform sampler2D brights;
 
 void main()
 {
-    vec3 sceneColor = texture(screenTexture, TexCoord).rgb;
-    vec3 bloomColor = texture(brights, TexCoord).rgb;
-    sceneColor += bloomColor; // additive blending
+    vec4 sceneColor = texture(screenTexture, TexCoord);
+    vec4 bloomColor = texture(brights, TexCoord);
+    
+	//FragColor = sceneColor + bloomColor;
 
-
-    FragColor = vec4(sceneColor, 1.0);
+    FragColor = sceneColor * (1 - bloomColor.a) + bloomColor;
 }

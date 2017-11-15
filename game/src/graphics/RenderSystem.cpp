@@ -34,6 +34,10 @@ RenderSystem::RenderSystem()
 
 void RenderSystem::Init()
 {
+	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	Screen::InitScreen();
 	Font::InitFonts();
 	
@@ -130,7 +134,8 @@ void RenderSystem::RenderSprites(float dt)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 	// Bind first sprite VAO, all sprite have the same vertex attributes
-	sprites->begin()->BindVAO();
+	if(sprites->begin() != sprites->end())
+		sprites->begin()->BindVAO();
 
 	// Draw all sprites
 	glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
@@ -209,10 +214,6 @@ void RenderSystem::Update(float dt)
 	// Clear screen and sets correct framebuffer
 	Screen::Use();
 
-	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	//Start Loop
 	Screen::GetLayerFrameBuffer(1)->Use();
 
@@ -221,20 +222,16 @@ void RenderSystem::Update(float dt)
 	RenderSprites(dt);
 
 	Screen::GetLayerFrameBuffer(10)->Use();
-	FX fx[] = { FX::EDGE_DETECTION };
+	FX fx[] = { FX::BLOOM };
 	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
 
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
-	//Screen::GetLayerFrameBuffer(3)->Use();
 
 	//End loop
-	//glBlendFunc(GL_ONE, GL_ZERO); // Disable blending for debug and screen rendering
-	glDisable(GL_BLEND);
-	Screen::GetLayerFrameBuffer(99)->Use(); // Render in front
-	DebugGraphic::DrawAll();
 	Screen::Draw(); // Draw to screen and apply post processing effects
+	DebugGraphic::DrawAll();
 }
 
 void RenderSystem::ResizeWindowEvent(GLFWwindow* window, int w, int h)
