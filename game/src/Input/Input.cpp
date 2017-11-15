@@ -18,6 +18,9 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "Imgui\imgui-setup.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include "Engine/Physics/RigidBody.h"
+
+#include "Engine/Engine.h"
 
 namespace Input
 {
@@ -30,11 +33,13 @@ namespace Input
   ////////// Static Variables //////////
   static GLFWwindow * inputWindow;         // Window to detect input from
   static glm::vec2 cursorPos;              // x, y cursor positions; top-left is origin
+  static glm::vec2 prevCursorPos;          // x, y of cursor last frame
   static std::vector<Gamepad *> gamepads;  // TEMP: vector of gamepad objects
 
   static InputData prevState(MAX_KEY_SIZE); // Holds previous key states
   static InputData currState(MAX_KEY_SIZE); // Holds current key states
   static InputData nextState(MAX_KEY_SIZE); // Holds next key states collected by callback
+
 
   // Initializes input window for detection
   void Init(GLFWwindow * window)
@@ -91,17 +96,38 @@ namespace Input
     return ScreenToWorld(cursorPos);
   }
 
+
+  void RecordMousePos()
+  {
+	  prevCursorPos = cursorPos;
+  }
+
+  glm::vec2 GetPrevMousePos()
+  {
+	  return prevCursorPos;
+  }
+
+  glm::vec2 GetPrevMousePos_World()
+  {
+	  return ScreenToWorld(prevCursorPos);
+  }
+
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
 	Camera *cam = Camera::GetActiveCamera();
 
+	// Get the Mouse in screen coordinates, these range from -1 to 1
 	glm::vec2 screenPos = glm::vec2((cursor.x / (Settings::ScreenWidth() / 2)) - 1.0f, 1.0f - (cursor.y / (Settings::ScreenHeight() / 2)));
 
+	// Get the view and projection matrices from the camera
 	glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
 	glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+
+	// Get the matrix needed to undo the camera matrix
 	glm::mat4 matrix = glm::inverse(proj * view);
 
+	// Calculate and save the world coordinates
 	glm::vec4 cPos = matrix * glm::vec4(screenPos, 0.0f, 1);
 
     return cPos;

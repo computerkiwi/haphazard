@@ -84,7 +84,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	m_spaces[0]->Init();
 
 	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
-	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
+	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.15f));
 	MainCamera.AddComponent<Camera>();
 	MainCamera.GetComponent<Camera>()->Use();
 	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
@@ -216,12 +216,13 @@ void Engine::Update()
 		timeCounter -= 1000000;
 	}
 
-
+	Input::RecordMousePos();
 }
 
 
 std::string Engine::StringSave()
 {
+	logger << "Saving Game -> String";
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
 	rapidjson::Document doc;
@@ -231,6 +232,8 @@ std::string Engine::StringSave()
 
 void Engine::FileSave(const char *fileName)
 {
+	logger << "Saving Game -> File: " << fileName;
+
 	// Make a document for the allocator.
 	// TODO: Figure out how to get an allocator without bothering with a whole document.
 	rapidjson::Document doc;
@@ -240,12 +243,14 @@ void Engine::FileSave(const char *fileName)
 
 void Engine::StringLoad(const char *jsonString)
 {
+	logger << "Loading game -> String";
 	rapidjson::Document doc;
 	doc.Parse(jsonString);
 }
 
 void Engine::FileLoad(const char *fileName)
 {
+	logger << "Loading Game -> File: " << fileName;
 	rapidjson::Document doc = LoadJsonFile(fileName);
 
 	meta::DeserializeAssign(*this, doc);
