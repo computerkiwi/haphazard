@@ -67,8 +67,6 @@ void main()
 	else
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 
-	//gl_Position = vec4(pos,0,1);
-
 	float percent = life / maxLife;
 	PercentLife = percent;
 	

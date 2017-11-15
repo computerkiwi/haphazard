@@ -37,27 +37,32 @@ out float MaxLife;
 
 /// Uniforms \\\
 
-layout (std140) uniform UpdateSettings
+layout(std140) uniform UpdateSettings
 {
+	// Vector 4s
+	vec4	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate. 4th variable is nothing because padding) 
+	vec4	ScaleOverTime;
+
+	// Vector 2s
+	vec2	EmissionShapeScale;
+	vec2	StartingVelocity;
+	vec2	StartingVelocityVariance;
+	vec2	Acceleration;
+	vec2	TrailScale;
+	vec2	EmitterPosition;
+
+	// Scalars
 	float	dt;
 	float	Time;
 	
 	float	IsLooping;
 	float	EmissionRate;
 	float	ParticlesPerEmission;
-	vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
 	float	EmissionShape;
-	vec2	EmissionShapeScale;
 
 	float	EmitterLifetime;
 	float	ParticleLifetime;
 	float	ParticleLifetimeVariance;
-
-	vec2	StartingVelocity;
-	vec2	StartingVelocityVariance;
-	vec2	Acceleration;
-
-	vec4	ScaleOverTime;
 
 	float	StartRotation;
 	float	StartRotationVariation;
@@ -66,10 +71,8 @@ layout (std140) uniform UpdateSettings
 	float	HasTrail;
 	float	TrailEmissionRate;
 	float	TrailLifetime;
-	vec2	TrailScale;
 
 	float	SimulationSpace;
-	vec2	EmitterPosition;
 };
 
 uniform sampler1D RandomTexture;

@@ -42,7 +42,7 @@ struct Particle
 ///
 
 #define RENDER_UBO_SIZE 24
-#define UPDATE_UBO_SIZE 35
+#define UPDATE_UBO_SIZE 36
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -140,64 +140,39 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 	// Set settings
 	///
 
-	/*
-	// Time
-	Shaders::particleUpdateShader->SetVariable("dt", dt);
-	Shaders::particleUpdateShader->SetVariable("Time", m_time);
-	// Emission
-	Shaders::particleUpdateShader->SetVariable("IsLooping", m_settings.isLooping);
-	Shaders::particleUpdateShader->SetVariable("EmissionRate", m_settings.emissionRate);
-	Shaders::particleUpdateShader->SetVariable("ParticlesPerEmission", m_settings.particlesPerEmission);
-	Shaders::particleUpdateShader->SetVariable("BurstEmission", m_settings.burstEmission);
-	Shaders::particleUpdateShader->SetVariable("EmissionShape", static_cast<int>(m_settings.emissionShape) );
-	Shaders::particleUpdateShader->SetVariable("EmissionShapeScale", m_settings.emissionShapeScale);
-	Shaders::particleUpdateShader->SetVariable("EmitterPosition", pos);
-	// Lifetimes
-	Shaders::particleUpdateShader->SetVariable("EmitterLifetime", m_settings.emitterLifetime);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetime", m_settings.particleLifetime);
-	Shaders::particleUpdateShader->SetVariable("ParticleLifetimeVariance", m_settings.particleLifetimeVariance);
-	// Movement
-	Shaders::particleUpdateShader->SetVariable("StartingVelocity", m_settings.startingVelocity);
-	Shaders::particleUpdateShader->SetVariable("StartingVelocityVariance", m_settings.startingVelocityVariance);
-	Shaders::particleUpdateShader->SetVariable("Acceleration", m_settings.acceleration);
-	// Scale
-	Shaders::particleUpdateShader->SetVariable("ScaleOverTime", m_settings.scaleOverTime);
-	// Rotation
-	Shaders::particleUpdateShader->SetVariable("StartRotation", m_settings.startRotation);
-	Shaders::particleUpdateShader->SetVariable("StartRotationVariation", m_settings.startRotationVariation);
-	Shaders::particleUpdateShader->SetVariable("RotationRate", m_settings.rotationRate);
-	// Trail
-	Shaders::particleUpdateShader->SetVariable("HasTrail", m_settings.hasTrail);
-	Shaders::particleUpdateShader->SetVariable("TrailEmissionRate", m_settings.trailEmissionRate);
-	Shaders::particleUpdateShader->SetVariable("TrailLifetime", m_settings.trailLifetime);
-	Shaders::particleUpdateShader->SetVariable("TrailScale", m_settings.trailScale);
-	*/
-
 	float data[] =
 	{
-		dt, m_time,
-		static_cast<float>(m_settings.isLooping),
-		m_settings.emissionRate,
-		static_cast<float>(m_settings.particlesPerEmission),
-		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z,
-		static_cast<float>(m_settings.emissionShape),
+		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,
+		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
+
 		m_settings.emissionShapeScale.x, m_settings.emissionShapeScale.y,
-		m_settings.emitterLifetime,
-		m_settings.particleLifetime,
-		m_settings.particleLifetimeVariance,
 		m_settings.startingVelocity.x, m_settings.startingVelocity.y,
 		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,
 		m_settings.acceleration.x, m_settings.acceleration.y,
-		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
+		m_settings.trailScale.x, m_settings.trailScale.y,
+		pos.x, pos.y,
+		
+		dt, 
+		m_time,
+
+		static_cast<float>(m_settings.isLooping),
+		m_settings.emissionRate,
+		static_cast<float>(m_settings.particlesPerEmission),
+		static_cast<float>(m_settings.emissionShape),
+		
+		m_settings.emitterLifetime,
+		m_settings.particleLifetime,
+		m_settings.particleLifetimeVariance,
+		
 		m_settings.startRotation,
 		m_settings.startRotationVariation,
 		m_settings.rotationRate,
+		
 		static_cast<float>(m_settings.hasTrail),
 		m_settings.trailEmissionRate,
 		m_settings.trailLifetime,
-		m_settings.trailScale.x, m_settings.trailScale.y,
-		static_cast<float>(m_settings.particleSpace),
-		pos.x, pos.y
+		
+		static_cast<float>(m_settings.particleSpace)
 	};
 
 	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);
@@ -254,28 +229,6 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 
 	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, RENDER_UBO_SIZE * sizeof(float), data);
-
-	/*
-	Shaders::particleRenderShader->SetVariable("StartColor", m_settings.startColor);
-	Shaders::particleRenderShader->SetVariable("EndColor", m_settings.endColor);
-
-	Shaders::particleRenderShader->SetVariable("TrailStartColor", m_settings.trailStartColor);
-	Shaders::particleRenderShader->SetVariable("TrailEndColor", m_settings.trailEndColor);
-
-	Shaders::particleRenderShader->SetVariable("SimulationSpace", static_cast<int>(m_settings.particleSpace) );
-	Shaders::particleRenderShader->SetVariable("EmitterPosition", pos);
-
-	if (m_settings.texture_resourceID != -1)
-	{
-		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
-		Shaders::particleRenderShader->SetVariable("TextureLayer", static_cast<float>(texture->GetID()));
-		Shaders::particleRenderShader->SetVariable("TextureBox", texture->GetBounds());
-	}
-	else
-	{
-		Shaders::particleRenderShader->SetVariable("TextureLayer", -1.0f);
-	}
-	*/
 
 	// Enable rendering
 	glDisable(GL_RASTERIZER_DISCARD);

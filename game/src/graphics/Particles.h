@@ -45,7 +45,7 @@ struct ParticleSettings
 	bool			isLooping = true;				 // Emitter loops or dies after lifetime
 	float			emissionRate = 1;				 // Time (in seconds) between each particle spawning
 	int				particlesPerEmission = 1;		 // Particles emitted per emission
-	glm::vec3		burstEmission = {0,0,0};		 // Burst settings: particles min, particles max, reoccurance rate in seconds
+	glm::vec3		burstEmission = {0.0f,0,0};		 // Burst settings: particles min, particles max, reoccurance rate in seconds
 	EmissionShape	emissionShape = POINT;			 // Shape particles are emitted in
 	glm::vec2		emissionShapeScale = {1,1};		 // Scale of emission shape around center point of emission
 	SimulationSpace particleSpace = WORLD;			 // Particle simulation space
