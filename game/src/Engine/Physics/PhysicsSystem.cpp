@@ -745,7 +745,7 @@ void PhysicsSystem::Update(float dt)
 	/************************** TEST STUFF **************************/
 	CollisionLayerTestFuction();
 
-	const int numDir = 3;
+	const int numDir = 10;
 
 	glm::vec2 castPosition(7, 2);
 
@@ -760,7 +760,7 @@ void PhysicsSystem::Update(float dt)
 
 	for (int i = 0; i < numDir; ++i)
 	{
-		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range);
+		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, static_cast<collisionLayers>(i % 5));
 
 		DrawSmallBoxAtPosition(castPosition);
 		DebugGraphic::DrawShape(castPosition + (glm::normalize(direction[i]) * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(direction[i].y, direction[i].x), glm::vec4(1, 0, 1, 1));

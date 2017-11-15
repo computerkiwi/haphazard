@@ -115,7 +115,7 @@ class RayCastCalculator
 {
 public:
 
-	RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction);
+	RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction, collisionLayers layer);
 
 	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData);
 
@@ -129,6 +129,8 @@ public:
 	glm::vec2 m_intersection;
 
 	GameObject m_gameObjectHit;
+
+	collisionLayers m_layer;
 };
 
 void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData)
@@ -171,7 +173,10 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 	}
 }
 
-RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction) : m_startPoint(startPoint), m_direction(direction), m_range(range), m_length(-1), m_intersection(glm::vec2(0,0)), m_gameObjectHit(INVALID_GAMEOBJECT_ID)
+RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
+	                                 float range, glm::vec2 startPoint, glm::vec2 direction, collisionLayers layer)
+	                               : m_startPoint(startPoint), m_direction(direction), m_range(range), m_length(-1), m_intersection(glm::vec2(0,0)), 
+	                                 m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
 	// find a circle around the ray for broad range checking
 	float radius = range / 2.0f;
@@ -180,18 +185,24 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 	// go through all dynamic colliders
 	for (auto tDynamicColliderHandle : *allDynamicColliders)
 	{
-		ComponentHandle<TransformComponent> transform = tDynamicColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
+		if (tDynamicColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
+		{
+			ComponentHandle<TransformComponent> transform = tDynamicColliderHandle.GetSiblingComponent<TransformComponent>();
+			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
-		Raycast(circleCenter, radius, transform, tDynamicColliderHandle->ColliderData());
+			Raycast(circleCenter, radius, transform, tDynamicColliderHandle->ColliderData());
+		}
 	}
 	// go though all static colliders
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
-		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
+		if (tStaticColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
+		{
+			ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
+			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
-		Raycast(circleCenter, radius, transform, tStaticColliderHandle->ColliderData());
+			Raycast(circleCenter, radius, transform, tStaticColliderHandle->ColliderData());
+		}
 	}
 }
 
@@ -245,12 +256,14 @@ void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject
 }
 
 // constructor with direction in degrees
-Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range) : m_gameObjectHit(INVALID_GAMEOBJECT_ID)
+Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
+	             glm::vec2 startPoint, float direction, float range, collisionLayers layer)
+	           : m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
 	glm::vec2 normalizedDirection((float)(cos(direction)), (float)(sin(direction)));
 
 	// calculate the raycast
-	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection);
+	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection, layer);
 
 	// use the result if it hit something
 	if (raycast.m_length != -1)
@@ -267,12 +280,14 @@ Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, 
 }
 
 // constructor with direction along a vector
-Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, glm::vec2 direction, float range)
+Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
+	             glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer)
+	           : m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
 	glm::vec2 normalizedDirection = direction / glm::length(direction);
 
 	// calculate the raycast
-	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection);
+	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection, layer);
 
 	// use the result if it hit something
 	if (raycast.m_length != -1)
