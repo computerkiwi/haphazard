@@ -504,9 +504,6 @@ namespace Shaders
 
 		LoadDefaultShaderUniforms();
 		LoadUniformBlockBindings();
-
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_MULTISAMPLE);
 	}
 
 	// Frees all basic shaders

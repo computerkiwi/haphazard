@@ -5,6 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "Camera.h"
+#include "Shaders.h"
 
 #include "glm\glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,6 +24,13 @@ Camera::Camera()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
+
+	if (Shaders::spriteShader)
+	{
+		GLuint blockIndex = glGetUniformBlockIndex(Shaders::spriteShader->GetProgramID(), "Matrices");
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_MatricesUbo); // Set this location to 1
+		glUniformBlockBinding(Shaders::spriteShader->GetProgramID(), blockIndex, 1);
+	}
 
 	if (m_CurrActiveCamera == nullptr)
 		Use();

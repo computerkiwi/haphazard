@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 scale;
 layout (location = 2) in float rotation;
@@ -10,7 +10,7 @@ out VS_OUT {
 	vec4 Color;
 } vs_out;
 
-layout (std140) uniform Matrices
+layout (std140, binding = 1) uniform Matrices
 {
 	uniform mat4 view;
 	uniform mat4 proj;

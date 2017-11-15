@@ -79,6 +79,7 @@ void Mesh::AddTriangle(
 	AddVertex(x3, y3, z3, r3, g3, b3, a3, s3, t3);
 }
 
+/*
 void Mesh::UseBlendMode(BlendMode bm)
 {
 	switch (bm)
@@ -96,7 +97,7 @@ void Mesh::UseBlendMode(BlendMode bm)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		break;
 	}
-}
+}*/
 
 void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 {

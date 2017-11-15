@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 // Vertex
 layout (location = 0) in vec3 pos;
@@ -9,7 +9,7 @@ layout (location = 3) in vec2 charPos;
 layout (location = 4) in vec4 texBox;
 layout (location = 5) in vec4 color;
 
-layout (std140) uniform Matrices
+layout (std140, binding = 1) uniform Matrices
 {
 	uniform mat4 view;
 	uniform mat4 proj;

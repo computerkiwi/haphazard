@@ -31,7 +31,6 @@ void BackgroundComponent::SetParallax(glm::vec2 minimumPosition, glm::vec2 maxim
 	m_ParallaxBounds = glm::vec4(minimumPosition, maximumPosition);
 	m_SubTextureSize = subTextureSize;
 	m_SubTexturePosition = subTexturePos;
-
 }
 
 void BackgroundComponent::Render(glm::vec2 pos)

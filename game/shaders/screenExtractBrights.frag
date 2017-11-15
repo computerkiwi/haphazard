@@ -7,13 +7,13 @@ uniform sampler2D screenTexture;
 
 void main()
 {
-	FragColor = vec4(texture(screenTexture, TexCoord).rgb, 1.0);
+	FragColor = texture(screenTexture, TexCoord);
 
 	//float bright = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722)); 
 	float bright = dot(FragColor.rgb, vec3(1,1,1)); 
 
 	if(bright > 0.75) // If above threshold
-		FragColor = vec4(texture(screenTexture, TexCoord).rgb, 1.0);
+		FragColor = texture(screenTexture, TexCoord);
 	else
-		FragColor = vec4(0,0,0,1);
+		FragColor = vec4(0,0,0,0);
 }
