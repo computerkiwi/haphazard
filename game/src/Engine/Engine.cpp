@@ -159,7 +159,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	player1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
 	player1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
 	player1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
-	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);*/
+	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);
 }
 
 
