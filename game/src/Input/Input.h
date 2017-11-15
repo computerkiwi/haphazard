@@ -73,6 +73,9 @@ namespace Input
     // Cursor functions
     glm::vec2 GetMousePos();
     glm::vec2 GetMousePos_World();
+	void RecordMousePos();
+	glm::vec2 GetPrevMousePos();
+	glm::vec2 GetPrevMousePos_World();
     glm::vec2 ScreenToWorld(glm::vec2 cursor);
 
     ////////// Callback Functions //////////

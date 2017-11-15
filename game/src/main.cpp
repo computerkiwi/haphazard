@@ -18,7 +18,6 @@ int main()
 	Engine sparrow;
 	sparrow.LoggingInit();
 
-
 	sparrow.MainLoop();
 	// We shouldn't get past MainLoop at this point.
 
