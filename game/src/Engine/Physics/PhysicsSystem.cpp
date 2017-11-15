@@ -736,10 +736,10 @@ void PhysicsSystem::Update(float dt)
 	//Add Gravity to objects
 	ApplyGravityToAllDynamicObjects(dt, *rigidBodies);
 
-	/************************** TEST STUFF **************************/
+/************************** TEST STUFF **************************/
 	CollisionLayerTestFuction();
 
-	const int numDir = 10;
+	const int numDir = collisionLayers::numLayers * 3;
 
 	glm::vec2 castPosition(7, 2);
 
@@ -754,10 +754,13 @@ void PhysicsSystem::Update(float dt)
 
 	for (int i = 0; i < numDir; ++i)
 	{
-		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, static_cast<collisionLayers>(i % 5));
+		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, static_cast<collisionLayers>(1 << (i % collisionLayers::numLayers)));
+
+		float colorval = (1.0f / collisionLayers::numLayers) * ((i % collisionLayers::numLayers) +1);
 
 		DrawSmallBoxAtPosition(castPosition);
-		DebugGraphic::DrawShape(castPosition + (glm::normalize(direction[i]) * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(direction[i].y, direction[i].x), glm::vec4(1, 0, 1, 1));
+		DebugGraphic::DrawShape(castPosition + (glm::normalize(direction[i]) * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(direction[i].y, direction[i].x), 
+			                    glm::vec4(colorval, colorval, colorval, 1));
 		DrawSmallBoxAtPosition(testCast.Intersection());
 	}
 
@@ -767,7 +770,9 @@ void PhysicsSystem::Update(float dt)
 	DrawSmallBoxAtPosition(testPoint);*/
 
 	//BrettsFunMagicalTestLoop(allDynamicColliders, allStaticColliders);
-	/****************************************************************/
+
+
+/************************ END TEST STUFF ************************/
 
 	if (debugShowHitboxes)
 	{
