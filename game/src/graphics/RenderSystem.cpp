@@ -35,7 +35,8 @@ RenderSystem::RenderSystem()
 void RenderSystem::Init()
 {
 	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
-	glEnable(GL_BLEND);
+	//glEnable(GL_BLEND);
+	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Screen::InitScreen();
@@ -222,8 +223,8 @@ void RenderSystem::Update(float dt)
 	RenderSprites(dt);
 
 	Screen::GetLayerFrameBuffer(10)->Use();
-	FX fx[] = { FX::BLOOM };
-	Screen::GetLayerFrameBuffer(10)->SetEffects(1, fx);
+	FX fx[] = { FX::BLUR, FX::BLOOM };
+	Screen::GetLayerFrameBuffer(10)->SetEffects(2, fx);
 
 	RenderText(dt);
 	RenderParticles(dt);

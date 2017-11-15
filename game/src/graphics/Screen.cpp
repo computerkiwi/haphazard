@@ -59,7 +59,8 @@ void Screen::Draw()
 
 	//Draw Layers to View framebuffer
 	Shaders::ScreenShader::Default->Use();
-	glBindFramebuffer(GL_FRAMEBUFFER, m_View->m_ID);
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_View->m_ID);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	m_Fullscreen->Bind();
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -70,21 +71,26 @@ void Screen::Draw()
 		fb->BindColorBuffer();
 		m_Fullscreen->DrawTris();
 	}
+	glDisable(GL_BLEND);
 	
 	//Raindrop::DrawToScreen(*result);
 
 	// Enable Window framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	/*
 	// Convert HDR to LDR
 	Shaders::ScreenShader::HDR->Use(); 
 
 
 	// Render final screen
 	m_Fullscreen->Bind();
-	glDisable(GL_DEPTH_TEST); // Dont want to lose screen to near clipping
 	m_View->BindColorBuffer();
 	m_Fullscreen->DrawTris();
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_View->m_ID);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, m_View->m_Width, m_View->m_Height, 0, 0, Settings::ScreenWidth(), Settings::ScreenHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	*/
 }
 
 void Screen::ResizeScreen(int width, int height)
