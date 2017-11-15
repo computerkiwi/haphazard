@@ -16,23 +16,6 @@ class Logging;
 class LoggingProxy;
 //typedef char va_list;
 
-class LoggingProxy
-{
-	Logging& m_logger;
-public:
-	LoggingProxy(Logging& logger_) : m_logger(logger_) {}
-
-	template <typename T>
-	LoggingProxy& operator <<(T& rhs)
-	{
-		std::stringstream ss;
-		ss << rhs;
-		m_logger.ObjectLog_ProxyAppend(ss.str().c_str());
-
-		return *this;
-	}
-};
-
 
 class Logging
 {
@@ -96,7 +79,7 @@ public:
 		ss << rhs;
 		ObjectLog(ss.str().c_str());
 
-		return LoggingProxy(*this);
+		return LoggingProxy();
 	}
 
 private:
@@ -145,4 +128,22 @@ private:
 
 
 extern Logging logger;
+
+
+class LoggingProxy
+{
+public:
+	LoggingProxy() {}
+
+	template <typename T>
+	LoggingProxy& operator <<(T& rhs)
+	{
+		std::stringstream ss;
+		ss << rhs;
+		logger.ObjectLog_ProxyAppend(ss.str().c_str());
+
+		return *this;
+	}
+};
+
 

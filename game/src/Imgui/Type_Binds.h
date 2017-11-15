@@ -20,6 +20,17 @@ struct ScriptComponent;
 
 class Camera;
 
+
+enum ErrorIndex
+{
+	FailedToStartEditor = 1,
+	HasComponent,
+	HasRigidBodyDynamicCollider,
+	HasStaticCollider,
+	OpenFileError
+};
+
+
 #define MAX_SELECT 10
 
 void ImGui_GameObject(GameObject object, Editor *editor);

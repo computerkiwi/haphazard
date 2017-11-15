@@ -215,8 +215,6 @@ void Engine::Update()
 		frameCounter = 0;
 		timeCounter -= 1000000;
 	}
-
-
 }
 
 

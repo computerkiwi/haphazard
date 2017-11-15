@@ -153,14 +153,6 @@ void Action_AddComponent<DynamicCollider2DComponent>(EditorAction& a)
 }
 
 
-enum ErrorIndex
-{
-	FailedToStartEditor = 1,
-	HasComponent,
-	HasRigidBodyDynamicCollider,
-	HasStaticCollider
-};
-
 const char * ErrorList[] = 
 {
 	"Error 00: See Max if you see this",
@@ -188,11 +180,16 @@ struct EditorBoolWrapper
 typedef std::map<const char *, EditorBoolWrapper> ClickedList;
 ClickedList widget_click;
 
+// Error Message for when adding a component that exist
 #define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
 
-
+// Button to release the drag sliders
 #define Drag_Key Key::Mouse_1
 
+// Setups the detection of the drag slider has been clicked
+// Saves a float in a temporary value then stores the new value and the saved value
+// Undo pops the saved value
+// Redo pops the new value
 #define Drag(NAME, SAVE, ITEM)																				 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -203,6 +200,7 @@ ClickedList widget_click;
 		}																									 \
 	}																										 
 
+// Same as Drag but it saves a vector instead of a float
 #define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -213,6 +211,7 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Drag_Vec with min and max
 #define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
 	{																										 \

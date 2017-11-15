@@ -75,7 +75,7 @@ struct PopUpWindow
 	PopUpWindow(const char *msg, float time, PopUpPosition position) 
 		: message(msg), timer(time), max_time(time), alpha(1), pos(position) 
 	{
-		logger << "PopUp Window: " << msg << "\n";
+		logger << "[EDITOR] PopUp Window: " << msg << "\n";
 	}
 	const char *message;
 	float timer;
