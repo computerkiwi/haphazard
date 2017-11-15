@@ -40,6 +40,7 @@ public:
 
 	// conversion constructors
 	explicit CollisionLayer(int layer = noCollision);
+	CollisionLayer(collisionLayers layer);
 	CollisionLayer(const CollisionLayer& layer);
 
 	// if both layers should collide with each other, return true, otherwise false

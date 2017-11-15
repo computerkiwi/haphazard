@@ -10,6 +10,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "glm/glm.hpp"
 #include "Collider2D.h"
 #include "GameObjectSystem\GameObject.h"
+#include "CollisionLayer.h"
 
 // forward declaration
 struct MinMax;
@@ -19,9 +20,9 @@ class Raycast
 {
 public:
 	// constructor with direction in degrees
-	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range);
+	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range, collisionLayers layer = collisionLayers::allCollision);
 	// constructor with direction along a vector
-	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, glm::vec2 direction, float range);
+	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer = collisionLayers::allCollision);
 
 	// getters/setters
 	float& Length();
@@ -32,6 +33,7 @@ private:
 	float m_length;
 	glm::vec2 m_intersection;
 	GameObject m_gameObjectHit;
+	collisionLayers m_layer;
 };
 
 class BoxCorners
