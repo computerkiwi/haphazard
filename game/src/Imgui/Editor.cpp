@@ -273,11 +273,11 @@ void Editor::Update()
 		if (m_editorState.first_update)
 		{
 			//prev_camera = Camera::GetActiveCamera();
-			//m_editor_cam.Use();
 			//m_editor_cam.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			//m_editor_cam.SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 			//m_editor_cam.SetPosition(glm::vec2(0, 0));
 			//m_editor_cam.SetZoom(3);
+			//m_editor_cam.Use();
 
 			m_editorState.first_update = false;
 		}
@@ -1629,4 +1629,10 @@ void Editor::Clear()
 	{
 		m_log_buffer.clear();
 	}
+}
+
+
+void Editor::ResizeEvent(int w, int h)
+{
+	m_editor_cam.SetAspectRatio(static_cast<float>(w) / h);
 }

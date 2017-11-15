@@ -211,13 +211,15 @@ private:
 
 	void OnClick();
 
+	void KeyBindings();
+
 public:
 	Editor(Engine *engine, GLFWwindow *window);
 	~Editor();
 
 	void Update();
 
-	void KeyBindings();
+	void ResizeEvent(int w, int h);
 
 	// Works like printf -- for display_date use true
 	void Log(const char *log_message, ...);
