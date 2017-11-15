@@ -26,48 +26,51 @@ out float MaxLife;
 #define PARTICLE_TYPE 1.0f
 #define TRAIL_TYPE 2.0f
 
-#define SHAPE_POINT	        0
-#define SHAPE_CIRCLE_VOLUME 1
-#define SHAPE_CIRCLE_EDGE   2
-#define SHAPE_SQUARE_VOLUME 3
-#define SHAPE_SQUARE_EDGE   4
+#define SHAPE_POINT	        0.0f
+#define SHAPE_CIRCLE_VOLUME 1.0f
+#define SHAPE_CIRCLE_EDGE   2.0f
+#define SHAPE_SQUARE_VOLUME 3.0f
+#define SHAPE_SQUARE_EDGE   4.0f
 
-#define SPACE_WORLD 0
-#define SPACE_LOCAL 1
+#define SPACE_WORLD 0.0f
+#define SPACE_LOCAL 1.0f
 
 /// Uniforms \\\
 
-uniform float	dt;
-uniform float	Time;
+layout (std140) uniform UpdateSettings
+{
+	float	dt;
+	float	Time;
+	
+	float	IsLooping;
+	float	EmissionRate;
+	float	ParticlesPerEmission;
+	vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
+	float	EmissionShape;
+	vec2	EmissionShapeScale;
 
-uniform float	EmitterLifetime;
-uniform float	ParticleLifetime;
-uniform float	ParticleLifetimeVariance;
+	float	EmitterLifetime;
+	float	ParticleLifetime;
+	float	ParticleLifetimeVariance;
 
-uniform vec2	StartingVelocity;
-uniform vec2	StartingVelocityVariance;
-uniform vec2	Acceleration;
+	vec2	StartingVelocity;
+	vec2	StartingVelocityVariance;
+	vec2	Acceleration;
 
-uniform vec4	ScaleOverTime;
+	vec4	ScaleOverTime;
 
-uniform float	StartRotation;
-uniform float	StartRotationVariation;
-uniform float	RotationRate;
+	float	StartRotation;
+	float	StartRotationVariation;
+	float	RotationRate;
 
-uniform bool	HasTrail;
-uniform float	TrailEmissionRate;
-uniform float	TrailLifetime;
-uniform vec2	TrailScale;
+	float	HasTrail;
+	float	TrailEmissionRate;
+	float	TrailLifetime;
+	vec2	TrailScale;
 
-uniform bool	IsLooping;
-uniform float	EmissionRate;
-uniform int		ParticlesPerEmission;
-uniform vec3	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate)
-uniform int		EmissionShape;
-uniform vec2	EmissionShapeScale;
-
-uniform int		SimulationSpace;
-uniform vec2	EmitterPosition;
+	float	SimulationSpace;
+	vec2	EmitterPosition;
+};
 
 uniform sampler1D RandomTexture;
 
@@ -115,7 +118,7 @@ void HandleEmitter()
 
 	// Handle Emission
 
-	if(!IsLooping && currAge >= EmitterLifetime) 
+	if(IsLooping == 0 && currAge >= EmitterLifetime) 
 	{
 		// Kill emitter from emitting new particles
 		return; 
@@ -201,7 +204,7 @@ void HandleParticle()
 	    EmitVertex();
 	    EndPrimitive();
 		
-		if(HasTrail 
+		if(HasTrail != 0
 			&& PType[0] == PARTICLE_TYPE 
 			&& ( int(currAge / TrailEmissionRate) > int(PLife[0] / TrailEmissionRate)))
 		{

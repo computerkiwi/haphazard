@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 layout (location = 0) in float type;
 layout (location = 1) in vec2 pos;
@@ -20,7 +20,7 @@ out vec4 TexBox;
 out float PercentLife;
 
 
-layout (std140) uniform Matrices
+layout (std140, binding = 1) uniform Matrices
 {
 	uniform mat4 view;
 	uniform mat4 proj;
@@ -37,17 +37,20 @@ layout (std140) uniform Matrices
 
 /// Uniform Settings \\\
 
-uniform vec4	StartColor;
-uniform vec4	EndColor;
+layout (std140) uniform Settings
+{
+	vec4	StartColor;
+	vec4	EndColor;
 
-uniform vec4	TrailStartColor;
-uniform vec4	TrailEndColor;
+	vec4	TrailStartColor;
+	vec4	TrailEndColor;
 
-uniform int		SimulationSpace;
-uniform vec2	EmitterPosition;
+	float	SimulationSpace;
+	vec2	EmitterPosition;
 
-uniform float TextureLayer;
-uniform vec4 TextureBox;
+	float	TextureLayer;
+	vec4	TextureBox;
+};
 
 
 void main()
@@ -63,6 +66,8 @@ void main()
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 	else
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
+
+	//gl_Position = vec4(pos,0,1);
 
 	float percent = life / maxLife;
 	PercentLife = percent;
