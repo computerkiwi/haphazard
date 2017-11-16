@@ -20,6 +20,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\RigidBody.h"
 #include "graphics\SpriteComponent.h"
 #include "Engine\Physics\Collider2D.h"
+#include "Engine\Physics\Raycast.h"
 
 #include "Util/Logging.h"
 
@@ -41,7 +42,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 
 // Toggle Hitboxes
-void debugDisplayHitboxes(bool hitboxesShown);
+void debugSetDisplayHitboxes(bool hitboxesShown);
 extern const char *ErrorList[];
 
 void Editor::OpenLevel()
@@ -91,7 +92,8 @@ void Editor::OpenLevel()
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
 {
 	logger << "Creating Editor.";
-	debugDisplayHitboxes(false);
+	debugSetDisplayHitboxes(false);
+	debugSetDisplayRaycasts(false);
 	m_objects.reserve(256);
 
 	// Style information
@@ -266,7 +268,8 @@ Editor::~Editor()
 void Editor::Update()
 {
 	// Check if Editor is being shown
-	debugDisplayHitboxes(m_editorState.show);
+	debugSetDisplayHitboxes(m_editorState.show);
+	debugSetDisplayRaycasts(m_editorState.show);
 
 	if (m_editorState.show)
 	{

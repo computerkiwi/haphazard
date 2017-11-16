@@ -29,9 +29,14 @@ public:
 	glm::vec2& Intersection();
 	GameObject& GameObjectHit();
 
+	// methods
+	void Draw(glm::vec4 color = glm::vec4(1, 0, 1, 1), bool drawBoxAtStartPoint = 1, bool drawBoxAtEndPoint = 1);
+
 private:
 	float m_length;
+	glm::vec2 m_startPosition;
 	glm::vec2 m_intersection;
+	glm::vec2 m_normalizedDirection;
 	GameObject m_gameObjectHit;
 	collisionLayers m_layer;
 };
@@ -58,3 +63,7 @@ public:
 };
 
 float DegreesToRadians(float angleInDegrees);
+
+void debugSetDisplayRaycasts(bool raycastsShown);
+
+bool debugAreRaycastsDisplayed();

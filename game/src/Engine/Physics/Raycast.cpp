@@ -7,11 +7,10 @@ Raycasting
 Copyright © 2017 DigiPen (USA) Corporation.
 */
 
-// WIP
-
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 #include "Raycast.h"
 #include "../../graphics/DebugGraphic.h"
@@ -19,6 +18,18 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\TransformComponent.h"
 
 #define DEGREES_PER_RADIAN 57.2957795131f
+
+bool debugShowRaycasts = false;
+
+void debugSetDisplayRaycasts(bool raycastsShown)
+{
+	debugShowRaycasts = raycastsShown;
+}
+
+bool debugAreRaycastsDisplayed()
+{
+	return debugShowRaycasts;
+}
 
 void DrawSmallBoxAtPosition(glm::vec2 position)
 {
@@ -258,12 +269,11 @@ void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject
 // constructor with direction in degrees
 Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
 	             glm::vec2 startPoint, float direction, float range, collisionLayers layer)
-	           : m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
+	           : m_startPosition(startPoint), m_normalizedDirection((float)(cos(direction)), (float)(sin(direction))),
+	             m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
-	glm::vec2 normalizedDirection((float)(cos(direction)), (float)(sin(direction)));
-
 	// calculate the raycast
-	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection, layer);
+	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, m_normalizedDirection, layer);
 
 	// use the result if it hit something
 	if (raycast.m_length != -1)
@@ -275,19 +285,23 @@ Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, 
 	else // else set the full ray
 	{
 		m_length = range;
-		m_intersection = startPoint + (normalizedDirection * range);
+		m_intersection = startPoint + (m_normalizedDirection * range);
+	}
+
+	if (debugAreRaycastsDisplayed())
+	{
+		Draw();
 	}
 }
 
 // constructor with direction along a vector
 Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
 	             glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer)
-	           : m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
+	           : m_startPosition(startPoint), m_normalizedDirection(glm::normalize(direction)),
+	             m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
-	glm::vec2 normalizedDirection = direction / glm::length(direction);
-
 	// calculate the raycast
-	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, normalizedDirection, layer);
+	RayCastCalculator raycast(allDynamicColliders, allStaticColliders, range, startPoint, m_normalizedDirection, layer);
 
 	// use the result if it hit something
 	if (raycast.m_length != -1)
@@ -299,7 +313,12 @@ Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, 
 	else
 	{
 		m_length = range;
-		m_intersection = startPoint + (normalizedDirection * range);
+		m_intersection = startPoint + (m_normalizedDirection * range);
+	}
+
+	if (debugAreRaycastsDisplayed())
+	{
+		Draw();
 	}
 }
 
@@ -317,4 +336,24 @@ glm::vec2& Raycast::Intersection()
 GameObject& Raycast::GameObjectHit()
 {
 	return m_gameObjectHit;
+}
+
+// methods
+void Raycast::Draw(glm::vec4 color, bool drawBoxAtStartPoint, bool drawBoxAtEndPoint)
+{
+	// draw a box at the start position
+	if (drawBoxAtStartPoint)
+	{
+		DrawSmallBoxAtPosition(m_startPosition);
+	}
+
+	// draw a box at the end position
+	DebugGraphic::DrawShape(m_startPosition + (m_normalizedDirection * (m_length / 2)), glm::vec2(m_length, .01f), atan2(m_normalizedDirection.y, m_normalizedDirection.x),
+		                    glm::vec4(color.x, color.y, color.z, color.w));
+
+	// draw a box at the intersection
+	if (drawBoxAtEndPoint)
+	{
+		DrawSmallBoxAtPosition(m_intersection);
+	}
 }
