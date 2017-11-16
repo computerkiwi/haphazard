@@ -26,11 +26,16 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #define MIN x
 #define MAX y
 
-bool debugShowHitboxes = true;
+bool debugShowHitboxes = false;
 
-void debugDisplayHitboxes(bool hitboxesShown)
+void debugSetDisplayHitboxes(bool hitboxesShown)
 {
 	debugShowHitboxes = hitboxesShown;
+}
+
+bool debugAreHitBoxesDisplayed()
+{
+	return debugShowHitboxes;
 }
 
 struct MinMax
@@ -758,10 +763,7 @@ void PhysicsSystem::Update(float dt)
 
 		float colorval = (1.0f / collisionLayers::numLayers) * ((i % collisionLayers::numLayers) +1);
 
-		DrawSmallBoxAtPosition(castPosition);
-		DebugGraphic::DrawShape(castPosition + (glm::normalize(direction[i]) * (testCast.Length() / 2)), glm::vec2(testCast.Length(), .01f), atan2(direction[i].y, direction[i].x), 
-			                    glm::vec4(colorval, colorval, colorval, 1));
-		DrawSmallBoxAtPosition(testCast.Intersection());
+		//testCast.Draw(glm::vec4(colorval, colorval, colorval, 1));
 	}
 
 	/*glm::vec2 testPoint(1, 0);
