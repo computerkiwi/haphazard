@@ -128,6 +128,7 @@ class ParticleSystem
 {
 public:
 	ParticleSystem();
+	ParticleSystem(const ParticleSystem& ps);
 	void Render(float dt, glm::vec2 pos);
 
 

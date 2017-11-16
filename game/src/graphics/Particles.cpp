@@ -110,6 +110,31 @@ ParticleSystem::ParticleSystem()
 	glBindTexture(GL_TEXTURE_1D, m_randTexture);
 }
 
+ParticleSystem::ParticleSystem(const ParticleSystem& ps)
+	: m_settings {ps.m_settings}
+{
+	Particle Particles[MAX_PARTICLES] = { 0 };
+
+	Particles[0].type = static_cast<float>(EMITTER);
+	Particles[0].position = glm::vec2(1, 0);
+	Particles[0].velocity = glm::vec2(0.0f, 1.0f);
+	Particles[0].scale = glm::vec2(1.0f, 1.0f);
+	Particles[0].life = 0.0f;
+
+	glGenTransformFeedbacks(2, m_transformFeedback);
+	glGenBuffers(2, m_particleBuffer);
+	glGenVertexArrays(1, &m_VAO);
+
+	for (int i = 0; i < 2; i++) {
+		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
+	}
+
+	Shaders::particleUpdateShader->Use();
+	glBindTexture(GL_TEXTURE_1D, m_randTexture);
+}
 
 void ParticleSystem::Render(float dt, glm::vec2 pos)
 {
