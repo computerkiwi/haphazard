@@ -26,6 +26,10 @@ namespace meta
 			META_DefineMember(glm::vec3, z, "z");
 
 			META_DefineType(glm::vec4);
+			META_DefineMember(glm::vec4, x, "x");
+			META_DefineMember(glm::vec4, y, "y");
+			META_DefineMember(glm::vec4, z, "z");
+			META_DefineMember(glm::vec4, w, "w");
 
 			META_DefineType(glm::mat2);
 			META_DefineType(glm::mat3);

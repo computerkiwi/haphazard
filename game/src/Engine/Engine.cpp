@@ -136,14 +136,14 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	player2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player2));
 
 	GameObject background = m_spaces[0]->NewGameObject("Background");
-	background.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("sky.png")->Data()), BACKGROUND_PARALLAX);
+	background.AddComponent<BackgroundComponent>(m_resManager.Get("sky.png"), BACKGROUND_PARALLAX);
 	background.AddComponent<TransformComponent>(glm::vec3(0, 0, -99));
 	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -25), glm::vec2(50, 25), glm::vec2(0.5f, 1.0f), glm::vec2(0, 0.5f));
 	background.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayMusicOnCreate.lua"), background));
 
 	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
+	foreground.AddComponent<BackgroundComponent>(m_resManager.Get("treeboy.png"), FOREGROUND_PARALLAX);
 	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 10));
-	foreground.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("treeboy.png")->Data()), FOREGROUND_PARALLAX);
 	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -1), glm::vec2(5.0f, 5), glm::vec2(0.4f, 0.8f), glm::vec2(0, 0.5f));
 	
 	player1.AddComponent<ParticleSystem>();
