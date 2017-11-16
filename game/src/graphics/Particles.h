@@ -75,6 +75,13 @@ struct ParticleSettings
 	glm::vec4		trailStartColor = {1,1,1,1};	 // Color of trail near particle
 	glm::vec4		trailEndColor = {1,1,1,1};		 // Color of trail near tail
 
+private:
+	// For meta.
+	int GetEmissionShape() const { return emissionShape; }
+	void SetEmissionShape(int shape) { emissionShape = static_cast<EmissionShape>(shape); }
+	int GetParticleSpace() const { return particleSpace; }
+	void SetParticleSpace(int space) { particleSpace = static_cast<SimulationSpace>(space); }
+
 	META_REGISTER(ParticleSettings)
 	{
 		
@@ -93,9 +100,9 @@ struct ParticleSettings
 		META_DefineMember(ParticleSettings, emissionRate, "EmissionRate");
 		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmisson");
 		META_DefineMember(ParticleSettings, burstEmission, "BurstEmission");
-		META_DefineMember(ParticleSettings, emissionShape, "EmissionShape");
+		META_DefineGetterSetter(ParticleSettings, int, GetEmissionShape, SetEmissionShape, "EmissionShape");
 		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScale");
-		META_DefineMember(ParticleSettings, particleSpace, "ParticleSpace");
+		META_DefineGetterSetter(ParticleSettings, int, GetParticleSpace, SetParticleSpace, "ParticleSpace");
 
 		META_DefineMember(ParticleSettings, emitterLifetime, "EmitterLifetime");
 		META_DefineMember(ParticleSettings, particleLifetime, "ParticleLifetime");
@@ -219,5 +226,7 @@ private:
 	META_REGISTER(ParticleSystem)
 	{
 		META_DefineType(ParticleSystem);
+
+		META_DefineMember(ParticleSystem, m_settings, "settings");
 	}
 };
