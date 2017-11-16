@@ -116,6 +116,9 @@ void RenderSystem::RenderSprites(float dt)
 		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
 		Screen::GetLayerFrameBuffer(layer)->Use();
 
+		data.clear();
+		tex.clear();
+
 		for (auto& spriteHandle : *sprites)
 		{
 			// Check for valid transform
@@ -277,16 +280,9 @@ void RenderSystem::Update(float dt)
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
-
-	/*Screen::GetLayerFrameBuffer(10)->Use();
-	FX fx[] = { FX::BLUR, FX::BLOOM };
-	Screen::GetLayerFrameBuffer(10)->SetEffects(2, fx);
-	Screen::GetLayerFrameBuffer(10)->SetBlurAmount(1.25f);
-	*/
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
-
 
 	//End loop
 	Screen::Draw(); // Draw to screen and apply post processing effects

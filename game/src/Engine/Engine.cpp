@@ -23,6 +23,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Shaders.h" // Shaders need to be initialized
 #include "graphics\Settings.h" // Settings needed for window init
 #include "graphics\Texture.h"
+#include "graphics\RenderLayer.h"
 
 // imgui
 #include <imgui.h>
@@ -120,7 +121,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
 
 	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
-	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.65, 1, 0));
+	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(0.65, 1, 0));
 	player1.AddComponent<RigidBodyComponent>();
 	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderBox));
 	player1.AddComponent<SpriteComponent>(m_resManager.Get("GnomeRed.png"));
@@ -141,7 +142,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	background.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayMusicOnCreate.lua"), background));
 
 	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
-	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 0));
+	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 10));
 	foreground.AddComponent<BackgroundComponent>(reinterpret_cast<Texture*>(m_resManager.Get("treeboy.png")->Data()), FOREGROUND_PARALLAX);
 	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -1), glm::vec2(5.0f, 5), glm::vec2(0.4f, 0.8f), glm::vec2(0, 0.5f));
 	
@@ -160,6 +161,27 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	player1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
 	player1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
 	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);
+
+	GameObject fire = m_spaces[0]->NewGameObject("Fire");
+	fire.AddComponent<TransformComponent>(glm::vec3(10, -1, 1));
+	fire.AddComponent<ParticleSystem>();
+	fire.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 0.6f));
+	fire.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
+	fire.GetComponent<ParticleSystem>()->SetScaleOverLife(glm::vec2(0.1f, 0.1f), glm::vec2(0, 0));
+	fire.GetComponent<ParticleSystem>()->SetColor(glm::vec4(1, 0, 0, 0.75f), glm::vec4(1, 1, 0, 0));
+	fire.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
+	fire.GetComponent<ParticleSystem>()->SetParticleLifetime(1.0f);
+	fire.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
+	fire.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
+	fire.GetComponent<ParticleSystem>()->SetHasTrail(false);
+	fire.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
+	fire.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
+	fire.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
+	fire.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
+	fire.GetComponent<ParticleSystem>()->SetRotationRate(1);
+
+	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
+	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
 }
 
 
