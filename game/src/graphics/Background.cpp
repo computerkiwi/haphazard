@@ -10,9 +10,11 @@ Screen::Mesh* BackgroundComponent::m_Mesh;
 static GLuint VAO, VBO;
 static bool firstBackground = true;
 
-BackgroundComponent::BackgroundComponent(Texture* texture, BACKGROUND_TYPE type)
-	: m_Texture{texture}, m_Type{type}
+BackgroundComponent::BackgroundComponent(Resource *res, BACKGROUND_TYPE type)
+	: m_Type{type}
 {
+	SetResource(res);
+
 	if (firstBackground)
 	{
 		firstBackground = false;
@@ -86,4 +88,25 @@ void BackgroundComponent::Render(glm::vec2 pos)
 	glUniform4f(m_UniTexBox, box.x, box.y, box.z, box.w);
 	glUniform1ui(m_UniTexLayer, m_Texture->GetID());
 	m_Mesh->DrawTris();
+}
+
+ResourceID BackgroundComponent::GetResourceID() const
+{
+	return m_resID;
+}
+
+void BackgroundComponent::SetResourceID(ResourceID id)
+{
+	SetResource(ResourceManager::GetManager().Get(id));
+}
+
+void BackgroundComponent::SetResource(Resource * res)
+{
+	if (res == nullptr)
+	{
+		res = ResourceManager::GetManager().Get("default.png");
+	}
+
+	SetTexture(reinterpret_cast<Texture *>(res->Data()));
+	m_resID = res->Id();
 }

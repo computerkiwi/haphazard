@@ -4,6 +4,7 @@
 #include "GameObjectSystem\TransformComponent.h"
 #include "glm\glm.hpp"
 #include "Screen.h"
+#include "Engine/ResourceManager.h"
 
 typedef unsigned int GLuint;
 
@@ -15,7 +16,7 @@ enum BACKGROUND_TYPE
 class BackgroundComponent
 {
 public:
-	BackgroundComponent(Texture* texture = nullptr, BACKGROUND_TYPE type = BACKGROUND);
+	BackgroundComponent(Resource *res = nullptr, BACKGROUND_TYPE type = BACKGROUND);
 	
 	// Set speed in x and y directions, and starting sub-texture that will be displayed
 	void SetParallax(glm::vec2 minimumPosition, glm::vec2 maximumPosition, glm::vec2 subTextureSize, glm::vec2 subTexturePos);
@@ -24,6 +25,9 @@ public:
 	bool IsBackground() { return m_Type == BACKGROUND || m_Type == BACKGROUND_PARALLAX; }
 
 	void Render(glm::vec2 pos);
+
+	ResourceID GetResourceID() const;
+	void SetResourceID(ResourceID id);
 
 private:
 	Texture* m_Texture;
@@ -39,8 +43,30 @@ private:
 	static GLuint m_UniTexLayer;
 	static Screen::Mesh* m_Mesh;
 
+	ResourceID m_resID;
+
+	void SetResource(Resource *res);
+
+	// Because meta system can't do enums.
+	int GetType() const { return m_Type; }
+	void SetType(int type) { m_Type = static_cast<BACKGROUND_TYPE>(type); }
+
 	META_REGISTER(BackgroundComponent)
 	{
+		// HACK: Doing this because I really need to set up a way to order these.
+		META_DefineType(glm::vec4);
+		META_DefineType(glm::vec2);
+
 		META_DefineType(BackgroundComponent);
+
+		META_DefineGetterSetter(BackgroundComponent, ResourceID, GetResourceID, SetResourceID, "resourceID");
+
+		META_DefineGetterSetter(BackgroundComponent, int, GetType, SetType, "backgroundType");
+
+		META_DefineMember(BackgroundComponent, m_ParallaxBounds, "parallaxBounds");
+		META_DefineMember(BackgroundComponent, m_SubTextureSize, "subTextureSize");
+		META_DefineMember(BackgroundComponent, m_SubTexturePosition, "subTexturePosition");
+		META_DefineMember(BackgroundComponent, m_TextureXRange, "textureXRange");
+		META_DefineMember(BackgroundComponent, m_TextureYRange, "textureYRange");
 	}
 };
