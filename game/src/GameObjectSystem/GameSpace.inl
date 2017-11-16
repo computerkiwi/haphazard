@@ -46,6 +46,7 @@ void ComponentMap<T>::Duplicate(GameObject_ID originalObject, GameObject_ID newO
 	}
 }
 
+
 template <typename T>
 void ComponentMap<T>::Delete(GameObject_ID object)
 {

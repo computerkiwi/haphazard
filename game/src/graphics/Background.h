@@ -9,7 +9,13 @@ typedef unsigned int GLuint;
 
 enum BACKGROUND_TYPE
 {
-	BACKGROUND, BACKGROUND_PARALLAX, FOREGROUND, FOREGROUND_PARALLAX
+	// Keep the parallax options after the non parallax
+	// Keep them in order
+	BACKGROUND = 0, 
+	FOREGROUND = 1, 
+
+	BACKGROUND_PARALLAX = 2, 
+	FOREGROUND_PARALLAX = 3
 };
 
 class BackgroundComponent
@@ -26,6 +32,9 @@ public:
 	void Render(glm::vec2 pos);
 
 private:
+	// Editor friend
+	friend void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
+
 	Texture* m_Texture;
 	BACKGROUND_TYPE m_Type;
 	glm::vec4 m_ParallaxBounds;
@@ -41,6 +50,25 @@ private:
 
 	META_REGISTER(BackgroundComponent)
 	{
+		META_DefineType(BACKGROUND_TYPE);
+
+		META_DefineType(glm::vec4); // HACK
+		META_DefineType(glm::vec2); // HACK
+		//META_DefineType(Texture *);   // HACK?
+
 		META_DefineType(BackgroundComponent);
+
+
+		//META_DefineMember(BackgroundComponent, m_Texture, "texture");
+		
+		META_DefineMember(BackgroundComponent, m_Type, "type");
+		
+		META_DefineMember(BackgroundComponent, m_ParallaxBounds, "parallaxBounds");
+		
+		META_DefineMember(BackgroundComponent, m_SubTextureSize, "subTextureSize");
+		META_DefineMember(BackgroundComponent, m_SubTexturePosition, "subTexturePosition");
+		
+		META_DefineMember(BackgroundComponent, m_TextureXRange, "textureXRange");
+		META_DefineMember(BackgroundComponent, m_TextureYRange, "textureYRange");
 	}
 };

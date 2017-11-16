@@ -27,6 +27,9 @@ public:
 
 	ObjectInfo(GameObject_ID id, const char *name) : m_name(name), m_id(id) {}
 
+	ObjectInfo(GameObject_ID id, ObjectInfo& rhs) : m_name(rhs.m_name), m_id(id), m_tags(rhs.m_tags) {}
+
+
 	void AddTag(const char *name) { m_tags.emplace(hash(name), name); }
 
 	META_REGISTER(ObjectInfo)

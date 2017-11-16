@@ -85,6 +85,7 @@ public:
 	}
 
 	operator bool() const { return m_objID; }
+	operator GameObject_ID() { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();

@@ -73,17 +73,35 @@ public:
 		Log_StartUp(str.str().c_str(), channel, priority);
 	}
 
+
+	void SetNextChannel(Channel channel)
+	{
+		m_nextChannel = channel;
+	}
+
+	void SetNextPriority(Priority priority)
+	{
+		m_nextPriority = priority;
+	}
+
 	template <typename T>
 	LoggingProxy operator <<(T& rhs)
 	{
 		std::stringstream ss;
 		ss << rhs;
-		ObjectLog(ss.str().c_str());
+		ObjectLog(ss.str().c_str(), m_nextChannel, m_nextPriority);
 
+
+		m_nextChannel = Channel::DEFAULT;
+		m_nextPriority = Priority::MEDIUM_PRIORITY;
 		return LoggingProxy();
 	}
 
 private:
+	Channel  m_nextChannel = Channel::DEFAULT;
+	Priority m_nextPriority = Priority::MEDIUM_PRIORITY;
+
+
 	static bool m_logToFile;
 	static bool m_logToConsole;
 

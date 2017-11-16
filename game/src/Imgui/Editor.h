@@ -125,7 +125,8 @@ class Editor
 
 		bool freeze = true;
 
-		bool console = false;
+		bool console = false;  // Show/Hide Console
+		bool imguiWantMouse = false; // Mouse Press
 	} m_editorState;
 
 
@@ -299,6 +300,7 @@ private:
 
 	void SaveLoad();
 	void OpenLevel();
+	void SaveLevel();
 
 	void MenuBar();
 	void SettingsPanel(float dt);

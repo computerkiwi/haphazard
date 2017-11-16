@@ -17,6 +17,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
 #include "graphics\Camera.h"
+#include "graphics\Background.h"
 
 #include "graphics\DebugGraphic.h"
 
@@ -76,9 +77,10 @@ void Action_General_Tags(EditorAction& a)
 }
 
 
+template <class Collider>
 void Action_General_Collider(EditorAction& a)
 {
-	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
+	ComponentHandle<Collider> handle(a.handle);
 
 	meta::Any colliderData(&handle->ColliderData());
 
@@ -177,6 +179,9 @@ struct EditorBoolWrapper
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
+typedef std::map<GameObject_ID, EditorBoolWrapper> MatchScaleBool;
+MatchScaleBool ObjectsMatchScale;
+
 typedef std::map<const char *, EditorBoolWrapper> ClickedList;
 ClickedList widget_click;
 
@@ -201,6 +206,8 @@ ClickedList widget_click;
 	}																										 
 
 // Same as Drag but it saves a vector instead of a float
+//    This version is used since the meta system does not register
+//    parts of glm::vec2 or similar objects
 #define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -222,6 +229,7 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Drag with a different change speed
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
 	{																										 \
@@ -272,6 +280,8 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Mouse_1 is released
+// Pushes the action into the editor
 #define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -279,7 +289,7 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
-
+// Save the data, but pass it to a different Action_General function
 #define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -287,6 +297,7 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
+// Cast SAVE and ITEM to TYPE then save them
 #define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -296,11 +307,17 @@ ClickedList widget_click;
 
 // Transform Component Save Location
 TransformComponent transformSave;
+
+// RigidBody Save Location
 RigidBodyComponent rigidBodySave;
+
+// Collider Data Save Location
 Collider2D         colliderSave;
 
+// Particles Save Location
 ParticleSettings   particleSave;
 
+// Camera Save
 struct CameraSave
 {
 	//View matrix
@@ -319,6 +336,25 @@ struct CameraSave
 	// Uniform buffer object location
 	GLuint m_MatricesUbo;
 } cameraSave;
+
+
+// Background Component Save Location
+struct BackgroundSave
+{
+	Texture* m_Texture;
+	
+	BACKGROUND_TYPE m_Type;
+	
+	glm::vec4 m_ParallaxBounds;
+	
+	glm::vec2 m_SubTextureSize = glm::vec2(0.1f, 1);
+	glm::vec2 m_SubTexturePosition = glm::vec2(0, 0);
+	
+	glm::vec2 m_TextureXRange = glm::vec2(0, 1);
+	glm::vec2 m_TextureYRange = glm::vec2(1, 0);
+
+} bgSave;
+
 
 
 void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
@@ -464,6 +500,30 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					Push_AddComponent(ParticleSystem);
 				}
 			}
+			if (Button("Camera", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<Camera>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<Camera>();
+					Push_AddComponent(Camera);
+				}
+			}
+			if (Button("Background", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<BackgroundComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<BackgroundComponent>();
+					Push_AddComponent(BackgroundComponent);
+				}
+			}
 			Separator();
 			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
 			{
@@ -596,6 +656,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (object.GetComponent<Camera>().IsValid())
 		{
 			ImGui_Camera(object.GetComponent<Camera>().Get(), object, editor);
+		}
+
+		if (object.GetComponent<BackgroundComponent>().IsValid())
+		{
+			ImGui_Background(object.GetComponent<BackgroundComponent>().Get(), object, editor);
 		}
 
 		End();
@@ -783,7 +848,19 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
 
 		DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
-			
+		
+		if (ObjectsMatchScale[object] == true)
+		{
+			if (object.GetComponent<StaticCollider2DComponent>().Get())
+			{
+				object.GetComponent<StaticCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
+			}
+			else if (object.GetComponent<DynamicCollider2DComponent>().Get())
+			{
+				object.GetComponent<DynamicCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
+			}
+		}
+
 		TreePop();
 		Separator();
 	}
@@ -791,10 +868,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	int z_layer = static_cast<int>(transform->GetZLayer());
 	if (InputInt("Z-Layer##transform", &z_layer, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
 	{
-		if (z_layer < 0)
-		{
-			z_layer = 0;
-		}
 		editor->Push_Action({ transform->m_position.z, z_layer, "zLayer", handle, Action_General<TransformComponent, float> });
 		transform->SetZLayer(static_cast<float>(z_layer));
 	}
@@ -956,10 +1029,9 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			bool matchScale;
-			Checkbox("Match Scale", &matchScale);
+			Checkbox("Match Scale", &(ObjectsMatchScale[object].value));
 
-			if (matchScale)
+			if (ObjectsMatchScale[object])
 			{
 				colliderSave.m_dimensions = collider->m_dimensions;
 
@@ -968,12 +1040,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				if (collider->isStatic())
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider });
+						handle, Action_General_Collider<StaticCollider2DComponent> });
 				}
 				else
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider });
+						handle, Action_General_Collider<DynamicCollider2DComponent> });
 				}
 			}
 
@@ -987,12 +1059,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 					if (collider->isStatic())
 					{
 						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-							handle, Action_General_Collider });
+							handle, Action_General_Collider<StaticCollider2DComponent> });
 					}
 					else
 					{
 						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-							handle, Action_General_Collider });
+							handle, Action_General_Collider<DynamicCollider2DComponent> });
 					}
 					widget_click["colliderSave.m_dimensions"] = false;
 				}
@@ -1014,11 +1086,11 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 					// Check if we need to save the action for static or dynamic
 					if (collider->isStatic())
 					{
-						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider<StaticCollider2DComponent> });
 					}
 					else
 					{
-						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider<DynamicCollider2DComponent> });
 					}
 					widget_click["colliderSave.m_offset"] = false;
 				}
@@ -1408,7 +1480,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 {
-	if (CollapsingHeader("Camera"))
+	if (CollapsingHeader("Camera##camera_component"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 
@@ -1418,7 +1490,81 @@ void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 }
 
 
-// Background Component
+void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Background##background_component"))
+	{
+		EditorComponentHandle handle = { object.Getid(), true };
+
+		int type = static_cast<int>(background->m_Type);
+		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+		SameLine();
+		if (RadioButton("Parallax (Background)##background_bg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND_PARALLAX)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+
+		if (RadioButton("Foreground##background_fg",   &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+		SameLine();
+		if (RadioButton("Parallax (Foreground)##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND_PARALLAX)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+
+		if (TreeNode("Parallax Bounds"))
+		{
+			Text("Minimum Point");
+			Drag_Vec("X##background_parallax_min", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.x, background->m_ParallaxBounds);
+			Drag_Vec("Y##background_parallax_min", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.y, background->m_ParallaxBounds);
+
+			DragRelease(BackgroundComponent, bgSave.m_ParallaxBounds, background->m_ParallaxBounds, "parallaxBounds");
+
+
+			Text("Maximum Point");
+			Drag_Vec("X##background_parallax_max", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.z, background->m_ParallaxBounds);
+			Drag_Vec("Y##background_parallax_max", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.w, background->m_ParallaxBounds);
+
+			DragRelease(BackgroundComponent, bgSave.m_ParallaxBounds, background->m_ParallaxBounds, "parallaxBounds");
+			
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Texture Size"))
+		{
+			Drag_Vec("X##background_texturesize", bgSave.m_SubTextureSize, background->m_SubTextureSize.x, background->m_SubTextureSize);
+			Drag_Vec("Y##background_texturesize", bgSave.m_SubTextureSize, background->m_SubTextureSize.y, background->m_SubTextureSize);
+
+			DragRelease(BackgroundComponent, bgSave.m_SubTextureSize, background->m_SubTextureSize, "subTextureSize");
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Texture Position"))
+		{
+			Drag_Vec("X##background_texturesize", bgSave.m_SubTexturePosition, background->m_SubTexturePosition.x, background->m_SubTexturePosition);
+			Drag_Vec("Y##background_texturesize", bgSave.m_SubTexturePosition, background->m_SubTexturePosition.y, background->m_SubTexturePosition);
+
+			DragRelease(BackgroundComponent, bgSave.m_SubTexturePosition, background->m_SubTexturePosition, "subTexturePosition");
+
+			Separator();
+			TreePop();
+		}
+	}
+}
+
+
 // Text Component
 
 // Light Component
