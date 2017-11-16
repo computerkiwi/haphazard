@@ -36,6 +36,15 @@ Camera::Camera()
 		Use();
 }
 
+Camera::Camera(const Camera & other) : m_Position(other.m_Position), m_Center(other.m_Position), 
+                                       m_Up(other.m_Up), m_Rotation(other.m_Rotation), 
+	                                     m_Zoom(other.m_Zoom), m_AspectRatio(other.m_AspectRatio), 
+	                                     m_Near(other.m_Near), m_Far(other.m_Far), m_MatricesUbo(other.m_MatricesUbo)
+{
+	// We become the active cam if we're copying an active cam.
+	SetIsActiveCam(other.IsActiveCam());
+}
+
 
 void Camera::SetView(glm::vec3 pos, glm::vec3 target, glm::vec3 upVector)
 {

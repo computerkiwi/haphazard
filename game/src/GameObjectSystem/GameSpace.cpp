@@ -303,7 +303,8 @@ void GameSpace::AddComponentMeta(GameObject_ID id, meta::Any& component)
 	IfAddComponent(ScriptComponent) else
 	IfAddComponent(Camera) else
 	IfAddComponent(TextComponent) else
-	IfAddComponent(ParticleSystem)
+	IfAddComponent(ParticleSystem) else
+	IfAddComponent(BackgroundComponent)
 	else
 	{
 		Logging::Log(Logging::Channel::META, Logging::CRITICAL_PRIORITY, "Found unkown component type \"", type->GetName(), "\" when adding an Any component to a space.");
