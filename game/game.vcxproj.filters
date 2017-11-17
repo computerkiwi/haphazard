@@ -172,6 +172,7 @@
     <ClInclude Include="src\Scripting\ScriptResource.h" />
     <ClInclude Include="src\graphics\RenderLayer.h" />
     <ClInclude Include="src\Audio\AudioResource.h" />
+    <ClInclude Include="src\Input\Commands.h" />
     <ClInclude Include="src\graphics\AnimationResource.h" />
   </ItemGroup>
   <ItemGroup>

@@ -328,33 +328,23 @@ namespace Input
       if (gamepads[i]->IsConnected() == true)
       {
         gamepads[i]->Update();
-        //if (gamepads[i]->IsPressed(GamepadButton::B))
-        //{
-        //  std::cout << "UpdateGamepads: player " << i + 1
-        //            << " pressed button B" << std::endl;
-        //}
-
-        //float axis = GamepadGetAxis(static_cast<PlayerNum>(i), GamepadAxis::LeftAnalog_X);
-
-        //if (axis != 0)
-        //{
-        //  std::cout << "Player " << i << "X axis: " << axis << std::endl;
-        //}
       }
     }
   }
 
   // Gets value for specific gamepad axis
-  float GamepadGetAxis(PlayerNum player, GamepadAxis axis)
+  float GamepadGetAxis(PlayerID player, GamepadAxis axis)
   {
     if (gamepads[player]->IsConnected())
     {
       return gamepads[player]->GetGamepadAxis(axis);
     }
+
+    return 0.0f;
   }
 
   // Checks if gamepad button is pressed
-  bool GamepadIsPressed(PlayerNum player, GamepadButton button)
+  bool GamepadIsPressed(PlayerID player, GamepadButton button)
   {
     if (gamepads[player]->IsConnected())
     {
@@ -363,7 +353,7 @@ namespace Input
   }
 
   // Checks if gamepad button is held down
-  bool GamepadIsHeldDown(PlayerNum player, GamepadButton button)
+  bool GamepadIsHeldDown(PlayerID player, GamepadButton button)
   {
     if (gamepads[player]->IsConnected())
     {
@@ -372,7 +362,7 @@ namespace Input
   }
 
   // Checks if gamepad button is released
-  bool GamepadIsReleased(PlayerNum player, GamepadButton button)
+  bool GamepadIsReleased(PlayerID player, GamepadButton button)
   {
     if (gamepads[player]->IsConnected())
     {

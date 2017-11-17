@@ -10,7 +10,11 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "Keybinding.h"
 
 // Default keybinding for keyboard
-Keybinding::Keybinding() : jump_(Key::Space), attack_(Key::RightShift), moveLeft_(Key::A), moveRight_(Key::D)
+Keybinding::Keybinding() : jump_(Key::W)
+                         , attack_(Key::RightShift)
+                         , stack_(Key::RightControl)
+                         , moveLeft_(Key::A)
+                         , moveRight_(Key::D)
 {
 }
 

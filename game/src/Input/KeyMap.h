@@ -1,5 +1,8 @@
 #pragma once
 
+#define DEAD_ZONE_MIN -0.05
+#define DEAD_ZONE_MAX  0.05
+
 // Avoids polluting global namespace
 
 typedef enum KeyState : int
@@ -10,13 +13,13 @@ typedef enum KeyState : int
 } KeyState;
 
 // Player number
-typedef enum PlayerNum : int
+typedef enum PlayerID : int
 {
   Player1,
   Player2,
   Player3,
   Player4
-}PlayerNum;
+}PlayerID;
 
 enum class Action : int
 {
@@ -176,6 +179,7 @@ enum class GamepadButton : int
   RightTrigger,
   Back,
   Start,
+  Guide,          // Which button is this?
   LeftThumb,
   RightThumb,
   Up,
@@ -196,6 +200,6 @@ enum class GamepadAxis : int
   LeftAnalog,  // Both left XY axes
   RightAnalog, // Both right XY axes
 
-//  Horizontal = LeftAnalog_X,
-//  Vertical = LeftAnalog_Y,
+  Horizontal = LeftAnalog_X,
+  Vertical = LeftAnalog_Y,
 };

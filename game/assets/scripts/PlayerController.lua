@@ -33,6 +33,12 @@ end
 function SpecifyPlayer()
 
 	local name = this:GetName()
+
+  GAMEPAD_JUMP   = 0  -- A
+  GAMEPAD_ATTACK = 1  -- B
+  GAMEPAD_LEFT   = 11 -- Left
+  GAMEPAD_RIGHT  = 13 -- RIght
+
 	if(name == "Player1")
 	then
 	
@@ -42,6 +48,9 @@ function SpecifyPlayer()
 		KEY_DOWN  = 83 -- S
 		KEY_LEFT  = 65 -- A
 		KEY_RIGHT = 68 -- D
+
+    PLAYER_NUM     = 1  -- Player 2
+
 		
 	else
 	
@@ -51,6 +60,8 @@ function SpecifyPlayer()
 		KEY_DOWN  = 264 -- Down
 		KEY_LEFT  = 263 -- Left
 		KEY_RIGHT = 262 -- Right
+
+    PLAYER_NUM     = 0  -- Player 1
 	
 	end
 
@@ -80,8 +91,9 @@ function StackedUpdate(dt)
 	thisVel.x = otherVel.x
 	thisVel.y = otherVel.y
 	
-	if (IsPressed(KEY_JUMP))
-	then
+	if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP))
+	--if (IsPressed(KEY_JUMP))
+  then
 		stacked = false
 		thisVel.y = jumpSpeed
 		unstackTimer = UNSTACK_TIME
@@ -112,18 +124,21 @@ function UnstackedUpdate(dt)
 	local rBody = this:GetRigidBody()
 	local transform = this:GetTransform()
 	tempVel = rBody.velocity
-	if (IsPressed(KEY_RIGHT))
-	then
+	if (GamepadGetAxis(PLAYER_NUM, 0) > 0.05)
+	--if (IsPressed(KEY_RIGHT))
+  then
 		tempVel.x = speed
-	elseif(IsPressed(KEY_LEFT))
-	then
+	elseif(GamepadGetAxis(PLAYER_NUM, 0) < -0.05)
+	--elseif (IsPressed(KEY_LEFT))
+  then
 		tempVel.x = -speed
 	else
 		tempVel.x = 0
 	end
 	
-	if (IsPressed(KEY_JUMP) and grounded) --SPACE
-	then
+	if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP) and grounded) --SPACE
+	--if (IsPressed(KEY_JUMP)))
+  then
 		tempVel.y = jumpSpeed
 		grounded = false
 		
