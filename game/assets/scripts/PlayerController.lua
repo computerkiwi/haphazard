@@ -122,7 +122,7 @@ function UnstackedUpdate(dt)
 		tempVel.x = 0
 	end
 	
-	if (IsPressed(KEY_JUMP) and grounded) --SPACE
+	if (IsPressed(KEY_JUMP) and grounded)
 	then
 		tempVel.y = jumpSpeed
 		grounded = false

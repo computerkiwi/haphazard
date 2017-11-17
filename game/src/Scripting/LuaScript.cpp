@@ -19,6 +19,11 @@ LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 {
 }
 
+LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(other.m_L)
+{
+	SetResourceID(other.m_resID);
+}
+
 LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaState()), m_thisObj(thisObj), m_resID(resource->Id())
 {
 	SetScriptResource(resource);
@@ -51,11 +56,8 @@ void LuaScript::GetScriptEnvironment()
 	lua_remove(m_L, -2);
 }
 
-void LuaScript::SetScriptResource(Resource *resource)
+void LuaScript::SetupEnvironment(const char *scriptString)
 {
-	// Make sure we're getting a script resource.
-	assert(resource->GetResourceType() == ResourceType::SCRIPT);
-
 	// Create a table representing the script's environment.
 	lua_newtable(m_L);
 
@@ -72,7 +74,7 @@ void LuaScript::SetScriptResource(Resource *resource)
 	// STACK: EnvTable
 
 	// Load the function and set its environment upvalue.
-	int result = luaL_loadstring(m_L, reinterpret_cast<std::string *>(resource->Data())->c_str());
+	int result = luaL_loadstring(m_L, scriptString);
 	if (result != 0)
 	{
 		Logging::Log(Logging::CORE, Logging::HIGH_PRIORITY, "Lua couldn't load script file: ", lua_tostring(m_L, -1));
@@ -105,6 +107,14 @@ void LuaScript::SetScriptResource(Resource *resource)
 	// STACK: *EMPTY*
 
 	UpdateThisObject();
+}
+
+void LuaScript::SetScriptResource(Resource *resource)
+{
+	// Make sure we're getting a script resource.
+	assert(resource->GetResourceType() == ResourceType::SCRIPT);
+
+	SetupEnvironment(reinterpret_cast<std::string *>(resource->Data())->c_str());
 }
 
 void LuaScript::SetResourceID(ResourceID id)

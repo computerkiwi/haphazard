@@ -26,7 +26,7 @@ void ScriptSystem::Update(float dt)
 
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
-		for (LuaScript script : scriptComp->scripts)
+		for (LuaScript& script : scriptComp->scripts)
 		{
 			luabridge::push(script.GetLuaState(), dt);
 			script.RunFunction("Update", 1, 0);

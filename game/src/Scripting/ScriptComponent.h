@@ -22,6 +22,14 @@ struct ScriptComponent
 		scripts.push_back(script);
 	}
 
+	ScriptComponent(const ScriptComponent& other, const GameObject& newThisObject) : scripts(other.scripts)
+	{
+		for (LuaScript& script : scripts)
+		{
+			script.SetThisObject(newThisObject);
+		}
+	}
+
 	void CallCollision(GameObject collidedObj)
 	{
 		for (auto& script : scripts)
