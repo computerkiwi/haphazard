@@ -61,6 +61,7 @@ void main()
 		vs_out.Scale.x = scale.x;
 		vs_out.Scale.y = proj[1][1] / proj[0][0]; // Aspect ratio
 		vs_out.Offsets[0] = proj * view * vec4(pos,0,1);
+		vs_out.Offsets[1] = proj * view * vec4(pos.x + scale.x, 0,0,1);
 	}
 	
 	vs_out.Color = color;

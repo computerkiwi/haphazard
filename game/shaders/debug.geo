@@ -42,15 +42,14 @@ void main() {
 	}
 	else
 	{
-		gs_in[0].Scale.x = gs_in[0].Scale.x / 2;
-
+		float r = gs_in[0].Offsets[1].x - gs_in[0].Offsets[0].x;
 		// Scale.x = radius, Scale.y = step
 		for(float i = 0; i < 2 * PI; i += 0.3f) 
 		{
-			gl_Position = gs_in[0].Offsets[0] + vec4(gs_in[0].Scale.x * cos(i), gs_in[0].Scale.x * sin(i) * gs_in[0].Scale.y,0,0);
+			gl_Position = gs_in[0].Offsets[0] + vec4( r * cos(i), r * sin(i) * gs_in[0].Scale.y,0,0);
 			EmitVertex();
 		}
-		gl_Position = gs_in[0].Offsets[0] + vec4(gs_in[0].Scale.x, 0,0,0); // initial point
+		gl_Position = gs_in[0].Offsets[0] + vec4(r,0,0,0); // initial point
 		EmitVertex();
 
 		EndPrimitive();
