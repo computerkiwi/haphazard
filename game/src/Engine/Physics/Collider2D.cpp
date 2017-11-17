@@ -52,7 +52,14 @@ Collider2D::collisionType Collider2D::GetCollisionType()
 // setters
 void Collider2D::SetColliderShape(colliderType colliderType)
 {
-	m_colliderShape = colliderType;
+	if (m_colliderShape & (colliderType::staticCollider))
+	{
+		m_colliderShape = colliderType & (colliderType::staticCollider);
+	}
+	else
+	{
+		m_colliderShape = colliderType;
+	}
 }
 
 void Collider2D::SetStatic()

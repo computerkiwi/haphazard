@@ -16,6 +16,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 constexpr char *collider_types[] =
 {
 	"Box"
+	"Circle"
 };
 
 class DynamicCollider2DComponent;
@@ -29,6 +30,7 @@ public:
 	{
 		staticCollider = 1 << 0,  // DO NOT set staticCollider yourself, it is taken care of interally
 		colliderBox    = 1 << 1,
+		colliderCircle = 1 << 2,
 
 		collider_max // Used by the editor
 	};
@@ -47,6 +49,10 @@ public:
 			   m_colliderShape(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset),
 		       m_layersCollidedWith(0), m_selfElasticity(selfElasticity), m_appliedElasticity(appliedElasticity), m_collisionType(collisionType)
 	{
+		if (m_colliderShape & ~(colliderType::staticCollider) == colliderType::colliderCircle)
+		{
+			m_dimensions.y = m_dimensions.x;
+		}
 	}
 
 	Collider2D(const Collider2D&) = default;

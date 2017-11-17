@@ -248,6 +248,27 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 	return Collision_SAT(transform1->GetPosition(), transform1->GetRotation(), collider1, transform2->GetPosition(), transform2->GetRotation(), collider2);
 }
 
+glm::vec3 Collision_CircleCircle(glm::vec2 center1, float radius1, glm::vec2 center2, float radius2)
+{
+	// temporary values to avoid multiple calculations
+	float xDifference = center2.x - center1.x;
+	float yDifference = center2.y - center1.y;
+	float radiusDistance = radius1 + radius2;
+
+	// distance between the centers squared
+	float squaredCenterDistance = (xDifference * xDifference) + (yDifference * yDifference);
+
+	// the circles are colliding
+	if (radiusDistance * radiusDistance > squaredCenterDistance)
+	{
+
+	}
+	else
+	{
+		return glm::vec3(0);
+	}
+}
+
 
 glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2)
 {
@@ -643,15 +664,43 @@ void PhysicsSystem::Update(float dt)
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
 
-				// check for collision on non-rotated objects
-				if (object1Rotation == 0 && object2Rotation == 0)
+				int object1Shape = collider1.GetColliderShape();
+				int object2Shape = collider2.GetColliderShape();
+
+				bool boxBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object1Shape == Collider2D::colliderType::colliderBox;
+				bool circleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object1Shape == Collider2D::colliderType::colliderCircle ||
+				                          object1Shape == Collider2D::colliderType::colliderCircle && object1Shape == Collider2D::colliderType::colliderBox;
+				bool circleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object1Shape == Collider2D::colliderType::colliderCircle;
+
+				// check for collision on non-rotated boxes
+				if (boxBoxCollision)
 				{
-					resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					if (object1Rotation == 0 && object2Rotation == 0)
+					{
+						resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					}
+					else // check for collision on rotated boxes
+					{
+						resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					}
 				}
-				else
+				else if(circleBoxCollision)
 				{
-					resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					// if the object1 is the circle
+					if (object1Shape == Collider2D::colliderType::colliderCircle)
+					{
+						resolutionVector = Collision_SAT_CircleBox();
+					}
+					else // if object2 is the circle
+					{
+						resolutionVector = Collision_SAT_CircleBox();
+					}
 				}
+				else if (circleCircleCollision)
+				{
+					resolutionVector = Collision_CircleCircle();
+				}
+
 
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
