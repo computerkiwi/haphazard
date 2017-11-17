@@ -621,7 +621,7 @@ void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *e
 		GameObject object = objects[i];
 		
 		TransformComponent *transform = object.GetComponent<TransformComponent>().Get();
-		DebugGraphic::DrawShape(transform->GetPosition(), glm::vec2(transform->GetScale()) + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0, 1, 1, 1));
+		DebugGraphic::DrawSquare(transform->GetPosition(), glm::vec2(transform->GetScale()) + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0, 1, 1, 1));
 	}
 
 	ImGui_GameObject(objects[objects.m_size - 1], editor);
@@ -720,7 +720,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 {
 	// Draws the Selection Box
 	glm::vec2 scale(transform->GetScale());
-	DebugGraphic::DrawShape(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
+	DebugGraphic::DrawSquare(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
 
 	EditorComponentHandle handle = { object.Getid(), true };
 		

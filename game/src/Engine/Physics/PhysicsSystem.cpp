@@ -517,7 +517,7 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 
 		float rotation = transform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
 
-		DebugGraphic::DrawShape(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(1, 0, 1, 1));
+		DebugGraphic::DrawSquare(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(1, 0, 1, 1));
 	}
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
@@ -526,7 +526,7 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 
 		float rotation = transform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
 
-		DebugGraphic::DrawShape(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(.1f, .5f, 1, 1));
+		DebugGraphic::DrawSquare(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(.1f, .5f, 1, 1));
 	}
 }
 

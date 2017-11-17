@@ -33,19 +33,20 @@ bool debugAreRaycastsDisplayed()
 
 void DrawSmallBoxAtPosition(glm::vec2 position)
 {
-	DebugGraphic::DrawShape(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
+	//DebugGraphic::DrawSquare(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
+	DebugGraphic::DrawCircle(position, 0.05f, glm::vec4(1, 0, 1, 1));
 }
 
 // draws a ray, assumes direction to be already normalized
 void DrawRayNormalized(glm::vec2 position, glm::vec2 direction, float length)
 {
-	DebugGraphic::DrawShape(position + (direction * length * .5f), glm::vec2(length, .03f), atan2(direction.y, direction.x), glm::vec4(0, 1, 1, 1));
+	DebugGraphic::DrawSquare(position + (direction * length * .5f), glm::vec2(length, .03f), atan2(direction.y, direction.x), glm::vec4(0, 1, 1, 1));
 }
 
 // draws a ray
 void DrawRay(glm::vec2 position, glm::vec2 direction)
 {
-	DebugGraphic::DrawShape(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
+	DebugGraphic::DrawSquare(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
 }
 
 float DegreesToRadians(float angleInDegrees)
@@ -348,7 +349,7 @@ void Raycast::Draw(glm::vec4 color, bool drawBoxAtStartPoint, bool drawBoxAtEndP
 	}
 
 	// draw a box at the end position
-	DebugGraphic::DrawShape(m_startPosition + (m_normalizedDirection * (m_length / 2)), glm::vec2(m_length, .01f), atan2(m_normalizedDirection.y, m_normalizedDirection.x),
+	DebugGraphic::DrawSquare(m_startPosition + (m_normalizedDirection * (m_length / 2)), glm::vec2(m_length, .01f), atan2(m_normalizedDirection.y, m_normalizedDirection.x),
 		                    glm::vec4(color.x, color.y, color.z, color.w));
 
 	// draw a box at the intersection

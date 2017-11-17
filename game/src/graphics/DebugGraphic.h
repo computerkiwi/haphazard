@@ -13,7 +13,9 @@ class DebugGraphic
 {
 public:
 	// Draws shape for one update. Positition and scale are both relative to world space
-	static void DrawShape(glm::vec2 pos, glm::vec2 scale = glm::vec2(1, 1), float rotationRadians = 0, glm::vec4 color = glm::vec4(1, 0, 0, 1));
+	static void DrawSquare(glm::vec2 pos, glm::vec2 scale = glm::vec2(1, 1), float rotationRadians = 0, glm::vec4 color = glm::vec4(1, 0, 0, 1));
+
+	static void DrawCircle(glm::vec2 pos, float radius = 1, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 
 	// Draw all debug shapes and CLEARS ALL CURRENT DEBUG SHAPES
 	static void DrawAll();

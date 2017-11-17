@@ -11,7 +11,7 @@ std::vector<float> DebugGraphic::m_ShapeData;
 unsigned int DebugGraphic::m_VAO;
 unsigned int DebugGraphic::m_VBO;
 
-void DebugGraphic::DrawShape(glm::vec2 pos, glm::vec2 scale, float rotation, glm::vec4 color)
+void DebugGraphic::DrawSquare(glm::vec2 pos, glm::vec2 scale, float rotation, glm::vec4 color)
 {
 	m_ShapeData.push_back(pos.x);
 	m_ShapeData.push_back(pos.y);
@@ -22,6 +22,21 @@ void DebugGraphic::DrawShape(glm::vec2 pos, glm::vec2 scale, float rotation, glm
 	m_ShapeData.push_back(color.y);
 	m_ShapeData.push_back(color.z);
 	m_ShapeData.push_back(color.w);
+	m_ShapeData.push_back(0.0f); // Square
+}
+
+void DebugGraphic::DrawCircle(glm::vec2 pos, float radius, glm::vec4 color)
+{
+	m_ShapeData.push_back(pos.x);
+	m_ShapeData.push_back(pos.y);
+	m_ShapeData.push_back(radius); // scale.x
+	m_ShapeData.push_back(0); // scale.y
+	m_ShapeData.push_back(0); // rotation
+	m_ShapeData.push_back(color.x);
+	m_ShapeData.push_back(color.y);
+	m_ShapeData.push_back(color.z);
+	m_ShapeData.push_back(color.w);
+	m_ShapeData.push_back(1.0f); // Circle
 }
 
 void DebugGraphic::DebugGraphic::DrawAll()
@@ -44,7 +59,7 @@ void DebugGraphic::DebugGraphic::DrawAll()
 	Shaders::debugShader->Use();
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_ShapeData.size(), m_ShapeData.data(), GL_STATIC_DRAW);
-	glDrawArraysInstanced(GL_POINTS, 0, 9, (GLsizei)m_ShapeData.size() / 9);
+	glDrawArraysInstanced(GL_POINTS, 0, 10, (GLsizei)m_ShapeData.size() / 10);
 
 	m_ShapeData.clear();
 }

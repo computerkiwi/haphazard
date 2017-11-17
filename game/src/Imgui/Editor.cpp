@@ -681,8 +681,8 @@ void Editor::Tools()
 		switch (m_tool)
 		{
 		case Tool::Translation:
-			DebugGraphic::DrawShape(pos, glm::vec2(0.25f, 0.1f));
-			DebugGraphic::DrawShape(pos, glm::vec2(0.1f, 0.25f));
+			DebugGraphic::DrawSquare(pos, glm::vec2(0.25f, 0.1f));
+			DebugGraphic::DrawSquare(pos, glm::vec2(0.1f, 0.25f));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
 			{
@@ -707,11 +707,11 @@ void Editor::Tools()
 			break;
 
 		case Tool::Scale:
-			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
+			DebugGraphic::DrawSquare(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
 			break;
 
 		case Tool::Rotation:
-			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
+			DebugGraphic::DrawSquare(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
 			break;
 
 		default:
