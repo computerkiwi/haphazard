@@ -23,7 +23,6 @@ enum BlendMode
 class Mesh
 {
 public:
-
 	///
 	// Vertex sub-class
 	///
@@ -41,7 +40,7 @@ public:
 	// Mesh constructor/deconstructor
 	///
 
-	Mesh(GLenum renderMode = GL_TRIANGLES);
+	Mesh();
 	~Mesh();
 
 	///
@@ -57,32 +56,9 @@ public:
 	void CompileMesh(); // Creates mesh with provided vertices
 
 	///
-	// Non-Animated Texture functions
-	///
-
-	void SetTexture(Texture* tex);
-	Texture* GetTexture() const { return texture; }
-	
-	/* Returns texture/animated texture id that will be rendered. *
-	 * Returns default texture is no texture is set.              */
-	GLuint GetRenderTextureID(); 
-
-	///
-	// Animated Texture functions
-	///
-	void SetTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
-	void SetAnimatedTexture(AnimatedTexture* at, float fps) { animatedTexture = at; AT_fps = fps; }
-	AnimatedTexture* GetAnimatedTexture() const { return animatedTexture; }
-
-	void UpdateAnimatedTexture(float dt);
-	void SetFrame(int frame) { AT_frame = frame; AT_timer = 0; }
-	bool IsAnimated() const { return animatedTexture != nullptr; }
-
-	///
 	// Render functions
 	///
 
-	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
 	void BindVAO() { glBindVertexArray(vaoID); }
 	void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
 	int NumVerts() { return (int)vertices.size(); }
@@ -93,10 +69,8 @@ public:
 
 	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); }
 	static void BindTextureVBO() { glBindBuffer(GL_ARRAY_BUFFER, textureVBO); }
-	static void UseBlendMode(BlendMode bm);
 
 private:
-
 	// Static buffers
 	static GLuint instanceVBO, textureVBO;
 
@@ -105,13 +79,5 @@ private:
 
 	// Vertex data
 	std::vector<Vertice> vertices;
-
-	// Non-Animated Texture
-	Texture* texture = nullptr;
-	
-	// Animated Texture
-	AnimatedTexture* animatedTexture = nullptr;
-	int AT_frame = 0;
-	float AT_fps, AT_timer = 0;
 };
 

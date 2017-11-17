@@ -12,6 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics/TextureResource.h"
 #include "Scripting/ScriptResource.h"
 #include "Audio/AudioResource.h"
+#include "graphics\AnimationResource.h"
 
 // Once you're registered a resource type in the enum in ResourceManager.h, add to the functions below.
 
@@ -30,6 +31,10 @@ const char *Resource::GetFolderName(ResourceType type)
 
 	case ResourceType::SOUND:
 		return "audio";
+		break;
+
+	case ResourceType::ANIMATION:
+		return "animations";
 		break;
 
 	default:
@@ -54,6 +59,10 @@ Resource * Resource::AllocateNewResource(ResourceType type, const char *folderPa
 
 	case ResourceType::SOUND:
 		return new AudioResource(folderPath, fileName);
+		break;
+
+	case ResourceType::ANIMATION:
+		return new AnimationResource(folderPath, fileName);
 		break;
 
 	default:

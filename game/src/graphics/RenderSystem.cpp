@@ -96,7 +96,9 @@ void RenderSystem::RenderSprites(float dt)
 	std::vector<float> data;
 	std::vector<int> tex;
 	int numMeshes = 0;
-	static int numVerts = 0; // All sprites will be the same size, so numVerts only has to be set once
+
+	// All sprites will be the same mesh, so numVerts only has to be set once
+	static const int numVerts = SpriteComponent::SpriteMesh()->NumVerts();
 
 	std::set<int> layers;
 	for (auto& spriteHandle : *sprites)
@@ -132,19 +134,16 @@ void RenderSystem::RenderSprites(float dt)
 				continue;
 
 			// Update animated sprites
-			spriteHandle->UpdateAnimatedTexture(dt);
+			spriteHandle->UpdateTextureHandler(dt);
 
 			// Places vertex data into data vector to be used in Vertex VBO
 			spriteHandle->SetRenderData(transform->GetMatrix4(), &data);
 
 			// Places texture in tex vector to be used in Texture VBO
-			tex.push_back(spriteHandle->GetRenderTextureID());
+			tex.push_back(spriteHandle->GetTextureRenderID());
 
 			// Keep count of all meshes used in instancing call
 			numMeshes++;
-
-			if (numVerts == 0) 
-				numVerts = spriteHandle->NumVerts();
 		}
 
 		if (numMeshes == 0)
@@ -161,8 +160,7 @@ void RenderSystem::RenderSprites(float dt)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 		// Bind first sprite VAO, all sprite have the same vertex attributes
-		if(sprites->begin() != sprites->end())
-			sprites->begin()->BindVAO();
+		SpriteComponent::SpriteMesh()->BindVAO();
 
 		// Draw all sprites in this layer
 		glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);

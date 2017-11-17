@@ -21,18 +21,8 @@ GLuint Mesh::instanceVBO = 0;
 GLuint Mesh::textureVBO = 0;
 static Texture* defaultTexture;
 
-Mesh::Mesh(GLenum renderMode)
-  : animatedTexture(nullptr), vaoID{ 0 }, vboID{ 0 }, vertices{ std::vector<Vertice>() }, texture{nullptr}, AT_frame{0}, AT_fps{0}, AT_timer{0}
+Mesh::Mesh()
 {
-	// Generate default texture (1 white pixel) if it does not exist
-	if (!defaultTexture) 
-	{
-		float p[] = { 
-			1,1,1,1,
-		};
-		defaultTexture = new Texture(p, 1, 1);
-	}
-
 	// Generate Vertex Attribute Object (VAO)
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
@@ -79,69 +69,6 @@ void Mesh::AddTriangle(
 	AddVertex(x3, y3, z3, r3, g3, b3, a3, s3, t3);
 }
 
-/*
-void Mesh::UseBlendMode(BlendMode bm)
-{
-	switch (bm)
-	{
-	case BlendMode::BM_DISABLED:
-		glBlendFunc(GL_ZERO, GL_ZERO);
-		break;
-	case BlendMode::BM_DEFAULT:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		break;
-	case BlendMode::BM_DISABLE_ALPHA:
-		glBlendFunc(GL_ONE, GL_ZERO);
-		break;
-	case BlendMode::BM_ADDITIVE:
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		break;
-	}
-}*/
-
-void Mesh::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
-{
-	if (animatedTexture)
-	{
-		// Animated textures hold a different texture box depending on the current frame of the animation
-		glm::vec2 t = animatedTexture->GetFrameCoords(AT_frame);
-		glm::vec2 s = animatedTexture->GetSpriteSize();
-
-		data->push_back(t.x);
-		data->push_back(t.y);
-		data->push_back(t.x + s.x);
-		data->push_back(t.y + s.y);
-	}
-	else
-	{
-		// Static textures have constant bounds and start at 0,0
-		glm::vec2 b = texture->GetBounds();
-		data->push_back(0);
-		data->push_back(0);
-		data->push_back(b.x);
-		data->push_back(b.y);
-	}
-
-	// Load data into array
-	for (int i = 0; i < 4 * 4; i++)
-		data->push_back(matrix[i / 4][i % 4]);
-}
-
-GLuint Mesh::GetRenderTextureID()
-{
-	if (animatedTexture)
-		return animatedTexture->GetID();
-	if(texture)
-		return texture->GetID();
-	// No texture bound, return default (blank) texture
-	return defaultTexture->GetID();
-}
-
-void Mesh::SetTexture(Texture* tex)
-{ 
-	texture = tex;
-}
-
 std::vector<Mesh::Vertice>* Mesh::GetVertices()
 {
 	return &vertices;
@@ -164,19 +91,3 @@ void Mesh::CompileMesh()
 	delete [] verts;
 }
 
-void Mesh::UpdateAnimatedTexture(float dt)
-{
-	if (animatedTexture)
-	{
-		AT_timer += dt;
-		if (AT_timer > 1.0f / AT_fps)
-		{
-			// Not adding by 1 prevents skipped frames in low framerates
-			AT_frame += (int)(AT_timer / (1.0f / AT_fps));
-			AT_timer = 0;
-
-			if (AT_frame >= animatedTexture->GetMaxFrame())
-				AT_frame = 0;
-		}
-	}
-}

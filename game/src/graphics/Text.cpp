@@ -25,8 +25,7 @@ void Font::InitFonts()
 
 Font::Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY)
 {
-	m_Texture = new AnimatedTexture(path, charWidth, charHeight, numCharsX, numCharsY);
-	m_FontSize = m_Texture->GetSpriteSize();
+	m_Texture = new AnimatedTexture(path, charWidth, charHeight, numCharsX, numCharsY, numCharsX * numCharsY);
 }
 
 

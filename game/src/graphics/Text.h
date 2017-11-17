@@ -39,14 +39,13 @@ public:
 	glm::vec4 CharBox(char c)
 	{
 		c -= '!'-1; // First character on spritesheet is one character before '!'
-		return glm::vec4(m_Texture->GetFrameCoords(c), m_Texture->GetFrameCoords(c) + m_Texture->GetSpriteSize());
+		return m_Texture->GetBounds(c);
 	}
 
 private:
 	Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY);
 	
 	AnimatedTexture* m_Texture;
-	glm::vec2 m_FontSize;
 	float m_FontSpacing = 1;
 };
 

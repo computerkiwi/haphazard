@@ -7,90 +7,66 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "SpriteComponent.h"
 #include "TextureResource.h" // For INVALID_TEXTURE_ID
 
+///
+// Sprite Component
+///
 
-// Constructs a unit mesh (1x1 white mesh) and sets texture to be used for that mesh
-SpriteComponent::SpriteComponent(Resource *res)
-  : Mesh()
+Mesh* SpriteComponent::m_Mesh = nullptr;
+
+
+void SpriteComponent::ConstructUnitMesh()
 {
-	AddTriangle(
-		//  x,     y, z,    r,    g,    b, a, s, t
-		-0.5f,  0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 1, // Top Left
-		-0.5f, -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 0, // Bot Left
-		0.5f,  -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 0  // Bot Right
-	);
-	AddTriangle(
-		//  x,     y, z,    r,    g,    b, a, s, t
-		0.5f,  -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 0, // Bot Right
-		0.5f,   0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 1, // Top Right
-		-0.5f,  0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 1  // Top Left
-	);
-	CompileMesh();
-
-	if (res)
-	{
-		SetTextureResource(res);
-	}
-	else
-	{
-		// If no texture is given, display default texture (solid color)
-		SetTextureResource(engine->GetResourceManager().Get("default.png"));
-	}
-}
-
-SpriteComponent::SpriteComponent(AnimatedTexture* t, float fps)
-{
-	AddTriangle(
+	m_Mesh = new Mesh(); 
+	m_Mesh->AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t
 		-0.5f, 0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 1, // Top Left
 		-0.5f, -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 0, // Bot Left
 		0.5f, -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 0  // Bot Right
 	);
-	AddTriangle(
+	m_Mesh->AddTriangle(
 		//  x,     y, z,    r,    g,    b, a, s, t
 		0.5f, -0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 0, // Bot Right
 		0.5f, 0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 1, 1, // Top Right
 		-0.5f, 0.5f, 0, 1.0f, 1.0f, 1.0f, 1, 0, 1  // Top Left
 	);
-	CompileMesh();
+	m_Mesh->CompileMesh();
+}
 
-	// Animated texture should be set to something, null should never be passed
-	if (t)
-		SetTexture(t, fps);
-	else
-		assert(!"You passed a NULL animated texture to a sprite component");
-
-	m_resID = INVALID_TEXTURE_ID;
+SpriteComponent::SpriteComponent(Resource *res)
+	: m_TextureHandler { res }
+{
+	if (!m_Mesh)
+		ConstructUnitMesh();
 }
 
 void SpriteComponent::SetTextureResource(Resource *res)
 {
-	if (res == nullptr)
-	{
-		SetTexture(GetDefaultTexture());
-		m_resID = INVALID_TEXTURE_ID;
-		return;
-	}
-
-	assert(res->GetResourceType() == ResourceType::TEXTURE);
-	Texture *tex = reinterpret_cast<Texture *>(res->Data());
-	SetTexture(tex);
-	m_resID = res->Id();
+	assert(res->GetResourceType() == ResourceType::TEXTURE || res->GetResourceType() == ResourceType::ANIMATION);
+	m_TextureHandler.SetResource(nullptr);
 }
 
 
 void SpriteComponent::SetTextureID(ResourceID res)
 {
-	if (res == INVALID_TEXTURE_ID)
-	{
-		SetTexture(GetDefaultTexture());
-		m_resID = INVALID_TEXTURE_ID;
-		return;
-	}
-
 	Resource *resource = engine->GetResourceManager().Get(res);
+	SetTextureResource(resource);
+}
 
-	assert(resource->GetResourceType() == ResourceType::TEXTURE);
-	Texture *tex = reinterpret_cast<Texture *>(resource->Data());
-	SetTexture(tex);
-	m_resID = res;
+void SpriteComponent::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
+{
+	glm::vec4 bounds = m_TextureHandler.GetTexture()->GetBounds();
+
+	data->push_back(bounds.x);
+	data->push_back(bounds.y);
+	data->push_back(bounds.z);
+	data->push_back(bounds.w);
+
+	// Load data into array
+	for (int i = 0; i < 4 * 4; i++)
+		data->push_back(matrix[i / 4][i % 4]);
+}
+
+void SpriteComponent::UpdateTextureHandler(float dt)
+{
+	m_TextureHandler.Update(dt);
 }

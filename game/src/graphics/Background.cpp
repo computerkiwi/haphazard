@@ -41,16 +41,13 @@ void BackgroundComponent::Render(glm::vec2 pos)
 		return;
 
 	glm::vec4 box;
-	glm::vec2 t = m_Texture->GetBounds();
+	glm::vec4 t = m_Texture->GetBounds();
 
 	switch (m_Type)
 	{
 	case BACKGROUND_TYPE::BACKGROUND:
 	case BACKGROUND_TYPE::FOREGROUND:
-		box.x = 0; // Lower x
-		box.y = 0; // Lower y
-		box.z = t.x; // Upper x
-		box.w = t.y; // Upper y
+		box = t;
 		break;
 	case BACKGROUND_TYPE::BACKGROUND_PARALLAX:
 	case BACKGROUND_TYPE::FOREGROUND_PARALLAX:
@@ -66,17 +63,17 @@ void BackgroundComponent::Render(glm::vec2 pos)
 		// Linearly interpolate between minimum and maximum
 
 		// Lower bounds
-    glm::vec2 l = glm::vec2( (m_TextureXRange.x + p.x * (m_TextureXRange.y - m_TextureXRange.x)) * t.x, // Percent from 0 to max
-                             (m_TextureYRange.x + p.y * (m_TextureYRange.y - m_TextureYRange.x)) * t.y);
+    glm::vec2 l = glm::vec2( (m_TextureXRange.x + p.x * (m_TextureXRange.y - m_TextureXRange.x)) * t.z, // Percent from 0 to max
+                             (m_TextureYRange.x + p.y * (m_TextureYRange.y - m_TextureYRange.x)) * t.w);
 
 		// Upper bound (lower + offset)
-    glm::vec2 u = glm::vec2(t.x * m_SubTextureSize.x + l.x,
-                            t.y * m_SubTextureSize.y / Camera::GetActiveCamera()->GetAspectRatio() + l.y);
+    glm::vec2 u = glm::vec2(t.z * m_SubTextureSize.x + l.x,
+                            t.w * m_SubTextureSize.y / Camera::GetActiveCamera()->GetAspectRatio() + l.y);
 
-		box.x = l.x + m_SubTexturePosition.x * t.x; // Lower x (Left)
-		box.y = l.y - (1 - m_SubTexturePosition.y) * t.y; // Lower y (Bottom)
-		box.z = u.x + m_SubTexturePosition.x * t.x; // Upper x (Right)
-		box.w = u.y - (1 - m_SubTexturePosition.y) * t.y; // Upper y (Top)
+		box.x = l.x + m_SubTexturePosition.x * t.z; // Lower x (Left)
+		box.y = l.y - (1 - m_SubTexturePosition.y) * t.w; // Lower y (Bottom)
+		box.z = u.x + m_SubTexturePosition.x * t.z; // Upper x (Right)
+		box.w = u.y - (1 - m_SubTexturePosition.y) * t.w; // Upper y (Top)
 		break;
 	}
 

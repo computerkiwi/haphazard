@@ -53,11 +53,11 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 
 	if (a.redo)
 	{
-		handle->SetResourceID(a.current.GetData<ResourceID>());
+		handle->SetTextureID(a.current.GetData<ResourceID>());
 	}
 	else
 	{
-		handle->SetResourceID(a.save.GetData<ResourceID>());
+		handle->SetTextureID(a.save.GetData<ResourceID>());
 	}
 }
 

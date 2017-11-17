@@ -5,70 +5,82 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
+#include "Universal.h"
+#include "Engine\ResourceManager.h"
 #include "glm\glm.hpp"
 
 typedef unsigned int GLuint;
-class AnimatedTexture;
 
 class Texture
 {
-	friend class AnimatedTexture;
 public:
 	// Load texture from file
 	Texture(const char* file);
 
-	// Load texture from memory
-	Texture(float *pixels, int width, int height);
-
-	// Load texture from ID
-	Texture(GLuint id) { m_ID = id; }
-
-	~Texture();
+	virtual ~Texture();
 
 	GLuint GetID() const { return m_ID; }
-	glm::vec2 GetBounds();
+	virtual glm::vec4 GetBounds();
 
 	static void BindArray();
 	
-private:
+protected: // Static variables
 	const static int MAX_WIDTH = 1920;
 	const static int MAX_HEIGHT = 1080;
 
+	// Texture array
 	static void GenerateTextureArray();
-
 	static GLuint m_TextureArray;
 	static GLuint m_layers;
 
+private: // Variables
 	GLuint m_ID;
 	float m_width, m_height;
 };
 
-class AnimatedTexture
+class AnimatedTexture : public Texture
 {
 public:
-	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int numSpritesX, int numSpritesY);
-
+	AnimatedTexture(const char* file);
+	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites);
+	
 	// Returns top left of sprite frame
-	glm::vec2 GetFrameCoords(int frame)
-	{
-		return glm::vec2(m_spriteWidth * (frame % m_spritesX), m_spriteHeight * (frame / m_spritesX));
-	}
+	virtual glm::vec4 GetBounds(int frame = 0);
 
-	glm::vec2 GetSpriteSize()
-	{
-		return glm::vec2(m_spriteWidth, m_spriteHeight);
-	}
+	int GetMaxFrame() { return m_numSprites; }
+	float GetDefaultFPS() {	return m_DefaultFPS; }
 
-	int GetMaxFrame()
-	{
-		return m_spritesX * m_spritesY;
-	}
-
-	GLuint GetID() const { return m_ID; }
+	void SetSpritesXY(int x, int y, int numSprites = 0);
 
 private:
-	GLuint m_ID;
-	float m_width, m_height;
-	float m_spriteWidth, m_spriteHeight;
-	int m_spritesX, m_spritesY;
+	float m_spriteWidth;
+	float m_spriteHeight;
+
+	int m_spritesX;
+	int m_spritesY;
+	int m_numSprites;
+
+	float m_DefaultFPS;
+};
+
+class TextureHandler
+{
+public:
+	TextureHandler(Resource* texture);
+	void SetResource(Resource* texture);
+	void Update(float dt);
+
+	ResourceID GetResourceID() const { return m_Texture->Id(); }
+	Texture* GetTexture() const { return reinterpret_cast<Texture*>(m_Texture->Data()); }
+
+	void SetAnimatedTextureFPS(float fps);
+	void SetAnimatedTextureFrame(float fps);
+
+private:
+	Resource* m_Texture;
+
+	bool m_IsAnimated;
+	int m_CurrentFrame = 0;
+	float m_FPS = 0;
+	float m_Timer = 0;
 };

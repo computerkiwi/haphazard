@@ -12,50 +12,36 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine/Engine.h"
 
 class GameObject;
-class SpriteComponent : public Mesh
+class SpriteComponent
 {
 	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 public:
 	// Sprite Constructor for static sprite
 	SpriteComponent(Resource *res = NULL);
-	// Sprite Contructor for animated sprite
-	SpriteComponent(AnimatedTexture* t, float fps);
-	
-	// Sets render layer. Higher layers are displayed on top. Default Layer = 0
-	void SetLayer(int layer) { m_Layer = layer; }
-	int GetLayer() { return m_Layer; }
-
-	// Resource functions
-
-	void SetResourceID(ResourceID resID) 
-	{
-		m_resID = resID;
-		SetTextureResource(engine->GetResourceManager().Get(resID));
-	}
-
-	ResourceID GetResourceID() const
-	{
-		return m_resID;
-	}
-
-private:
-	ResourceID m_resID;
-	int m_Layer = 0;
 
 	void SetTextureResource(Resource *resource);
 	void SetTextureID(ResourceID res);
 
-	Texture *GetDefaultTexture()
-	{
-		Resource *res = engine->GetResourceManager().Get("default.png");
+	ResourceID GetResourceID() const { return m_TextureHandler.GetResourceID(); }
+	GLuint GetTextureRenderID() const { return m_TextureHandler.GetTexture()->GetID(); }
 
-		return reinterpret_cast<Texture *>(res->Data());
-	}
+	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
+	void UpdateTextureHandler(float dt);
+
+	static Mesh* SpriteMesh() { return m_Mesh; }
+
+private:
+	static void SpriteComponent::ConstructUnitMesh();
+	
+private: // Variables
+	static Mesh* m_Mesh;
+	TextureHandler m_TextureHandler;
+
 
 	META_REGISTER(SpriteComponent)
 	{
 		META_DefineType(SpriteComponent);
-		META_DefineGetterSetter(SpriteComponent, ResourceID, GetResourceID, SetResourceID, "resourceID");
+		META_DefineGetterSetter(SpriteComponent, ResourceID, GetResourceID, SetTextureID, "resourceID");
 	}
 
 };

@@ -18,6 +18,7 @@ enum class ResourceType : int
 	TEXTURE,
 	SCRIPT,
 	SOUND,
+	ANIMATION, // make AnimationResource that derives Resource and do the thing at ResourceRegistration.cpp
 	COUNT
 };
 
