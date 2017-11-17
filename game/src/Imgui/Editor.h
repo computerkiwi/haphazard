@@ -336,4 +336,6 @@ public:
 	void Tools();
 
 	void RegisterCommand(const char *command, std::function<void()>&& f);
+
+	EditorState& GetEditorState() { return m_editorState; }
 };

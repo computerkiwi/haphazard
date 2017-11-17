@@ -285,15 +285,6 @@ void Editor::Update()
 			m_editorState.first_update = false;
 		}
 
-		if (m_editorState.freeze)
-		{
-			m_engine->GetDtObject() = 0;
-		}
-		else
-		{
-			m_engine->GetDtObject() = m_engine->CalculateDt();
-		}
-
 		// Check for click events
 		OnClick();
 
@@ -1173,13 +1164,6 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 
 void Editor::ToggleEditor()
 {
-	if (m_editorState.freeze)
-	{
-		float& dt = m_engine->GetDtObject();
-
-		dt = dt ? 0 : (1 / 60.0f);
-	}
-
 	m_editorState.show = !m_editorState.show;
 }
 

@@ -39,6 +39,7 @@ RenderSystem::RenderSystem()
 
 void RenderSystem::Init()
 {
+	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
 	//glEnable(GL_BLEND);
 	glDisable(GL_BLEND);

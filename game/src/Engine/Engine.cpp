@@ -206,7 +206,7 @@ void Engine::Update()
 	if (glfwWindowShouldClose(m_window))
 		m_running = false;
 
-	// m_dt = CalculateDt(); -- Removed for now since only doing (1 / 60.0f)
+	m_dt = CalculateDt();
 
 	m_spaces[0]->Update(m_dt);
 
@@ -228,9 +228,9 @@ void Engine::Update()
 
 	if (timeCounter >= 1000000.0f)
 	{
-		char windowTitle[32];
+		char windowTitle[128];
 
-		sprintf(windowTitle, "<3 FrameRate: %d", frameCounter);
+		sprintf(windowTitle, "<3   |   FrameRate: %d    Dt: %f", frameCounter, Dt());
 		
 		glfwSetWindowTitle(m_window, windowTitle);
 
@@ -280,7 +280,19 @@ void Engine::FileLoad(const char *fileName)
 
 float Engine::CalculateDt()
 {
-	return (1 / 60.0f);
+
+	static float last = (float)glfwGetTime();
+
+	float currentFrame = (float)glfwGetTime();
+	float dt = currentFrame - last;
+	last = currentFrame;
+
+	if (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze)
+	{
+		return 0;
+	}
+
+	return dt;
 }
 
 
@@ -322,6 +334,9 @@ GLFWwindow *WindowInit()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_REFRESH_RATE, 120);
+
+	// Disable resize
+	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
 
