@@ -24,11 +24,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Background.h"
 
 #include "RenderLayer.h"
+#include "Input\Input.h"
 
 static bool resizeCameras = false;
 static int width;
 static int height;
 static int currLayer;
+
+void ToggleFullscreen();
 
 RenderSystem::RenderSystem()
 {
@@ -271,6 +274,11 @@ void RenderSystem::RenderForegrounds(float dt)
 // Called each frame.
 void RenderSystem::Update(float dt)
 {
+	if (Input::IsPressed(Key::F11))
+	{
+		ToggleFullscreen();
+	}
+
 	// Clear screen and sets correct framebuffer
 	Screen::Use();
 
@@ -308,4 +316,24 @@ SystemBase *RenderSystem::NewDuplicate()
 size_t RenderSystem::DefaultPriority()
 {
 	return 999;
+}
+
+void ToggleFullscreen()
+{
+	static bool isFullscreen = false;
+
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primary);
+	if (!isFullscreen)
+	{
+		// Resize to fullscreen (store old resolution somewhere)
+		glfwSetWindowMonitor(engine->GetWindow(), primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+		isFullscreen = true;
+	}
+	else
+	{
+		// Resize to window (with w=800,h=600)
+		glfwSetWindowMonitor(engine->GetWindow(), NULL, mode->width / 2 - 400, mode->height / 2 - 320, 800, 600, mode->refreshRate);
+		isFullscreen = false;
+	}
 }
