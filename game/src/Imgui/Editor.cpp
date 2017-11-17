@@ -39,6 +39,25 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <psapi.h>
 #include "graphics/Settings.h"
 
+// Gizmo Transform Save Location
+TransformComponent objectSave;
+
+template <class Component, typename T>
+void Action_General(EditorAction& a)
+{
+	ComponentHandle<Component> handle(a.handle);
+	meta::Any obj(handle.Get());
+
+	if (a.redo)
+	{
+		obj.SetPointerMember(a.name, a.current.GetData<T>());
+	}
+	else
+	{
+		obj.SetPointerMember(a.name, a.save.GetData<T>());
+	}
+}
+
 
 // Toggle Hitboxes
 void debugDisplayHitboxes(bool hitboxesShown);
@@ -133,7 +152,7 @@ void Editor::SaveLevel()
 }
 
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }
 {
 	logger << "Creating Editor.";
 	debugDisplayHitboxes(false);
@@ -327,15 +346,6 @@ void Editor::Update()
 			m_editorState.first_update = false;
 		}
 
-		if (m_editorState.freeze)
-		{
-			m_engine->GetDtObject() = 0;
-		}
-		else
-		{
-			m_engine->GetDtObject() = m_engine->CalculateDt();
-		}
-
 		// Check for click events
 		OnClick();
 
@@ -353,8 +363,22 @@ void Editor::Update()
 
 		KeyBindings();
 
+		// ImGui::ShowTestWindow();
+
+		// Move, Scale, Rotate
+		Tools();
+
+		if (m_editorState.freeze)
+		{
+			m_engine->GetDtObject() = 0;
+		}
+		else
+		{
+			m_engine->GetDtObject() = m_engine->CalculateDt();
+		}
+
 		// Render the console
-		if (m_show_settings)
+		if (m_editorState.settings)
 		{
 			SettingsPanel(1 / 60.0f);
 		}
@@ -364,13 +388,11 @@ void Editor::Update()
 			Console();
 		}
 
-		// Move, Scale, Rotate
-		Tools();
-
-		// ImGui::ShowTestWindow();
-
 		// Display
-		ObjectsList();
+		if (m_editorState.objectList)
+		{
+			ObjectsList();
+		}
 
 		// Pass the current object in the editor
 		if (m_multiselect.m_size)
@@ -382,7 +404,7 @@ void Editor::Update()
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
 
-		#ifdef _DEBUG_NOPE
+		#ifdef _DEBUG
 			// Please don't delete, super important
 			if (rand() % 1000000 == 0)
 			{
@@ -530,69 +552,21 @@ void Editor::SetGameObject(GameObject new_object)
 
 void Editor::OnClick()
 {
-	if (ImGui::IsAnyWindowHovered())
-	{
-		m_editorState.imguiWantMouse = true;
-		return;
-	}
-	else
-	{
-		m_editorState.imguiWantMouse = false;
-	}
-
 	// Check for mouse 1 click
 	if (Input::IsPressed(Key::Mouse_1))
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
-		
-		//bool cache_set = false;
+		m_prevMouse = mouse;
 
-		//for (size_t i = 0; i < m_cache_objects.size(); ++i)
-		//{
-		//	CacheCount& id = m_cache_objects[i];
-		//	if (id.id)
-		//	{
-
-		//		if (id.id == m_selected_object)
-		//		{
-		//			continue;
-		//		}
-
-		//		GameObject object = id.id;
-		//		ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-		//		const glm::vec2 scale = transform.Get()->GetScale();
-		//		const glm::vec2 pos = transform.Get()->GetPosition();
-
-		//		if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
-		//		{
-		//			if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
-		//			{
-		//				// Save the GameObject data
-		//				m_selected_object = transform.GetGameObject().Getid();
-		//				cache_set = true;
-		//				++id.count;
-		//			}
-		//			else
-		//			{
-		//				--id.count;
-		//			}
-		//		}
-		//		else
-		//		{
-		//			--id.count;
-		//		}
-		//	}
-
-		//	if (id.count == 0)
-		//	{
-		//		m_cache_objects.erase(m_cache_objects.begin() + i);
-		//	}
-		//}
-
-		//if (cache_set)
-		//{
-		//	return;
-		//}
+		if (ImGui::IsAnyWindowHovered())
+		{
+			m_editorState.imguiWantMouse = true;
+			return;
+		}
+		else
+		{
+			m_editorState.imguiWantMouse = false;
+		}
 
 		glm::vec2 pos;
 		glm::vec2 scale;
@@ -629,7 +603,7 @@ void Editor::OnClick()
 					{
 						// Save the GameObject data
 						m_selected_object = transform.GetGameObject().Getid();
-						break;
+						return;
 
 
 						//m_cache_objects.emplace_back(m_selected_object);
@@ -637,6 +611,8 @@ void Editor::OnClick()
 				}
 			}
 		}
+
+		m_selected_object = 0;
 	}
 }
 
@@ -706,10 +682,17 @@ void Editor::KeyBindings()
 		OpenLevel();
 	}
 
+	// Move Camera to Object
 	if (Input::IsPressed(Key::Space))
 	{
 		// Move Camera to object
-		m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+	}
+
+	// Play/Pause the Editor
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Space))
+	{
+		m_editorState.freeze = !m_editorState.freeze;
 	}
 }
 
@@ -730,7 +713,7 @@ static glm::vec2 Lerp_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
 
 void Editor::Tools()
 {
-	if (m_selected_object && GameObject(m_selected_object).GetSpace())
+	if (m_selected_object)
 	{
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
@@ -748,7 +731,7 @@ void Editor::Tools()
 			DebugGraphic::DrawShape(pos, glm::vec2(0.25f, 0.1f));
 			DebugGraphic::DrawShape(pos, glm::vec2(0.1f, 0.25f));
 
-			if (Input::IsHeldDown(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow() && !m_editorState.imguiWantMouse)
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				GameObject object = m_selected_object;
 				if (m_multiselect.m_size)
@@ -762,8 +745,15 @@ void Editor::Tools()
 				}
 				else
 				{
-					glm::vec2 mouseChange = Input::GetMousePos_World(); /* -Input::GetPrevMousePos_World();*/
-					object.GetComponent<TransformComponent>()->SetPosition(mouseChange);
+					glm::vec2 mouseChange = Input::GetMousePos_World() - m_prevMouse;
+					if (!m_editorState.MouseDragClick)
+					{
+						objectSave.SetPosition(object.GetComponent<TransformComponent>()->GetPosition());
+						m_editorState.MouseDragClick = true;
+					}
+
+					object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+					m_prevMouse = Input::GetMousePos_World();
 				}
 				return;
 			}
@@ -780,6 +770,13 @@ void Editor::Tools()
 
 		default:
 			break;
+		}
+
+		if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+		{
+			ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+			Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position", { m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
+			m_editorState.MouseDragClick = false;
 		}
 	}
 }
@@ -1255,6 +1252,13 @@ void Editor::MenuBar()
 				m_load = true;
 			}
 
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Exit"))
+			{
+				m_engine->Exit();
+			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit"))
@@ -1286,9 +1290,18 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::Button("Settings"))
+		if (ImGui::BeginMenu("Windows"))
 		{
-			m_show_settings = !m_show_settings;
+			if (ImGui::MenuItem("Settings", nullptr, m_editorState.settings))
+			{
+				m_editorState.settings = !m_editorState.settings;
+			}
+
+			if (ImGui::MenuItem("Object List", nullptr, m_editorState.objectList))
+			{
+				m_editorState.objectList = !m_editorState.objectList;
+			}
+			ImGui::EndMenu();
 		}
 
 		SaveLoad();

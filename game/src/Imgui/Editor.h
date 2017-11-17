@@ -112,7 +112,7 @@ struct PopUpWindow
 class Editor
 {
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
-	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
+	friend bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	// Editor
 	Camera *prev_camera;
@@ -126,7 +126,11 @@ class Editor
 		bool freeze = true;
 
 		bool console = false;  // Show/Hide Console
-		bool imguiWantMouse = false; // Mouse Press
+		bool settings = true;
+		bool objectList = true;
+
+		bool imguiWantMouse = false; // Mouse Over imgui
+		bool MouseDragClick = false; // Mouse Click
 	} m_editorState;
 
 
@@ -136,7 +140,6 @@ class Editor
 	// CPU
 	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
 	float m_cpu_peak = 0.0f;
-	bool m_show_settings = false;
 
 	// Mouse
 	glm::vec2 m_prevMouse;

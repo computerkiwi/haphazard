@@ -172,6 +172,7 @@ const char * ErrorList[] =
 };
 
 
+// Wrapper around bool, here so the bool has a default value
 struct EditorBoolWrapper
 {
 	bool value = false;
@@ -179,9 +180,12 @@ struct EditorBoolWrapper
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
+
+// Used to Save the bool of whether the collider dimensions should match the transform scale
 typedef std::map<GameObject_ID, EditorBoolWrapper> MatchScaleBool;
 MatchScaleBool ObjectsMatchScale;
 
+// Used to find if a drag sliders was clicked and released
 typedef std::map<const char *, EditorBoolWrapper> ClickedList;
 ClickedList widget_click;
 
@@ -205,7 +209,11 @@ ClickedList widget_click;
 		}																									 \
 	}																										 
 
-// Same as Drag but it saves a vector instead of a float
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+// Saves Anything instead of just a float -- used for glm::vecX
 //    This version is used since the meta system does not register
 //    parts of glm::vec2 or similar objects
 #define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
@@ -218,7 +226,14 @@ ClickedList widget_click;
 		}																									 \
 	}
 
-// Drag_Vec with min and max
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+// Saves Anything instead of just a float -- used for glm::vecX
+//    This version is used since the meta system does not register
+//    parts of glm::vec2 or similar objects
+//	  Min and Max
 #define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
 	{																										 \
@@ -229,7 +244,11 @@ ClickedList widget_click;
 		}																									 \
 	}
 
-// Drag with a different change speed
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
 	{																										 \
@@ -240,6 +259,12 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
+//     Min and Max
 #define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
 	{																										 \
@@ -250,6 +275,10 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
 #define Drag_Int(NAME, SAVE, ITEM)																			 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -260,6 +289,11 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
 #define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
 	{																										 \
@@ -270,6 +304,12 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
+//     Min and Max
 #define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))															 \
 	{																										 \
@@ -280,7 +320,7 @@ ClickedList widget_click;
 		}																									 \
 	}
 
-// Mouse_1 is released
+// Mouse_1 (Drag_Key, defined at top) is released
 // Pushes the action into the editor
 #define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
@@ -289,6 +329,8 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
 // Save the data, but pass it to a different Action_General function
 #define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
@@ -297,6 +339,8 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
 // Cast SAVE and ITEM to TYPE then save them
 #define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
@@ -313,6 +357,14 @@ RigidBodyComponent rigidBodySave;
 
 // Collider Data Save Location
 Collider2D         colliderSave;
+
+// Sprite Save Location
+struct SpriteSave
+{
+	int    AT_frame  = 0;
+	float  AT_fps = 0;
+	float  AT_timer  = 0;
+} spriteSave;
 
 // Particles Save Location
 ParticleSettings   particleSave;
@@ -357,7 +409,7 @@ struct BackgroundSave
 
 
 
-void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
+bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
@@ -395,6 +447,7 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
+			// It was clicked, Set the parent
 			transform->SetParent(object);
 			if (object.GetComponent<HierarchyComponent>().IsValid())
 			{
@@ -403,9 +456,12 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 			else
 			{
 				object.AddComponent<HierarchyComponent>(child);
-			}	
+			}
+			return true;
 		}
 	}
+
+	return false;
 }
 
 
@@ -611,7 +667,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 
 
-		// if object - > component
+		// if object -> component
 		// ImGui_Component(ComponetType *component);
 		if (object.GetComponent<TransformComponent>().IsValid())
 		{
@@ -812,7 +868,11 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (BeginPopup("Add Parent##add_parent_popup"))
 		{
-			Choose_Parent_ObjectList(editor, transform, object);
+			GameObject parent = transform->GetParent();
+			if (Choose_Parent_ObjectList(editor, transform, object))
+			{
+				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
+			}
 			EndPopup();
 		}
 	}
@@ -949,12 +1009,16 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			return;
 		}
 
-		// if (sprite->isAnimated())
-		// {
-		//		int frame = sprite->GetFrame();
-		//		SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetFrameCount());
-		//		sprite->SetFrame(frame);
-		// }
+		if (sprite->IsAnimated())
+		{
+			float FrameRate = sprite->GetFPS();
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
+
+			int frame = sprite->AT_frame;
+			SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
+			sprite->SetFrame(frame);
+		}
 
 
 		ResourceManager& rm = engine->GetResourceManager();
