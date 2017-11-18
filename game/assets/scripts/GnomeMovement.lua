@@ -23,6 +23,8 @@ MOVEDIR_LEFT  = -1 -- Player moving left
 MOVEDIR_IDLE  =  0 -- Player idle
 MOVEDIR_RIGHT =  1 -- Player moving right
 
+MOVE_RIGHT = 85 -- U
+
 -- Updates each frame
 function Update(dt)
   
@@ -38,6 +40,32 @@ function Update(dt)
   
   end
 
-  UpdateMovement()
+  UpdateMovement(dt)
+end
 
-function UpdateMovement()
+
+function UpdateMovement(dt)
+  local playerBody = this:GetRigidBody()
+  --local playerTransform = this:GetTransform()
+  
+  if (playerBody != nil)
+    print("Body success!")
+  end
+
+  --newVelocity = playerBody.velocity
+
+  -- Player moving right
+  --if (IsPressed(MOVE_RIGHT))
+  --  newVelocity.x = moveSpeed
+  --end
+
+  -- Update player velocity
+  --playerBody.velocity = newVelocity
+end
+
+-- Other is a game object
+function OnCollisionEnter(other)
+  
+  print("Collision enter")
+
+end
