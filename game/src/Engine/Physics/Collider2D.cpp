@@ -52,7 +52,14 @@ Collider2D::collisionType Collider2D::GetCollisionType()
 // setters
 void Collider2D::SetColliderShape(colliderType colliderType)
 {
-	m_colliderShape = colliderType;
+	if (m_colliderShape & (colliderType::staticCollider))
+	{
+		m_colliderShape = colliderType & (colliderType::staticCollider);
+	}
+	else
+	{
+		m_colliderShape = colliderType;
+	}
 }
 
 void Collider2D::SetStatic()
@@ -164,6 +171,11 @@ Collider2D& DynamicCollider2DComponent::ColliderData()
 bool Collider2D::IsCollidingWithLayer(collisionLayers layer)
 {
 	return (m_layersCollidedWith & layer);
+}
+
+bool Collider2D::ColliderIsShape(colliderType colliderType)
+{
+	return (m_colliderShape & ~colliderType::staticCollider) == colliderType;
 }
 
 

@@ -248,6 +248,105 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 	return Collision_SAT(transform1->GetPosition(), transform1->GetRotation(), collider1, transform2->GetPosition(), transform2->GetRotation(), collider2);
 }
 
+// collision where the circle is the first object
+glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCorners& rectangle)
+{
+	const int num_projections = 2;
+	float smallestOverlap = -1;
+	glm::vec2 smallestAxis;
+
+	// the axes onto which shapes will be projected
+	glm::vec2 edgeNormals[num_projections] = { {0,0} };
+	edgeNormals[0] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::topLeft];
+	edgeNormals[1] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::botRight];
+
+	// normalize the axes for accurate resolution vectors
+	for (int i = 0; i < num_projections; ++i)
+	{
+		edgeNormals[i] = glm::normalize(edgeNormals[i]);
+	}
+
+	// project onto each axis
+	for (int i = 0; i < num_projections; ++i)
+	{
+		// this axis of projection
+		glm::vec2 axis = edgeNormals[i];
+
+		// project the box onto the axis
+		MinMax rectangleProj = rectangle.ProjectOntoAxis(axis);
+
+		// get the two points on the circle that need to be projected
+		glm::vec2 circleLowPoint = center1 - (radius1 * axis);
+		glm::vec2 circleHighPoint = center1 + (radius1 * axis);
+
+		// project the circle onto the axis
+		MinMax circleProj;
+		circleProj.min = glm::dot(axis, circleLowPoint);
+		circleProj.max = glm::dot(axis, circleHighPoint);
+
+		// if the projections do not intersect
+		if (!circleProj.Intersects(rectangleProj))
+		{
+			return glm::vec3(0, 0, 0);
+		}
+		else // else we need to check the overlap for being the smallest escape vector
+		{
+			float overlap = circleProj.Overlap(rectangleProj);
+
+			// if this overlap is less than the last recorded one
+			if (overlap < smallestOverlap || smallestOverlap == -1)
+			{
+				smallestOverlap = overlap;
+				smallestAxis = axis;
+			}
+		}
+	}
+
+	// if 0 hasn't been returned, all axes detected collision
+	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
+
+	return escapeVector;
+}
+
+// collision where the box is the first object
+glm::vec3 Collision_SAT_BoxCircle(const BoxCorners& rectangle, glm::vec2 center2, float radius2)
+{
+	// if the second objects is the circle, the resolution vector will be opposite the first
+	glm::vec3 inverseEscapeVector = Collision_SAT_CircleBox(center2, radius2, rectangle);
+
+	return -inverseEscapeVector;
+}
+
+glm::vec3 Collision_CircleCircle(glm::vec2 center1, float radius1, glm::vec2 center2, float radius2)
+{
+	// temporary values to avoid multiple calculations
+	float xDifference = center2.x - center1.x;
+	float yDifference = center2.y - center1.y;
+	float radiusDistance = radius1 + radius2;
+
+	// distance between the centers squared
+	float squaredCenterDistance = (xDifference * xDifference) + (yDifference * yDifference);
+
+	// the circles are colliding
+	if (radiusDistance * radiusDistance > squaredCenterDistance)
+	{
+		// get the direction of the resolution
+		glm::vec2 direction(center1 - center2);
+		direction = glm::normalize(direction);
+
+		// get the magnitude of the resolution
+		float magnitude = radiusDistance - sqrtf(squaredCenterDistance);
+
+		direction *= magnitude;
+
+		return glm::vec3(direction, 0);
+	}
+	else
+	{
+		return glm::vec3(0);
+	}
+}
+
 
 glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2)
 {
@@ -643,15 +742,73 @@ void PhysicsSystem::Update(float dt)
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
 
-				// check for collision on non-rotated objects
-				if (object1Rotation == 0 && object2Rotation == 0)
+				int object1Shape = collider1.GetColliderShape();
+				int object2Shape = collider2.GetColliderShape();
+
+				bool boxBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderBox;
+				bool circleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCircle ||
+				                          object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderBox;
+				bool circleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCircle;
+
+				// check for collision on non-rotated boxes
+				if (boxBoxCollision)
 				{
-					resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					if (object1Rotation == 0 && object2Rotation == 0)
+					{
+						resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					}
+					else // check for collision on rotated boxes
+					{
+						resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					}
 				}
-				else
+				else if(circleBoxCollision)
 				{
-					resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tStaticColliderHandle->ColliderData().GetOffset());
+
+					// if the object1 is the circle
+					if (object1Shape == Collider2D::colliderType::colliderCircle)
+					{
+						// the radius of the circle is object1
+						float radius = dynamicCollider->ColliderData().GetDimensions().x / 2.0f;
+						// the dimensions of the box are object2
+						glm::vec2 dimensions = tStaticColliderHandle->ColliderData().GetDimensions();
+						// get the rotation of the box
+						float rotation = tStaticColliderHandle->ColliderData().GetRotationOffset() + otherTransform->GetRotation();
+
+						BoxCorners rectangle(center2, dimensions, rotation);
+
+						resolutionVector = Collision_SAT_CircleBox(center1, radius, rectangle);
+					}
+					else // if object2 is the circle
+					{
+						// the radius of the circle are object2
+						float radius = tStaticColliderHandle->ColliderData().GetDimensions().x / 2.0f;
+						// the dimensions of the box are object1
+						glm::vec2 dimensions = dynamicCollider->ColliderData().GetDimensions();
+						// get the rotation of the box
+						float rotation = dynamicCollider->ColliderData().GetRotationOffset() + transform->GetRotation();
+
+						BoxCorners rectangle(center2, dimensions, rotation);
+
+						resolutionVector = Collision_SAT_BoxCircle(rectangle, center2, radius);
+					}
 				}
+				else if (circleCircleCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tStaticColliderHandle->ColliderData().GetOffset());
+
+					// the radii of the colliders
+					float radius1 = dynamicCollider->ColliderData().GetDimensions().x / 2.0f;
+					float radius2 = tStaticColliderHandle->ColliderData().GetDimensions().x / 2.0f;
+
+					resolutionVector = Collision_CircleCircle(center1, radius1, center2, radius2);
+				}
+
 
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
