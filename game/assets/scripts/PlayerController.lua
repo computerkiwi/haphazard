@@ -91,8 +91,8 @@ function StackedUpdate(dt)
 	thisVel.x = otherVel.x
 	thisVel.y = otherVel.y
 	
-	if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP))
-	--if (IsPressed(KEY_JUMP))
+	--if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP))
+	if (IsPressed(KEY_JUMP))
   then
 		stacked = false
 		thisVel.y = jumpSpeed
@@ -124,20 +124,20 @@ function UnstackedUpdate(dt)
 	local rBody = this:GetRigidBody()
 	local transform = this:GetTransform()
 	tempVel = rBody.velocity
-	if (GamepadGetAxis(PLAYER_NUM, 0) > 0.05)
-	--if (IsPressed(KEY_RIGHT))
+	--if (GamepadGetAxis(PLAYER_NUM, 0) > 0.05)
+	if (IsPressed(KEY_RIGHT))
   then
 		tempVel.x = speed
-	elseif(GamepadGetAxis(PLAYER_NUM, 0) < -0.05)
-	--elseif (IsPressed(KEY_LEFT))
+	--elseif(GamepadGetAxis(PLAYER_NUM, 0) < -0.05)
+	elseif (IsPressed(KEY_LEFT))
   then
 		tempVel.x = -speed
 	else
 		tempVel.x = 0
 	end
 	
-	if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP) and grounded) --SPACE
-	--if (IsPressed(KEY_JUMP)))
+	--if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP) and grounded) --SPACE
+	if (IsPressed(KEY_JUMP))
   then
 		tempVel.y = jumpSpeed
 		grounded = false
