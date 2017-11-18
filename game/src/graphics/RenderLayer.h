@@ -3,6 +3,16 @@
 #include "glm\glm.hpp"
 #include <vector>
 
+const char * const FX_Names[] =
+{
+	"Default",
+	"Edge Detection",
+	"Sharpen",
+	"Blur",
+	"Blur Corners",
+	"Bloom"
+};
+
 enum FX
 {
 	DEFAULT,
@@ -39,6 +49,8 @@ public:
 	void SetBlurAmount(float amt);
 
 	static void ResizePrivateFrameBuffers(int w, int h);
+
+	std::vector<FX>& GetFXList() { return m_FXList; }
 
 private:
 	void GenerateColorBuffers();
