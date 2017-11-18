@@ -51,10 +51,7 @@ struct MinMax
 
 	float Overlap(const MinMax& other)
 	{
-		float overlap1 = abs(other.max - min);
-		float overlap2 = abs(min - other.max);
-
-		return std::min(overlap1, overlap2);
+		return std::min(max, other.max) - std::max(min, other.min);
 	}
 };
 
@@ -611,21 +608,43 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 {
 	for (auto tDynamiColliderHandle : *allDynamicColliders)
 	{
+		// get the transform and assert its validity
 		ComponentHandle<TransformComponent> transform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
 		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
+		// get some values about the collider
 		float rotation = transform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+		glm::vec2 position = transform->GetPosition() + tDynamiColliderHandle->ColliderData().GetOffset();
+		glm::vec2 dimensions = tDynamiColliderHandle->ColliderData().GetDimensions();
 
-		DebugGraphic::DrawSquare(transform->GetPosition(), tDynamiColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(1, 0, 1, 1));
+		// draw the collider based on its shape
+		if (tDynamiColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderBox))
+		{
+			DebugGraphic::DrawSquare(position, dimensions, DegreesToRadians(rotation), glm::vec4(1, 0, 1, 1));
+		}
+		else if (tDynamiColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderCircle))
+		{
+			DebugGraphic::DrawCircle(position, dimensions.x / 2, glm::vec4(1, 0, 1, 1));
+		}
 	}
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
+		// get and assert the validity of the transform
 		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
 		float rotation = transform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+		glm::vec2 position = transform->GetPosition() + tStaticColliderHandle->ColliderData().GetOffset();
+		glm::vec2 dimensions = tStaticColliderHandle->ColliderData().GetDimensions();
 
-		DebugGraphic::DrawSquare(transform->GetPosition(), tStaticColliderHandle->ColliderData().GetDimensions(), DegreesToRadians(rotation), glm::vec4(.1f, .5f, 1, 1));
+		if (tStaticColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderBox))
+		{
+			DebugGraphic::DrawSquare(position, dimensions, DegreesToRadians(rotation), glm::vec4(.1f, .5f, 1, 1));
+		}
+		else if (tStaticColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderCircle))
+		{
+			DebugGraphic::DrawCircle(position, dimensions.x / 2, glm::vec4(.1f, .5f, 1, 1));
+		}
 	}
 }
 
@@ -854,14 +873,71 @@ void PhysicsSystem::Update(float dt)
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
 
-				// check for collision on non-rotated objects
-				if (object1Rotation == 0 && object2Rotation == 0)
+				int object1Shape = collider1.GetColliderShape();
+				int object2Shape = collider2.GetColliderShape();
+
+				bool boxBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderBox;
+				bool circleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCircle ||
+					object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderBox;
+				bool circleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCircle;
+
+				// check for collision on non-rotated boxes
+				if (boxBoxCollision)
 				{
-					resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					if (object1Rotation == 0 && object2Rotation == 0)
+					{
+						resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
+					}
+					else // check for collision on rotated boxes
+					{
+						resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					}
 				}
-				else // check for collision on rotated objects
+				else if (circleBoxCollision)
 				{
-					resolutionVector = Collision_SAT(transform, collider1, otherTransform, collider2);
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tDynamiColliderHandle->ColliderData().GetOffset());
+
+					// if the object1 is the circle
+					if (object1Shape == Collider2D::colliderType::colliderCircle)
+					{
+						// the radius of the circle is object1
+						float radius = dynamicCollider->ColliderData().GetDimensions().x / 2.0f;
+						// the dimensions of the box are object2
+						glm::vec2 dimensions = tDynamiColliderHandle->ColliderData().GetDimensions();
+						// get the rotation of the box
+						float rotation = tDynamiColliderHandle->ColliderData().GetRotationOffset() + otherTransform->GetRotation();
+
+						BoxCorners rectangle(center2, dimensions, rotation);
+
+						resolutionVector = Collision_SAT_CircleBox(center1, radius, rectangle);
+					}
+					else // if object2 is the circle
+					{
+						// the radius of the circle are object2
+						float radius = tDynamiColliderHandle->ColliderData().GetDimensions().x / 2.0f;
+						// the dimensions of the box are object1
+						glm::vec2 dimensions = dynamicCollider->ColliderData().GetDimensions();
+						// get the rotation of the box
+						float rotation = dynamicCollider->ColliderData().GetRotationOffset() + transform->GetRotation();
+
+						BoxCorners rectangle(center2, dimensions, rotation);
+
+						resolutionVector = Collision_SAT_BoxCircle(rectangle, center2, radius);
+					}
+				}
+				else if (circleCircleCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tDynamiColliderHandle->ColliderData().GetOffset());
+
+					// the radii of the colliders
+					float radius1 = dynamicCollider->ColliderData().GetDimensions().x / 2.0f;
+					float radius2 = tDynamiColliderHandle->ColliderData().GetDimensions().x / 2.0f;
+
+					resolutionVector = Collision_CircleCircle(center1, radius1, center2, radius2);
 				}
 
 
