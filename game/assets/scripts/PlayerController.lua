@@ -137,7 +137,7 @@ function UnstackedUpdate(dt)
 	end
 	
 	--if (GamepadIsPressed(PLAYER_NUM, GAMEPAD_JUMP) and grounded) --SPACE
-	if (IsPressed(KEY_JUMP))
+	if (IsPressed(KEY_JUMP) and grounded)
   then
 		tempVel.y = jumpSpeed
 		grounded = false
