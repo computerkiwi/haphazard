@@ -76,6 +76,10 @@ private:
 	{
 		META_DefineType(TransformComponent);
 
+		META_DefineType(float);     // HACK
+		META_DefineType(glm::vec2); // HACK
+		META_DefineType(glm::vec3); // HACK
+
 		META_DefineGetterSetter(TransformComponent, glm::vec2, GetPosition, SetPosition, "position");
 
 		META_DefineGetterSetter(TransformComponent, glm::vec3, GetScale, SetScale, "scale");

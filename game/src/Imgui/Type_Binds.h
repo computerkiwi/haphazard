@@ -19,7 +19,7 @@ class ParticleSystem;
 struct ScriptComponent;
 
 class Camera;
-
+class BackgroundComponent;
 
 enum ErrorIndex
 {
@@ -44,4 +44,5 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor);
 void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
 void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
+void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
 

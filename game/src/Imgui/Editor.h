@@ -112,7 +112,7 @@ struct PopUpWindow
 class Editor
 {
 	friend void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
-	friend void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
+	friend bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	// Editor
 	Camera *prev_camera;
@@ -125,7 +125,12 @@ class Editor
 
 		bool freeze = true;
 
-		bool console = false;
+		bool console = false;  // Show/Hide Console
+		bool settings = true;
+		bool objectList = true;
+
+		bool imguiWantMouse = false; // Mouse Over imgui
+		bool MouseDragClick = false; // Mouse Click
 	} m_editorState;
 
 
@@ -135,7 +140,6 @@ class Editor
 	// CPU
 	Array<float, 30> m_cpu_load = Array<float, 30>(0.0f);
 	float m_cpu_peak = 0.0f;
-	bool m_show_settings = false;
 
 	// Mouse
 	glm::vec2 m_prevMouse;
@@ -205,6 +209,15 @@ class Editor
 		Scale,       // Make Things bigger/smaller
 		Rotation     // Rotate Things
 	};
+
+	// Used to determine which direction to scale in
+	enum EditorGizmoDirection
+	{
+		Dir_X  = 0,
+		Dir_Y  = 1,
+		Both    = 2
+	} m_scaleDir = Both, m_transformDir = Both;
+
 	Tool m_tool = none;
 
 
@@ -299,6 +312,7 @@ private:
 
 	void SaveLoad();
 	void OpenLevel();
+	void SaveLevel();
 
 	void MenuBar();
 	void SettingsPanel(float dt);

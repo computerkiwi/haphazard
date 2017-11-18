@@ -10,7 +10,13 @@ typedef unsigned int GLuint;
 
 enum BACKGROUND_TYPE
 {
-	BACKGROUND, BACKGROUND_PARALLAX, FOREGROUND, FOREGROUND_PARALLAX
+	// Keep the parallax options after the non parallax
+	// Keep them in order
+	BACKGROUND = 0, 
+	FOREGROUND = 1, 
+
+	BACKGROUND_PARALLAX = 2, 
+	FOREGROUND_PARALLAX = 3
 };
 
 class BackgroundComponent
@@ -30,6 +36,9 @@ public:
 	void SetResourceID(ResourceID id);
 
 private:
+	// Editor friend
+	friend void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
+
 	Texture* m_Texture;
 	BACKGROUND_TYPE m_Type;
 	glm::vec4 m_ParallaxBounds;

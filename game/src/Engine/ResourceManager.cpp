@@ -42,7 +42,8 @@ void *Resource::Data()
 {
 	if (!m_isLoaded)
 	{
-		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Attempted to get unloaded resource: ", m_folderPath, m_fileName);
+		logger.SetNextChannel(Logging::CORE);
+		logger << "Attempted to get unloaded resource: " << m_folderPath << m_fileName << "\n";
 		return nullptr;
 	}
 
@@ -51,16 +52,17 @@ void *Resource::Data()
 
 ResourceID Resource::FilenameToID(const char *fileName)
 {
+	return hash(fileName);
 	// Really shitty hash.
 	// TODO: Make the hash less shitty.
-	size_t hash = 0;
+	/*size_t hash = 0;
 	size_t len = strlen(fileName);
 	for (size_t i = 0; i < len; ++i)
 	{
-		hash += fileName[i] * fileName[i];
+	hash += fileName[i] * fileName[i];
 	}
 
-	return hash;
+	return hash;*/
 }
 
 ResourceManager::~ResourceManager()
