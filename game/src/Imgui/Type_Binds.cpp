@@ -1009,16 +1009,16 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			return;
 		}
 
-		if (sprite->IsAnimated())
-		{
-			float FrameRate = sprite->GetFPS();
-			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
-			DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
-
-			int frame = sprite->AT_frame;
-			SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
-			sprite->SetFrame(frame);
-		}
+		//if (sprite->IsAnimated())
+		//{
+		//	float FrameRate = sprite->GetFPS();
+		//	Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
+		//	DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
+		//
+		//	int frame = sprite->AT_frame;
+		//	SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
+		//	sprite->SetFrame(frame);
+		//}
 
 
 		ResourceManager& rm = engine->GetResourceManager();
@@ -1177,7 +1177,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		DragRelease(Collider2D, colliderSave.m_selfElasticity, collider->m_selfElasticity, "selfElasticity");
 
 		// Collision Type
-		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
+		Combo("Collider Type##collider", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
 		switch (index)
 		{
 		case 0:

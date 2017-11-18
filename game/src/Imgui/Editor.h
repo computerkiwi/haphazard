@@ -209,6 +209,15 @@ class Editor
 		Scale,       // Make Things bigger/smaller
 		Rotation     // Rotate Things
 	};
+
+	// Used to determine which direction to scale in
+	enum EditorGizmoDirection
+	{
+		Dir_X  = 0,
+		Dir_Y  = 1,
+		Both    = 2
+	} m_scaleDir = Both, m_transformDir = Both;
+
 	Tool m_tool = none;
 
 

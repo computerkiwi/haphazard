@@ -10,9 +10,6 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Editor.h"
 #include "Type_Binds.h"
 
-#include <string>
-#include <algorithm>
-
 #include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
@@ -27,17 +24,23 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Input/Input.h"
 
-#include <locale>
-#include <ctype.h>
-
 #include "graphics\DebugGraphic.h"
+#include "graphics/Settings.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW\glfw3native.h>
 
+#include <string>
+#include <algorithm>
+#include <locale>
+#include <ctype.h>
+
 #include <Windows.h>
 #include <psapi.h>
-#include "graphics/Settings.h"
+
+
+#define PI 3.1415926535f
+
 
 // Gizmo Transform Save Location
 TransformComponent objectSave;
@@ -57,6 +60,25 @@ void Action_General(EditorAction& a)
 		obj.SetPointerMember(a.name, a.save.GetData<T>());
 	}
 }
+
+
+#define AABB_Mouse_Action(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
+	if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
+	{																														 \
+		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
+		{																													 \
+			ACTION_S;																										 \
+		}																													 \
+	}																														
+
+#define AABB_Mouse_Action_Chain(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
+	else if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
+	{																														 \
+		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
+		{																													 \
+			ACTION_S;																										 \
+		}																													 \
+	}
 
 
 // Toggle Hitboxes
@@ -728,55 +750,282 @@ void Editor::Tools()
 		switch (m_tool)
 		{
 		case Tool::Translation:
-			DebugGraphic::DrawShape(pos, glm::vec2(0.25f, 0.1f));
-			DebugGraphic::DrawShape(pos, glm::vec2(0.1f, 0.25f));
+		{
+			// delta Mouse Pos
+			glm::vec2 mouse = Input::GetMousePos_World();
+
+			const glm::vec2 pos_x_dir(pos.x + 0.125f, pos.y);
+			const glm::vec2 scale_x_dir(0.25f, 0.1f);
+
+			const glm::vec2 pos_y_dir(pos.x, pos.y + 0.125f);
+			const glm::vec2 scale_y_dir(0.1f, 0.25f);
+
+			DebugGraphic::DrawShape(pos_x_dir, scale_x_dir);
+
+			DebugGraphic::DrawShape(pos_y_dir, scale_y_dir);
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				GameObject object = m_selected_object;
+
+				// delta Mouse Pos
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// Check if there are multiple objects selected
 				if (m_multiselect.m_size)
 				{
+					// foreach object add the mouseChange to its position
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
 					{
 						GameObject object = m_multiselect[i];
 
-						object.GetComponent<TransformComponent>()->SetPosition(object.GetComponent<TransformComponent>()->GetPosition() + pos);
+						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
 					}
 				}
 				else
 				{
-					glm::vec2 mouseChange = Input::GetMousePos_World() - m_prevMouse;
+					// Check if we need to save the old value
 					if (!m_editorState.MouseDragClick)
 					{
-						objectSave.SetPosition(object.GetComponent<TransformComponent>()->GetPosition());
+						bool freeze_axis = false;
+
+						// AABB of the box to only allow movement on the x-axis
+						if (mouse.x < pos_x_dir.x + (scale_x_dir.x / 2) && mouse.x > pos_x_dir.x - (scale_x_dir.x / 2))
+						{
+							if (mouse.y < pos_x_dir.y + (scale_x_dir.y / 2) && mouse.y > pos_x_dir.y - (scale_x_dir.y / 2))
+							{
+								m_transformDir = EditorGizmoDirection::Dir_X;
+								freeze_axis = true;
+								DebugGraphic::DrawShape(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+							}
+						}
+
+						// AABB of the box to only allow movement on the y-axis
+						if (mouse.x < pos_y_dir.x + (scale_y_dir.x / 2) && mouse.x > pos_y_dir.x - (scale_y_dir.x / 2))
+						{
+							if (mouse.y < pos_y_dir.y + (scale_y_dir.y / 2) && mouse.y > pos_y_dir.y - (scale_y_dir.y / 2))
+							{
+								m_transformDir = EditorGizmoDirection::Dir_Y;
+								freeze_axis = true;
+								DebugGraphic::DrawShape(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+							}
+						}
+
+						// Default to allow both, and auto-unfreeze
+						if (!freeze_axis)
+						{
+							m_transformDir = EditorGizmoDirection::Both;
+						}
+
+						objectSave.SetPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
 						m_editorState.MouseDragClick = true;
 					}
 
-					object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
-					m_prevMouse = Input::GetMousePos_World();
+
+					// Keeping track of direction allows for us to freeze the other axes
+					switch (m_transformDir)
+					{
+						// Freeze the y-axis and allow movement in the x-axis
+					case EditorGizmoDirection::Dir_X:
+						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						break;
+
+						// Freeze the x-axis and allow movement in the y-axis
+					case EditorGizmoDirection::Dir_Y:
+						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+						break;
+
+						// Move by both
+					case EditorGizmoDirection::Both:
+
+						// Add the mouseChange to the position
+						//    This method prevents the center of the object from snapping to the mouse position
+						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+					}
 				}
+
+				m_prevMouse = Input::GetMousePos_World();
 				return;
+			}
+
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
+				
+				// Reset the click state
+				m_editorState.MouseDragClick = false;
+			}
+
+			break;
+		}
+		case Tool::Scale:
+		{
+			GameObject object = m_selected_object;
+
+			// Mouse Position in World Coordinates
+			glm::vec2 mouse = Input::GetMousePos_World();
+
+			// Scale of the Object
+			glm::vec2 scale = object.GetComponent<TransformComponent>()->GetScale();
+
+			// Scales of the boxes drawn
+			const glm::vec2 box_scale(0.15f, 0.15f);
+			const glm::vec2 box_scale_smaller(0.13f, 0.13f);
+
+			// Position of the boxes
+			glm::vec2 box_pos(pos.x + (scale.x / 2) - (0.15f / 2), pos.y);
+
+			//DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
+
+			// Detect which direction
+
+			// X Direction
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_X);
+			
+
+			box_pos = glm::vec2(pos.x, pos.y + (scale.y / 2) - (0.15f / 2));
+			// Y Direction
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_Y);
+
+
+			box_pos.x += (scale.x / 2) - (0.15f / 2);
+			// Both
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Both);
+
+
+
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
+			{
+				// delta Mouse pos
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// New Scale, so start at object's current scale
+				glm::vec3 scale = object.GetComponent<TransformComponent>()->GetScale();
+
+				// Check if we need to save the old value of the object
+				if (!m_editorState.MouseDragClick)
+				{
+					objectSave.SetScale(object.GetComponent<TransformComponent>()->GetScale());
+					m_editorState.MouseDragClick = true;
+				}
+
+				// Scale Gizmo Actions
+
+				// Figure out which way to scale
+				switch (m_scaleDir)
+				{
+				case EditorGizmoDirection::Dir_X:
+					scale.x += mouseChange.x;
+					break;
+
+				case EditorGizmoDirection::Dir_Y:
+					scale.y += mouseChange.y;
+					break;
+
+				case EditorGizmoDirection::Both:
+					if (Input::IsHeldDown(Key::LeftShift))
+					{
+						scale.x += mouseChange.x;
+						scale.y += mouseChange.x;
+					}
+					else
+					{
+						scale.x += mouseChange.x;
+						scale.y += mouseChange.y;
+					}
+					break;
+				default:
+					logger << "[EDITOR] Invalid Axis sent to Scale Gizmo.\n";
+					break;
+				}
+
+				object.GetComponent<TransformComponent>()->SetScale(scale);
+
+				m_prevMouse = mouse;
+			}
+
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ objectSave.GetScale(), handle->GetScale(), "scale", { m_selected_object, true }, Action_General<TransformComponent, glm::vec3> });
+				m_editorState.MouseDragClick = false;
 			}
 
 			break;
 
-		case Tool::Scale:
-			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
-			break;
-
+		}
 		case Tool::Rotation:
+		{
 			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
-			break;
 
-		default:
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
+			{
+				GameObject object = m_selected_object;
+
+
+				// Mouse Position
+				glm::vec2 mouse = Input::GetMousePos_World();
+
+				// delta Mouse
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// Decided to just default to the largest scale value
+				float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
+
+				// Distance between mouse and object
+				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);
+				float dy = (mouse.y - pos.y) * (mouse.y - pos.y);
+
+				// Rotation Gizmo Actions
+				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
+				{
+					// Check if we need to save the current value
+					if (!m_editorState.MouseDragClick)
+					{
+						objectSave.SetRotation(object.GetComponent<TransformComponent>()->GetRotation());
+						m_editorState.MouseDragClick = true;
+					}
+				}
+
+
+				// Rotation we are going to the object to, so lets start at the object's rotation in case we do nothing
+				//     Get the rotation between the mouse and the object
+				float rotation = atan2f(mouse.y - pos.y, mouse.x - pos.x);
+
+				// Get the rotation of the previous mouse location
+				//     This is used to get the delta in the angle
+				float prev = atan2f(m_prevMouse.y - pos.y, m_prevMouse.x - pos.x);
+
+				// Get the change in the rotation
+				rotation -= prev;
+
+				// Convert it to degrees
+				rotation *= (180.0f / PI);
+
+				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
+				m_prevMouse = Input::GetMousePos_World();
+			}
+
+			// Check if the user is done with the click and push the action
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ objectSave.GetRotation(), handle->GetRotation(), "rotation", { m_selected_object, true }, Action_General<TransformComponent, float> });
+				m_editorState.MouseDragClick = false;
+			}
+
 			break;
 		}
-
-		if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
-		{
-			ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
-			Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position", { m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
-			m_editorState.MouseDragClick = false;
+		default:
+			logger << "[EDITOR] Invalid tool value.\n";
+			break;
 		}
 	}
 }

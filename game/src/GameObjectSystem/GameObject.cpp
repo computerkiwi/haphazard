@@ -143,6 +143,23 @@ GameObject GameObject::FindByName(const char * name)
 	return GameObject();
 }
 
+GameObject GameObject::FindByTag(const char * tagStr)
+{
+	size_t object_tag = hash(tagStr);
+	// TODO: Make this deal with multiple spaces.
+	for (auto& info : *engine->GetSpace(0)->GetComponentMap<ObjectInfo>())
+	{
+		for (auto& tag : info->m_tags)
+		{
+			if (tag.first == object_tag)
+			{
+				return GameObject(info->m_id);
+			}
+		}
+	}
+	return GameObject();
+}
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
