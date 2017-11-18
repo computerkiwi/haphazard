@@ -763,9 +763,9 @@ void Editor::Tools()
 			const glm::vec2 pos_y_dir(pos.x, pos.y + 0.125f);
 			const glm::vec2 scale_y_dir(0.1f, 0.25f);
 
-			DebugGraphic::DrawShape(pos_x_dir, scale_x_dir);
+			DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir);
 
-			DebugGraphic::DrawShape(pos_y_dir, scale_y_dir);
+			DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir);
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
@@ -799,7 +799,7 @@ void Editor::Tools()
 							{
 								m_transformDir = EditorGizmoDirection::Dir_X;
 								freeze_axis = true;
-								DebugGraphic::DrawShape(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+								DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
 							}
 						}
 
@@ -810,7 +810,7 @@ void Editor::Tools()
 							{
 								m_transformDir = EditorGizmoDirection::Dir_Y;
 								freeze_axis = true;
-								DebugGraphic::DrawShape(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+								DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
 							}
 						}
 
@@ -874,7 +874,7 @@ void Editor::Tools()
 
 			// Scales of the boxes drawn
 			const glm::vec2 box_scale(0.15f, 0.15f);
-			const glm::vec2 box_scale_smaller(0.13f, 0.13f);
+			const glm::vec2 box_scale_smaller(0.14f, 0.14f);
 
 			// Position of the boxes
 			glm::vec2 box_pos(pos.x + (scale.x / 2) - (0.15f / 2), pos.y);
@@ -884,22 +884,22 @@ void Editor::Tools()
 			// Detect which direction
 
 			// X Direction
-			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
-			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
 			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_X);
 			
 
 			box_pos = glm::vec2(pos.x, pos.y + (scale.y / 2) - (0.15f / 2));
 			// Y Direction
-			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
-			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
 			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_Y);
 
 
 			box_pos.x += (scale.x / 2) - (0.15f / 2);
 			// Both
-			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0x000000), 1));
-			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			DebugGraphic::DrawSquare(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0x000000), 1));
 			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Both);
 
 
@@ -966,11 +966,18 @@ void Editor::Tools()
 		}
 		case Tool::Rotation:
 		{
-			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
+			GameObject object = m_selected_object;
+
+			// Decided to just default to the largest scale value
+			float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
+			circle /= 3.0f;
+
+			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xc722d6), 1));
+			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xc722d6), 1));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
-				GameObject object = m_selected_object;
+				
 
 
 				// Mouse Position
@@ -978,9 +985,6 @@ void Editor::Tools()
 
 				// delta Mouse
 				glm::vec2 mouseChange = mouse - m_prevMouse;
-
-				// Decided to just default to the largest scale value
-				float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
 
 				// Distance between mouse and object
 				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);

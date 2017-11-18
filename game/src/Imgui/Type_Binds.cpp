@@ -1563,25 +1563,25 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 		int type = static_cast<int>(background->m_Type);
 		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 		SameLine();
 		if (RadioButton("Parallax (Background)##background_bg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND_PARALLAX)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 
 		if (RadioButton("Foreground##background_fg",   &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 		SameLine();
 		if (RadioButton("Parallax (Foreground)##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND_PARALLAX)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 
