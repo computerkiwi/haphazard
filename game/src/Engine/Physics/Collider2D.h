@@ -60,7 +60,7 @@ public:
 	// getters
 	int GetColliderShape();
 	glm::vec3 GetDimensions();
-	glm::vec3 GetOffset();
+	glm::vec2 GetOffset();
 	float GetRotationOffset();
 	CollisionLayer GetCollisionLayer();
 	float GetSelfElasticity();

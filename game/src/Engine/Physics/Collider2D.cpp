@@ -19,7 +19,7 @@ glm::vec3 Collider2D::GetDimensions()
 	return m_dimensions;
 }
 
-glm::vec3 Collider2D::GetOffset()
+glm::vec2 Collider2D::GetOffset()
 {
 	return m_offset;
 }

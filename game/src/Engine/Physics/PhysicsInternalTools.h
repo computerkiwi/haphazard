@@ -29,5 +29,6 @@ glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transfo
 glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2);
 
 void DrawSmallBoxAtPosition(glm::vec2 position);
+void DrawSmallCircleAtPosition(glm::vec2 position);
 
 bool Collision_AABBToAABBbool(glm::vec2 botLeft1, glm::vec2 topRight1, glm::vec2 botLeft2, glm::vec2 topRight2);

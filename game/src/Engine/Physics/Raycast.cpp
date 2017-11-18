@@ -33,7 +33,11 @@ bool debugAreRaycastsDisplayed()
 
 void DrawSmallBoxAtPosition(glm::vec2 position)
 {
-	//DebugGraphic::DrawSquare(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
+	DebugGraphic::DrawSquare(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
+}
+
+void DrawSmallCircleAtPosition(glm::vec2 position)
+{
 	DebugGraphic::DrawCircle(position, 0.05f, glm::vec4(1, 0, 1, 1));
 }
 
