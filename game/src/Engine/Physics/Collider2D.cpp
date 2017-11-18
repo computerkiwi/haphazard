@@ -173,6 +173,11 @@ bool Collider2D::IsCollidingWithLayer(collisionLayers layer)
 	return (m_layersCollidedWith & layer);
 }
 
+bool Collider2D::ColliderIsShape(colliderType colliderType)
+{
+	return (m_colliderShape & ~colliderType::staticCollider) == colliderType;
+}
+
 
 StaticCollider2DComponent::StaticCollider2DComponent(DynamicCollider2DComponent *dyn_collider) : m_colliderData(dyn_collider->ColliderData())
 {

@@ -49,7 +49,7 @@ public:
 			   m_colliderShape(colliderType), m_dimensions(dimensions), m_collisionLayer(collisionLayer), m_offset(offset), m_rotationOffset(rotationOffset),
 		       m_layersCollidedWith(0), m_selfElasticity(selfElasticity), m_appliedElasticity(appliedElasticity), m_collisionType(collisionType)
 	{
-		if (m_colliderShape & ~(colliderType::staticCollider) == colliderType::colliderCircle)
+		if ((m_colliderShape & ~(colliderType::staticCollider)) == colliderType::colliderCircle)
 		{
 			m_dimensions.y = m_dimensions.x;
 		}
@@ -90,6 +90,7 @@ public:
 	bool isStatic();
 	bool IsCollidingWithLayer(collisionLayers layer);
 	void ClearCollidedLayers();
+	bool ColliderIsShape(colliderType colliderType);
 
 private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);
