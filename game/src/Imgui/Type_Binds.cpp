@@ -17,6 +17,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\Collider2D.h"
 #include "Scripting\ScriptComponent.h"
 #include "graphics\Camera.h"
+#include "graphics\Background.h"
 
 #include "graphics\DebugGraphic.h"
 
@@ -76,9 +77,10 @@ void Action_General_Tags(EditorAction& a)
 }
 
 
+template <class Collider>
 void Action_General_Collider(EditorAction& a)
 {
-	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
+	ComponentHandle<Collider> handle(a.handle);
 
 	meta::Any colliderData(&handle->ColliderData());
 
@@ -170,6 +172,7 @@ const char * ErrorList[] =
 };
 
 
+// Wrapper around bool, here so the bool has a default value
 struct EditorBoolWrapper
 {
 	bool value = false;
@@ -177,6 +180,12 @@ struct EditorBoolWrapper
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
+
+// Used to Save the bool of whether the collider dimensions should match the transform scale
+typedef std::map<GameObject_ID, EditorBoolWrapper> MatchScaleBool;
+MatchScaleBool ObjectsMatchScale;
+
+// Used to find if a drag sliders was clicked and released
 typedef std::map<const char *, EditorBoolWrapper> ClickedList;
 ClickedList widget_click;
 
@@ -200,7 +209,13 @@ ClickedList widget_click;
 		}																									 \
 	}																										 
 
-// Same as Drag but it saves a vector instead of a float
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+// Saves Anything instead of just a float -- used for glm::vecX
+//    This version is used since the meta system does not register
+//    parts of glm::vec2 or similar objects
 #define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -211,7 +226,14 @@ ClickedList widget_click;
 		}																									 \
 	}
 
-// Drag_Vec with min and max
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+// Saves Anything instead of just a float -- used for glm::vecX
+//    This version is used since the meta system does not register
+//    parts of glm::vec2 or similar objects
+//	  Min and Max
 #define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
 	{																										 \
@@ -222,6 +244,11 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
 #define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
 	{																										 \
@@ -232,6 +259,12 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a float in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
+//     Min and Max
 #define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)															 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
 	{																										 \
@@ -242,6 +275,10 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
 #define Drag_Int(NAME, SAVE, ITEM)																			 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
 	{																										 \
@@ -252,6 +289,11 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
 #define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
 	{																										 \
@@ -262,6 +304,12 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Setups the detection of the drag slider has been clicked
+//     Saves a int in a temporary value then stores the new value and the saved value
+//     Undo pops the saved value
+//     Redo pops the new value
+//     Change Speed
+//     Min and Max
 #define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)																 \
 	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))															 \
 	{																										 \
@@ -272,6 +320,8 @@ ClickedList widget_click;
 		}																									 \
 	}
 
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
 #define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -279,7 +329,9 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
-
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
+// Save the data, but pass it to a different Action_General function
 #define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -287,6 +339,9 @@ ClickedList widget_click;
 		widget_click[#SAVE] = false;																				 \
 	}
 
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
+// Cast SAVE and ITEM to TYPE then save them
 #define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
 	{																										 \
@@ -296,11 +351,25 @@ ClickedList widget_click;
 
 // Transform Component Save Location
 TransformComponent transformSave;
+
+// RigidBody Save Location
 RigidBodyComponent rigidBodySave;
+
+// Collider Data Save Location
 Collider2D         colliderSave;
 
+// Sprite Save Location
+struct SpriteSave
+{
+	int    AT_frame  = 0;
+	float  AT_fps = 0;
+	float  AT_timer  = 0;
+} spriteSave;
+
+// Particles Save Location
 ParticleSettings   particleSave;
 
+// Camera Save
 struct CameraSave
 {
 	//View matrix
@@ -321,7 +390,26 @@ struct CameraSave
 } cameraSave;
 
 
-void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
+// Background Component Save Location
+struct BackgroundSave
+{
+	Texture* m_Texture;
+	
+	BACKGROUND_TYPE m_Type;
+	
+	glm::vec4 m_ParallaxBounds;
+	
+	glm::vec2 m_SubTextureSize = glm::vec2(0.1f, 1);
+	glm::vec2 m_SubTexturePosition = glm::vec2(0, 0);
+	
+	glm::vec2 m_TextureXRange = glm::vec2(0, 1);
+	glm::vec2 m_TextureYRange = glm::vec2(1, 0);
+
+} bgSave;
+
+
+
+bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
 	// Get all the names of the objects
 	char name_buffer[128] = { 0 };
@@ -359,6 +447,7 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
+			// It was clicked, Set the parent
 			transform->SetParent(object);
 			if (object.GetComponent<HierarchyComponent>().IsValid())
 			{
@@ -367,9 +456,12 @@ void Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 			else
 			{
 				object.AddComponent<HierarchyComponent>(child);
-			}	
+			}
+			return true;
 		}
 	}
+
+	return false;
 }
 
 
@@ -464,6 +556,30 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					Push_AddComponent(ParticleSystem);
 				}
 			}
+			if (Button("Camera", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<Camera>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<Camera>();
+					Push_AddComponent(Camera);
+				}
+			}
+			if (Button("Background", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<BackgroundComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<BackgroundComponent>();
+					Push_AddComponent(BackgroundComponent);
+				}
+			}
 			Separator();
 			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
 			{
@@ -551,7 +667,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 
 
-		// if object - > component
+		// if object -> component
 		// ImGui_Component(ComponetType *component);
 		if (object.GetComponent<TransformComponent>().IsValid())
 		{
@@ -596,6 +712,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (object.GetComponent<Camera>().IsValid())
 		{
 			ImGui_Camera(object.GetComponent<Camera>().Get(), object, editor);
+		}
+
+		if (object.GetComponent<BackgroundComponent>().IsValid())
+		{
+			ImGui_Background(object.GetComponent<BackgroundComponent>().Get(), object, editor);
 		}
 
 		End();
@@ -747,7 +868,11 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 
 		if (BeginPopup("Add Parent##add_parent_popup"))
 		{
-			Choose_Parent_ObjectList(editor, transform, object);
+			GameObject parent = transform->GetParent();
+			if (Choose_Parent_ObjectList(editor, transform, object))
+			{
+				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
+			}
 			EndPopup();
 		}
 	}
@@ -783,7 +908,19 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
 
 		DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
-			
+		
+		if (ObjectsMatchScale[object] == true)
+		{
+			if (object.GetComponent<StaticCollider2DComponent>().Get())
+			{
+				object.GetComponent<StaticCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
+			}
+			else if (object.GetComponent<DynamicCollider2DComponent>().Get())
+			{
+				object.GetComponent<DynamicCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
+			}
+		}
+
 		TreePop();
 		Separator();
 	}
@@ -791,10 +928,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	int z_layer = static_cast<int>(transform->GetZLayer());
 	if (InputInt("Z-Layer##transform", &z_layer, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
 	{
-		if (z_layer < 0)
-		{
-			z_layer = 0;
-		}
 		editor->Push_Action({ transform->m_position.z, z_layer, "zLayer", handle, Action_General<TransformComponent, float> });
 		transform->SetZLayer(static_cast<float>(z_layer));
 	}
@@ -876,12 +1009,16 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			return;
 		}
 
-		// if (sprite->isAnimated())
-		// {
-		//		int frame = sprite->GetFrame();
-		//		SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetFrameCount());
-		//		sprite->SetFrame(frame);
-		// }
+		//if (sprite->IsAnimated())
+		//{
+		//	float FrameRate = sprite->GetFPS();
+		//	Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
+		//	DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
+		//
+		//	int frame = sprite->AT_frame;
+		//	SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
+		//	sprite->SetFrame(frame);
+		//}
 
 
 		ResourceManager& rm = engine->GetResourceManager();
@@ -956,10 +1093,9 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			bool matchScale;
-			Checkbox("Match Scale", &matchScale);
+			Checkbox("Match Scale", &(ObjectsMatchScale[object].value));
 
-			if (matchScale)
+			if (ObjectsMatchScale[object])
 			{
 				colliderSave.m_dimensions = collider->m_dimensions;
 
@@ -968,12 +1104,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				if (collider->isStatic())
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider });
+						handle, Action_General_Collider<StaticCollider2DComponent> });
 				}
 				else
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider });
+						handle, Action_General_Collider<DynamicCollider2DComponent> });
 				}
 			}
 
@@ -987,12 +1123,12 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 					if (collider->isStatic())
 					{
 						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-							handle, Action_General_Collider });
+							handle, Action_General_Collider<StaticCollider2DComponent> });
 					}
 					else
 					{
 						editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-							handle, Action_General_Collider });
+							handle, Action_General_Collider<DynamicCollider2DComponent> });
 					}
 					widget_click["colliderSave.m_dimensions"] = false;
 				}
@@ -1014,11 +1150,11 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 					// Check if we need to save the action for static or dynamic
 					if (collider->isStatic())
 					{
-						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider<StaticCollider2DComponent> });
 					}
 					else
 					{
-						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider });
+						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider<DynamicCollider2DComponent> });
 					}
 					widget_click["colliderSave.m_offset"] = false;
 				}
@@ -1041,7 +1177,7 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		DragRelease(Collider2D, colliderSave.m_selfElasticity, collider->m_selfElasticity, "selfElasticity");
 
 		// Collision Type
-		Combo("Collider Type", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
+		Combo("Collider Type##collider", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
 		switch (index)
 		{
 		case 0:
@@ -1408,7 +1544,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 {
-	if (CollapsingHeader("Camera"))
+	if (CollapsingHeader("Camera##camera_component"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 
@@ -1418,7 +1554,81 @@ void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 }
 
 
-// Background Component
+void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Background##background_component"))
+	{
+		EditorComponentHandle handle = { object.Getid(), true };
+
+		int type = static_cast<int>(background->m_Type);
+		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+		SameLine();
+		if (RadioButton("Parallax (Background)##background_bg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND_PARALLAX)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+
+		if (RadioButton("Foreground##background_fg",   &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+		SameLine();
+		if (RadioButton("Parallax (Foreground)##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND_PARALLAX)))
+		{
+			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "type", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
+		}
+
+		if (TreeNode("Parallax Bounds"))
+		{
+			Text("Minimum Point");
+			Drag_Vec("X##background_parallax_min", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.x, background->m_ParallaxBounds);
+			Drag_Vec("Y##background_parallax_min", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.y, background->m_ParallaxBounds);
+
+			DragRelease(BackgroundComponent, bgSave.m_ParallaxBounds, background->m_ParallaxBounds, "parallaxBounds");
+
+
+			Text("Maximum Point");
+			Drag_Vec("X##background_parallax_max", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.z, background->m_ParallaxBounds);
+			Drag_Vec("Y##background_parallax_max", bgSave.m_ParallaxBounds, background->m_ParallaxBounds.w, background->m_ParallaxBounds);
+
+			DragRelease(BackgroundComponent, bgSave.m_ParallaxBounds, background->m_ParallaxBounds, "parallaxBounds");
+			
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Texture Size"))
+		{
+			Drag_Vec("X##background_texturesize", bgSave.m_SubTextureSize, background->m_SubTextureSize.x, background->m_SubTextureSize);
+			Drag_Vec("Y##background_texturesize", bgSave.m_SubTextureSize, background->m_SubTextureSize.y, background->m_SubTextureSize);
+
+			DragRelease(BackgroundComponent, bgSave.m_SubTextureSize, background->m_SubTextureSize, "subTextureSize");
+
+			Separator();
+			TreePop();
+		}
+
+		if (TreeNode("Texture Position"))
+		{
+			Drag_Vec("X##background_texturesize", bgSave.m_SubTexturePosition, background->m_SubTexturePosition.x, background->m_SubTexturePosition);
+			Drag_Vec("Y##background_texturesize", bgSave.m_SubTexturePosition, background->m_SubTexturePosition.y, background->m_SubTexturePosition);
+
+			DragRelease(BackgroundComponent, bgSave.m_SubTexturePosition, background->m_SubTexturePosition, "subTexturePosition");
+
+			Separator();
+			TreePop();
+		}
+	}
+}
+
+
 // Text Component
 
 // Light Component

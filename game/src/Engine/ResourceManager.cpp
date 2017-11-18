@@ -42,7 +42,8 @@ void *Resource::Data()
 {
 	if (!m_isLoaded)
 	{
-		Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Attempted to get unloaded resource: ", m_folderPath, m_fileName);
+		logger.SetNextChannel(Logging::CORE);
+		logger << "Attempted to get unloaded resource: " << m_folderPath << m_fileName << "\n";
 		return nullptr;
 	}
 

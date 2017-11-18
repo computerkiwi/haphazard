@@ -85,6 +85,7 @@ public:
 	}
 
 	operator bool() const { return m_objID; }
+	operator GameObject_ID() { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();
@@ -100,6 +101,7 @@ public:
 	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
 
 	static GameObject FindByName(const char *name);
+	static GameObject FindByTag(const char * tagStr);
 
 private:
 	union
@@ -128,17 +130,29 @@ private:
 		META_DefineType(GameObject);
 		META_DefineMember(GameObject, m_objID, "id");
 
-		META_DefineFunction(GameObject, GetComponentPointer<TransformComponent>, "GetTransform");
-		META_DefineFunction(GameObject, GetComponentPointer<RigidBodyComponent>, "GetRigidBody");
-		META_DefineFunction(GameObject, GetComponentPointer<StaticCollider2DComponent>, "GetStaticCollider");
+		META_DefineFunction(GameObject, Duplicate, "Duplicate");
+		META_DefineFunction(GameObject, Delete,    "Duplicate");
+
+		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");
+		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
+		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
+		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>,					  "DeleteCamera");
+
+
+		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");
+		META_DefineFunction(GameObject, GetComponentPointer<TransformComponent>,         "GetTransform");
+		META_DefineFunction(GameObject, GetComponentPointer<RigidBodyComponent>,         "GetRigidBody");
+		META_DefineFunction(GameObject, GetComponentPointer<StaticCollider2DComponent>,  "GetStaticCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
-		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>, "GetSprite");
-		META_DefineFunction(GameObject, GetComponentPointer<Camera>, "GetCamera");
+		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>,            "GetSprite");
+		META_DefineFunction(GameObject, GetComponentPointer<Camera>,                     "GetCamera");
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
 
 		// TODO: Make this use the meta function.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByTag", FindByTag).endClass();
 	}
 };

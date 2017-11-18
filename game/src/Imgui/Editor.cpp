@@ -10,9 +10,6 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Editor.h"
 #include "Type_Binds.h"
 
-#include <string>
-#include <algorithm>
-
 #include "../Imgui/imgui-setup.h"
 
 #include "GameObjectSystem\GameSpace.h"
@@ -28,17 +25,61 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Input/Input.h"
 
-#include <locale>
-#include <ctype.h>
-
 #include "graphics\DebugGraphic.h"
+#include "graphics/Settings.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW\glfw3native.h>
 
+#include <string>
+#include <algorithm>
+#include <locale>
+#include <ctype.h>
+
 #include <Windows.h>
 #include <psapi.h>
-#include "graphics/Settings.h"
+
+
+#define PI 3.1415926535f
+
+
+// Gizmo Transform Save Location
+TransformComponent objectSave;
+
+template <class Component, typename T>
+void Action_General(EditorAction& a)
+{
+	ComponentHandle<Component> handle(a.handle);
+	meta::Any obj(handle.Get());
+
+	if (a.redo)
+	{
+		obj.SetPointerMember(a.name, a.current.GetData<T>());
+	}
+	else
+	{
+		obj.SetPointerMember(a.name, a.save.GetData<T>());
+	}
+}
+
+
+#define AABB_Mouse_Action(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
+	if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
+	{																														 \
+		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
+		{																													 \
+			ACTION_S;																										 \
+		}																													 \
+	}																														
+
+#define AABB_Mouse_Action_Chain(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
+	else if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
+	{																														 \
+		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
+		{																													 \
+			ACTION_S;																										 \
+		}																													 \
+	}
 
 
 // Toggle Hitboxes
@@ -89,7 +130,52 @@ void Editor::OpenLevel()
 }
 
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }, m_show_settings(true)
+void Editor::SaveLevel()
+{
+	char filename[MAX_PATH] = { 0 };
+
+	OPENFILENAME file;
+	ZeroMemory(&file, sizeof(file));
+	file.lStructSize = sizeof(file);
+	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+	file.lpstrFile = filename;
+	file.nMaxFile = MAX_PATH;
+	file.lpstrFileTitle = "Load a level";
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+
+	if (GetSaveFileName(&file))
+	{
+		logger << "[EDITOR] Saving File: " << filename << "\n";
+		m_engine->FileLoad(filename);
+	}
+	else
+	{
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }
 {
 	logger << "Creating Editor.";
 	debugSetDisplayHitboxes(false);
@@ -302,8 +388,22 @@ void Editor::Update()
 
 		KeyBindings();
 
+		// ImGui::ShowTestWindow();
+
+		// Move, Scale, Rotate
+		Tools();
+
+		if (m_editorState.freeze)
+		{
+			m_engine->GetDtObject() = 0;
+		}
+		else
+		{
+			m_engine->GetDtObject() = m_engine->CalculateDt();
+		}
+
 		// Render the console
-		if (m_show_settings)
+		if (m_editorState.settings)
 		{
 			SettingsPanel(1 / 60.0f);
 		}
@@ -313,13 +413,11 @@ void Editor::Update()
 			Console();
 		}
 
-		// Move, Scale, Rotate
-		Tools();
-
-		// ImGui::ShowTestWindow();
-
 		// Display
-		ObjectsList();
+		if (m_editorState.objectList)
+		{
+			ObjectsList();
+		}
 
 		// Pass the current object in the editor
 		if (m_multiselect.m_size)
@@ -331,7 +429,7 @@ void Editor::Update()
 			ImGui_GameObject(GameObject(m_selected_object), this);
 		}
 
-		#ifdef _DEBUG_NOPE
+		#ifdef _DEBUG
 			// Please don't delete, super important
 			if (rand() % 1000000 == 0)
 			{
@@ -480,58 +578,20 @@ void Editor::SetGameObject(GameObject new_object)
 void Editor::OnClick()
 {
 	// Check for mouse 1 click
-	if (Input::IsPressed(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
+	if (Input::IsPressed(Key::Mouse_1))
 	{
 		const glm::vec2 mouse = Input::GetMousePos_World();
-		
-		//bool cache_set = false;
+		m_prevMouse = mouse;
 
-		//for (size_t i = 0; i < m_cache_objects.size(); ++i)
-		//{
-		//	CacheCount& id = m_cache_objects[i];
-		//	if (id.id)
-		//	{
-
-		//		if (id.id == m_selected_object)
-		//		{
-		//			continue;
-		//		}
-
-		//		GameObject object = id.id;
-		//		ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-		//		const glm::vec2 scale = transform.Get()->GetScale();
-		//		const glm::vec2 pos = transform.Get()->GetPosition();
-
-		//		if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
-		//		{
-		//			if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
-		//			{
-		//				// Save the GameObject data
-		//				m_selected_object = transform.GetGameObject().Getid();
-		//				cache_set = true;
-		//				++id.count;
-		//			}
-		//			else
-		//			{
-		//				--id.count;
-		//			}
-		//		}
-		//		else
-		//		{
-		//			--id.count;
-		//		}
-		//	}
-
-		//	if (id.count == 0)
-		//	{
-		//		m_cache_objects.erase(m_cache_objects.begin() + i);
-		//	}
-		//}
-
-		//if (cache_set)
-		//{
-		//	return;
-		//}
+		if (ImGui::IsAnyWindowHovered())
+		{
+			m_editorState.imguiWantMouse = true;
+			return;
+		}
+		else
+		{
+			m_editorState.imguiWantMouse = false;
+		}
 
 		glm::vec2 pos;
 		glm::vec2 scale;
@@ -568,11 +628,16 @@ void Editor::OnClick()
 					{
 						// Save the GameObject data
 						m_selected_object = transform.GetGameObject().Getid();
+						return;
+
+
 						//m_cache_objects.emplace_back(m_selected_object);
 					}
 				}
 			}
 		}
+
+		m_selected_object = 0;
 	}
 }
 
@@ -642,10 +707,17 @@ void Editor::KeyBindings()
 		OpenLevel();
 	}
 
+	// Move Camera to Object
 	if (Input::IsPressed(Key::Space))
 	{
 		// Move Camera to object
-		m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+	}
+
+	// Play/Pause the Editor
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Space))
+	{
+		m_editorState.freeze = !m_editorState.freeze;
 	}
 }
 
@@ -666,7 +738,7 @@ static glm::vec2 Lerp_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
 
 void Editor::Tools()
 {
-	if (m_selected_object && GameObject(m_selected_object).GetSpace())
+	if (m_selected_object)
 	{
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
@@ -681,40 +753,281 @@ void Editor::Tools()
 		switch (m_tool)
 		{
 		case Tool::Translation:
-			DebugGraphic::DrawSquare(pos, glm::vec2(0.25f, 0.1f));
-			DebugGraphic::DrawSquare(pos, glm::vec2(0.1f, 0.25f));
+		{
+			// delta Mouse Pos
+			glm::vec2 mouse = Input::GetMousePos_World();
 
-			if (Input::IsHeldDown(Key::Mouse_1) && !ImGui::IsMouseHoveringAnyWindow())
+			const glm::vec2 pos_x_dir(pos.x + 0.125f, pos.y);
+			const glm::vec2 scale_x_dir(0.25f, 0.1f);
+
+			const glm::vec2 pos_y_dir(pos.x, pos.y + 0.125f);
+			const glm::vec2 scale_y_dir(0.1f, 0.25f);
+
+			DebugGraphic::DrawShape(pos_x_dir, scale_x_dir);
+
+			DebugGraphic::DrawShape(pos_y_dir, scale_y_dir);
+
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				GameObject object = m_selected_object;
+
+				// delta Mouse Pos
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// Check if there are multiple objects selected
 				if (m_multiselect.m_size)
 				{
+					// foreach object add the mouseChange to its position
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
 					{
 						GameObject object = m_multiselect[i];
 
-						object.GetComponent<TransformComponent>()->SetPosition(object.GetComponent<TransformComponent>()->GetPosition() + pos);
+						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
 					}
 				}
 				else
 				{
-					glm::vec2 mouseChange = Input::GetMousePos_World(); /* -Input::GetPrevMousePos_World();*/
-					object.GetComponent<TransformComponent>()->SetPosition(mouseChange);
+					// Check if we need to save the old value
+					if (!m_editorState.MouseDragClick)
+					{
+						bool freeze_axis = false;
+
+						// AABB of the box to only allow movement on the x-axis
+						if (mouse.x < pos_x_dir.x + (scale_x_dir.x / 2) && mouse.x > pos_x_dir.x - (scale_x_dir.x / 2))
+						{
+							if (mouse.y < pos_x_dir.y + (scale_x_dir.y / 2) && mouse.y > pos_x_dir.y - (scale_x_dir.y / 2))
+							{
+								m_transformDir = EditorGizmoDirection::Dir_X;
+								freeze_axis = true;
+								DebugGraphic::DrawShape(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+							}
+						}
+
+						// AABB of the box to only allow movement on the y-axis
+						if (mouse.x < pos_y_dir.x + (scale_y_dir.x / 2) && mouse.x > pos_y_dir.x - (scale_y_dir.x / 2))
+						{
+							if (mouse.y < pos_y_dir.y + (scale_y_dir.y / 2) && mouse.y > pos_y_dir.y - (scale_y_dir.y / 2))
+							{
+								m_transformDir = EditorGizmoDirection::Dir_Y;
+								freeze_axis = true;
+								DebugGraphic::DrawShape(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+							}
+						}
+
+						// Default to allow both, and auto-unfreeze
+						if (!freeze_axis)
+						{
+							m_transformDir = EditorGizmoDirection::Both;
+						}
+
+						objectSave.SetPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
+						m_editorState.MouseDragClick = true;
+					}
+
+
+					// Keeping track of direction allows for us to freeze the other axes
+					switch (m_transformDir)
+					{
+						// Freeze the y-axis and allow movement in the x-axis
+					case EditorGizmoDirection::Dir_X:
+						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						break;
+
+						// Freeze the x-axis and allow movement in the y-axis
+					case EditorGizmoDirection::Dir_Y:
+						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+						break;
+
+						// Move by both
+					case EditorGizmoDirection::Both:
+
+						// Add the mouseChange to the position
+						//    This method prevents the center of the object from snapping to the mouse position
+						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+					}
 				}
+
+				m_prevMouse = Input::GetMousePos_World();
 				return;
+			}
+
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
+				
+				// Reset the click state
+				m_editorState.MouseDragClick = false;
+			}
+
+			break;
+		}
+		case Tool::Scale:
+		{
+			GameObject object = m_selected_object;
+
+			// Mouse Position in World Coordinates
+			glm::vec2 mouse = Input::GetMousePos_World();
+
+			// Scale of the Object
+			glm::vec2 scale = object.GetComponent<TransformComponent>()->GetScale();
+
+			// Scales of the boxes drawn
+			const glm::vec2 box_scale(0.15f, 0.15f);
+			const glm::vec2 box_scale_smaller(0.13f, 0.13f);
+
+			// Position of the boxes
+			glm::vec2 box_pos(pos.x + (scale.x / 2) - (0.15f / 2), pos.y);
+
+			//DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
+
+			// Detect which direction
+
+			// X Direction
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_X);
+			
+
+			box_pos = glm::vec2(pos.x, pos.y + (scale.y / 2) - (0.15f / 2));
+			// Y Direction
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0xFF0000), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Dir_Y);
+
+
+			box_pos.x += (scale.x / 2) - (0.15f / 2);
+			// Both
+			DebugGraphic::DrawShape(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			DebugGraphic::DrawShape(box_pos, box_scale_smaller, 0.0f, glm::vec4(HexVec(0x000000), 1));
+			AABB_Mouse_Action(mouse, box_pos, box_scale, m_scaleDir = EditorGizmoDirection::Both);
+
+
+
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
+			{
+				// delta Mouse pos
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// New Scale, so start at object's current scale
+				glm::vec3 scale = object.GetComponent<TransformComponent>()->GetScale();
+
+				// Check if we need to save the old value of the object
+				if (!m_editorState.MouseDragClick)
+				{
+					objectSave.SetScale(object.GetComponent<TransformComponent>()->GetScale());
+					m_editorState.MouseDragClick = true;
+				}
+
+				// Scale Gizmo Actions
+
+				// Figure out which way to scale
+				switch (m_scaleDir)
+				{
+				case EditorGizmoDirection::Dir_X:
+					scale.x += mouseChange.x;
+					break;
+
+				case EditorGizmoDirection::Dir_Y:
+					scale.y += mouseChange.y;
+					break;
+
+				case EditorGizmoDirection::Both:
+					if (Input::IsHeldDown(Key::LeftShift))
+					{
+						scale.x += mouseChange.x;
+						scale.y += mouseChange.x;
+					}
+					else
+					{
+						scale.x += mouseChange.x;
+						scale.y += mouseChange.y;
+					}
+					break;
+				default:
+					logger << "[EDITOR] Invalid Axis sent to Scale Gizmo.\n";
+					break;
+				}
+
+				object.GetComponent<TransformComponent>()->SetScale(scale);
+
+				m_prevMouse = mouse;
+			}
+
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ objectSave.GetScale(), handle->GetScale(), "scale", { m_selected_object, true }, Action_General<TransformComponent, glm::vec3> });
+				m_editorState.MouseDragClick = false;
 			}
 
 			break;
 
-		case Tool::Scale:
-			DebugGraphic::DrawSquare(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
-			break;
-
+		}
 		case Tool::Rotation:
-			DebugGraphic::DrawSquare(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
-			break;
+		{
+			DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0xc722d6), 1));
 
+			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
+			{
+				GameObject object = m_selected_object;
+
+
+				// Mouse Position
+				glm::vec2 mouse = Input::GetMousePos_World();
+
+				// delta Mouse
+				glm::vec2 mouseChange = mouse - m_prevMouse;
+
+				// Decided to just default to the largest scale value
+				float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
+
+				// Distance between mouse and object
+				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);
+				float dy = (mouse.y - pos.y) * (mouse.y - pos.y);
+
+				// Rotation Gizmo Actions
+				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
+				{
+					// Check if we need to save the current value
+					if (!m_editorState.MouseDragClick)
+					{
+						objectSave.SetRotation(object.GetComponent<TransformComponent>()->GetRotation());
+						m_editorState.MouseDragClick = true;
+					}
+				}
+
+
+				// Rotation we are going to the object to, so lets start at the object's rotation in case we do nothing
+				//     Get the rotation between the mouse and the object
+				float rotation = atan2f(mouse.y - pos.y, mouse.x - pos.x);
+
+				// Get the rotation of the previous mouse location
+				//     This is used to get the delta in the angle
+				float prev = atan2f(m_prevMouse.y - pos.y, m_prevMouse.x - pos.x);
+
+				// Get the change in the rotation
+				rotation -= prev;
+
+				// Convert it to degrees
+				rotation *= (180.0f / PI);
+
+				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
+				m_prevMouse = Input::GetMousePos_World();
+			}
+
+			// Check if the user is done with the click and push the action
+			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
+			{
+				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				Push_Action({ objectSave.GetRotation(), handle->GetRotation(), "rotation", { m_selected_object, true }, Action_General<TransformComponent, float> });
+				m_editorState.MouseDragClick = false;
+			}
+
+			break;
+		}
 		default:
+			logger << "[EDITOR] Invalid tool value.\n";
 			break;
 		}
 	}
@@ -1184,6 +1497,13 @@ void Editor::MenuBar()
 				m_load = true;
 			}
 
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Exit"))
+			{
+				m_engine->Exit();
+			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Edit"))
@@ -1215,9 +1535,18 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::Button("Settings"))
+		if (ImGui::BeginMenu("Windows"))
 		{
-			m_show_settings = !m_show_settings;
+			if (ImGui::MenuItem("Settings", nullptr, m_editorState.settings))
+			{
+				m_editorState.settings = !m_editorState.settings;
+			}
+
+			if (ImGui::MenuItem("Object List", nullptr, m_editorState.objectList))
+			{
+				m_editorState.objectList = !m_editorState.objectList;
+			}
+			ImGui::EndMenu();
 		}
 
 		SaveLoad();
@@ -1247,7 +1576,9 @@ void Editor::SaveLoad()
 {
 	if (m_save)
 	{
-		ImGui::OpenPopup("##menu_save_pop_up");
+		//ImGui::OpenPopup("##menu_save_pop_up");
+		SaveLevel();
+		m_save = false;
 	}
 	else if (m_load)
 	{
