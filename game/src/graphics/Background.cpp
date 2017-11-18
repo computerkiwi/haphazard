@@ -56,9 +56,9 @@ void BackgroundComponent::Render(glm::vec2 pos)
                              (pos.y - m_ParallaxBounds.y) / (m_ParallaxBounds.w - m_ParallaxBounds.y) );
 
 
-		if (m_ParallaxBounds.z == 0 || p.x > 1)
+		if (m_ParallaxBounds.z == 0)
 			p.x = 1;
-		if (m_ParallaxBounds.w == 0 || p.y > 1)
+		if (m_ParallaxBounds.w == 0)
 			p.y = 1;
 		// Linearly interpolate between minimum and maximum
 
