@@ -301,6 +301,10 @@ class Editor
 	// Save Location of all popups -- vector works since usually not many popups
 	std::vector<PopUpWindow> m_pop_ups;
 
+	// PPFX
+	// --------------
+	bool m_show_ppfx = false;
+
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 
@@ -317,6 +321,7 @@ private:
 	void MenuBar();
 	void SettingsPanel(float dt);
 	void Console();
+	void PPFX();
 
 	void OnClick();
 

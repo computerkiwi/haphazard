@@ -178,6 +178,7 @@
     <ClCompile Include="src\graphics\Background.cpp" />
     <ClCompile Include="src\graphics\Camera.cpp" />
     <ClCompile Include="src\graphics\DebugGraphic.cpp" />
+    <ClCompile Include="src\graphics\EditorGraphic.cpp" />
     <ClCompile Include="src\graphics\Mesh.cpp" />
     <ClCompile Include="src\graphics\Particles.cpp" />
     <ClCompile Include="src\graphics\RenderLayer.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="src\graphics\Background.h" />
     <ClInclude Include="src\graphics\Camera.h" />
     <ClInclude Include="src\graphics\DebugGraphic.h" />
+    <ClInclude Include="src\graphics\EditorGraphic.h" />
     <ClInclude Include="src\graphics\Mesh.h" />
     <ClInclude Include="src\graphics\Particles.h" />
     <ClInclude Include="src\graphics\RenderLayer.h" />
@@ -278,6 +280,8 @@
     <None Include="shaders\debug.fragshader" />
     <None Include="shaders\debug.geoshader" />
     <None Include="shaders\debug.vertshader" />
+    <None Include="shaders\editorsprite.frag" />
+    <None Include="shaders\editorsprite.vert" />
     <None Include="src\meta\Any.inl" />
     <None Include="src\meta\MemberGetSet.inl" />
     <None Include="src\meta\meta.inl" />

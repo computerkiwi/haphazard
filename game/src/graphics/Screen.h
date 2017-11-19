@@ -5,7 +5,6 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
-
 #include <glm/glm.hpp>
 #include <set>
 
@@ -34,6 +33,8 @@ public:
 	static void SetBackgroundColor(float r, float g, float b, float a);
 
 	static FrameBuffer* GetLayerFrameBuffer(int layer);
+
+	static std::set<FrameBuffer*, LayerComp>& GetLayerList() { return m_LayerList; }
 
 	// Legacy (to be removed/changed soon)
 	//static void AddRaindrop();

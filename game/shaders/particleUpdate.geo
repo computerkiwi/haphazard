@@ -134,15 +134,18 @@ void HandleEmitter()
 		{
 			// Emit new particle(s)
 
-			for(int i = 0; i < ParticlesPerEmission; i++)
+			// Incase of low framerate where several particles should be emitted, emit those that would be missed otherwise
+			int extra = int((currAge - PLife[0]) / EmissionRate) - 1;
+
+			for(int i = 0; i < ParticlesPerEmission + extra; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
 				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
 
 				if(SimulationSpace == SPACE_LOCAL)
-					Position = NewParticlePosition(PPos[0], r.xy) - EmitterPosition;
+					Position = NewParticlePosition(vec2(0,0), r.xy);
 				else
-					Position = NewParticlePosition(PPos[0], r.xy);
+					Position = NewParticlePosition(EmitterPosition, r.xy);
 
 				Type = PARTICLE_TYPE;
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
@@ -171,9 +174,9 @@ void HandleEmitter()
 				Type = PARTICLE_TYPE;
 				Position = NewParticlePosition(PPos[0], r.xy);
 				if(SimulationSpace == SPACE_LOCAL)
-					Position = NewParticlePosition(PPos[0], r.xy) - EmitterPosition;
+					Position = NewParticlePosition(vec2(0,0), r.xy);
 				else
-					Position = NewParticlePosition(PPos[0], r.xy);
+					Position = NewParticlePosition(EmitterPosition, r.xy);
 
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
 				Scale = ScaleOverTime.xy;

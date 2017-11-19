@@ -278,6 +278,7 @@ namespace Shaders
 	ShaderProgram* backgroundShader;
 
 	ShaderProgram* debugShader;
+	ShaderProgram* editorSpriteShader;
 
 	ShaderProgram* ScreenShader::Raindrop;
 
@@ -294,16 +295,17 @@ namespace Shaders
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
 		attribs.push_back(ShaderProgram::Attribute("pos", 3, GL_FLOAT, sizeof(float), false, 9, 0));
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 9, 3));
+		attribs.push_back(ShaderProgram::Attribute("vcolor", 4, GL_FLOAT, sizeof(float), false, 9, 3));
 		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 9, 7));
 
 		// Instance Attribs
-		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 20, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 24, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 24, 4, true));
 		// Model matrix
-		attribs.push_back(ShaderProgram::Attribute(4, 4, GL_FLOAT, sizeof(float), false, 20, 4, true));
-		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 20, 8, true));
-		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 20, 12, true));
-		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 20, 16, true));
+		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 24, 8, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 24, 12, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 24, 16, true));
+		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 24, 20, true));
 
 		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(int), false, 1, 0, true));
 
@@ -428,6 +430,18 @@ namespace Shaders
 			FailedCompile();
 	}
 
+	void LoadEditorSpriteShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 4, 0));
+		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), true, 4, 2));
+
+		editorSpriteShader = LoadShaders(path + "editorsprite.vert", path + "editorsprite.frag", attribs);
+
+		if (!editorSpriteShader->wasCompiled())
+			FailedCompile();
+	}
+
 	void LoadScreenShaders()
 	{
 		std::vector<ShaderProgram::Attribute> attribs;
@@ -501,6 +515,7 @@ namespace Shaders
 		LoadParticleShaders();
 		LoadBackgroundShader();
 		LoadDebugShader();
+		LoadEditorSpriteShader();
 		LoadScreenShaders();
 
 		LoadDefaultShaderUniforms();
