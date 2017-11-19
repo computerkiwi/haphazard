@@ -7,106 +7,144 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 // http://www.ariel.com/images/animated-messages-small2.gif
 
+// Main Editor Includes
 #include "Editor.h"
 #include "Type_Binds.h"
 
-#include "../Imgui/imgui-setup.h"
-
-#include "GameObjectSystem\GameSpace.h"
-#include "GameObjectSystem/GameObject.h"
-#include "Engine\Physics\RigidBody.h"
-#include "graphics\SpriteComponent.h"
-#include "Engine\Physics\Collider2D.h"
-#include "Engine\Physics\Raycast.h"
-
+// Standard Includes
+#include "Engine/Engine.h"
 #include "Util/Logging.h"
 
-#include "Engine/Engine.h"
 
+// ImGui Init, NewFrame, Shutdown Calls
+#include "../Imgui/imgui-setup.h"
+
+// GameSpace Class
+#include "GameObjectSystem/GameSpace.h"
+
+// GameObject Class
+#include "GameObjectSystem/GameObject.h"
+
+// Components
+#include "Engine/Physics/RigidBody.h"
+#include "graphics/SpriteComponent.h"
+#include "Engine/Physics/Raycast.h"
+
+// Key and Mouse Input
 #include "Input/Input.h"
 
-#include "graphics\DebugGraphic.h"
-#include "graphics/Settings.h"
+// Debug Graphics for Shapes
+#include "graphics/DebugGraphic.h"
+
 
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW\glfw3native.h>
+#include <GLFW/glfw3native.h>
 
-#include <string>
 #include <algorithm>
 #include <locale>
 #include <ctype.h>
 
-#include <Windows.h>
-#include <psapi.h>
+#ifdef _WIN32
+	#include <Windows.h>
+	#include <psapi.h>
+#endif
 
-
+// Define PI since I couldn't get the cmath one to want to work -- sigh
 #define PI 3.1415926535f
 
 
 // Gizmo Transform Save Location
 TransformComponent objectSave;
 
+// General Action for undo/redo
 template <class Component, typename T>
 void Action_General(EditorAction& a)
 {
+	// Get the component handle for the object
 	ComponentHandle<Component> handle(a.handle);
+
+	// Get the Component Object
 	meta::Any obj(handle.Get());
 
+	// Check if we want redo or undo
 	if (a.redo)
 	{
+		// Update the data to the new value (redo)
 		obj.SetPointerMember(a.name, a.current.GetData<T>());
 	}
 	else
 	{
+		// Update the data with the old value (undo)
 		obj.SetPointerMember(a.name, a.save.GetData<T>());
 	}
 }
 
 
-#define AABB_Mouse_Action(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
-	if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
-	{																														 \
-		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
-		{																													 \
-			ACTION_S;																										 \
-		}																													 \
-	}																														
-
-#define AABB_Mouse_Action_Chain(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)												 \
-	else if (MOUSE_POSITION.x < BOX_POSITION.x + (BOX_SCALE.x / 2) && MOUSE_POSITION.x > BOX_POSITION.x - (BOX_SCALE.x / 2))      \
-	{																														 \
-		if (MOUSE_POSITION.y < BOX_POSITION.y + (BOX_SCALE.y / 2) && MOUSE_POSITION.y > BOX_POSITION.y - (BOX_SCALE.y / 2))  \
-		{																													 \
-			ACTION_S;																										 \
-		}																													 \
+// AABB Rectangle check for mouse
+//    This checks for non-collision
+#define AABB_Mouse_Action(MOUSE_POSITION, BOX_POSITION, BOX_SCALE, ACTION_S)													 \
+	if ((MOUSE_POSITION.x > BOX_POSITION.x + (BOX_SCALE.x / 2)) || (MOUSE_POSITION.x < BOX_POSITION.x - (BOX_SCALE.x / 2))  ||   \
+		(MOUSE_POSITION.y > BOX_POSITION.y + (BOX_SCALE.y / 2)) || (MOUSE_POSITION.y < BOX_POSITION.y - (BOX_SCALE.y / 2)))      \
+	{																															 \
+	}																															 \
+	else																														 \
+	{																															 \
+		ACTION_S;																												 \
 	}
+
 
 
 // Toggle Hitboxes
 void debugSetDisplayHitboxes(bool hitboxesShown);
+
+// ErrorList used by the Editor
 extern const char *ErrorList[];
 
+#ifdef _WIN32
+
+// Windows Code for Opening a Level
 void Editor::OpenLevel()
 {
+	// Save the path to the file
 	char filename[MAX_PATH] = { 0 };
 
+	// Struct to file before passing it to a function
 	OPENFILENAME file;
+
+	// Init the struct
 	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
 	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
 	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+
+	// Filter out any files that don't fit this format
 	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
 	file.lpstrFile = filename;
+
+	// The cout of the buffer
 	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
 	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
 	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
-
+	// Function Call to open the dialag box
 	if (GetOpenFileName(&file))
 	{
+		// Pass the filename to the engine
+		logger << "[EDITOR] Loading File: " << filename << "\n";
 		m_engine->FileLoad(filename);
 	}
 	else
 	{
+		// Print out any errors.
 		switch (CommDlgExtendedError())
 		{
 		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
@@ -130,28 +168,49 @@ void Editor::OpenLevel()
 }
 
 
+// Windows Code for Opening a Level
 void Editor::SaveLevel()
 {
+	// Save the path to the file
 	char filename[MAX_PATH] = { 0 };
 
+	// Struct to file before passing it to a function
 	OPENFILENAME file;
+
+	// Init the struct
 	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
 	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
 	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+
+	// Filter out any files that don't fit this format
 	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
 	file.lpstrFile = filename;
+
+	// The cout of the buffer
 	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
 	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
 	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 
-
+	// Function Call to open the dialag box
 	if (GetSaveFileName(&file))
 	{
+		// Log and load the file in the engine
 		logger << "[EDITOR] Saving File: " << filename << "\n";
 		m_engine->FileLoad(filename);
 	}
 	else
 	{
+		// Print out any errors.
 		switch (CommDlgExtendedError())
 		{
 		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
@@ -174,102 +233,33 @@ void Editor::SaveLevel()
 	}
 }
 
+#endif
 
-Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects(), m_state{ false, -1, -1, false }
+
+Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects()
 {
+	// Log we made it here!
 	logger << "Creating Editor.";
+
+	// Toggle off HitBoxes
 	debugSetDisplayHitboxes(false);
 	debugSetDisplayRaycasts(false);
-	m_objects.reserve(256);
 
-	// Style information
-	ImGuiStyle * style = &ImGui::GetStyle();
+	// Reserve space for efficiency
+	m_objects.reserve(256);
 
 	// Setup the imgui data
 	ImGui_ImplGlfwGL3_Init(window, true);
 
-	// Window styles
-	style->WindowPadding = ImVec2(15, 15);
-	style->WindowRounding = 5.0f;
-	style->FramePadding = ImVec2(5, 5);
-	style->FrameRounding = 4.0f;
-	style->ItemSpacing = ImVec2(12, 8);
-	style->ItemInnerSpacing = ImVec2(8, 6);
-	style->IndentSpacing = 25.0f;
-	style->ScrollbarSize = 15.0f;
-	style->ScrollbarRounding = 9.0f;
-	style->GrabMinSize = 5.0f;
-	style->GrabRounding = 3.0f;
+	// Init the style
+	ResetStyle();
 
-	// Window Colors
-	style->Colors[ImGuiCol_Text] = ImVec4(0.95f, 0.75f, 0.48f, 1.00f);
-	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-
-	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.15f, 0.17f, 1.00f);
-	style->Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-
-	style->Colors[ImGuiCol_PopupBg] = ImVec4(0.20f, 0.29f, 0.37f, 0.94f);
-
-	style->Colors[ImGuiCol_Border] = ImVec4(0.70f, 0.70f, 0.70f, 0.40f);
-	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-
-	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.30f);
-	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
-	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
-
-	style->Colors[ImGuiCol_TitleBg] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
-	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-
-	style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.32f, 0.22f, 0.22f, 1.00f);
-
-	style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
-	style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.40f, 0.40f, 0.80f, 0.30f);
-	style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.40f, 0.80f, 0.40f);
-	style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 0.40f);
-
-	style->Colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
-
-	style->Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.50f);
-	
-	style->Colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
-	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
-	
-	style->Colors[ImGuiCol_Button] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.85f, 0.51f, 0.33f, 1.00f);
-	
-	style->Colors[ImGuiCol_Header] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-	style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
-	style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.85f, 0.51f, 0.33f, 1.00f);
-	
-	style->Colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	style->Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.60f, 0.60f, 0.70f, 1.00f);
-	style->Colors[ImGuiCol_SeparatorActive] = ImVec4(0.70f, 0.70f, 0.90f, 1.00f);
-	
-	style->Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
-	style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
-	style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
-	
-	style->Colors[ImGuiCol_CloseButton] = ImVec4(0.50f, 0.50f, 0.90f, 0.50f);
-	style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.70f, 0.70f, 0.90f, 0.60f);
-	style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
-	
-	style->Colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-	
-	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
-	
-	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
-
-
+	// Help Command
 	auto help = [this]()
 	{
 		Editor::Internal_Log("    Commands Avaiable: \n");
 		
-		for (auto& cmd : m_commands)
+		for (auto& cmd : m_Console.m_commands)
 		{
 			Editor::Internal_Log("     - %s \n", cmd.second.command);
 		}
@@ -282,13 +272,13 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 	// Create gameobject
 	RegisterCommand("create", [this]() 
 	{ 
-		std::string name = m_line.substr(strlen("create "));
+		std::string name = m_Console.m_line.substr(strlen("create "));
 		QuickCreateGameObject(name.c_str()); 
 	});
 	
 	// Clear the log
-	RegisterCommand("clear", [this]() { Clear(); });
-	RegisterCommand("cls", [this]() { Clear(); });
+	RegisterCommand("clear", [this]() { m_Console.Clear(); });
+	RegisterCommand("cls", [this]() { m_Console.Clear(); });
 
 	// Exit the game, probably should be editor?
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
@@ -301,7 +291,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 	{
 		Editor::Internal_Log("    Command History: \n");
 
-		for (auto& history : m_log_history)
+		for (auto& history : m_Console.m_log_history)
 		{
 			Editor::Internal_Log("     - %s \n", history.c_str());
 		}
@@ -329,7 +319,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 	RegisterCommand("select",
 	[this]()
 	{
-		int seleted_id = atoi(m_line.substr(strlen("select ")).c_str());
+		int seleted_id = atoi(m_Console.m_line.substr(strlen("select ")).c_str());
 
 		for (auto object : m_objects)
 		{
@@ -341,12 +331,13 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 		}
 	});
 
-	m_log_history.reserve(100);
+	m_Console.m_log_history.reserve(100);
 }
 
 
 Editor::~Editor()
 {
+	// Close ImGui
 	ImGui_ImplGlfwGL3_Shutdown();
 }
 
@@ -393,6 +384,7 @@ void Editor::Update()
 		// Move, Scale, Rotate
 		Tools();
 
+		// Check if we should freeze the world state
 		if (m_editorState.freeze)
 		{
 			m_engine->GetDtObject() = 0;
@@ -408,9 +400,10 @@ void Editor::Update()
 			SettingsPanel(1 / 60.0f);
 		}
 		
+		// Check if we need to print the console
 		if (m_editorState.console)
 		{
-			Console();
+			m_Console.Draw();
 		}
 
 		// Display
@@ -437,8 +430,10 @@ void Editor::Update()
 			}
 		#endif
 
+		// Render the ImGui frame
 		ImGui::Render();
 
+		// Reset the state of things if we are leaving
 		if (m_editorState.exiting)
 		{
 			m_editorState.first_update = true;
@@ -452,18 +447,104 @@ void Editor::Update()
 }
 
 
-// Register a command using a lambda
-void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
+// Called whenever the Window is Resized
+void Editor::ResizeEvent(int w, int h)
 {
-	m_commands.emplace(hash(command), Command(command, strlen(command), f));
+	m_editor_cam.SetAspectRatio(static_cast<float>(w) / h);
+}
+
+
+void Editor::ResetStyle()
+{
+	// Style information
+	ImGuiStyle * style = &ImGui::GetStyle();
+
+	// Window styles
+	style->WindowPadding = ImVec2(15, 15);
+	style->WindowRounding = 5.0f;
+	style->FramePadding = ImVec2(5, 5);
+	style->FrameRounding = 4.0f;
+	style->ItemSpacing = ImVec2(12, 8);
+	style->ItemInnerSpacing = ImVec2(8, 6);
+	style->IndentSpacing = 25.0f;
+	style->ScrollbarSize = 15.0f;
+	style->ScrollbarRounding = 9.0f;
+	style->GrabMinSize = 5.0f;
+	style->GrabRounding = 3.0f;
+
+	// Window Colors
+	style->Colors[ImGuiCol_Text] = ImVec4(0.95f, 0.75f, 0.48f, 1.00f);
+	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+
+	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.12f, 0.15f, 0.17f, 1.00f);
+	style->Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
+	style->Colors[ImGuiCol_PopupBg] = ImVec4(0.20f, 0.29f, 0.37f, 0.94f);
+
+	style->Colors[ImGuiCol_Border] = ImVec4(0.70f, 0.70f, 0.70f, 0.40f);
+	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
+	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.30f);
+	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
+	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
+
+	style->Colors[ImGuiCol_TitleBg] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
+	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+
+	style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.32f, 0.22f, 0.22f, 1.00f);
+
+	style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
+	style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.40f, 0.40f, 0.80f, 0.30f);
+	style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.40f, 0.80f, 0.40f);
+	style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 0.40f);
+
+	style->Colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
+
+	style->Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.50f);
+
+	style->Colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
+
+	style->Colors[ImGuiCol_Button] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.85f, 0.51f, 0.33f, 1.00f);
+
+	style->Colors[ImGuiCol_Header] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+	style->Colors[ImGuiCol_HeaderHovered] = ImVec4(0.82f, 0.28f, 0.25f, 1.00f);
+	style->Colors[ImGuiCol_HeaderActive] = ImVec4(0.85f, 0.51f, 0.33f, 1.00f);
+
+	style->Colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	style->Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.60f, 0.60f, 0.70f, 1.00f);
+	style->Colors[ImGuiCol_SeparatorActive] = ImVec4(0.70f, 0.70f, 0.90f, 1.00f);
+
+	style->Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
+	style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
+
+	style->Colors[ImGuiCol_CloseButton] = ImVec4(0.50f, 0.50f, 0.90f, 0.50f);
+	style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.70f, 0.70f, 0.90f, 0.60f);
+	style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+
+	style->Colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+
+	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
+
+	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
 
 // External Log that displays date
 void Editor::Log(const char *log_message, ...)
 {
+	// Buffers to save print data into
 	char time_buffer[64];
 	char buffer[512];
+
+	// Variadic Stack Data
 	va_list args;
 	va_start(args, log_message);
 
@@ -473,17 +554,22 @@ void Editor::Log(const char *log_message, ...)
 	#pragma warning(disable : 4996)
 	strftime(time_buffer, 64, "[%H:%M:%S]", std::localtime(&t));
 
+	// Pass the parameters to printf
 	vsnprintf(buffer, 512, log_message, args);
 
-	m_log_buffer.append("%s - %s\n", time_buffer, buffer);
+	// Append onto the log buffer
+	m_Console.m_log_buffer.append("%s - %s\n", time_buffer, buffer);
 
 	va_end(args);
 
-	m_offsets.push_back(m_log_buffer.size() - 1);
+	// Add a line
+	m_Console.m_offsets.push_back(m_Console.m_log_buffer.size() - 1);
 
+	// Log the message to the console
 	Logging::Log_Editor(Logging::Channel::CORE, Logging::Priority::MEDIUM_PRIORITY, buffer);
 
-	m_scroll = true;
+	// Tell the console to scroll down
+	m_Console.m_scroll = true;
 }
 
 
@@ -494,10 +580,93 @@ void Editor::Internal_Log(const char * log_message, ...)
 	// Add to the log buffer
 	va_list args;
 	va_start(args, log_message);
-	m_log_buffer.appendv(log_message, args);
+	
+	m_Console.m_log_buffer.appendv(log_message, args);
+	
 	va_end(args);
-	m_offsets.push_back(m_log_buffer.size() - 1);
-	m_scroll = true;
+	
+	m_Console.m_offsets.push_back(m_Console.m_log_buffer.size() - 1);
+	m_Console.m_scroll = true;
+}
+
+
+// Check all the Editor KeyBindings
+void Editor::KeyBindings()
+{
+	// Widget
+	if (Input::IsPressed(Key::Q))
+	{
+		m_gizmo = Editor::Gizmo::none;
+	}
+
+	// Translation
+	else if (Input::IsPressed(Key::W))
+	{
+		m_gizmo = Editor::Gizmo::Translation;
+	}
+
+	// Scale
+	else if (Input::IsPressed(Key::E))
+	{
+		m_gizmo = Editor::Gizmo::Scale;
+	}
+
+	// Rotation
+	else if (Input::IsPressed(Key::R))
+	{
+		m_gizmo = Editor::Gizmo::Rotation;
+	}
+
+
+	// Undo
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
+	{
+		if (m_actions.size)
+		{
+			Undo_Action();
+		}
+	}
+
+	// Redo
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
+	{
+		if (m_actions.history.size() > m_actions.size)
+		{
+			Redo_Action();
+		}
+	}
+
+	// Save the Level
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
+	{
+		if (m_actions.history.size())
+		{
+			m_engine->FileSave(m_filename);
+		}
+		else
+		{
+			AddPopUp(PopUpWindow("No Changes to save.", 2.0f, PopUpPosition::BottomLeft));
+		}
+	}
+
+	// Open Dialog Box
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
+	{
+		OpenLevel();
+	}
+
+	// Move Camera to Object
+	if (Input::IsPressed(Key::Space))
+	{
+		// Move Camera to object
+		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+	}
+
+	// Play/Pause the Editor
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Space))
+	{
+		m_editorState.freeze = !m_editorState.freeze;
+	}
 }
 
 
@@ -580,9 +749,11 @@ void Editor::OnClick()
 	// Check for mouse 1 click
 	if (Input::IsPressed(Key::Mouse_1))
 	{
+		// Get the Mouse Position, save it as a previous position as well
 		const glm::vec2 mouse = Input::GetMousePos_World();
 		m_prevMouse = mouse;
 
+		// Check if ImGui needs the mouse
 		if (ImGui::IsAnyWindowHovered())
 		{
 			m_editorState.imguiWantMouse = true;
@@ -590,12 +761,15 @@ void Editor::OnClick()
 		}
 		else
 		{
+			// ImGui does not want the mouse
 			m_editorState.imguiWantMouse = false;
 		}
 
+		// Position and Scale of the Current Object
 		glm::vec2 pos;
 		glm::vec2 scale;
 
+		// Check the current object first, cache basically
 		if (m_selected_object)
 		{
 			ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
@@ -603,12 +777,13 @@ void Editor::OnClick()
 			scale = transform.Get()->GetScale();
 
 			// Check the selected object first
-			if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
+			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
+				mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
 			{
-				if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
-				{
-					return;
-				}
+			}
+			else
+			{
+				return;
 			}
 		}
 
@@ -617,122 +792,45 @@ void Editor::OnClick()
 		{
 			if (id)
 			{
+				// Get the GameObject id
 				GameObject object = id;
+
+				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
 				scale = transform.Get()->GetScale();
 				pos = transform.Get()->GetPosition();
 
-				if (mouse.x < pos.x + (scale.x / 2) && mouse.x > pos.x - (scale.x / 2))
+				// Check for non-collision
+				if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
+					mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
 				{
-					if (mouse.y < pos.y + (scale.y / 2) && mouse.y > pos.y - (scale.y / 2))
-					{
-						// Save the GameObject data
-						m_selected_object = transform.GetGameObject().Getid();
-						return;
-
-
-						//m_cache_objects.emplace_back(m_selected_object);
-					}
+					continue;
 				}
+
+				// Save the GameObject data
+				m_selected_object = transform.GetGameObject().Getid();
+				return;
 			}
 		}
 
+		// Deselect the object if nothing was found
 		m_selected_object = 0;
 	}
 }
 
 
-
-void Editor::KeyBindings()
+// Averages between positions
+static glm::vec2 Average_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
 {
-	// Widget
-	if (Input::IsPressed(Key::Q))
-	{
-		m_tool = Editor::Tool::none;
-	}
-
-	// Translation
-	else if (Input::IsPressed(Key::W))
-	{
-		m_tool = Editor::Tool::Translation;
-	}
-
-	// Scale
-	else if (Input::IsPressed(Key::E))
-	{
-		m_tool = Editor::Tool::Scale;
-	}
-
-	// Rotation
-	else if (Input::IsPressed(Key::R))
-	{
-		m_tool = Editor::Tool::Rotation;
-	}
-
-
-	// Undo
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
-	{
-		if (m_actions.size)
-		{
-			Undo_Action();
-		}
-	}
-
-	// Redo
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Y))
-	{
-		if (m_actions.history.size() > m_actions.size)
-		{
-			Redo_Action();
-		}
-	}
-
-	// Save the Level
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
-	{
-		if (m_actions.history.size())
-		{
-			m_engine->FileSave(m_filename);
-		}
-		else
-		{
-			AddPopUp(PopUpWindow("No Changes to save.", 2.0f, PopUpPosition::BottomLeft));
-		}
-	}
-
-	// Open Dialog Box
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
-	{
-		OpenLevel();
-	}
-
-	// Move Camera to Object
-	if (Input::IsPressed(Key::Space))
-	{
-		// Move Camera to object
-		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
-	}
-
-	// Play/Pause the Editor
-	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Space))
-	{
-		m_editorState.freeze = !m_editorState.freeze;
-	}
-}
-
-
-static glm::vec2 Lerp_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
-{
-	glm::vec2 lerp;
+	glm::vec2 avg;
 
 	for (size_t i = 0; i < objects.m_size; i++)
 	{
 		// f = t * b + a(1 - t)
-		lerp += GameObject(objects[i]).GetComponent<TransformComponent>()->GetPosition();
+		avg += GameObject(objects[i]).GetComponent<TransformComponent>()->GetPosition();
 	}
 	
-	return lerp / glm::vec2(static_cast<float>(objects.m_size));
+	return avg / glm::vec2(static_cast<float>(objects.m_size));
 }
 
 
@@ -743,16 +841,16 @@ void Editor::Tools()
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
 		{
-			pos = Lerp_Pos(m_multiselect);
+			pos = Average_Pos(m_multiselect);
 		}
 		else
 		{
 			pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
 		}
 
-		switch (m_tool)
+		switch (m_gizmo)
 		{
-		case Tool::Translation:
+		case Gizmo::Translation:
 		{
 			// delta Mouse Pos
 			glm::vec2 mouse = Input::GetMousePos_World();
@@ -780,9 +878,9 @@ void Editor::Tools()
 					// foreach object add the mouseChange to its position
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
 					{
-						GameObject object = m_multiselect[i];
+						GameObject gameObject = m_multiselect[i];
 
-						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
 					}
 				}
 				else
@@ -862,7 +960,7 @@ void Editor::Tools()
 
 			break;
 		}
-		case Tool::Scale:
+		case Gizmo::Scale:
 		{
 			GameObject object = m_selected_object;
 
@@ -879,9 +977,12 @@ void Editor::Tools()
 			// Position of the boxes
 			glm::vec2 box_pos(pos.x + (scale.x / 2) - (0.15f / 2), pos.y);
 
-			//DebugGraphic::DrawShape(pos, glm::vec2(1, 1), 0.0f, glm::vec4(HexVec(0x64d622), 1));
-
 			// Detect which direction
+
+			// DIRECTION
+			//    Draw a Square to Represent the space to grab
+			//    Draw Other square to improve visability
+			//    AABB Mouse Detection
 
 			// X Direction
 			DebugGraphic::DrawSquare(box_pos, box_scale, 0.0f, glm::vec4(HexVec(0xFFFF00), 1));
@@ -908,9 +1009,6 @@ void Editor::Tools()
 			{
 				// delta Mouse pos
 				glm::vec2 mouseChange = mouse - m_prevMouse;
-
-				// New Scale, so start at object's current scale
-				glm::vec3 scale = object.GetComponent<TransformComponent>()->GetScale();
 
 				// Check if we need to save the old value of the object
 				if (!m_editorState.MouseDragClick)
@@ -949,7 +1047,7 @@ void Editor::Tools()
 					break;
 				}
 
-				object.GetComponent<TransformComponent>()->SetScale(scale);
+				object.GetComponent<TransformComponent>()->SetScale(glm::vec3(scale, 1));
 
 				m_prevMouse = mouse;
 			}
@@ -964,7 +1062,8 @@ void Editor::Tools()
 			break;
 
 		}
-		case Tool::Rotation:
+
+		case Gizmo::Rotation:
 		{
 			GameObject object = m_selected_object;
 
@@ -972,19 +1071,14 @@ void Editor::Tools()
 			float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
 			circle /= 3.0f;
 
+			// Gizmo circle
 			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xc722d6), 1));
 			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xc722d6), 1));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
-				
-
-
 				// Mouse Position
 				glm::vec2 mouse = Input::GetMousePos_World();
-
-				// delta Mouse
-				glm::vec2 mouseChange = mouse - m_prevMouse;
 
 				// Distance between mouse and object
 				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);
@@ -1030,6 +1124,10 @@ void Editor::Tools()
 
 			break;
 		}
+
+		case Gizmo::none:
+			break;
+
 		default:
 			logger << "[EDITOR] Invalid tool value.\n";
 			break;
@@ -1258,7 +1356,7 @@ void Editor::ObjectsList()
 }
 
 
-void Editor::SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex)
+void Editor::Console::SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex)
 {
 	// Copy in the data  from the command
 	memmove(data->Buf, m_commands[entryIndex].command, m_commands[entryIndex].cmd_length);
@@ -1270,7 +1368,7 @@ void Editor::SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex)
 }
 
 
-void Editor::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
+void Editor::Console::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
 {
 	// Copy in the data  from the command
 	memmove(data->Buf, m_log_history[entryIndex].c_str(), m_log_history[entryIndex].size());
@@ -1282,7 +1380,7 @@ void Editor::SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex)
 }
 
 
-void Editor::SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex)
+void Editor::Console::SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex)
 {
 	// Copy in the data  from the command
 	memmove(data->Buf, m_matches[entryIndex], strlen(m_matches[entryIndex]));
@@ -1294,7 +1392,7 @@ void Editor::SetActive_Completion(ImGuiTextEditCallbackData *data, int entryInde
 }
 
 
-void SetInput_Blank(ImGuiTextEditCallbackData *data)
+void Editor::Console::SetInput_Blank(ImGuiTextEditCallbackData *data)
 {
 	// Copy in the data  from the command
 	// memmove(data->Buf, "", 0);
@@ -1307,7 +1405,7 @@ void SetInput_Blank(ImGuiTextEditCallbackData *data)
 
 
 // Alternative StrCmp
-bool Command_StrCmp(const char *str1, const char *str2)
+bool Editor::Console::Command_StrCmp(const char *str1, const char *str2)
 {
 	// Check if the current letters are the same
 	while (!(*str1 ^ *str2++))
@@ -1321,7 +1419,8 @@ bool Command_StrCmp(const char *str1, const char *str2)
 
 
 // This is from imgui, it returns how much alike two strings are
-static int Strnicmp(const char* str1, const char* str2, int n) 
+//    This function works magic
+int Editor::Console::Strnicmp(const char* str1, const char* str2, int n)
 { 
 	int d = 0; 
 	while (n > 0 && (d = toupper(*str2) - toupper(*str1)) == 0 && *str1) 
@@ -1334,21 +1433,79 @@ static int Strnicmp(const char* str1, const char* str2, int n)
 }
 
 
-int Input_Editor(ImGuiTextEditCallbackData *data)
+// External Log that displays date
+void Editor::Console::Log(const char *log_message, ...)
 {
-	Editor *editor = reinterpret_cast<Editor *>(data->UserData);
+	// Buffers to save print data into
+	char time_buffer[64];
+	char buffer[512];
 
+	// Variadic Stack Data
+	va_list args;
+	va_start(args, log_message);
+
+	auto t = std::time(nullptr);
+
+	// This is the unsafe function warning
+#pragma warning(disable : 4996)
+	strftime(time_buffer, 64, "[%H:%M:%S]", std::localtime(&t));
+
+	// Pass the parameters to printf
+	vsnprintf(buffer, 512, log_message, args);
+
+	// Append onto the log buffer
+	m_log_buffer.append("%s - %s\n", time_buffer, buffer);
+
+	va_end(args);
+
+	// Add a line
+	m_offsets.push_back(m_log_buffer.size() - 1);
+
+	// Log the message to the console
+	Logging::Log_Editor(Logging::Channel::CORE, Logging::Priority::MEDIUM_PRIORITY, buffer);
+
+	// Tell the console to scroll down
+	m_scroll = true;
+}
+
+
+// Log Data, works like printf
+// This internal log doesnt show datetime
+void Editor::Console::Internal_Log(const char * log_message, ...)
+{
+	// Add to the log buffer
+	va_list args;
+	va_start(args, log_message);
+
+	// Append the log message to the buffer
+	m_log_buffer.appendv(log_message, args);
+
+	va_end(args);
+
+	m_offsets.push_back(m_log_buffer.size() - 1);
+	m_scroll = true;
+}
+
+
+// Callback whenever something is typed into the console
+//    Mostly used for the popup being displayed
+int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data)
+{
+	// Get the console pointer we passed in
+	Console *console = reinterpret_cast<Console *>(data->UserData);
+
+	// Check which event happened
 	switch (data->EventFlag)
 	{
 		// When you hit tab
 	case ImGuiInputTextFlags_CallbackCompletion:
-		if (editor->m_matches.size())
+		if (console->m_matches.size())
 		{
 			// Delete the input buffer
 			data->DeleteChars(0, static_cast<int>(strlen(data->Buf)));
 
 			// Insert the command into the input buffer
-			data->InsertChars(data->CursorPos, editor->m_matches[0], editor->m_matches[0] + strlen(editor->m_matches[0]));
+			data->InsertChars(data->CursorPos, console->m_matches[0], console->m_matches[0] + strlen(console->m_matches[0]));
 		}
 		break;
 
@@ -1357,24 +1514,27 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 			// editor->m_state.m_popUp = true;
 			
 			// Check if arrow keys are pressed and if the current item is at the end
-			if (data->EventKey == ImGuiKey_UpArrow && (editor->m_state.activeIndex < static_cast<int>(editor->m_log_history.size() - 1)))
+			if (data->EventKey == ImGuiKey_UpArrow && (console->m_state.activeIndex < static_cast<int>(console->m_log_history.size() - 1)))
 			{
 				// Increase the active index and copy in the command
-				editor->m_state.activeIndex++;
-				editor->SetActive_History(data, static_cast<int>(editor->m_log_history.size() - editor->m_state.activeIndex) - 1);
+				console->m_state.activeIndex++;
+				console->SetActive_History(data, static_cast<int>(console->m_log_history.size() - console->m_state.activeIndex) - 1);
 			}
-			else if (data->EventKey == ImGuiKey_DownArrow && (editor->m_state.activeIndex > -1))
+			else if (data->EventKey == ImGuiKey_DownArrow && (console->m_state.activeIndex > -1))
 			{
 				// Decrease the state and copy in "" if nothing is left, otherwise copy in the command
-				editor->m_state.activeIndex--;
+				console->m_state.activeIndex--;
 
-				if (editor->m_state.activeIndex == -1)
+				// Check if we are in an inactive state
+				if (console->m_state.activeIndex == -1)
 				{
+					// Erase everything in the input
 					SetInput_Blank(data);
 				}
 				else
 				{
-					editor->SetActive_History(data, static_cast<int>(editor->m_log_history.size() - editor->m_state.activeIndex) - 1);
+					// Set the next item in history
+					console->SetActive_History(data, static_cast<int>(console->m_log_history.size() - console->m_state.activeIndex) - 1);
 				}
 			}
 		break;
@@ -1382,13 +1542,13 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 		// This happens all the time
 	case ImGuiInputTextFlags_CallbackAlways:
 			// Clear the data in the matches vector, but dont free the alloc'd memory
-			editor->m_matches.clear();
+			console->m_matches.clear();
 
 			// Make sure there is data to read from
 			if (data->Buf && data->BufTextLen > 0)
 			{
 				// If there is data then the popup needs to be drawn
-				editor->m_state.m_popUp = true;
+				console->m_state.m_popUp = true;
 
 				// Get the word from the data
 				const char *word_end = data->Buf + data->CursorPos;
@@ -1408,18 +1568,19 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 					--word_start;
 				}
 
-
-				for (auto& command : editor->m_commands)
+				// Check the word against commands for matches
+				for (auto& command : console->m_commands)
 				{
 					if (Strnicmp(command.second.command, word_start, static_cast<int>((word_end - word_start))) == 0)
 					{
-						editor->m_matches.push_back(command.second.command);
+						// Save the matches
+						console->m_matches.push_back(command.second.command);
 					}
 				}
 
 
 				// Check if there were matches
-				if (editor->m_matches.Data)
+				if (console->m_matches.Data)
 				{
 					// Get the length of the match
 					int length = static_cast<int>(word_end - word_start);
@@ -1430,18 +1591,23 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 						char character = 0;
 						bool all_matches_made = true;
 
-						for (int i = 0; i < editor->m_matches.Size && all_matches_made; ++i)
+						// Print out the matches
+						for (int i = 0; i < console->m_matches.Size && all_matches_made; ++i)
 						{
-							if (i == 0 && length < editor->m_matches.Size)
+							// Read a character
+							if (i == 0 && length < console->m_matches.Size)
 							{
-								character = editor->m_matches[i][length];
+								character = console->m_matches[i][length];
 							}
-							else if (character == 0 || character != editor->m_matches[i][length])
+
+							// Check if are finished with comparing the strings
+							else if (character == 0 || character != console->m_matches[i][length])
 							{
 								all_matches_made = false;
 							}
 						}
 
+						// Break when we are done
 						if (!all_matches_made)
 						{
 							break;
@@ -1449,21 +1615,22 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 						length++;
 					}
 
+					// Input the selected command into the input buffer
 					if (length > 0)
 					{
 						data->DeleteChars(static_cast<int>(word_start - data->Buf), static_cast<int>(word_end - word_start));
-						data->InsertChars(data->CursorPos, editor->m_matches[0], editor->m_matches[0] + length);
+						data->InsertChars(data->CursorPos, console->m_matches[0], console->m_matches[0] + length);
 					}
 				}
 			}
 
 			// Get the clicked indexed item and reset the popup state
-			if (editor->m_state.clickedIndex != -1)
+			if (console->m_state.clickedIndex != -1)
 			{
-				editor->SetActive(data, editor->m_state.clickedIndex);
-				editor->m_state.activeIndex = -1;
-				editor->m_state.clickedIndex = -1;
-				editor->m_state.m_popUp = false;
+				console->SetActive(data, console->m_state.clickedIndex);
+				console->m_state.activeIndex = -1;
+				console->m_state.clickedIndex = -1;
+				console->m_state.m_popUp = false;
 			}
 		break;
 
@@ -1479,84 +1646,142 @@ int Input_Editor(ImGuiTextEditCallbackData *data)
 }
 
 
+// Toggle the flag that Shows/Hides the Editor
 void Editor::ToggleEditor()
 {
 	m_editorState.show = !m_editorState.show;
 }
 
 
+// Menubar running the top of the screen.
+//    Serves as a home for certain actions
 void Editor::MenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		// File -- Standard on all MenuBars
 		if (ImGui::BeginMenu("File"))
 		{
+			// Save the current game
 			if (ImGui::MenuItem("Save"))
 			{
 				m_save = true;
 			}
 
+			// Load an file
 			if (ImGui::MenuItem("Load"))
 			{
 				m_load = true;
 			}
 
+			// Separator to show a different item group
 			ImGui::Separator();
 
+			// Exit the game
 			if (ImGui::MenuItem("Exit"))
 			{
 				m_engine->Exit();
 			}
 
+			// Pop the menu
 			ImGui::EndMenu();
 		}
+
+		// Push a new menu
 		if (ImGui::BeginMenu("Edit"))
 		{
+			// Check if there is anything to undo
 			if (m_actions.size)
 			{
+				// If so, make it clickable
 				if (ImGui::MenuItem("Undo", "CTRL+Z"))
 				{
 					Undo_Action();
 				}
 			}
+
+			// If there is nothing to undo, disable the button
 			else
 			{
 				ImGui::MenuItem("Undo", "CTRL+Z", false, false);
 			}
 			
+			// Check if it is safe to redo
 			if (m_actions.history.size() != m_actions.size)
 			{
+				// If so, make it clickable
 				if (ImGui::MenuItem("Redo", "CTRL+Y"))
 				{
 					Redo_Action();
 				}
 			}
+
+			// If there is nothing to redo, disable it
 			else
 			{
 				ImGui::MenuItem("Redo", "CTRL+Y", false, false);
 			}
 
+			// Pop the menu
 			ImGui::EndMenu();
 		}
 
+		// Push next menu
 		if (ImGui::BeginMenu("Windows"))
 		{
+			// Button Toggle for the Settings Panel
 			if (ImGui::MenuItem("Settings", nullptr, m_editorState.settings))
 			{
 				m_editorState.settings = !m_editorState.settings;
 			}
 
+			// Button Toggle for the Objects List Panel
 			if (ImGui::MenuItem("Object List", nullptr, m_editorState.objectList))
 			{
 				m_editorState.objectList = !m_editorState.objectList;
 			}
+
+			// Button Toggle for the Objects List Panel
+			if (ImGui::MenuItem("Console", nullptr, m_editorState.console))
+			{
+				m_editorState.console = !m_editorState.console;
+			}
+
 			ImGui::EndMenu();
 		}
 
+		// Run the Save/Load update
 		SaveLoad();
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+
+// Watches for Saving and Loading
+void Editor::SaveLoad()
+{
+	// Check if we need to save
+	if (m_save)
+	{
+		logger << "[EDITOR] Saving Level Dialog\n";
+		SaveLevel();
+		m_save = false;
+	}
+
+	// Check if we need to load
+	if (m_load)
+	{
+		logger << "[EDITOR] Opening Level Dialog\n";
+		OpenLevel();
+		m_load = false;
+	}
+}
+
+
+static unsigned long long FileTimeToInt64(const FILETIME & ft) 
+{
+	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
 }
 
 
@@ -1576,51 +1801,6 @@ static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long t
 }
 
 
-void Editor::SaveLoad()
-{
-	if (m_save)
-	{
-		//ImGui::OpenPopup("##menu_save_pop_up");
-		SaveLevel();
-		m_save = false;
-	}
-	else if (m_load)
-	{
-		logger << "Opening Level\n";
-		OpenLevel();
-		m_load = false;
-	}
-
-
-	if (ImGui::BeginPopup("##menu_save_pop_up"))
-	{
-		ImGui::PushItemWidth(180);
-		if (ImGui::InputText("Filename", m_filename, sizeof(m_filename), ImGuiInputTextFlags_EnterReturnsTrue))
-		{
-			engine->FileSave(m_filename);
-			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::PopItemWidth();
-
-		if (ImGui::Button("Save"))
-		{
-			engine->FileSave(m_filename);
-			AddPopUp(PopUpWindow("Game Saved", 2.0f, PopUpPosition::BottomRight));
-			ImGui::CloseCurrentPopup();
-		}
-		m_save = false;
-		ImGui::EndPopup();
-	}
-}
-
-
-static unsigned long long FileTimeToInt64(const FILETIME & ft) 
-{
-	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
-}
-
-
 float GetCPULoad()
 {
 	FILETIME idleTime, kernelTime, userTime;
@@ -1628,62 +1808,90 @@ float GetCPULoad()
 }
 
 
+// Settings Panel in the editor
+//     Houses a bunch of useful stuff, needs some UI/UX work
 void Editor::SettingsPanel(float dt)
 {
 	using namespace ImGui;
+
+	// Timer for CPU usage
 	static float timer = 0.0f;
 
-	SetNextWindowSize(ImVec2(250, 400));
+	// Setup the size and Position of this window
+	SetNextWindowSize(ImVec2(250, 400), ImGuiCond_Once);
 	SetNextWindowPos(ImVec2(0, 432), ImGuiCond_Once);
-	Begin("Settings", nullptr, ImGuiWindowFlags_NoResize);
 
+	// Start the Settings panel
+	Begin("Settings", nullptr);
+
+	// Struct to get the memory usage
 	PROCESS_MEMORY_COUNTERS pmc;
+
+	// Get the memory info
 	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+
+	// Save the total memory used by this process
 	SIZE_T virtualMemUsedByMe = pmc.WorkingSetSize;
 
+	// Print out the data
 	Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
 	Text("CPU: %f%%", m_cpu_load[0]);
-
-	// PlotLines("", m_cpu_load.m_array, _countof(m_cpu_load.m_array), 0, nullptr, 0, 100, ImVec2(0, 50));
-
+	
+	// Add time to the timer
 	timer += dt;
+
+	// Check if we should read the CPU load
 	if (timer > 0.75f)
 	{
+		// Push to the back but shift everything forward one
 		m_cpu_load.push_back_pop_front(GetCPULoad() * 100.0f);
+
+		// set a new cpu peak
 		if (m_cpu_peak < m_cpu_load[m_cpu_load.m_size - 1])
 		{
 			m_cpu_peak = m_cpu_load[m_cpu_load.m_size - 1];
 		}
+
+		// reset the timer
 		timer = 0.0f;
 	}
 
+	// Define here if need to change all buttons sizes in this panel
 #define SETTINGS_BUTTON_SIZE 
 
+	// Console Button Toggle
 	if (ImGui::Button("Console" SETTINGS_BUTTON_SIZE))
 	{
 		m_editorState.console = !m_editorState.console;
 	}
 
+	// Separates groups
 	ImGui::Separator();
 
+	// Save the current data
 	if (Button("Save##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
 		m_save = true;
 	}
 	SameLine();
+
+	// Load a file
 	if (Button("Load##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
 		m_load = true;
 	}
 
+	// New Group
 	ImGui::Separator();
 
+	// Freeze/Unfreeze the game
 	if (Button("Play/Pause##editor_panel" SETTINGS_BUTTON_SIZE))
 	{
 		m_editorState.freeze = !m_editorState.freeze;
 	}
-	
 	SameLine();
+
+	// Reload the lua scripts
 	if (ImGui::Button("Reload" SETTINGS_BUTTON_SIZE))
 	{
 
@@ -1692,16 +1900,20 @@ void Editor::SettingsPanel(float dt)
 
 	ImGui::Separator();
 
+	// Pulls up the Editor Keybinds
 	if (ImGui::Button("Keybinds" SETTINGS_BUTTON_SIZE))
 	{
 		
 	}
 	SameLine();
+
+	// Pulls up the style editor
 	if (ImGui::Button("Style Editor" SETTINGS_BUTTON_SIZE))
 	{
 		OpenPopup("##editor_settings_style");
 	}
 
+	// ImGui Popup for changing the style
 	if (ImGui::BeginPopup("##editor_settings_style"))
 	{
 		ImGui::ShowStyleEditor();
@@ -1713,12 +1925,14 @@ void Editor::SettingsPanel(float dt)
 }
 
 
-bool Editor::PopUp(ImVec2& pos, ImVec2& size)
+// Text feedback popup -- display command matches to current input
+bool Editor::Console::PopUp(ImVec2& pos, ImVec2& size)
 {
 	// Make sure the popup needs to be seen
 	if (!m_state.m_popUp || !m_matches.size())
 		return false;
 
+	// Flags for the dummy window
 	ImGuiWindowFlags flags = 
         ImGuiWindowFlags_NoTitleBar          | 
         ImGuiWindowFlags_NoResize            |
@@ -1732,8 +1946,11 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 	// Popup begin
 	ImGui::SetNextWindowPos(pos);
 	ImGui::SetNextWindowSize(size);
-	ImGui::Begin("console_popup", nullptr, flags);
+
+	// Dummy Window, used to add things to
+	ImGui::Begin("console_popup##console_dummy_window", nullptr, flags);
 	
+	// Prevent the keyboard here
 	ImGui::PushAllowKeyboardFocus(false);
 
 	// Go through the matches found from the input text
@@ -1741,8 +1958,11 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 	{
 		// Check if the item is the hovered or active for colors
 		bool isActiveIndex = m_state.activeIndex == i;
+
+		// Check if we are at the active index
 		if (isActiveIndex)
 		{
+			// Push a different style for the active one
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(HexVecA(0x072f70FF)));
 		}
 		
@@ -1754,31 +1974,60 @@ bool Editor::PopUp(ImVec2& pos, ImVec2& size)
 		}
 		ImGui::PopID();
 
+		// Check if the current hovered/selected is the index
 		if (isActiveIndex)
 		{
+			// Mark that one has been hovered
 			if (m_state.m_selection_change)
 			{
 				ImGui::SetScrollHere();
 				m_state.m_selection_change = false;
 			}
 
+			// Pop the style pushed
 			ImGui::PopStyleColor(1);
 		}
 	}
 
+	// Check if this popup has focus
 	bool isFocuesed = ImGui::IsRootWindowFocused();
 
+	// Allow keyboard again
 	ImGui::PopAllowKeyboardFocus();
+
+	// Pop the window
 	ImGui::End();
+
+	// Pop the style
 	ImGui::PopStyleVar(1);
+
+	// Return the focus variable
 	return isFocuesed;
 }
 
 
-void Editor::Console()
+// Register a command with the Console of the Editor
+void Editor::RegisterCommand(const char *command, std::function<void()>&& f)
+{
+	m_Console.RegisterCommand(command, std::forward<std::function<void()>>(f));
+}
+
+
+// Register a command using a lambda
+void Editor::Console::RegisterCommand(const char *command, std::function<void()>&& f)
+{
+	// Hash the string and save the command 
+	m_commands.emplace(hash(command), Command(command, strlen(command), f));
+}
+
+
+// ImGui interface with console data
+void Editor::Console::Draw()
 {
 	// Setup a char * buffer and tell imgui to draw the console the first time in the center
 	char command_buffer[1024] = { 0 };
+
+	// Center Console the first time it is created
 	ImGui::SetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
 
 	// Setup the console window flags
@@ -1788,23 +2037,36 @@ void Editor::Console()
 		winflags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 	}
 
+	// Set the size once
 	ImGui::SetNextWindowSize(ImVec2(800, 550), ImGuiSetCond_FirstUseEver);
+
+	// Push the window
 	ImGui::Begin("Console", nullptr, winflags);
 
+	// Clear the Buffer data
 	if (ImGui::Button("Clear Log"))
 	{
 		Clear();
 	}
 
+	// Draw button on same line as previous element
 	ImGui::SameLine();
+
+	// Push Style
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+
+	// Copy the Log to a clipboard
 	if (ImGui::Button("Copy"))
 	{
 		ImGui::LogToClipboard();
 	}
+
+	// Pop Style
 	ImGui::PopStyleVar();
 	
 	ImGui::SameLine();
+
+	// Draw the filter
 	m_log_filter.Draw("Filter", -100.0f);
 
 	// The log box itself
@@ -1838,6 +2100,9 @@ void Editor::Console()
 		// Put the text out without a filter
 		ImGui::TextUnformatted(m_log_buffer.begin());
 	}
+
+
+	// Scroll down in the console
 	if (m_scroll)
 	{
 		ImGui::SetScrollHere(1.0f);
@@ -1859,7 +2124,8 @@ void Editor::Console()
 				 ImGuiInputTextFlags_CallbackCompletion   |
 				 ImGuiInputTextFlags_CallbackHistory;
 
-	if (ImGui::InputText("", command_buffer, sizeof(command_buffer), flags, Input_Editor, this))
+	// Input into the console buffer
+	if (ImGui::InputText("", command_buffer, sizeof(command_buffer), flags, Input_Callback, this))
 	{
 		// Get the line data and save it for parameters
 		m_line = command_buffer;
@@ -1883,7 +2149,9 @@ void Editor::Console()
 			if (first_of_not_space != std::string::npos)
 			{
 				m_line = m_line.substr(first_of_not_space);
-				this->Log(m_line.c_str());
+
+				// Add the log to the buffer
+				Log(m_line.c_str());
 
 				// Save the command for history
 				if (m_log_history.size() < 100)
@@ -1945,16 +2213,13 @@ void Editor::Console()
 }
 
 
-void Editor::Clear()
+// Clear the Log Buffers inside the console
+void Editor::Console::Clear()
 {
+	// Check if we need to clear anything first
 	if (!m_log_buffer.empty())
 	{
 		m_log_buffer.clear();
 	}
 }
 
-
-void Editor::ResizeEvent(int w, int h)
-{
-	m_editor_cam.SetAspectRatio(static_cast<float>(w) / h);
-}

@@ -5,23 +5,29 @@ PRIMARY AUTHOR: Sweet
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 
+// Main Includes
 #include "Editor.h"
 #include "Type_Binds.h"
 
+// GameObject, Spaces
 #include "GameObjectSystem/GameObject.h"
-#include "GameObjectSystem\GameSpace.h"
-#include "GameObjectSystem\ObjectInfo.h"
-#include "Engine\Physics\RigidBody.h"
-#include "graphics\SpriteComponent.h"
-#include "graphics\Particles.h"
-#include "Engine\Physics\Collider2D.h"
-#include "Scripting\ScriptComponent.h"
-#include "graphics\Camera.h"
-#include "graphics\Background.h"
+#include "GameObjectSystem/GameSpace.h"
 
-#include "graphics\DebugGraphic.h"
+// Components
+#include "GameObjectSystem/ObjectInfo.h"
+#include "Engine/Physics/RigidBody.h"
+#include "graphics/SpriteComponent.h"
+#include "graphics/Particles.h"
+#include "Engine/Physics/Collider2D.h"
+#include "Scripting/ScriptComponent.h"
+#include "graphics/Camera.h"
+#include "graphics/Background.h"
 
-#include "Input\Input.h"
+// Draw debug shapes
+#include "graphics/DebugGraphic.h"
+
+// Keypress and Mouse
+#include "Input/Input.h"
 
 #include <cfloat>
 

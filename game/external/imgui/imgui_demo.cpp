@@ -27,6 +27,7 @@
 #include <math.h>           // sqrtf, powf, cosf, sinf, floorf, ceilf
 #include <stdio.h>          // vsnprintf, sscanf, printf
 #include <stdlib.h>         // NULL, malloc, free, atoi
+#include "Imgui/Editor.h"
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
 #include <stddef.h>         // intptr_t
 #else
@@ -1792,8 +1793,13 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 
     // You can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it compares to the default style)
     const ImGuiStyle default_style; // Default style
-    if (ImGui::Button("Revert Style"))
-        style = ref ? *ref : default_style;
+	if (ImGui::Button("Revert Style"))
+	{
+
+		// Haphazard
+		//style = ref ? *ref : default_style;
+		Editor::ResetStyle();
+	}
 
     if (ref)
     {
