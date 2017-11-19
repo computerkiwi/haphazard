@@ -1220,14 +1220,18 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::Button("Effects"))
+		if (ImGui::BeginMenu("Window"))
 		{
-			m_show_ppfx = !m_show_ppfx;
-		}
+			if (ImGui::MenuItem("Effects"))
+			{
+				m_show_ppfx = !m_show_ppfx;
+			}
 
-		if (ImGui::Button("Settings"))
-		{
-			m_show_settings = !m_show_settings;
+			if (ImGui::MenuItem("Settings"))
+			{
+				m_show_settings = !m_show_settings;
+			}
+			ImGui::EndMenu();
 		}
 
 
@@ -1649,8 +1653,8 @@ static std::vector<char*> moveDownButtonNames;
 void Editor::PPFX()
 {
 	using namespace ImGui;
-	SetNextWindowSize(ImVec2(300, 400));
-	SetNextWindowPos(ImVec2(0, 432), ImGuiCond_Once);
+	SetNextWindowSize(ImVec2(310, 400));
+	SetNextWindowPos(ImVec2(280, 30), ImGuiCond_Once);
 	Begin("Post Processing", nullptr, ImGuiWindowFlags_NoResize);
 
 
@@ -1704,9 +1708,9 @@ void Editor::PPFX()
 				}
 
 				// Move Up
+				SameLine();
 				if (count != 0)
 				{
-					SameLine();
 					while (j >= moveUpButtonNames.size())
 						moveUpButtonNames.push_back(new char[64]);
 
@@ -1729,11 +1733,13 @@ void Editor::PPFX()
 						layer->GetFXList() = newFX;
 					}
 				}
+				else
+					Button(" ");
 
 				// Move Down
+				SameLine();
 				if (count != layer->GetFXList().size() - 1)
 				{
-					SameLine();
 					while (j >= moveDownButtonNames.size())
 						moveDownButtonNames.push_back(new char[64]);
 
@@ -1756,6 +1762,8 @@ void Editor::PPFX()
 						layer->GetFXList() = newFX;
 					}
 				}
+				else
+					Button(" ");
 
 				j++;
 				count++;
