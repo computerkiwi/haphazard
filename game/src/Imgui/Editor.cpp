@@ -929,11 +929,15 @@ void Editor::Tools()
 						// Freeze the y-axis and allow movement in the x-axis
 					case EditorGizmoDirection::Dir_X:
 						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
+
 						break;
 
 						// Freeze the x-axis and allow movement in the y-axis
 					case EditorGizmoDirection::Dir_Y:
 						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+
+						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 						break;
 
 						// Move by both
@@ -1031,6 +1035,8 @@ void Editor::Tools()
 					break;
 
 				case EditorGizmoDirection::Both:
+
+
 					if (Input::IsHeldDown(Key::LeftShift))
 					{
 						scale.x += mouseChange.x;
@@ -1044,6 +1050,7 @@ void Editor::Tools()
 					break;
 
 				case EditorGizmoDirection::Invalid:
+
 					break;
 
 				default:
@@ -1084,8 +1091,8 @@ void Editor::Tools()
 			circle /= 3.0f;
 
 			// Gizmo circle
-			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xc722d6), 1));
-			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xc722d6), 1));
+			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xFFFF00), 1));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
@@ -1106,7 +1113,6 @@ void Editor::Tools()
 						m_editorState.MouseDragClick = true;
 					}
 				}
-
 
 				// Rotation we are going to the object to, so lets start at the object's rotation in case we do nothing
 				//     Get the rotation between the mouse and the object
