@@ -210,8 +210,9 @@ class Editor
 	// Used to determine which direction to scale in
 	enum EditorGizmoDirection
 	{
-		Dir_X  = 0,
-		Dir_Y  = 1,
+		Invalid = -1,
+		Dir_X   = 0,
+		Dir_Y   = 1,
 		Both    = 2
 	} m_scaleDir = Both, m_transformDir = Both;
 

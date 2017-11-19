@@ -1042,6 +1042,10 @@ void Editor::Tools()
 						scale.y += mouseChange.y;
 					}
 					break;
+
+				case EditorGizmoDirection::Invalid:
+					break;
+
 				default:
 					logger << "[EDITOR] Invalid Axis sent to Scale Gizmo.\n";
 					break;
@@ -1054,9 +1058,17 @@ void Editor::Tools()
 
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
+				// Get the transform handle
 				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+
+				// Push the action using the Scale Before and the scale after
 				Push_Action({ objectSave.GetScale(), handle->GetScale(), "scale", { m_selected_object, true }, Action_General<TransformComponent, glm::vec3> });
+
+				// Reset the Mouse Click
 				m_editorState.MouseDragClick = false;
+
+				// Reset the scale direction
+				m_scaleDir = Invalid;
 			}
 
 			break;
