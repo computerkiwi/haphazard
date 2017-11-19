@@ -413,7 +413,7 @@ void Editor::Update()
 			Console();
 		}
 
-		if (m_show_ppfx)
+		if (m_editorState.ppfx)
 		{
 			PPFX();
 		}
@@ -1555,9 +1555,10 @@ void Editor::MenuBar()
 			{
 				m_editorState.objectList = !m_editorState.objectList;
 			}
-			if (ImGui::MenuItem("Effects"))
+
+			if (ImGui::MenuItem("Effects", nullptr, m_editorState.ppfx))
 			{
-				m_show_ppfx = !m_show_ppfx;
+				m_editorState.ppfx = !m_editorState.ppfx;
 			}
 			ImGui::EndMenu();
 		}

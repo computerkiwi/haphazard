@@ -128,6 +128,7 @@ class Editor
 		bool console = false;  // Show/Hide Console
 		bool settings = true;
 		bool objectList = true;
+		bool ppfx = false;
 
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
