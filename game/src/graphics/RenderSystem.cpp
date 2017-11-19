@@ -25,6 +25,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "RenderLayer.h"
 #include "Input\Input.h"
+#include "EditorGraphic.h"
 
 static bool resizeCameras = false;
 static int width;

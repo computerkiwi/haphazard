@@ -35,6 +35,7 @@ namespace Shaders
 	extern ShaderProgram* backgroundShader;
 
 	extern ShaderProgram* debugShader;
+	extern ShaderProgram* editorSpriteShader;
 
 	namespace ScreenShader
 	{

@@ -13,13 +13,13 @@ vec4 applyKernel(float[9] kernel, float amt)
 
 	for(int i = 0; i < 9; i++) kernel[i] *= amt;
 
-	vec3 col = vec3(0.0);
+	vec4 col = vec4(0.0);
 	for(int i = 0; i < 9; i++)
 	{
 		vec2 off = vec2((i / 3 - 1) * offset, (i % 3 - 1) * offset); //Intentionaly inversed x and y
-		col += vec3(texture(screenTexture, TexCoord + off)) * kernel[i];
+		col += vec4(texture(screenTexture, TexCoord + off)) * kernel[i];
 	}
-	return vec4(col,1);
+	return vec4(col);
 }
 
 vec4 sharpen(float amt)

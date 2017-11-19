@@ -28,6 +28,8 @@ public:
 	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
 	void UpdateTextureHandler(float dt);
 
+	void SetColor(glm::vec4 col) { m_Color = col; }
+
 	static Mesh* SpriteMesh() { return m_Mesh; }
 
 private:
@@ -36,7 +38,7 @@ private:
 private: // Variables
 	static Mesh* m_Mesh;
 	TextureHandler m_TextureHandler;
-
+	glm::vec4 m_Color = glm::vec4(1,1,1,1);
 
 	META_REGISTER(SpriteComponent)
 	{
