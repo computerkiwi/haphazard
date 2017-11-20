@@ -994,7 +994,7 @@ void PhysicsSystem::Update(float dt)
 	{
 		collisionLayers layer = static_cast<collisionLayers>(1 << (i % collisionLayers::numLayers));
 
-		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, collisionLayers::allCollision);
+		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, layer);
 
 		float colorval = (1.0f / collisionLayers::numLayers) * ((i % collisionLayers::numLayers) +1);
 
