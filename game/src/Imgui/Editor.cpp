@@ -40,6 +40,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
+#include <iomanip>
 #include <algorithm>
 #include <locale>
 #include <ctype.h>
@@ -51,6 +52,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 // Define PI since I couldn't get the cmath one to want to work -- sigh
 #define PI 3.1415926535f
+
+// Since actual dt isn't that important
+#define FAKE_DT (1 / 60.0f)
 
 
 // Gizmo Transform Save Location
@@ -99,141 +103,6 @@ void debugSetDisplayHitboxes(bool hitboxesShown);
 
 // ErrorList used by the Editor
 extern const char *ErrorList[];
-
-#ifdef _WIN32
-
-// Windows Code for Opening a Level
-void Editor::OpenLevel()
-{
-	// Save the path to the file
-	char filename[MAX_PATH] = { 0 };
-
-	// Struct to file before passing it to a function
-	OPENFILENAME file;
-
-	// Init the struct
-	ZeroMemory(&file, sizeof(file));
-
-	// Save the size of the struct
-	file.lStructSize = sizeof(file);
-
-	// Tell windows which window owns this action
-	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
-
-	// Filter out any files that don't fit this format
-	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
-
-	// Pointer to the filename buffer
-	file.lpstrFile = filename;
-
-	// The cout of the buffer
-	file.nMaxFile = MAX_PATH;
-
-	// Window title of the dialog box
-	file.lpstrFileTitle = "Load a level";
-
-	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-	// Function Call to open the dialag box
-	if (GetOpenFileName(&file))
-	{
-		// Pass the filename to the engine
-		logger << "[EDITOR] Loading File: " << filename << "\n";
-		m_engine->FileLoad(filename);
-	}
-	else
-	{
-		// Print out any errors.
-		switch (CommDlgExtendedError())
-		{
-		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
-		}
-	}
-}
-
-
-// Windows Code for Opening a Level
-void Editor::SaveLevel()
-{
-	// Save the path to the file
-	char filename[MAX_PATH] = { 0 };
-
-	// Struct to file before passing it to a function
-	OPENFILENAME file;
-
-	// Init the struct
-	ZeroMemory(&file, sizeof(file));
-
-	// Save the size of the struct
-	file.lStructSize = sizeof(file);
-
-	// Tell windows which window owns this action
-	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
-
-	// Filter out any files that don't fit this format
-	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
-
-	// Pointer to the filename buffer
-	file.lpstrFile = filename;
-
-	// The cout of the buffer
-	file.nMaxFile = MAX_PATH;
-
-	// Window title of the dialog box
-	file.lpstrFileTitle = "Load a level";
-
-	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-	// Function Call to open the dialag box
-	if (GetSaveFileName(&file))
-	{
-		// Log and load the file in the engine
-		logger << "[EDITOR] Saving File: " << filename << "\n";
-		m_engine->FileLoad(filename);
-	}
-	else
-	{
-		// Print out any errors.
-		switch (CommDlgExtendedError())
-		{
-		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
-		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
-		}
-	}
-}
-
-#endif
 
 
 Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects()
@@ -390,7 +259,7 @@ void Editor::Update()
 		// Render the console
 		if (m_editorState.settings)
 		{
-			SettingsPanel(1 / 60.0f);
+			SettingsPanel(FAKE_DT);
 		}
 		
 		// Check if we need to print the console
@@ -425,6 +294,9 @@ void Editor::Update()
 
 		// Render the ImGui frame
 		ImGui::Render();
+
+		// Check if we need to auto save yet
+		AutoSave(FAKE_DT);
 
 		// Reset the state of things if we are leaving
 		if (m_editorState.exiting)
@@ -1793,6 +1665,168 @@ void Editor::SaveLoad()
 }
 
 
+#ifdef _WIN32
+
+// Windows Code for Opening a Level
+void Editor::OpenLevel()
+{
+	// Save the path to the file
+	char filename[MAX_PATH] = { 0 };
+
+	// Struct to file before passing it to a function
+	OPENFILENAME file;
+
+	// Init the struct
+	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
+	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
+	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+
+	// Filter out any files that don't fit this format
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
+	file.lpstrFile = filename;
+
+	// The cout of the buffer
+	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
+	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+	// Function Call to open the dialag box
+	if (GetOpenFileName(&file))
+	{
+		// Pass the filename to the engine
+		logger << "[EDITOR] Loading File: " << filename << "\n";
+		m_engine->FileLoad(filename);
+	}
+	else
+	{
+		// Print out any errors.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+
+// Windows Code for Opening a Level
+void Editor::SaveLevel()
+{
+	// Save the path to the file
+	char filename[MAX_PATH] = { 0 };
+
+	// Struct to file before passing it to a function
+	OPENFILENAME file;
+
+	// Init the struct
+	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
+	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
+	file.hwndOwner = glfwGetWin32Window(m_engine->GetWindow());
+
+	// Filter out any files that don't fit this format
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
+	file.lpstrFile = filename;
+
+	// The cout of the buffer
+	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
+	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+	// Function Call to open the dialag box
+	if (GetSaveFileName(&file))
+	{
+		// Log and load the file in the engine
+		logger << "[EDITOR] Saving File: " << filename << "\n";
+		m_engine->FileLoad(filename);
+	}
+	else
+	{
+		// Print out any errors.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); AddPopUp(PopUpWindow(ErrorList[OpenFileError], 2.0f, PopUpPosition::Mouse));  break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+#endif
+
+
+void Editor::AutoSave(float dt)
+{
+	// Add the time to the timer
+	m_editorState.saveTimer += dt;
+
+	// Check if it is time to save
+	if (m_editorState.saveTimer >= (m_editorState.saveInterval * 60.0f))
+	{
+		// Using this to build a file name
+		std::stringstream ss;
+
+		// Write the timestamp and append _AutoSave.json
+		ss << std::time(nullptr) << "_AutoSave.json";
+
+		// Write the File
+		m_engine->FileSave(ss.str().c_str());
+
+		// Tell the user we auto saved
+		AddPopUp(PopUpWindow("Auto Saved.", 2.2f, PopUpPosition::BottomRight));
+
+		// Reset the timer
+		m_editorState.saveTimer = 0.0f;
+	}
+}
+
+
 static unsigned long long FileTimeToInt64(const FILETIME & ft) 
 {
 	return (static_cast<unsigned long long>(ft.dwHighDateTime) << 32) | static_cast<unsigned long long>(ft.dwLowDateTime); 
@@ -1894,6 +1928,16 @@ void Editor::SettingsPanel(float dt)
 	{
 		m_load = true;
 	}
+
+	ImGui::BeginGroup();
+	// Allow users to change Save Interval
+	Text("Save Interval (minutes): ");
+
+	PushItemWidth(50);
+	InputFloat("##edtor_save_interval", &m_editorState.saveInterval, 0, 0, 2);
+	PopItemWidth();
+
+	ImGui::EndGroup();
 
 	// New Group
 	ImGui::Separator();

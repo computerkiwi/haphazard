@@ -135,6 +135,9 @@ class Editor
 	private:
 		friend class Editor;
 
+		float saveInterval = 5.0f; // Save Invterval in minutes
+		float saveTimer;           // How long since last save
+
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
 	} m_editorState;
@@ -342,6 +345,7 @@ private:
 	void SaveLoad();
 	void OpenLevel();
 	void SaveLevel();
+	void AutoSave(float dt);
 
 	// ImGui
 	void MenuBar();
