@@ -133,9 +133,10 @@ public:
 
 	RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction, collisionLayers layer);
 
-	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData);
+	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, const Collider2D& colliderData);
 
-	void CalculateCastBox(BoxCorners& box, GameObject& gameObject);
+	void CalculateCast_Box(BoxCorners& box, const GameObject& gameObject);
+	void CalculateCast_Circle(glm::vec2 center, float radius, const GameObject& gameObject);
 
 	glm::vec2 m_startPoint;
 	glm::vec2 m_direction;
@@ -149,10 +150,10 @@ public:
 	collisionLayers m_layer;
 };
 
-void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, Collider2D colliderData)
+void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, const Collider2D& colliderData)
 {
 	// if the collider is a box
-	if (colliderData.GetColliderShape() == Collider2D::colliderType::colliderBox)
+	if (colliderData.ColliderIsShape(Collider2D::colliderType::colliderBox))
 	{
 		glm::vec2 boxCenter = transform->GetPosition();
 		glm::vec2 colliderOffset = colliderData.GetOffset();
@@ -181,10 +182,23 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 			corners = BoxCorners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
 		}
 
-		// circle collision to quickly eliminate far away objects
+		// if circle collision to quickly eliminate far away objects
 		if (CirclesCollide(raycastCenter, raycastRadius, boxCenter, std::max(boxDimenions.x, boxDimenions.y)))
 		{
-			CalculateCastBox(corners, transform.GetGameObject());
+			// calculate the actual raycast
+			CalculateCast_Box(corners, transform.GetGameObject());
+		}
+	}
+	else if (colliderData.ColliderIsShape(Collider2D::colliderType::colliderCircle))
+	{
+		glm::vec2 circleCenter = transform->GetPosition() + colliderData.GetOffset();
+		float circleDiameter = colliderData.GetDimensions().x;
+
+		// if circle collision to quickly eliminate far away objects
+		if (CirclesCollide(raycastCenter, raycastRadius, circleCenter, circleDiameter))
+		{
+			// calculate the actual raycast
+			CalculateCast_Circle(circleCenter, circleDiameter / 2, transform.GetGameObject());
 		}
 	}
 }
@@ -227,7 +241,7 @@ float CrossP(glm::vec2 vec1, glm::vec2 vec2)
 	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
 }
 
-void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject)
+void RayCastCalculator::CalculateCast_Box(BoxCorners& box, const GameObject& gameObject)
 {
 	// check each side
 	for (int i = 0; i < 4; i++)
@@ -270,6 +284,76 @@ void RayCastCalculator::CalculateCastBox(BoxCorners& box, GameObject& gameObject
 		}
 	}
 }
+
+
+void RayCastCalculator::CalculateCast_Circle(glm::vec2 center, float radius, const GameObject& gameObject)
+{
+	// ray data
+	glm::vec2 rayStart = m_startPoint;
+	glm::vec2 rayDirection = m_direction * m_range;
+
+	// circle data
+	glm::vec2 circleCenter = center;
+	float circleRadius = radius;
+
+	// vecter between center of circle and begin point of ray
+	glm::vec2 circleToRay = rayStart - circleCenter;
+
+	// quadratic formula to solve for t where t is scalar into ray where collision happens
+	float a = glm::dot(rayDirection, rayDirection);
+	float b = 2.0f * glm::dot(circleToRay, rayDirection);
+	float c = glm::dot(circleToRay, circleToRay) - (circleRadius * circleRadius);
+
+	float determinant = (b * b) - (4 * a * c);
+	// if the answer is non-real, there was not intersection
+	if (determinant < 0)
+	{
+
+	}
+	else // else there was a collision, need to find out where
+	{
+		determinant = sqrt(determinant);
+
+		// both answers to the equation, the real t will be the smaller one
+		// NOTE: t1 is ALWAYS the smaller of the two, since determinant and a are both positive
+		float t1 = (-b - determinant) / (2 * a);
+		// t2 is only calculated if it is necessary, since it will usually not be used
+
+		//if the ray starts outside the circle and intersects it
+		if (t1 >= 0 && t1 <= 1)
+		{
+			glm::vec2 intersectedRay = rayDirection * t1;
+			float length = glm::length(intersectedRay);
+
+			// if this cast is shorter than previously recorded casts or it's the first cast
+			if (length < m_length || m_length == -1)
+			{
+				m_intersection = rayStart + intersectedRay;
+				m_length = length;
+				m_gameObjectHit = gameObject;
+			}
+			return;
+		}
+
+		// now we need to check if t2 intersected
+		float t2 = (-b + determinant) / (2 * a);
+		if (t2 >= 0 && t2 <= 1) // if the ray started off in the circle and passed through it
+		{
+			glm::vec2 intersectedRay = rayDirection * t2;
+			float length = glm::length(intersectedRay);
+
+			// if this cast is shorter than previously recorded casts or it's the first cast
+			if (length < m_length || m_length == -1)
+			{
+				m_intersection = rayStart + intersectedRay;
+				m_length = glm::length(intersectedRay);
+				m_gameObjectHit = gameObject;
+			}
+			return;
+		}
+	}
+}
+
 
 // constructor with direction in degrees
 Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
