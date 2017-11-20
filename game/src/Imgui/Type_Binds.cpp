@@ -182,7 +182,7 @@ const char * ErrorList[] =
 struct EditorBoolWrapper
 {
 	bool value = false;
-	operator bool() const { return value; }
+	implicit operator bool() const { return value; }
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
@@ -205,14 +205,14 @@ ClickedList widget_click;
 // Saves a float in a temporary value then stores the new value and the saved value
 // Undo pops the saved value
 // Redo pops the new value
-#define Drag(NAME, SAVE, ITEM)																				 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag(NAME, SAVE, ITEM)																						 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}																										 
 
 // Setups the detection of the drag slider has been clicked
@@ -222,14 +222,14 @@ ClickedList widget_click;
 // Saves Anything instead of just a float -- used for glm::vecX
 //    This version is used since the meta system does not register
 //    parts of glm::vec2 or similar objects
-#define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag_Vec(NAME, SAVE, ITEM, VEC)																				 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = VEC;																						 \
+		{																											 \
+			SAVE = VEC;																								 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -240,14 +240,14 @@ ClickedList widget_click;
 //    This version is used since the meta system does not register
 //    parts of glm::vec2 or similar objects
 //	  Min and Max
-#define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
-	{																										 \
+#define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)															 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))												 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = VEC;																						 \
+		{																											 \
+			SAVE = VEC;																								 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -255,14 +255,14 @@ ClickedList widget_click;
 //     Undo pops the saved value
 //     Redo pops the new value
 //     Change Speed
-#define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
-	{																										 \
+#define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)																	 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))																 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -271,28 +271,28 @@ ClickedList widget_click;
 //     Redo pops the new value
 //     Change Speed
 //     Min and Max
-#define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)															 \
+#define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)													 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
-	{																										 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
 //     Saves a int in a temporary value then stores the new value and the saved value
 //     Undo pops the saved value
 //     Redo pops the new value
-#define Drag_Int(NAME, SAVE, ITEM)																			 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag_Int(NAME, SAVE, ITEM)																					 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -300,14 +300,14 @@ ClickedList widget_click;
 //     Undo pops the saved value
 //     Redo pops the new value
 //     Change Speed
-#define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
-	{																										 \
+#define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																		 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))																	 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -316,32 +316,32 @@ ClickedList widget_click;
 //     Redo pops the new value
 //     Change Speed
 //     Min and Max
-#define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)																 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))															 \
-	{																										 \
+#define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)													 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Mouse_1 (Drag_Key, defined at top) is released
 // Pushes the action into the editor
-#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
+#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)																 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
+	{																												 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });			 \
 		widget_click[#SAVE] = false;																				 \
 	}
 
 // Mouse_1 (Drag_Key, defined at top) is released
 // Pushes the action into the editor
 // Save the data, but pass it to a different Action_General function
-#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
+#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)													 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
+	{																												 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });					 \
 		widget_click[#SAVE] = false;																				 \
 	}
 
@@ -350,8 +350,8 @@ ClickedList widget_click;
 // Cast SAVE and ITEM to TYPE then save them
 #define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ TYPE(SAVE), TYPE(ITEM),  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
+	{																												 \
+		editor->Push_Action({ TYPE(SAVE), TYPE(ITEM),  META_NAME, handle, Action_General<COMPONENT, TYPE> });		 \
 		widget_click[#SAVE] = false;																				 \
 	}
 

@@ -297,13 +297,6 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 		}
 	});
 
-	// Log something to the file
-	// RegisterCommand("log", 
-	// [this]()
-	// {
-	// 	Logging::Log(m_line.substr(strlen("log")).c_str());
-	// });
-
 	// Display the current active objects
 	RegisterCommand("objects",
 	[this]()
@@ -946,6 +939,9 @@ void Editor::Tools()
 						// Add the mouseChange to the position
 						//    This method prevents the center of the object from snapping to the mouse position
 						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+
+					default:
+						break;
 					}
 				}
 
