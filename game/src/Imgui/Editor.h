@@ -81,7 +81,8 @@ enum PopUpPosition
 	BottomRight,
 	BottomLeft,
 	Center, 
-	Mouse
+	Mouse,
+	Count
 };
 struct PopUpWindow
 {
@@ -301,6 +302,17 @@ class Editor
 	// Save Location of all popups -- vector works since usually not many popups
 	std::vector<PopUpWindow> m_pop_ups;
 
+	// Keeps the number of popups at each location
+	int m_PopUpCount[PopUpPosition::Count] = { 0 };
+	/*
+		int TopLeft     = 0;
+		int TopRight    = 0;
+		int BottomRight = 0;
+		int BottomLeft  = 0;
+		int Center      = 0;
+		int Mouse       = 0;
+	*/
+
 private:
 	friend int Input_Editor(ImGuiTextEditCallbackData *data);
 
@@ -321,6 +333,10 @@ private:
 	void OnClick();
 
 	void KeyBindings();
+
+	int GetPopUpCount(PopUpPosition pos);
+	void IncrementPopUpCount(PopUpPosition pos);
+	void DecrementPopUpCount(PopUpPosition pos);
 
 public:
 	Editor(Engine *engine, GLFWwindow *window);

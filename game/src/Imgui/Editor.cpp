@@ -1040,12 +1040,18 @@ void Editor::Tools()
 
 void Editor::AddPopUp(PopUpWindow&& pop)
 {
+	IncrementPopUpCount(pop.pos);
 	m_pop_ups.emplace_back(pop);
 }
 
 
 void Editor::UpdatePopUps(float dt)
 {
+	if (Input::IsPressed(Key::I))
+	{
+		AddPopUp(PopUpWindow("Test ", 2.0f, PopUpPosition::Mouse));
+	}
+
 	int width = 0;
 	int height = 0;
 	glfwGetWindowSize(m_engine->GetWindow(), &width, &height);
@@ -1070,7 +1076,7 @@ void Editor::UpdatePopUps(float dt)
 		glm::vec2 padding(65, 65);
 		
 		ImVec2 pos;
-		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, 42);
+		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, static_cast<float>(42 * GetPopUpCount(popup.pos)));
 		float text_padding = size.x;  //strlen(popup.message) * 5.75f;
 
 		// Find where to draw the popup
@@ -1135,12 +1141,33 @@ void Editor::UpdatePopUps(float dt)
 		}
 		else
 		{
+			DecrementPopUpCount(popup.pos);
 			m_pop_ups.erase(m_pop_ups.begin() + i);
 		}
 	}
 
 	// Clean Up
 	ImGui::PopStyleVar(1);
+}
+
+
+int Editor::GetPopUpCount(PopUpPosition pos)
+{
+	return m_PopUpCount[pos];
+}
+
+
+void Editor::IncrementPopUpCount(PopUpPosition pos)
+{
+	++m_PopUpCount[pos];
+}
+
+
+void Editor::DecrementPopUpCount(PopUpPosition pos)
+{
+	assert(m_PopUpCount[pos] >= 0);
+
+	--m_PopUpCount[pos];
 }
 
 

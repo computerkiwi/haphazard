@@ -1472,6 +1472,13 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
 
 				Separator();
+
+				if (Button("Reset##paritcles_sprite_reset"))
+				{
+					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+					settings.texture_resourceID = -1;
+				}
+				SameLine();
 				BeginChild("Sprites", ImVec2(0, 125), true);
 				for (auto resource : sprites)
 				{
