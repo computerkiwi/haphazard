@@ -9,42 +9,42 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "Collider2D.h"
 
 // getters
-int Collider2D::GetColliderShape()
+int Collider2D::GetColliderShape() const
 {
 	return m_colliderShape & ~(colliderType::staticCollider);
 }
 
-glm::vec3 Collider2D::GetDimensions()
+glm::vec3 Collider2D::GetDimensions() const
 {
 	return m_dimensions;
 }
 
-glm::vec2 Collider2D::GetOffset()
+glm::vec2 Collider2D::GetOffset() const
 {
 	return m_offset;
 }
 
-float Collider2D::GetRotationOffset()
+float Collider2D::GetRotationOffset() const
 {
 	return m_rotationOffset;
 }
 
-CollisionLayer Collider2D::GetCollisionLayer()
+CollisionLayer Collider2D::GetCollisionLayer() const
 {
 	return m_collisionLayer;
 }
 
-float Collider2D::GetSelfElasticity()
+float Collider2D::GetSelfElasticity() const
 {
 	return m_selfElasticity;
 }
 
-float Collider2D::GetAppliedElasticity()
+float Collider2D::GetAppliedElasticity() const
 {
 	return m_appliedElasticity;
 }
 
-Collider2D::collisionType Collider2D::GetCollisionType()
+Collider2D::collisionType Collider2D::GetCollisionType() const
 {
 	return m_collisionType;
 }
@@ -153,7 +153,7 @@ void Collider2D::AdjustRotationOffset(float rotationAdjustment)
 	m_rotationOffset += rotationAdjustment;
 }
 
-bool Collider2D::isStatic()
+bool Collider2D::isStatic() const
 {
 	return m_colliderShape & colliderType::staticCollider;
 }
@@ -168,12 +168,12 @@ Collider2D& DynamicCollider2DComponent::ColliderData()
 	return m_colliderData;
 }
 
-bool Collider2D::IsCollidingWithLayer(collisionLayers layer)
+bool Collider2D::IsCollidingWithLayer(collisionLayers layer) const
 {
 	return (m_layersCollidedWith & layer);
 }
 
-bool Collider2D::ColliderIsShape(colliderType colliderType)
+bool Collider2D::ColliderIsShape(colliderType colliderType) const
 {
 	return (m_colliderShape & ~colliderType::staticCollider) == colliderType;
 }
