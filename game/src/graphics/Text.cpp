@@ -72,6 +72,12 @@ TextComponent::TextComponent(std::string string, Font* font, glm::vec4 color)
 	CompileText(string);
 }
 
+TextComponent::~TextComponent()
+{
+	glDeleteBuffers(1, &m_CharVBO);
+	glDeleteVertexArrays(1, &m_VAO);
+}
+
 void TextComponent::SetText(std::string string, Font* font, glm::vec4* color)
 {
 	if (font)

@@ -152,6 +152,9 @@ void FrameBuffer::RenderEffects()
 
 	for (auto i = m_FXList.begin(); i < m_FXList.end(); ++i)
 	{
+		if (*i == DEFAULT)
+			continue;
+
 		target->Use(); // Render to target
 
 		ApplyFXSettings(*i); // Apply FX uniform values (if applicable)

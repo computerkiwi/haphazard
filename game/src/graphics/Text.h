@@ -53,6 +53,7 @@ class TextComponent
 {
 public:
 	TextComponent(std::string string = std::string(""), Font* font = Fonts::arial, glm::vec4 color = glm::vec4(1,1,1,1));
+	~TextComponent();
 	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
 	void Draw(glm::mat4& matrix);
 
