@@ -25,6 +25,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "RenderLayer.h"
 #include "Input\Input.h"
+#include "EditorGraphic.h"
 
 static bool resizeCameras = false;
 static int width;
@@ -41,16 +42,11 @@ void RenderSystem::Init()
 {
 	glDisable(GL_MULTISAMPLE);
 	glDisable(GL_DEPTH_TEST); // Don't need depth for 2D. Render things in order.
-	//glEnable(GL_BLEND);
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Screen::InitScreen();
 	Font::InitFonts();
-	
-	//Screen::AddEffect(FX::EDGE_DETECTION);
-	//Screen::AddEffect(FX::BLUR);
-	//Screen::SetBlurAmount(0.9f);
 }
 
 void RenderSystem::UpdateCameras(float dt)

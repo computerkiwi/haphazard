@@ -268,6 +268,11 @@ void Editor::Update()
 			m_Console.Draw();
 		}
 
+		if (m_editorState.ppfx)
+		{
+			PPFX();
+		}
+
 		// Display
 		if (m_editorState.objectList)
 		{
@@ -1662,6 +1667,11 @@ void Editor::MenuBar()
 				m_editorState.console = !m_editorState.console;
 			}
 
+
+			if (ImGui::MenuItem("Effects", nullptr, m_editorState.ppfx))
+			{
+				m_editorState.ppfx = !m_editorState.ppfx;
+			}
 			ImGui::EndMenu();
 		}
 
@@ -2306,3 +2316,141 @@ void Editor::Console::Clear()
 	}
 }
 
+
+///
+// Post Processing Effect Window (Author: Max Rauffer)
+///
+#include "graphics\Screen.h"
+static std::vector<char*> layerNames;
+static std::vector<char*> addButtonNames;
+static std::vector<char*> removeButtonNames;
+static std::vector<char*> layerEffectNames;
+static std::vector<char*> moveUpButtonNames;
+static std::vector<char*> moveDownButtonNames;
+
+void Editor::PPFX()
+{
+	using namespace ImGui;
+	SetNextWindowSize(ImVec2(310, 400));
+	SetNextWindowPos(ImVec2(280, 30), ImGuiCond_Once);
+	Begin("Post Processing", nullptr, ImGuiWindowFlags_NoResize);
+
+
+	int i = 0;
+	int j = 0;
+	for (auto layer : Screen::GetLayerList())
+	{
+		while (i >= layerNames.size())
+			layerNames.push_back(new char[64]);
+
+		sprintf(layerNames[i], "Layer %d##ppfxlayer%d", layer->GetLayer(), layer->GetLayer());
+
+		if (CollapsingHeader(layerNames[i]))
+		{
+			while (i >= addButtonNames.size()) 
+				addButtonNames.push_back(new char[64]);
+
+			sprintf(addButtonNames[i], "Add Effect##ppfxlayer%dadd", layer->GetLayer());
+			if (Button(addButtonNames[i]))
+			{
+				layer->AddEffect(FX::DEFAULT);
+			}
+
+			int count = 0;
+			auto list = layer->GetFXList(); // Copy list to avoid breaking after editting list
+			bool editted = false; // true for rest of update after editting list length to avoid going out of bounds
+			for (FX& fx : list)
+			{
+				while (j >= layerEffectNames.size())
+					layerEffectNames.push_back(new char[64]);
+
+				sprintf(layerEffectNames[j], "###ppfxlayer%deffect%d", layer->GetLayer(), j);
+
+				PushItemWidth(150);
+				if(!editted)
+					Combo(layerEffectNames[j], reinterpret_cast<int*>(&layer->GetFXList()[count]), FX_Names, _countof(FX_Names));
+				else
+					Combo(layerEffectNames[j], reinterpret_cast<int*>(&fx), FX_Names, _countof(FX_Names)); // Give temp value to avoid out of bounds
+				PopItemWidth();
+
+				// Remove
+				SameLine();
+				while (j >= removeButtonNames.size())
+					removeButtonNames.push_back(new char[64]);
+
+				sprintf(removeButtonNames[j], "Remove##ppfxlayer%dremove%d", layer->GetLayer(), j);
+				if (Button(removeButtonNames[j]))
+				{
+					layer->GetFXList().erase(layer->GetFXList().begin() + count);
+					editted = true;
+				}
+
+				// Move Up
+				SameLine();
+				if (count != 0)
+				{
+					while (j >= moveUpButtonNames.size())
+						moveUpButtonNames.push_back(new char[64]);
+
+					sprintf(moveUpButtonNames[j], "^##ppfxlayer%dup%d", layer->GetLayer(), j);
+					if (Button(moveUpButtonNames[j]))
+					{
+						std::vector<FX> newFX;
+						bool added = false;
+						for (int f = 0; f < layer->GetFXList().size(); f++)
+						{
+							if (f == count - 1 && !added)
+							{
+								newFX.push_back(fx);
+								added = true;
+								f--;
+							}
+							else if(f != count) // Dont add this one again
+								newFX.push_back(layer->GetFXList()[f]);
+						}
+						layer->GetFXList() = newFX;
+					}
+				}
+				else
+					Button(" ");
+
+				// Move Down
+				SameLine();
+				if (count != layer->GetFXList().size() - 1)
+				{
+					while (j >= moveDownButtonNames.size())
+						moveDownButtonNames.push_back(new char[64]);
+
+					sprintf(moveDownButtonNames[j], "v##ppfxlayer%ddown%d", layer->GetLayer(), j);
+					if (Button(moveDownButtonNames[j]))
+					{
+						std::vector<FX> newFX;
+						bool added = false;
+						for (int f = 0; f < layer->GetFXList().size(); f++)
+						{
+							if (f == count)
+							{
+								newFX.push_back(layer->GetFXList()[f + 1]);
+								newFX.push_back(fx);
+								f++;
+							}
+							else
+								newFX.push_back(layer->GetFXList()[f]);
+						}
+						layer->GetFXList() = newFX;
+					}
+				}
+				else
+					Button(" ");
+
+				j++;
+				count++;
+			}
+		}
+
+		++i;
+	}
+	
+
+	End();
+}

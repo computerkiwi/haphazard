@@ -33,7 +33,7 @@ public:
 	void SetFontSpacing(float space) { m_FontSpacing = space; }
 
 	// Return font texture
-	GLuint GetTextureLayer() { return m_Texture->GetID(); }
+	GLuint GetTextureLayer() { return m_Texture->GetLayer(); }
 
 	// Get texture box around character c 
 	glm::vec4 CharBox(char c)
@@ -53,6 +53,7 @@ class TextComponent
 {
 public:
 	TextComponent(std::string string = std::string(""), Font* font = Fonts::arial, glm::vec4 color = glm::vec4(1,1,1,1));
+	~TextComponent();
 	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
 	void Draw(glm::mat4& matrix);
 

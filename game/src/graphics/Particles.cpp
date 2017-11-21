@@ -237,19 +237,21 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 		m_settings.endColor.x,			m_settings.endColor.y, m_settings.endColor.z, m_settings.endColor.w,
 		m_settings.trailStartColor.x,	m_settings.trailStartColor.y, m_settings.trailStartColor.z, m_settings.trailStartColor.w,
 		m_settings.trailEndColor.x,		m_settings.trailEndColor.y, m_settings.trailEndColor.z, m_settings.trailEndColor.w,
-		static_cast<float>(m_settings.particleSpace),
+		0,0,1,1, // Default texture bounds
 		pos.x, pos.y,
-		-1,		// Default texture (solid color square)
-		0,0,0,0 // Default texture bounds
+		static_cast<float>(m_settings.particleSpace),
+		-1		// Default texture (solid color square)
 	};
 
-	if (false && m_settings.texture_resourceID != -1)
+	if (m_settings.texture_resourceID != -1)
 	{
 		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
-		data[19] = static_cast<float>(texture->GetID());
+		data[23] = static_cast<float>(texture->GetLayer());
 
-		data[22] = texture->GetBounds().x;
-		data[23] = texture->GetBounds().y;
+		data[16] = texture->GetBounds().x;
+		data[17] = texture->GetBounds().y;
+		data[18] = texture->GetBounds().z;
+		data[19] = texture->GetBounds().w;
 	}
 
 	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);

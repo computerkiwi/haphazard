@@ -39,17 +39,19 @@ layout (std140, binding = 1) uniform Matrices
 
 layout (std140) uniform Settings
 {
+	// Vec4s
 	vec4	StartColor;
 	vec4	EndColor;
-
 	vec4	TrailStartColor;
 	vec4	TrailEndColor;
+	vec4	TextureBox;
 
-	float	SimulationSpace;
+	// Vec2s
 	vec2	EmitterPosition;
 
+	// Scalars
+	float	SimulationSpace;
 	float	TextureLayer;
-	vec4	TextureBox;
 };
 
 
@@ -63,7 +65,7 @@ void main()
 
 
 	if(SimulationSpace == SPACE_LOCAL)
-		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
+		gl_Position = proj * view * vec4(pos + EmitterPosition, 0.0f, 1.0f);
 	else
 		gl_Position = proj * view * vec4(pos, 0.0f, 1.0f);
 

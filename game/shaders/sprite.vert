@@ -1,15 +1,16 @@
 #version 430 core
 
 layout (location = 0) in vec3 pos;
-layout (location = 1) in vec4 color;
+layout (location = 1) in vec4 vcolor;
 layout (location = 2) in vec2 texcoord;
 
 // Instanced
-layout (location = 3) in vec4 texBox;
-layout (location = 4) in mat4 model;
-// location 4,5,6,7 used by model
+layout (location = 3) in vec4 color;
+layout (location = 4) in vec4 texBox;
+layout (location = 5) in mat4 model;
+// location 5,6,7,8 used by model
 
-layout (location = 8) in int texLayer;
+layout (location = 9) in int texLayer;
 
 out vec4 Color;
 out vec2 Texcoord;
@@ -26,6 +27,6 @@ void main()
 	Texcoord = texBox.xy + (texcoord * (texBox.zw - texBox.xy));
 	TexLayer = texLayer;
 
-	Color = color;
+	Color = color * vcolor;
 	gl_Position = proj * view * model * vec4(pos, 1.0);
 }

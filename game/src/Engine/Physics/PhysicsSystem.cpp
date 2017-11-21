@@ -992,11 +992,13 @@ void PhysicsSystem::Update(float dt)
 
 	for (int i = 0; i < numDir; ++i)
 	{
-		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, static_cast<collisionLayers>(1 << (i % collisionLayers::numLayers)));
+		collisionLayers layer = static_cast<collisionLayers>(1 << (i % collisionLayers::numLayers));
+
+		Raycast testCast(allDynamicColliders, allStaticColliders, castPosition, direction[i], range, layer);
 
 		float colorval = (1.0f / collisionLayers::numLayers) * ((i % collisionLayers::numLayers) +1);
 
-		//testCast.Draw(glm::vec4(colorval, colorval, colorval, 1));
+		testCast.Draw(glm::vec4(colorval, colorval, colorval, 1));
 	}
 
 	/*glm::vec2 testPoint(1, 0);

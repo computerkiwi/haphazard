@@ -15,11 +15,6 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 
 
-enum BlendMode
-{
-	BM_DISABLED, BM_DEFAULT, BM_DISABLE_ALPHA, BM_ADDITIVE
-};
-
 class Mesh
 {
 public:

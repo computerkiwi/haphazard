@@ -57,7 +57,8 @@ void Screen::Draw()
 {
 	glDisable(GL_BLEND);
 	for (FrameBuffer* fb : m_LayerList)
-		fb->RenderEffects();
+		if(fb->m_UsedThisUpdate)
+			fb->RenderEffects();
 
 	//Draw Layers to View framebuffer
 	Shaders::ScreenShader::Default->Use();
@@ -97,7 +98,7 @@ void Screen::Draw()
 	for (auto fb = m_LayerList.begin(); fb != m_LayerList.end();)
 	{
 		auto test = fb++;
-		if (!(*test)->m_UsedThisUpdate)
+		if (!(*test)->m_UsedThisUpdate && (*test)->m_FXList.size() == 0)
 		{
 			delete *test;
 			m_LayerList.erase(test); // Empty framebuffer, remove

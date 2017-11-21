@@ -132,6 +132,7 @@ class Editor
 		bool console = false;  // Show/Hide Console
 		bool settings = true;
 		bool objectList = true;
+		bool ppfx = false;
 
 	private:
 		friend class Editor;
@@ -344,6 +345,10 @@ public:
 		int Mouse       = 0;
 	*/
 
+	// PPFX
+	// --------------
+	bool m_show_ppfx = false;
+
 private:
 	friend int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data);
 
@@ -362,6 +367,8 @@ private:
 	// ImGui
 	void MenuBar();
 	void SettingsPanel(float dt);
+	void Console();
+	void PPFX();
 
 	// Click Handling
 	void OnClick();

@@ -23,23 +23,23 @@ public:
 
 	virtual ~Texture();
 
-	GLuint GetID() const { return m_ID; }
+	GLuint GetLayer() const { return m_layer; }
 	virtual glm::vec4 GetBounds();
 
 	static void BindArray();
 	
-protected: // Static variables
 	const static int MAX_WIDTH = 1920;
 	const static int MAX_HEIGHT = 1080;
 
+protected: // Static variables
 	// Texture array
 	static void GenerateTextureArray();
 	static GLuint m_TextureArray;
 	static GLuint m_layers;
 
 private: // Variables
-	GLuint m_ID;
-	float m_width, m_height;
+	GLuint m_layer;
+	glm::vec4 m_bounds;
 };
 
 class AnimatedTexture : public Texture

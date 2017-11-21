@@ -35,15 +35,21 @@ float LuaGamepadGetAxis(int player, int axis)
   return Input::GamepadGetAxis(static_cast<PlayerID>(player), static_cast<GamepadAxis>(axis));
 }
 
+int LuaGamepadsConnected()
+{
+  return Input::GamepadsConnected();
+}
+
 
 void RegisterLua(lua_State * L)
 {
-	luabridge::getGlobalNamespace(L)
-		.addFunction("IsPressed", &LuaIsPressed)
+  luabridge::getGlobalNamespace(L)
+    .addFunction("IsPressed", &LuaIsPressed)
     .addFunction("GamepadIsPressed", &LuaGamepadIsPressed)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
-		.addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
-		.addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
+    .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
+    .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
+    .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 
 		.addFunction("PlaySound", Audio::PlaySound);
 		

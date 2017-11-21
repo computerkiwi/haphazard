@@ -17,11 +17,13 @@ static FrameBuffer* bloom_blurredBrights;
 void FrameBuffer::InitFrameBuffers()
 {
 	fb_FX = new FrameBuffer(-999);
-	fullscreenMesh = Screen::m_Fullscreen; //new Screen::Mesh();
-	Screen::m_LayerList.clear(); // Take out the fx buffer framebuffer from the render list
 	blur_pingpongFBO[0] = new FrameBuffer(-999);
 	blur_pingpongFBO[1] = new FrameBuffer(-999);
 	bloom_blurredBrights = new FrameBuffer(-999);
+
+	fullscreenMesh = Screen::m_Fullscreen; //new Screen::Mesh();
+
+	Screen::m_LayerList.clear(); // Take out the fx buffer framebuffers from the render list
 }
 
 void FrameBuffer::ResizePrivateFrameBuffers(int w, int h)
@@ -150,6 +152,9 @@ void FrameBuffer::RenderEffects()
 
 	for (auto i = m_FXList.begin(); i < m_FXList.end(); ++i)
 	{
+		if (*i == DEFAULT)
+			continue;
+
 		target->Use(); // Render to target
 
 		ApplyFXSettings(*i); // Apply FX uniform values (if applicable)
