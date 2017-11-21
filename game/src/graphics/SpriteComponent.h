@@ -23,7 +23,7 @@ public:
 	void SetTextureID(ResourceID res);
 
 	ResourceID GetResourceID() const { return m_TextureHandler.GetResourceID(); }
-	GLuint GetTextureRenderID() const { return m_TextureHandler.GetTexture()->GetID(); }
+	GLuint GetTextureRenderID() const { return m_TextureHandler.GetTexture()->GetLayer(); }
 
 	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
 	void UpdateTextureHandler(float dt);
