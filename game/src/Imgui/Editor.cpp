@@ -703,6 +703,8 @@ void Editor::Tools()
 {
 	if (m_selected_object)
 	{
+		ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
 		{
@@ -710,7 +712,7 @@ void Editor::Tools()
 		}
 		else
 		{
-			pos = GameObject(m_selected_object).GetComponent<TransformComponent>().Get()->GetPosition();
+			pos = transform->GetRelativePosition();
 		}
 
 		switch (m_gizmo)
@@ -720,10 +722,10 @@ void Editor::Tools()
 			// delta Mouse Pos
 			glm::vec2 mouse = Input::GetMousePos_World();
 
-			const glm::vec2 pos_x_dir(pos.x + 0.125f, pos.y);
+			const glm::vec2 pos_x_dir = transform->GetParent() ? transform->GetParent().GetComponent<TransformComponent>()->GetPosition() + glm::vec2(pos.x + 0.125f, pos.y) : glm::vec2(pos.x + 0.125f, pos.y);
 			const glm::vec2 scale_x_dir(0.25f, 0.1f);
 
-			const glm::vec2 pos_y_dir(pos.x, pos.y + 0.125f);
+			const glm::vec2 pos_y_dir = transform->GetParent() ? transform->GetParent().GetComponent<TransformComponent>()->GetPosition() + glm::vec2(pos.x, pos.y + 0.125f) : glm::vec2(pos.x, pos.y + +0.125f);
 			const glm::vec2 scale_y_dir(0.1f, 0.25f);
 
 			DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir);

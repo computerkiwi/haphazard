@@ -41,7 +41,6 @@ private: // Variables
 	META_REGISTER(SpriteComponent)
 	{
 		META_DefineType(SpriteComponent);
-		META_DefineGetterSetter(SpriteComponent, ResourceID, GetResourceID, SetTextureID, "resourceID");
 	}
 
 };

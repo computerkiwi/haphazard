@@ -360,7 +360,7 @@ public:
 			index = 0;
 		}
 
-		m_spaces.push_back(GameSpace(index));
+		m_spaces.emplace_back(GameSpace(index));
 		return index;
 	}
 
@@ -413,7 +413,6 @@ public:
 
 	void Update(float dt)
 	{
-
 		for (auto& sys : m_spaces)
 		{
 			sys.Update(dt);

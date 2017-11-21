@@ -454,6 +454,11 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
+			glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
+			glm::vec2 diff = transform->GetPosition() - parentPos;
+
+			transform->SetPosition(diff);
+
 			// It was clicked, Set the parent
 			transform->SetParent(object);
 			if (object.GetComponent<HierarchyComponent>().IsValid())
@@ -846,27 +851,36 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 
 static void Display_Hierarchy(GameObject object)
 {
+	// Get the children
 	auto children = object.GetComponent<HierarchyComponent>();
 
+	// Foreach child check if they have more kids and display those
 	for (auto& child : children->GetList())
 	{
+		// Has Kids
 		if (child.GetComponent<HierarchyComponent>().IsValid())
 		{
-			if (TreeNode(object.GetName().c_str()))
+			// Add a space for spacing
+			std::string name = object.GetName();
+			name += " ";
+
+			// Show a tree node
+			if (TreeNode(name.c_str()))
 			{
+				// Call this function for the child
 				Display_Hierarchy(child);
 
+				Separator();
 				TreePop();
 			}
 		}
 		else
 		{
+			// Just display the GameObject
 			Text(object.GetName().c_str());
 		}
 	}
 }
-
-
 
 
 // Binds the imgui function calls to the Transform Component
@@ -923,10 +937,6 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			GameObject parent = transform->GetParent();
 			if (Choose_Parent_ObjectList(editor, transform, object))
 			{
-				glm::vec2 parentPos = transform->GetParent().GetComponent<TransformComponent>()->GetPosition();
-				glm::vec2 diff = transform->GetPosition() - parentPos;
-
-				transform->SetPosition(diff);
 				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
 
 				// Turn off Gravity
@@ -1064,6 +1074,8 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 	if (CollapsingHeader("Sprite"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
+		TextureHandler& texture = sprite->m_TextureHandler;
+
 		if (Button("Remove##sprite"))
 		{
 			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
@@ -1071,16 +1083,16 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			return;
 		}
 
-		//if (sprite->IsAnimated())
-		//{
-		//	float FrameRate = sprite->GetFPS();
-		//	Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
-		//	DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
-		//
-		//	int frame = sprite->AT_frame;
-		//	SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
-		//	sprite->SetFrame(frame);
-		//}
+		if (texture.m_IsAnimated)
+		{
+			float FrameRate = texture.m_FPS;
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
+		
+			int frame = texture.m_CurrentFrame;
+			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
+			texture.m_CurrentFrame = frame;
+		}
 
 
 		ResourceManager& rm = engine->GetResourceManager();
@@ -1163,16 +1175,16 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
 
-				if (collider->isStatic())
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<StaticCollider2DComponent> });
-				}
-				else
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<DynamicCollider2DComponent> });
-				}
+				//if (collider->isStatic())
+				//{
+				//	editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+				//		handle, Action_General_Collider<StaticCollider2DComponent> });
+				//}
+				//else
+				//{
+				//	editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+				//		handle, Action_General_Collider<DynamicCollider2DComponent> });
+				//}
 			}
 
 			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, collider->m_dimensions);
@@ -1628,6 +1640,14 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 	if (CollapsingHeader("Background##background_component"))
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
+
+		if (Button("Remove##background_remove"))
+		{
+			editor->Push_Action({ *background, 0, nullptr, handle, Action_DeleteComponent<BackgroundComponent> });
+			object.DeleteComponent<BackgroundComponent>();
+			return;
+		}
+
 
 		int type = static_cast<int>(background->m_Type);
 		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
