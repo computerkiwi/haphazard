@@ -1098,7 +1098,7 @@ void Editor::UpdatePopUps(float dt)
 
 			// Do fading when we are close to the end, but none until then
 			float alpha = 1.0f;
-			if (popup.timer < 0.25f)
+			if (popup.timer < 0.25f && GetPopUpCount(popup.pos) == 1)
 			{
 				alpha = (popup.timer / popup.max_time) * factor + popup.alpha * (1 - factor);
 			}
@@ -1956,15 +1956,11 @@ void Editor::SettingsPanel(float dt)
 		m_load = true;
 	}
 
-	ImGui::BeginGroup();
-	// Allow users to change Save Interval
-	Text("Save Interval (minutes): ");
-
+	// Allow users to change Save Interval	
 	PushItemWidth(50);
-	InputFloat("##edtor_save_interval", &m_editorState.saveInterval, 0, 0, 2);
+	InputFloat("Save Time (mins)##edtor_save_interval", &m_editorState.saveInterval, 0, 0, 2);
 	PopItemWidth();
 
-	ImGui::EndGroup();
 
 	// New Group
 	ImGui::Separator();

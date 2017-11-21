@@ -877,7 +877,14 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			GameObject parent = transform->GetParent();
 			if (Choose_Parent_ObjectList(editor, transform, object))
 			{
+				glm::vec2 parentPos = transform->GetParent().GetComponent<TransformComponent>()->GetPosition();
+				glm::vec2 diff = transform->GetPosition() - parentPos;
+
+				transform->SetPosition(diff);
 				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
+
+				// Turn off Gravity
+
 			}
 			EndPopup();
 		}
