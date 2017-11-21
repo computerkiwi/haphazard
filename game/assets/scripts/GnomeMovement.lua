@@ -7,13 +7,15 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Variables
 moveSpeed  = 5.0
-gravity    = 2
 jumpHeight = 2
+moveDir    = 0
+gravity    = 0.5
 
 -- Bools
 jumpEnabled  = false
 moveEnabled  = true
 stackEnabled = false
+grounded     = true
 
 -- Enums
 PLAYER_LAYER  =  4
@@ -21,9 +23,9 @@ PLAYER_LAYER  =  4
 PLAYER_NUM = -1 -- Set temporarily
 
 -- Move directions
-LEFT  = -1 -- Player moving left
-IDLE  =  0 -- Player idle
-RIGHT =  1 -- Player moving right
+MOVE_LEFT  = -1 -- Player moving left
+MOVE_IDLE  =  0 -- Player idle
+MOVE_RIGHT =  1 -- Player moving right
 
 DEADZONE = 0.05 -- Joystick dead zone
 
@@ -33,18 +35,31 @@ ATTACK = 1 -- B
 
 HORIZONTAL_AXIS = 0
 
-function UpdateMovement(moveDir)
+function UpdateMovement(dt)
+
+  -- Connections
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
 
-  --newVelocity = playerBody.velocity
+  newVelocity = playerBody.velocity
 
-  local dir = moveDir
+  -- Calculate x velocity
+  newVelocity.x = moveDir * moveSpeed
 
-  newVelocity.x = dir * moveSpeed
+  -- Calculate y valocity
+  if (jumpEnabled == true and grounded == true)
+  then
+    newVelocity.y = jumpHeight
+    jumpEnabled = false
+    grounded = false
+  elseif (newVelocity.y < 0)
+  then 
+    newVelocity.y = newVelocity.y * gravity
+  end
 
   -- Update player velocity
   playerBody.velocity = newVelocity
+
 end
 
 -- Updates each frame
@@ -60,24 +75,31 @@ function Update(dt)
     SetKeyboardControls(name)
   end
 
-  local moveDir
-
   -- Retrieve input
   if (GamepadsConnected() > 0)
   then
-    print("GamepadsConnected")
-    moveDir = GetInputGamepad()
+    print("Using gamepads")
+    GetInputGamepad()
   else
-    print("No gamepads")
-    moveDir = GetInputKeyboard()
+    print("Using keyboard")
+    GetInputKeyboard()
   end
 
-  --UpdateMovement(moveDir)
+  -- Update player movement
+  UpdateMovement(dt)
+
 end
 
 -- Other is a game object
 function OnCollisionEnter(other)
+  -- Connections
+  local otherName = other:GetName()
 
+  -- Player is on the ground
+  if (otherName == "Ground")
+  then
+    grounded = true
+  end
 
 end
 
@@ -112,47 +134,50 @@ end
 -- Gamepad input
 function GetInputGamepad()
 
-  local moveDir
-  
+  -- Player moves right
   if (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) > DEADZONE)
   then
-    moveDir = MOVEDIR_RIGHT
+    moveDir = MOVE_RIGHT
+  -- Player moves left
   elseif (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) < -DEADZONE)
   then
-    moveDir = MOVEDIR_LEFT
-  else
-    moveDir = MOVEDIR_IDLE
-  end
-
-  return moveDir
-end
-
--- Keyboard input
-function GetInputKeyboard()
-  
-  local moveDir
-
-  if (IsPressed(KEY_RIGHT))
-  then
-    moveDir = MOVE_RIGHT
-  elseif (IsPressed(KEY_LEFT))
-  then
     moveDir = MOVE_LEFT
+  -- Player does not move
   else
     moveDir = MOVE_IDLE
   end
 
-  --
+  -- Player jumps
+--  if (GamepadIsPressed(PLAYER_NUM, x))
 
-  local playerBody = this:GetRigidBody()
-  local playerTransform = this:GetTransform()
+end
 
-  newVelocity = playerBody.velocity
+-- Keyboard input
+function GetInputKeyboard()
+ 
+  print("GetInputKeyboard")
 
-  newVelocity.x = moveDir * moveSpeed
+  -- Player moves right
+  if (IsPressed(KEY_RIGHT))
+  then
+    moveDir = MOVE_RIGHT
+  -- Player moves left
+  elseif (IsPressed(KEY_LEFT))
+  then
+    moveDir = MOVE_LEFT
+  -- Player does not move
+  else
+    moveDir = MOVE_IDLE
+  end
 
-  -- Update player velocity
-  playerBody.velocity = newVelocity
+  -- Player jumps
+  if (IsPressed(KEY_JUMP))
+  then
+    jumpEnabled = true
+  else
+    jumpEnabled = false
+  end
 
-  --
+  -- Player stacks
+
 end
