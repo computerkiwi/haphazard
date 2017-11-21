@@ -21,6 +21,8 @@ struct ScriptComponent;
 class Camera;
 class BackgroundComponent;
 
+class TextComponent;
+
 enum ErrorIndex
 {
 	FailedToStartEditor = 1,
@@ -45,4 +47,4 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
 void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
 void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
-
+void ImGui_Text(TextComponent *text, GameObject object, Editor *editor);

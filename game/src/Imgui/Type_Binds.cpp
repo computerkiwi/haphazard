@@ -30,6 +30,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Input/Input.h"
 
 #include <cfloat>
+#include "graphics/Text.h"
 
 using namespace ImGui;
 
@@ -842,6 +843,32 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 #define SLIDER_STEP 0.01f
 #define ID_MASK 0xFFFFFF
 
+
+static void Display_Hierarchy(GameObject object)
+{
+	auto children = object.GetComponent<HierarchyComponent>();
+
+	for (auto& child : children->GetList())
+	{
+		if (child.GetComponent<HierarchyComponent>().IsValid())
+		{
+			if (TreeNode(object.GetName().c_str()))
+			{
+				Display_Hierarchy(child);
+
+				TreePop();
+			}
+		}
+		else
+		{
+			Text(object.GetName().c_str());
+		}
+	}
+}
+
+
+
+
 // Binds the imgui function calls to the Transform Component
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
@@ -850,7 +877,26 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	DebugGraphic::DrawSquare(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
 
 	EditorComponentHandle handle = { object.Getid(), true };
-		
+	
+	SameLine();
+	if (Button("Children"))
+	{
+		OpenPopup("Children##transform_parent");
+	}
+
+	if (BeginPopup("Children##transform_parent"))
+	{
+		if (object.GetComponent<HierarchyComponent>().IsValid())
+		{
+			Display_Hierarchy(object);
+		}
+		else
+		{
+			editor->AddPopUp(PopUpWindow("Has no children.", 2.0f, PopUpPosition::Mouse));
+		}
+		EndPopup();
+	}
+
 	SameLine();
 	if (transform->GetParent())
 	{
@@ -884,7 +930,10 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
 
 				// Turn off Gravity
-
+				if (object.GetComponent<RigidBodyComponent>().IsValid())
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
+				}
 			}
 			EndPopup();
 		}
@@ -1648,6 +1697,14 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 	}
 }
 
+
+void ImGui_Text(TextComponent *text, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Text##text_component"))
+	{
+		
+	}
+}
 
 // Text Component
 
