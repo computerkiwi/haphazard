@@ -131,13 +131,13 @@ private:
 		META_DefineMember(GameObject, m_objID, "id");
 
 		META_DefineFunction(GameObject, Duplicate, "Duplicate");
-		META_DefineFunction(GameObject, Delete,    "Duplicate");
+		META_DefineFunction(GameObject, Delete,       "Delete");
 
 		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");
 		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
 		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
 		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
-		META_DefineFunction(GameObject, DeleteComponent<Camera>,					  "DeleteCamera");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>,					            "DeleteCamera");
 
 
 		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");

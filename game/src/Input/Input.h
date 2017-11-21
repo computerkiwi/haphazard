@@ -35,10 +35,11 @@ namespace Input
 
     // Gamepad functions
     void SetGamepad();
-    float GamepadGetAxis(PlayerID player, GamepadAxis axis);
     bool GamepadIsPressed(PlayerID player, GamepadButton button);
     bool GamepadIsHeldDown(PlayerID player, GamepadButton button);
     bool GamepadIsReleased(PlayerID player, GamepadButton button);
+   float GamepadGetAxis(PlayerID player, GamepadAxis axis);
+     int GamepadsConnected();
 
     // Update functions
     void UpdateKeyStates();
@@ -47,9 +48,9 @@ namespace Input
     // Cursor functions
     glm::vec2 GetMousePos();
     glm::vec2 GetMousePos_World();
-	void RecordMousePos();
-	glm::vec2 GetPrevMousePos();
-	glm::vec2 GetPrevMousePos_World();
+  	void RecordMousePos();
+  	glm::vec2 GetPrevMousePos();
+  	glm::vec2 GetPrevMousePos_World();
     glm::vec2 ScreenToWorld(glm::vec2 cursor);
 
     ////////// Callback Functions //////////
