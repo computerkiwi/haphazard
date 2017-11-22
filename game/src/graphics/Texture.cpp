@@ -63,11 +63,11 @@ std::pair<bool, glm::ivec2> TestPosition(int x, int y, int z, int width, int hei
 		if (tb.w < nextY && tb.w > y) // Find the lowest value still greater than  y
 			nextY = tb.w;
 
-		if ((y >= tb.y && y <= tb.w) || (y + height >= tb.y && y + height <= tb.w)) // top or bottom is inside Y bounds, it is overlapping.
+		if (y < tb.w && y + height > tb.y) // top or bottom is inside Y bounds, it is overlapping.
 		{
 			if (tb.z > rightestX) // Get rightmost in these y bounds
 				rightestX = tb.z;
-			if ((x >= tb.x && x <= tb.z) || (x + width >= tb.x && x + width <= tb.z)) // start and/or end is inside X bounds
+			if (x < tb.z && x + width > tb.x) // start and/or end is inside X bounds
 			{
 				canFit = false; // It wont fit, but keep going to find the rightest
 			}
