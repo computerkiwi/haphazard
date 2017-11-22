@@ -212,6 +212,12 @@ void Editor::Update()
 
 	if (m_editorState.show)
 	{
+		if (m_engine->IsWindowTitleDirty())
+		{
+			m_engine->AppendToWindowTitle(m_filename);
+			m_editorState.fileChanged = false;
+		}
+
 		if (m_editorState.first_update)
 		{
 			//prev_camera = Camera::GetActiveCamera();
@@ -511,12 +517,14 @@ void Editor::KeyBindings()
 	{
 		if (m_actions.history.size())
 		{
-			m_engine->FileSave(m_filename);
+			m_save = true;
 		}
-		else
-		{
-			AddPopUp(PopUpWindow("No Changes to save.", 2.0f, PopUpPosition::BottomLeft));
-		}
+	}
+
+	if (Input::IsHeldDown(Key::LeftShift) && Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
+	{
+		m_save = true;
+		m_editorState.fileChanged = true;
 	}
 
 	// Open Dialog Box
@@ -1588,6 +1596,12 @@ void Editor::MenuBar()
 				m_save = true;
 			}
 
+			if (ImGui::MenuItem("Save As..."))
+			{
+				m_editorState.fileOpened = false;
+				m_save = true;
+			}
+
 			// Load an file
 			if (ImGui::MenuItem("Load"))
 			{
@@ -1689,8 +1703,18 @@ void Editor::SaveLoad()
 	// Check if we need to save
 	if (m_save)
 	{
-		logger << "[EDITOR] Saving Level Dialog\n";
-		SaveLevel();
+		if (m_editorState.fileOpened)
+		{
+			m_engine->FileSave(m_filename);
+		}
+		else
+		{
+			m_editorState.fileOpened = true;
+
+			logger << "[EDITOR] Saving Level Dialog\n";
+			SaveLevel();
+		}
+
 		m_save = false;
 	}
 
@@ -1700,6 +1724,8 @@ void Editor::SaveLoad()
 		logger << "[EDITOR] Opening Level Dialog\n";
 		OpenLevel();
 		m_load = false;
+		m_editorState.fileChanged = true;
+		m_editorState.fileOpened = true;
 	}
 }
 

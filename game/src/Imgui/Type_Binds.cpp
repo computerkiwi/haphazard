@@ -102,6 +102,28 @@ void Action_General_Collider(EditorAction& a)
 }
 
 
+template <class Collider, typename T>
+void Action_General_Collider(EditorAction& a)
+{
+	ComponentHandle<Collider> handle(a.handle);
+	GameObject object = handle.GetGameObject();
+
+
+	meta::Any colliderData(&handle->ColliderData());
+
+	ObjectsMatchScale[object].value = !ObjectsMatchScale[object].value;
+
+	if (a.redo)
+	{
+		colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
+	}
+	else
+	{
+		colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+	}
+}
+
+
 template <class Component>
 void Action_DeleteComponent(EditorAction& a)
 {
@@ -402,7 +424,8 @@ struct CameraSave
 struct BackgroundSave
 {
 	Texture* m_Texture;
-	
+	ResourceID m_resID;
+
 	BACKGROUND_TYPE m_Type;
 	
 	glm::vec4 m_ParallaxBounds;
@@ -1069,90 +1092,6 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 }
 
 
-// Binds the imgui function calls to the Sprite Component
-void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
-{
-	if (CollapsingHeader("Sprite"))
-	{
-		EditorComponentHandle handle = { object.Getid(), true };
-		TextureHandler& texture = sprite->m_TextureHandler;
-
-		if (Button("Remove##sprite"))
-		{
-			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
-			object.DeleteComponent<SpriteComponent>();
-			return;
-		}
-
-
-		if (Button("Colors##sprite_color"))
-		{
-
-			if (!widget_click["Colors##sprite_color"])
-			{
-				spriteSave.m_Color = sprite->m_Color;
-				widget_click["Colors##sprite_color"] = true;
-			}
-
-			OpenPopup("##sprite_color_picker");
-			
-			Separator();
-		}
-
-		if (BeginPopup("##sprite_color_picker"))
-		{
-			ColorPicker4("Sprite Color", &sprite->m_Color.x, ImGuiColorEditFlags_AlphaBar);
-
-			EndPopup();
-		}
-		else if (widget_click["Colors##sprite_color"] == true)
-		{
-			editor->Push_Action({ spriteSave.m_Color, sprite->m_Color, "color", handle, Action_General<SpriteComponent, glm::vec4> });
-			widget_click["Colors##sprite_color"] = false;
-		}
-
-
-		if (texture.m_IsAnimated)
-		{
-			float FrameRate = texture.m_FPS;
-			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
-			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
-		
-			int frame = texture.m_CurrentFrame;
-			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
-			texture.m_CurrentFrame = frame;
-		}
-
-
-		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
-		
-		ResourceID id = sprite->GetResourceID();
-
-		Separator();
-		BeginChild("Sprites", ImVec2(0, 125), true);
-		for (auto resource : sprites)
-		{
-			if (resource->Id() == id)
-			{
-				PushStyleColor(ImGuiCol_Header, ImVec4( 223/255.0f, 104/255.0f, 76/255.0f, 1.0f ));
-				Selectable(resource->FileName().c_str(), true);
-				PopStyleColor();
-				continue;
-			}
-			if (Selectable(resource->FileName().c_str()))
-			{
-				// Is resource ref counted, can I store pointers to them?
-				sprite->SetTextureResource(resource);
-				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
-			}
-		}
-		EndChild();
-	}
-}
-
-
 // Binds the imgui function calls to the Collider Component
 void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 {
@@ -1196,12 +1135,24 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			Checkbox("Match Scale", &(ObjectsMatchScale[object].value));
-
-			if (ObjectsMatchScale[object])
+			if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
 			{
 				colliderSave.m_dimensions = collider->m_dimensions;
 
+				if (collider->isStatic())
+				{
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+						handle, Action_General_Collider<StaticCollider2DComponent, bool> });
+				}
+				else
+				{
+					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+						handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
+				}
+			}
+
+			if (ObjectsMatchScale[object])
+			{
 				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
 
 				//if (collider->isStatic())
@@ -1396,6 +1347,95 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 }
 
 
+// Binds the imgui function calls to the Sprite Component
+void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
+{
+	if (CollapsingHeader("Sprite", ImGuiTreeNodeFlags_Framed))
+	{
+		EditorComponentHandle handle = { object.Getid(), true };
+		TextureHandler& texture = sprite->m_TextureHandler;
+
+		if (Button("Remove##sprite"))
+		{
+			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
+			object.DeleteComponent<SpriteComponent>();
+			return;
+		}
+
+		SameLine();
+		if (Button("Colors##sprite_color"))
+		{
+
+			if (!widget_click["Colors##sprite_color"])
+			{
+				spriteSave.m_Color = sprite->m_Color;
+				widget_click["Colors##sprite_color"] = true;
+			}
+
+			OpenPopup("##sprite_color_picker");
+		}
+
+		SameLine();
+		if (Button("Reset##sprite_sprite_reset"))
+		{
+			editor->Push_Action({ texture.m_Texture->Id(), -1, "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			sprite->SetTextureID(-1);
+		}
+
+		if (BeginPopup("##sprite_color_picker"))
+		{
+			ColorPicker4("Sprite Color", &sprite->m_Color.x, ImGuiColorEditFlags_AlphaBar);
+
+			EndPopup();
+		}
+		else if (widget_click["Colors##sprite_color"] == true)
+		{
+			editor->Push_Action({ spriteSave.m_Color, sprite->m_Color, "color", handle, Action_General<SpriteComponent, glm::vec4> });
+			widget_click["Colors##sprite_color"] = false;
+		}
+
+
+		if (texture.m_IsAnimated)
+		{
+			float FrameRate = texture.m_FPS;
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
+
+			int frame = texture.m_CurrentFrame;
+			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
+			texture.m_CurrentFrame = frame;
+		}
+
+
+		ResourceManager& rm = engine->GetResourceManager();
+
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+
+		ResourceID id = sprite->GetResourceID();
+
+		Separator();
+		BeginChild("Sprites", ImVec2(0, 125), true);
+		for (auto resource : sprites)
+		{
+			if (resource->Id() == id)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
+			if (Selectable(resource->FileName().c_str()))
+			{
+				// Is resource ref counted, can I store pointers to them?
+				sprite->SetTextureResource(resource);
+				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			}
+		}
+		EndChild();
+	}
+}
+
+
 const char * const EmissionShape_Names[] =
 {
 	"Point",
@@ -1572,7 +1612,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			{
 				ResourceManager& rm = engine->GetResourceManager();
 
-				std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
+				std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
 
 				Separator();
 
@@ -1743,6 +1783,37 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 			Separator();
 			TreePop();
 		}
+
+		ResourceManager& rm = engine->GetResourceManager();
+
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+
+		Separator();
+
+		if (Button("Reset##background_reset"))
+		{
+			editor->Push_Action({ bgSave.m_resID, -1, "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+			background->m_resID = -1;
+		}
+		SameLine();
+		BeginChild("Sprites", ImVec2(0, 125), true);
+		for (auto resource : sprites)
+		{
+			if (resource->Id() == background->m_resID)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
+			if (Selectable(resource->FileName().c_str()))
+			{
+				// Is resource ref counted, can I store pointers to them?
+				editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+				background->m_resID = resource->Id();
+			}
+		}
+		EndChild();
 	}
 }
 

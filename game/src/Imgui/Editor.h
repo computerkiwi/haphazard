@@ -137,6 +137,8 @@ class Editor
 	private:
 		friend class Editor;
 
+		bool fileOpened = false;
+		bool fileChanged = true;
 		float saveInterval = 5.0f; // Save Invterval in minutes
 		float saveTimer;           // How long since last save
 
@@ -175,7 +177,7 @@ class Editor
 	// --------------
 	bool m_save = false;
 	bool m_load = false;
-	char m_filename[128] = { 0 };
+	char m_filename[128] = "No File";
 
 
 	// GameObject Selection
@@ -367,7 +369,6 @@ private:
 	// ImGui
 	void MenuBar();
 	void SettingsPanel(float dt);
-	void Console();
 	void PPFX();
 
 	// Click Handling

@@ -317,3 +317,4 @@ bool Logging::TryOpenLogFile()
 	Log(Channel::LOGGING, Logging::MEDIUM_PRIORITY, "Succesfully opened log file ", filename.str());
 	return true;
 }
+
