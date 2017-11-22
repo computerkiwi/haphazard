@@ -94,15 +94,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
 	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
 
-
-	Resource *tex = m_resManager.Get("bird.png");
-	for (int i = 0; i < 3; ++i)
-	{
-		GameObject asdf3 = m_spaces[0]->NewGameObject("GodBox");
-		asdf3.AddComponent<TransformComponent>(glm::vec3(10000, 1, 0));
-		asdf3.AddComponent<SpriteComponent>(tex);
-	}
-
 	for (int i = 0; i < 3; ++i)
 	{
 		const int WIDTH = 4;

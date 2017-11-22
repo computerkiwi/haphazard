@@ -92,6 +92,9 @@ void RenderSystem::RenderSprites(float dt)
 {
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
+	if (sprites->begin() == sprites->end())
+		return;
+
 	// Instancing variables
 	std::vector<float> data;
 	std::vector<int> tex;
