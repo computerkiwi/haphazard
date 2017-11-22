@@ -371,6 +371,7 @@ struct SpriteSave
 	int    AT_frame  = 0;
 	float  AT_fps = 0;
 	float  AT_timer  = 0;
+	glm::vec4 m_Color = glm::vec4(1, 1, 1, 1);
 } spriteSave;
 
 // Particles Save Location
@@ -1082,6 +1083,34 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			object.DeleteComponent<SpriteComponent>();
 			return;
 		}
+
+
+		if (Button("Colors##sprite_color"))
+		{
+
+			if (!widget_click["Colors##sprite_color"])
+			{
+				spriteSave.m_Color = sprite->m_Color;
+				widget_click["Colors##sprite_color"] = true;
+			}
+
+			OpenPopup("##sprite_color_picker");
+			
+			Separator();
+		}
+
+		if (BeginPopup("##sprite_color_picker"))
+		{
+			ColorPicker4("Sprite Color", &sprite->m_Color.x, ImGuiColorEditFlags_AlphaBar);
+
+			EndPopup();
+		}
+		else if (widget_click["Colors##sprite_color"] == true)
+		{
+			editor->Push_Action({ spriteSave.m_Color, sprite->m_Color, "color", handle, Action_General<SpriteComponent, glm::vec4> });
+			widget_click["Colors##sprite_color"] = false;
+		}
+
 
 		if (texture.m_IsAnimated)
 		{
