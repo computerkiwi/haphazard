@@ -4,6 +4,7 @@ PRIMARY AUTHOR: Max Rauffer
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
+#include "Engine\Engine.h"
 #include "Text.h"
 
 #include "Util\Logging.h"
@@ -70,6 +71,12 @@ TextComponent::TextComponent(std::string string, Font* font, glm::vec4 color)
 	SetVertexBuffer();
 
 	CompileText(string);
+}
+
+TextComponent::~TextComponent()
+{
+	glDeleteVertexArrays(1, &m_VAO);
+	glDeleteBuffers(1, &m_CharVBO);
 }
 
 void TextComponent::SetText(std::string string, Font* font, glm::vec4* color)

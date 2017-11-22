@@ -399,7 +399,7 @@ void Editor::Update()
 		}
 		else
 		{
-			m_engine->GetDtObject() = m_engine->CalculateDt();
+			//m_engine->GetDtObject() = m_engine->CalculateDt();
 		}
 
 		// Render the console
