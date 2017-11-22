@@ -51,7 +51,7 @@ void DrawEditorSprite(Resource* res, glm::vec2 pos, glm::vec2 scale, float rotat
 	Shaders::editorSpriteShader->SetVariable("Scale", scale);
 	Shaders::editorSpriteShader->SetVariable("Rotation", rotationRadians);
 
-	Shaders::editorSpriteShader->SetVariable("TexLayer", reinterpret_cast<Texture*>(res->Data())->GetID());
+	Shaders::editorSpriteShader->SetVariable("TexLayer", reinterpret_cast<Texture*>(res->Data())->GetLayer());
 	Shaders::editorSpriteShader->SetVariable("TexBox", reinterpret_cast<Texture*>(res->Data())->GetBounds());
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }

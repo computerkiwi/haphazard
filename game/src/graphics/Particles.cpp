@@ -246,7 +246,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos)
 	if (m_settings.texture_resourceID != -1)
 	{
 		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
-		data[23] = static_cast<float>(texture->GetID());
+		data[23] = static_cast<float>(texture->GetLayer());
 
 		data[16] = texture->GetBounds().x;
 		data[17] = texture->GetBounds().y;

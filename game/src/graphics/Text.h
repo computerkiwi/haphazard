@@ -33,7 +33,7 @@ public:
 	void SetFontSpacing(float space) { m_FontSpacing = space; }
 
 	// Return font texture
-	GLuint GetTextureLayer() { return m_Texture->GetID(); }
+	GLuint GetTextureLayer() { return m_Texture->GetLayer(); }
 
 	// Get texture box around character c 
 	glm::vec4 CharBox(char c)

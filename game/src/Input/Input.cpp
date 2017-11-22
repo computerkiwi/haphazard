@@ -369,4 +369,20 @@ namespace Input
       return gamepads[player]->IsReleased(button);
     }
   }
+
+  // Returns number of gamepads connected
+  int GamepadsConnected()
+  {
+    int players = 0;
+
+    for (int i = 0; i < MAX_PLAYERS; ++i)
+    {
+      if (gamepads[i]->IsConnected() == true)
+      {
+        ++players;
+      }
+    }
+
+    return players;
+  }
 }

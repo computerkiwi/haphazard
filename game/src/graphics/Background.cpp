@@ -82,7 +82,7 @@ void BackgroundComponent::Render(glm::vec2 pos)
 	m_Mesh->Bind();
 	Texture::BindArray();
 	glUniform4f(m_UniTexBox, box.x, box.y, box.z, box.w);
-	glUniform1ui(m_UniTexLayer, m_Texture->GetID());
+	glUniform1ui(m_UniTexLayer, m_Texture->GetLayer());
 	m_Mesh->DrawTris();
 }
 

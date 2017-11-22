@@ -58,14 +58,14 @@ public:
 	Collider2D(const Collider2D&) = default;
 
 	// getters
-	int GetColliderShape();
-	glm::vec3 GetDimensions();
-	glm::vec2 GetOffset();
-	float GetRotationOffset();
-	CollisionLayer GetCollisionLayer();
-	float GetSelfElasticity();
-	float GetAppliedElasticity();
-	collisionType GetCollisionType();
+	int GetColliderShape() const;
+	glm::vec3 GetDimensions() const;
+	glm::vec2 GetOffset() const;
+	float GetRotationOffset() const;
+	CollisionLayer GetCollisionLayer() const;
+	float GetSelfElasticity() const;
+	float GetAppliedElasticity() const;
+	collisionType GetCollisionType() const;
 
 	// setters
 	void SetColliderShape(colliderType colliderType);
@@ -87,10 +87,10 @@ public:
 	// Passed only one parameter, scales both axes by the same thing
 	void ScaleDimensions(float xScale, float yScale = 0);
 	void AdjustRotationOffset(float rotationAdjustment);
-	bool isStatic();
-	bool IsCollidingWithLayer(collisionLayers layer);
+	bool isStatic() const;
+	bool IsCollidingWithLayer(collisionLayers layer) const;
 	void ClearCollidedLayers();
-	bool ColliderIsShape(colliderType colliderType);
+	bool ColliderIsShape(colliderType colliderType) const;
 
 private:
 	friend void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor);

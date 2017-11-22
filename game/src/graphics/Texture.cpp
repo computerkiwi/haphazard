@@ -15,8 +15,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Texture
 ///
 
+#define MAX_LAYERS 32
+
 GLuint Texture::m_TextureArray = 0;
 GLuint Texture::m_layers = 0;
+
+std::vector<Texture*> textures;
 
 void Texture::GenerateTextureArray()
 {
@@ -25,12 +29,12 @@ void Texture::GenerateTextureArray()
 
 	// Warning: If larger or more textures are needed, the size cannot exceed GL_MAX_3D_TEXTURE_SIZE 
 	// 3 mipmap levels, max layers is 32
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 3, GL_RGBA8, Texture::MAX_WIDTH, Texture::MAX_HEIGHT, 100);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, 3, GL_RGBA8, Texture::MAX_WIDTH, Texture::MAX_HEIGHT, MAX_LAYERS);
 }
 
-void LoadTexture(void* image, int width, int height, int layer, GLenum format)
+void LoadTexture(void* image, int x, int y, int width, int height, int layer, GLenum format)
 {
-	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, layer, width, height, 1, GL_RGBA, format, image);
+	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, x, y, layer, width, height, 1, GL_RGBA, format, image);
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -40,8 +44,70 @@ void LoadTexture(void* image, int width, int height, int layer, GLenum format)
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
+std::pair<bool, glm::ivec2> TestPosition(int x, int y, int z, int width, int height)
+{
+	int rightestX = 0;
+	int nextY = Texture::MAX_HEIGHT;
+	bool canFit = true;
+	for (Texture* tex : textures)
+	{
+		if (tex->GetLayer() != z)
+			continue; // Not on same layer, skip this one
+
+		glm::vec4 tb = tex->GetBounds();
+		tb.x *= Texture::MAX_WIDTH;
+		tb.y *= Texture::MAX_HEIGHT;
+		tb.z *= Texture::MAX_WIDTH;
+		tb.w *= Texture::MAX_HEIGHT;
+
+		if (tb.w < nextY && tb.w > y) // Find the lowest value still greater than  y
+			nextY = tb.w;
+
+		if (y < tb.w && y + height > tb.y) // top or bottom is inside Y bounds, it is overlapping.
+		{
+			if (tb.z > rightestX) // Get rightmost in these y bounds
+				rightestX = tb.z;
+			if (x < tb.z && x + width > tb.x) // start and/or end is inside X bounds
+			{
+				canFit = false; // It wont fit, but keep going to find the rightest
+			}
+		}
+
+	}
+	if (x + width > Texture::MAX_WIDTH || y + height > Texture::MAX_HEIGHT)
+		canFit = false;
+
+	return std::pair<bool, glm::ivec2>(canFit, glm::ivec2(rightestX,nextY));
+}
+
+glm::ivec3 FindLocationForSprite(int width, int height)
+{
+	// Go through every layer
+	for (int z = 0; z < MAX_LAYERS; z++)
+	{
+		for (int y = 0; y <= Texture::MAX_HEIGHT;)
+		{
+			std::pair<bool, glm::ivec2> result;
+			for (int x = 0; x + width <= Texture::MAX_WIDTH;)
+			{
+				result = TestPosition(x, y, z, width, height);
+				if (result.first)
+				{
+					// Will fit here
+					return glm::vec3(x, y, z);
+				}
+				if (x == result.second.x + 1) // If x isnt making any progress in x direction
+					break;
+				x = result.second.x + 1;
+			}
+			y = result.second.y + 1;
+		}
+	}
+	assert(!"I cant load this image!");
+	return glm::ivec3(-1,-1,-1);
+}
+
 Texture::Texture(const char* file)
-  : m_ID { m_layers }
 {
 	int width, height;
 	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
@@ -49,19 +115,25 @@ Texture::Texture(const char* file)
 	if (!m_TextureArray)
 		GenerateTextureArray();
 
+	glm::ivec3 offset = FindLocationForSprite(width, height);
+
+	m_layer = offset.z;
+
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_TextureArray);
-	LoadTexture(image, width, height, m_layers, GL_UNSIGNED_BYTE);
+	LoadTexture(image, offset.x, offset.y, width, height, m_layer, GL_UNSIGNED_BYTE);
 	SOIL_free_image_data(image); // Data given to opengl, dont need it here anymore
 
-	m_layers++;
-
-	m_width = width / (float)MAX_WIDTH;
-	m_height = height / (float)MAX_HEIGHT;
+	m_bounds.x = offset.x / (float)MAX_WIDTH;
+	m_bounds.y = offset.y / (float)MAX_HEIGHT;
+	m_bounds.z = m_bounds.x + width / (float)MAX_WIDTH;
+	m_bounds.w = m_bounds.y + height / (float)MAX_HEIGHT;
+	
+	textures.push_back(this);
 }
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &m_ID);
+	glDeleteTextures(1, &m_layer);
 }
 
 void Texture::BindArray() 
@@ -72,7 +144,7 @@ void Texture::BindArray()
 
 glm::vec4 Texture::GetBounds()
 {
-	return glm::vec4(0,0,m_width, m_height);
+	return m_bounds;
 }
 
 ///
