@@ -1,5 +1,5 @@
 /*******************************************************
-FILE: Commands.h
+FILE: Event.h
 
 PRIMARY AUTHOR: Lya Vera
 
@@ -12,25 +12,33 @@ Copyright 2017 DigiPen (USA) Corporation.
 #include "KeyMap.h"
 
 // Virtual class for commands
-class Command
+class Event
 {
   public:
-    virtual ~Command() {}
+    virtual ~Event() {}
     virtual void Execute() = 0; // Must be implemented by derived class
 };
 
-class CommandJump
+class JumpEvent
 {
+  private:
+
+
   public:
 
 };
 
-class CommandStack
+class StackEvent
 {
 
 };
 
-class CommandAttack
+class AttackEvent
+{
+
+};
+
+class TossEvent
 {
 
 };

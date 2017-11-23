@@ -193,6 +193,7 @@
     <ClCompile Include="src\Imgui\Editor.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
     <ClCompile Include="src\Imgui\Type_Binds.cpp" />
+    <ClCompile Include="src\Input\Event.cpp" />
     <ClCompile Include="src\Input\Gamepad.cpp" />
     <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -250,7 +251,7 @@
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
-    <ClInclude Include="src\Input\Commands.h" />
+    <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Input\Gamepad.h" />
     <ClInclude Include="src\Input\Input.h" />
     <ClInclude Include="src\Input\KeyMap.h" />
@@ -274,6 +275,7 @@
     <ClInclude Include="src\Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\scripts\LevelProgress.lua" />
     <None Include="PlayerController.lua" />
     <None Include="shaders\background.frag" />
     <None Include="shaders\background.vert" />
