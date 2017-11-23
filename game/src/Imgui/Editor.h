@@ -180,7 +180,7 @@ class Editor
 	// --------------
 	bool m_save = false;
 	bool m_load = false;
-	std::string m_filename = "No File";
+	std::string m_filename = "NoFile.json";
 
 
 	// GameObject Selection
