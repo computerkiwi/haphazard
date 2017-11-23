@@ -26,6 +26,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "RenderLayer.h"
 #include "Input\Input.h"
 #include "EditorGraphic.h"
+#include "graphics\LightComponent.h"
 
 static bool resizeCameras = false;
 static int width;
@@ -271,6 +272,75 @@ void RenderSystem::RenderForegrounds(float dt)
 	}
 }
 
+void RenderSystem::RenderLights(float dt)
+{
+	ComponentMap<LightComponent> *lights = GetGameSpace()->GetComponentMap<LightComponent>();
+
+	if (lights->begin() == lights->end())
+		return;
+
+	// Instancing variables
+	std::vector<float> data;
+	int numLights = 0;
+
+	std::set<int> layers;
+	for (auto& lightHandle : *lights)
+	{
+		ComponentHandle<TransformComponent> transform = lightHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsValid())
+		{
+			continue;
+		}
+
+		layers.insert(static_cast<int>(transform->GetZLayer()));
+	}
+
+	int last = -1234;
+	for (int layer : layers)
+	{
+		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
+		Screen::GetLayerFrameBuffer(layer)->Use();
+
+		data.clear();
+
+		for (auto& lightHandle : *lights)
+		{
+			// Check for valid transform
+			ComponentHandle<TransformComponent> transform = lightHandle.GetSiblingComponent<TransformComponent>();
+			if (!transform.IsValid())
+			{
+				continue;
+			}
+
+			if (static_cast<int>(transform->GetZLayer()) != layer)
+				continue;
+
+			// Places vertex data into data vector to be used in Vertex VBO
+			lightHandle->SetRenderData(transform->GetPosition(), &data);
+
+			// Keep count of all meshes used in instancing call
+			numLights++;
+		}
+
+		if (numLights == 0)
+			return;
+
+		// Bind sprite shader
+		Shaders::lightShader->Use();
+
+		Shaders::lightShader->SetVariable("Resolution", glm::vec2(Settings::ScreenWidth(), Settings::ScreenHeight()));
+
+		// Bind buffers and set instance data of all sprites
+		LightComponent::BindInstanceVBO();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_DYNAMIC_DRAW);
+
+		LightComponent::BindVAO();
+
+		// Draw all sprites in this layer
+		glDrawArraysInstanced(GL_TRIANGLES, 0, numLights * 6, numLights);
+	}
+}
+
 // Called each frame.
 void RenderSystem::Update(float dt)
 {
@@ -289,6 +359,7 @@ void RenderSystem::Update(float dt)
 	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
+	RenderLights(dt);
 
 	//End loop
 	Screen::Draw(); // Draw to screen and apply post processing effects

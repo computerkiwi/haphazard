@@ -33,6 +33,7 @@ namespace Shaders
 	extern ShaderProgram* particleUpdateShader;
 	extern ShaderProgram* particleRenderShader;
 	extern ShaderProgram* backgroundShader;
+	extern ShaderProgram* lightShader;
 
 	extern ShaderProgram* debugShader;
 	extern ShaderProgram* editorSpriteShader;

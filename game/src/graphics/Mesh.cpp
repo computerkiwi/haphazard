@@ -42,7 +42,7 @@ Mesh::Mesh()
 	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
 	Shaders::spriteShader->ApplyAttributes(9, 10); // Apply texture instance attribute
 
-	// VBO for non chaning vertex data
+	// VBO for non changing vertex data
 	glGenBuffers(1, &vboID);
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	Shaders::spriteShader->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember

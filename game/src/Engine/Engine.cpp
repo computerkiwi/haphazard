@@ -24,6 +24,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Settings.h" // Settings needed for window init
 #include "graphics\Texture.h"
 #include "graphics\RenderLayer.h"
+#include "graphics\LightComponent.h"
 
 // imgui
 #include <imgui.h>
@@ -171,6 +172,8 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	player1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
 	player1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
 	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);
+
+	player1.AddComponent<LightComponent>();
 
 	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
 	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);

@@ -276,6 +276,7 @@ namespace Shaders
 	ShaderProgram* particleUpdateShader;
 	ShaderProgram* particleRenderShader;
 	ShaderProgram* backgroundShader;
+	ShaderProgram* lightShader;
 
 	ShaderProgram* debugShader;
 	ShaderProgram* editorSpriteShader;
@@ -312,6 +313,22 @@ namespace Shaders
 		spriteShader = LoadShaders(path + "sprite.vert", path + "sprite.frag", attribs);
 
 		if (!spriteShader->wasCompiled())
+			FailedCompile();
+	}
+
+	void LoadLightShader()
+	{
+		std::vector<ShaderProgram::Attribute> attribs;
+		attribs.push_back(ShaderProgram::Attribute("vpos", 2, GL_FLOAT, sizeof(float), false, 2, 0));
+
+		// Instance Attribs
+		attribs.push_back(ShaderProgram::Attribute("position", 2, GL_FLOAT, sizeof(float), false, 7, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 7, 2, true));
+		attribs.push_back(ShaderProgram::Attribute("range", 1, GL_FLOAT, sizeof(float), false, 7, 6, true));
+
+		lightShader = LoadShaders(path + "light.vert", path + "light.frag", attribs);
+
+		if (!lightShader->wasCompiled())
 			FailedCompile();
 	}
 
@@ -511,6 +528,7 @@ namespace Shaders
 	void Init()
 	{
 		LoadSpriteShader();
+		LoadLightShader();
 		LoadTextShader();
 		LoadParticleShaders();
 		LoadBackgroundShader();
