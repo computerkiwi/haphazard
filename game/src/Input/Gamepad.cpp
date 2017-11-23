@@ -254,7 +254,6 @@ void Gamepad::GamepadDebug()
 {
   std::cout << "============ DEBUG START ============" << std::endl;
 
-  // ???? Sometimes this is a NullPtr?
   // Retrieve current state
   axisValues_ = glfwGetJoystickAxes(ID_, &numAxes_);
   //buttonsNextState_ = glfwGetJoystickButtons(ID_, &numButtons_);
@@ -263,11 +262,6 @@ void Gamepad::GamepadDebug()
   {
     return;
   }
-
-  //if (enabled_ == false)
-  //{
-  //  return;
-  //}
 
   ////// Axes /////////////////////////////
   // Left Analog Axes

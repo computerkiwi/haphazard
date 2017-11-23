@@ -60,6 +60,7 @@
     <ClCompile Include="src\Util\Util.cpp" />
     <ClCompile Include="src\graphics\AnimationResource.cpp" />
     <ClCompile Include="src\graphics\EditorGraphic.cpp" />
+    <ClCompile Include="src\Input\Event.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -167,6 +168,7 @@
     <None Include="shaders\background.vert" />
     <None Include="shaders\editorsprite.vert" />
     <None Include="shaders\editorsprite.frag" />
+    <None Include="assets\scripts\LevelProgress.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
@@ -175,9 +177,9 @@
     <ClInclude Include="src\Scripting\ScriptResource.h" />
     <ClInclude Include="src\graphics\RenderLayer.h" />
     <ClInclude Include="src\Audio\AudioResource.h" />
-    <ClInclude Include="src\Input\Commands.h" />
     <ClInclude Include="src\graphics\AnimationResource.h" />
     <ClInclude Include="src\graphics\EditorGraphic.h" />
+    <ClInclude Include="src\Input\Event.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />
