@@ -10,22 +10,37 @@ Copyright 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include "KeyMap.h"
-#include "Commands.h"
+#include "Event.h"
 
 // Holds the key and the command to execute for each player
 class Keybinding
 {
+  private:
+    PlayerID playerID_;
+    KeybindingKeyboard * keyboard_;
+    KeybindingGamepad * gamepad_;
+
   public:
-    Keybinding();
+    Keybinding(PlayerID playerID);
     ~Keybinding();
 
-    void ResetKeybinding();
-    Key GetKeybinding(Action action) const;
+    void ResetAllKeybinding();
+    void ResetKeyboardKeybinding();
+    void ResetGamepadKeybinding();
 
-    void SetJump(Key jump);
-    void SetAttack(Key attack);
-    void SetMoveLeft(Key left);
-    void SetMoveRight(Key right);
+    Key GetKeyboardKeybinding(Action action) const;
+    GamepadButton GetGamepadKeybinding(Action action) const;
+
+    void SetKeyboardJump(Key key);
+    void SetKeyboardAttack(Key key);
+    void SetKeyboardStack(Key key);
+    void SetKeyboardMoveLeft(Key key);
+    void SetKeyboardMoveRight(Key key);
+
+    void SetGamepadJump(GamepadButton button);
+    void SetGamepadAttack(GamepadButton button);
+    void SetGamepadStack(GamepadButton button);
+    void SetGamepadMove(GamepadAxis axis); // What if they want a button?
 };
 
 class KeybindingKeyboard
@@ -37,13 +52,28 @@ class KeybindingKeyboard
     Key stack_;
     Key moveLeft_;
     Key moveRight_;
-    Command * jumpCommand_;
-    Command * attackCommand_;
-    Command * stackCommand_;
-    Command * moveCommand_;
+    Event * jumpEvent_;
+    Event * attackEvent_;
+    Event * stackEvent_;
+    Event * moveEvent_;
 
   public:
+    KeybindingKeyboard(PlayerID playerID);
+    ~KeybindingKeyboard();
 
+    void ResetDefault();
+
+    void SetJump(Key key);
+    void SetAttack(Key key);
+    void SetStack(Key key);
+    void SetMoveLeft(Key key);
+    void SetMoveRight(Key key);
+
+    Key GetJump();
+    Key GetAttack();
+    Key GetStack();
+    Key GetMoveLeft();
+    Key GetMoveRight();
 };
 
 class KeybindingGamepad
@@ -54,11 +84,24 @@ class KeybindingGamepad
     GamepadButton attack_;
     GamepadButton stack_;
     GamepadAxis move_;
-    Command * jumpCommand_;
-    Command * attackCommand_;
-    Command * stackCommand_;
-    Command * moveCommand_;
+    Event * jumpEvent_;
+    Event * attackEvent_;
+    Event * stackEvent_;
+    Event * moveEvent_;
 
   public:
+    KeybindingGamepad();
+    ~KeybindingGamepad();
 
+    void ResetDefault();
+
+    void SetJump(GamepadButton button);
+    void SetAttack(GamepadButton button);
+    void SetStack(GamepadButton button);
+    void SetMove(GamepadAxis axis);
+
+    GamepadButton GetJump();
+    GamepadButton GetAttack();
+    GamepadButton GetStack();
+    GamepadAxis GetMove();
 };
