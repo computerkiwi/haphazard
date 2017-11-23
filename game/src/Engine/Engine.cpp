@@ -229,7 +229,7 @@ void Engine::Update()
 	++frameCounter;
 	timeCounter += frameCap.timePassed();
 
-	if (timeCounter >= 1000000.0f)
+	if (timeCounter >= 1'000'000.0f)
 	{		
 		m_WindowTitle += "<3 | FrameRate: ";
 		m_WindowTitle += std::to_string(frameCounter);
@@ -238,6 +238,7 @@ void Engine::Update()
 
 		m_WindowTitle += ' ';
 		m_WindowTitle += m_WindowAppend;
+		m_WindowTitle += m_editor.GetSaveTitle();
 
 		glfwSetWindowTitle(m_window, m_WindowTitle.c_str());
 

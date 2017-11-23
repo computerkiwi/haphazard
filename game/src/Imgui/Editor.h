@@ -137,8 +137,11 @@ class Editor
 	private:
 		friend class Editor;
 
+		// File IO State
 		bool fileOpened = false;
-		bool fileChanged = true;
+		bool fileNewFile = true;
+		bool fileDirty = false;
+
 		float saveInterval = 5.0f; // Save Invterval in minutes
 		float saveTimer;           // How long since last save
 
@@ -177,7 +180,7 @@ class Editor
 	// --------------
 	bool m_save = false;
 	bool m_load = false;
-	char m_filename[128] = "No File";
+	std::string m_filename = "No File";
 
 
 	// GameObject Selection
@@ -391,6 +394,8 @@ public:
 
 	// Continues the editor process
 	void Update();
+
+	std::string GetSaveTitle() const;
 
 	// Function call for window size changing
 	void ResizeEvent(int w, int h);

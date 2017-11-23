@@ -215,7 +215,7 @@ void Editor::Update()
 		if (m_engine->IsWindowTitleDirty())
 		{
 			m_engine->AppendToWindowTitle(m_filename);
-			m_editorState.fileChanged = false;
+			m_editorState.fileNewFile = false;
 		}
 
 		if (m_editorState.first_update)
@@ -521,10 +521,11 @@ void Editor::KeyBindings()
 		}
 	}
 
+	// Save As
 	if (Input::IsHeldDown(Key::LeftShift) && Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
 	{
 		m_save = true;
-		m_editorState.fileChanged = true;
+		m_editorState.fileNewFile = true;
 	}
 
 	// Open Dialog Box
@@ -575,6 +576,8 @@ void Editor::Push_Action(EditorAction&& action)
 		m_actions.history.emplace(m_actions.history.begin(), action);
 		++m_actions.size;
 	}
+
+	m_editorState.fileDirty = true;
 }
 
 
@@ -586,6 +589,11 @@ void Editor::Undo_Action()
 	// Call the resolve function
 	m_actions.history[m_actions.size - 1].func(m_actions.history[m_actions.size - 1]);
 	--m_actions.size;
+
+	if (m_actions.size == 0)
+	{
+		m_editorState.fileDirty = false;
+	}
 }
 
 
@@ -599,6 +607,11 @@ void Editor::Redo_Action()
 
 	// We redid an action, so it is valid to be undone
 	++m_actions.size;
+
+	if (m_actions.size != m_actions.history.size())
+	{
+		m_editorState.fileDirty = true;
+	}
 }
 
 
@@ -1705,7 +1718,7 @@ void Editor::SaveLoad()
 	{
 		if (m_editorState.fileOpened)
 		{
-			m_engine->FileSave(m_filename);
+			m_engine->FileSave(m_filename.c_str());
 		}
 		else
 		{
@@ -1715,6 +1728,7 @@ void Editor::SaveLoad()
 			SaveLevel();
 		}
 
+		m_editorState.fileDirty = false;
 		m_save = false;
 	}
 
@@ -1724,9 +1738,56 @@ void Editor::SaveLoad()
 		logger << "[EDITOR] Opening Level Dialog\n";
 		OpenLevel();
 		m_load = false;
-		m_editorState.fileChanged = true;
+		m_editorState.fileNewFile = true;
 		m_editorState.fileOpened = true;
 	}
+}
+
+
+void Editor::AutoSave(float dt)
+{
+	// Add the time to the timer
+	m_editorState.saveTimer += dt;
+
+	// Check if it is time to save
+	if (m_editorState.saveTimer >= (m_editorState.saveInterval * 60.0f) && m_editorState.fileDirty == true)
+	{
+		// Using this to build a file name
+		std::stringstream ss;
+
+		// Write the timestamp and append _AutoSave.json
+		ss << std::time(nullptr) << "_AutoSave.json";
+
+		// Write the File
+		m_engine->FileSave(ss.str().c_str());
+
+		// Tell the user we auto saved
+		AddPopUp(PopUpWindow("Auto Saved.", 2.2f, PopUpPosition::BottomRight));
+
+		// Reset the timer
+		m_editorState.saveTimer = 0.0f;
+
+		// Nothing to save now
+		m_editorState.fileDirty = false;
+	}
+}
+
+
+std::string Editor::GetSaveTitle() const
+{
+	// Build a Title
+	std::string title(" - ");
+
+	// Append the current filename
+	title += m_filename;
+
+	// Check if any modifications needs to be saved
+	if (m_editorState.fileDirty)
+	{
+		title += "*";
+	}
+
+	return title;
 }
 
 
@@ -1829,14 +1890,21 @@ void Editor::SaveLevel()
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+	file.Flags = OFN_DONTADDTORECENT;
 
 	// Function Call to open the dialag box
 	if (GetSaveFileName(&file))
 	{
 		// Log and load the file in the engine
 		logger << "[EDITOR] Saving File: " << filename << "\n";
-		m_engine->FileLoad(filename);
+		m_filename = filename;
+
+		if (m_filename.find(".json") == std::string::npos)
+		{
+			m_filename += ".json";
+		}
+
+		m_engine->FileSave(m_filename.c_str());
 	}
 	else
 	{
@@ -1864,32 +1932,6 @@ void Editor::SaveLevel()
 }
 
 #endif
-
-
-void Editor::AutoSave(float dt)
-{
-	// Add the time to the timer
-	m_editorState.saveTimer += dt;
-
-	// Check if it is time to save
-	if (m_editorState.saveTimer >= (m_editorState.saveInterval * 60.0f))
-	{
-		// Using this to build a file name
-		std::stringstream ss;
-
-		// Write the timestamp and append _AutoSave.json
-		ss << std::time(nullptr) << "_AutoSave.json";
-
-		// Write the File
-		m_engine->FileSave(ss.str().c_str());
-
-		// Tell the user we auto saved
-		AddPopUp(PopUpWindow("Auto Saved.", 2.2f, PopUpPosition::BottomRight));
-
-		// Reset the timer
-		m_editorState.saveTimer = 0.0f;
-	}
-}
 
 
 static unsigned long long FileTimeToInt64(const FILETIME & ft) 
@@ -1947,8 +1989,8 @@ void Editor::SettingsPanel(float dt)
 	SIZE_T virtualMemUsedByMe = pmc.WorkingSetSize;
 
 	// Print out the data
-	Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
-	Text("CPU: %f%%", m_cpu_load[0]);
+	ImGui::Text("RAM: %u MB", virtualMemUsedByMe / (1024 * 1024));
+	ImGui::Text("CPU: %f%%", m_cpu_load[0]);
 	
 	// Add time to the timer
 	timer += dt;
