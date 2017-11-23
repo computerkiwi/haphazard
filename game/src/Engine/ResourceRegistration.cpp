@@ -14,6 +14,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Audio/AudioResource.h"
 #include "graphics\AnimationResource.h"
 
+#include "Engine\Engine.h"
+
 // Once you're registered a resource type in the enum in ResourceManager.h, add to the functions below.
 
 const char *Resource::GetFolderName(ResourceType type)
@@ -71,4 +73,51 @@ Resource * Resource::AllocateNewResource(ResourceType type, const char *folderPa
 		break;
 	}
 }
+
+
+ResourceID Resource::GetDefaultResourceID(ResourceType type)
+{
+	switch (type)
+	{
+	case ResourceType::TEXTURE:
+		return FilenameToID(DEFAULT_TEXTURE_NAME);
+
+	case ResourceType::ANIMATION:
+		return FilenameToID(DEFAULT_TEXTURE_NAME);
+
+	case ResourceType::INVALID:
+		assert(nullptr);
+		break;
+
+	default:
+		logger.SetNextPriority(Logging::Priority::HIGH_PRIORITY);
+		logger << "No valid default resource for resource type: " << GetResourceTypeName(type) << "\n";
+	}
+
+	return INVALID_TEXTURE_ID;
+}
+
+
+Resource *Resource::GetDefaultResource(ResourceType type)
+{
+	switch (type)
+	{
+	case ResourceType::TEXTURE:
+		return engine->GetResourceManager().Get(FilenameToID(DEFAULT_TEXTURE_NAME));
+
+	case ResourceType::ANIMATION:
+		return engine->GetResourceManager().Get((DEFAULT_TEXTURE_NAME));
+
+	case ResourceType::INVALID:
+		assert(nullptr);
+		break;
+	default:
+		logger.SetNextPriority(Logging::Priority::HIGH_PRIORITY);
+		logger << "No valid default resource for resource type: " << static_cast<const char *>(GetResourceTypeName(type)) << "\n";
+	}
+
+	return nullptr;
+}
+
+
 

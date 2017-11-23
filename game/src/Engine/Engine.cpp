@@ -64,6 +64,8 @@ Init_EnginePointer::Init_EnginePointer(Engine *e)
 				   // Init OpenGL and start window
 Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window)
 {
+	m_WindowTitle.reserve(256);
+
 	m_resManager.Init();
 
 	// Load Shaders
@@ -218,13 +220,21 @@ void Engine::Update()
 	++frameCounter;
 	timeCounter += frameCap.timePassed();
 
-	if (timeCounter >= 1000000.0f)
-	{
-		char windowTitle[128];
+	if (timeCounter >= 1'000'000.0f)
+	{		
+		m_WindowTitle += "<3 | FrameRate: ";
+		m_WindowTitle += std::to_string(frameCounter);
+		m_WindowTitle += "    Dt: ";
+		m_WindowTitle += std::to_string(Dt());
 
-		sprintf(windowTitle, "<3   |   FrameRate: %d    Dt: %f", frameCounter, Dt());
-		
-		glfwSetWindowTitle(m_window, windowTitle);
+		m_WindowTitle += ' ';
+		m_WindowTitle += m_WindowAppend;
+		m_WindowTitle += m_editor.GetSaveTitle();
+
+		glfwSetWindowTitle(m_window, m_WindowTitle.c_str());
+
+		m_WindowTitle.clear();
+		m_WindowAppend.clear();
 
 		frameCounter = 0;
 		timeCounter -= 1000000;
@@ -306,6 +316,25 @@ float& Engine::GetDtObject()
 {
 	return m_dt;
 }
+
+
+void Engine::AppendToWindowTitle(std::string& str)
+{
+	m_WindowAppend += str;
+}
+
+
+void Engine::AppendToWindowTitle(const char *str)
+{
+	m_WindowAppend += str;
+}
+
+
+bool Engine::IsWindowTitleDirty() const 
+{ 
+	return timeCounter >= 999990.9f;
+}
+
 
 
 GLFWwindow *WindowInit()

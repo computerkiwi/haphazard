@@ -11,6 +11,10 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 typedef unsigned int GLuint;
 
+class SpriteComponent;
+class GameObject;
+class Editor;
+
 class Texture
 {
 public:
@@ -65,6 +69,7 @@ private:
 
 class TextureHandler
 {
+	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 public:
 	TextureHandler(Resource* texture);
 	void SetResource(Resource* texture);

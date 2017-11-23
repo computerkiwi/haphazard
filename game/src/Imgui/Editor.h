@@ -7,17 +7,20 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #pragma once
 
 #include <imgui.h>
+
 #include <vector>
 #include <map>
 #include <functional>
-#include <glm/detail/type_vec2.hpp>
 
-#include "GameObjectSystem\GameObject.h"
+
+#include "GameObjectSystem/GameObject.h"
+
+#include <glm/detail/type_vec2.hpp>
 #include "Util/DataStructures/Array/Array.h"
 
-#include "meta\meta.h"
+#include "meta/meta.h"
 
-#include "graphics\Camera.h"
+#include "graphics/Camera.h"
 
 class Engine;
 class TransformComponent;
@@ -81,7 +84,8 @@ enum PopUpPosition
 	BottomRight,
 	BottomLeft,
 	Center, 
-	Mouse
+	Mouse,
+	Count
 };
 struct PopUpWindow
 {
@@ -130,6 +134,17 @@ class Editor
 		bool objectList = true;
 		bool ppfx = false;
 
+	private:
+		friend class Editor;
+
+		// File IO State
+		bool fileOpened = false;
+		bool fileNewFile = true;
+		bool fileDirty = false;
+
+		float saveInterval = 5.0f; // Save Invterval in minutes
+		float saveTimer;           // How long since last save
+
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
 	} m_editorState;
@@ -165,7 +180,7 @@ class Editor
 	// --------------
 	bool m_save = false;
 	bool m_load = false;
-	char m_filename[128] = { 0 };
+	std::string m_filename = "No File";
 
 
 	// GameObject Selection
@@ -182,15 +197,6 @@ class Editor
 	// List of delimited GameObjects
 	std::vector<GameObject_ID> m_objects;
 
-	// List of all GameObjects
-	/*struct CacheCount
-	{
-		CacheCount(GameObject_ID object) : id(object), count(1) {}
-		GameObject_ID id;
-		size_t count;
-	};
-	std::vector<CacheCount> m_cache_objects;*/
-
 
 	// Undo/Redo Actions
 	// --------------
@@ -203,7 +209,7 @@ class Editor
 
 	// Gizmos
 	// --------------
-	enum Tool
+	enum Gizmo
 	{
 		none,
 		Translation, // Move Things
@@ -214,83 +220,13 @@ class Editor
 	// Used to determine which direction to scale in
 	enum EditorGizmoDirection
 	{
-		Dir_X  = 0,
-		Dir_Y  = 1,
+		Invalid = -1,
+		Dir_X   = 0,
+		Dir_Y   = 1,
 		Both    = 2
 	} m_scaleDir = Both, m_transformDir = Both;
 
-	Tool m_tool = none;
-
-
-	// Console
-	// --------------
-
-	// Current line
-	std::string m_line;
-
-	// Alt strcmp functions
-	friend bool Command_StrCmp(const char *str1, const char *str2);
-	struct Command
-	{
-		Command() : Command(nullptr, 0, std::function<void()>()) {}
-		Command(const char *cmd, std::function<void()>&& f) : Command(cmd, strlen(cmd), f) {}
-
-		// L-value and R-value
-		Command(const char *cmd, size_t len, std::function<void()>& f) : command(cmd), cmd_length(len), func(f) {}
-		Command(const char *cmd, size_t len, std::function<void()>&& f) : command(cmd), cmd_length(len), func(f) {}
-
-		// Text to invoke the command
-		const char * command = nullptr;
-
-		// Length of command text
-		size_t cmd_length = 0;
-
-		// Function/Functor to call
-		std::function<void()> func = 
-		[this]()
-		{
-			assert(!command && "No Command created");
-			
-			assert(cmd_length && "Length not set");
-
-			assert(true && "No function given");
-		};
-	};
-
-	// Scroll to the bottom of the log
-	bool m_scroll = false;
-
-	// Map of the Commands, key is command string hash
-	std::map<std::size_t, Command> m_commands;
-
-	// History of lines
-	std::vector<std::string> m_log_history;
-
-	// Matches of current input
-	ImVector<const char *> m_matches;
-
-	// These set the active input buffer
-	void SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex);
-	void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
-	void SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex);
-	
-	// State of the popup
-	struct State 
-	{
-		bool m_popUp;
-		int activeIndex;
-		int clickedIndex;
-		bool m_selection_change;
-	} m_state;
-
-	// Save Location for the log
-	ImGuiTextBuffer m_log_buffer;
-
-	// Save for filter of log
-	ImGuiTextFilter m_log_filter;
-
-	// Offsets of line height
-	ImVector<int>   m_offsets;
+	Gizmo m_gizmo = none;
 
 
 	// PopUps
@@ -302,38 +238,166 @@ class Editor
 	// Save Location of all popups -- vector works since usually not many popups
 	std::vector<PopUpWindow> m_pop_ups;
 
+
+public:
+	// Console
+	// --------------
+	struct Console
+	{
+	private:
+
+		static void SetInput_Blank(ImGuiTextEditCallbackData *data);
+		static bool Command_StrCmp(const char *str1, const char *str2);
+		static int Strnicmp(const char* str1, const char* str2, int n);
+
+		// Console Matches PopUp
+		bool PopUp(ImVec2& pos, ImVec2& size);
+
+	public:
+		static int Input_Callback(ImGuiTextEditCallbackData *data);
+
+		// Draw the Console
+		void Draw();
+
+		// Register a command with the console
+		void RegisterCommand(const char *command, std::function<void()>&& f);
+		
+		// Clears log buffers
+		void Clear();
+		
+		// Log with DateTime
+		void Log(const char *log_message, ...);
+
+		// Log without DateTime
+		void Internal_Log(const char * log_message, ...);
+
+
+		// Current line
+		std::string m_line;
+
+		struct Command
+		{
+			Command() : Command(nullptr, 0, std::function<void()>()) {}
+			Command(const char *cmd, std::function<void()>&& f) : Command(cmd, strlen(cmd), f) {}
+
+			// L-value and R-value
+			Command(const char *cmd, size_t len, std::function<void()>& f) : command(cmd), cmd_length(len), func(f) {}
+			Command(const char *cmd, size_t len, std::function<void()>&& f) : command(cmd), cmd_length(len), func(f) {}
+
+			// Text to invoke the command
+			const char * command = nullptr;
+
+			// Length of command text
+			size_t cmd_length = 0;
+
+			// Function/Functor to call
+			std::function<void()> func =
+				[this]()
+			{
+				assert(!command && "No Command created");
+
+				assert(cmd_length && "Length not set");
+
+				assert(true && "No function given");
+			};
+		};
+
+		// Scroll to the bottom of the log
+		bool m_scroll = false;
+
+		// Map of the Commands, key is command string hash
+		std::map<std::size_t, Command> m_commands;
+
+		// History of lines
+		std::vector<std::string> m_log_history;
+
+		// Matches of current input
+		ImVector<const char *> m_matches;
+
+		// These set the active input buffer
+		void SetActive_Completion(ImGuiTextEditCallbackData *data, int entryIndex);
+		void SetActive_History(ImGuiTextEditCallbackData *data, int entryIndex);
+		void SetActive(ImGuiTextEditCallbackData *data, size_t entryIndex);
+
+		// State of the popup
+		struct State
+		{
+			bool m_popUp             = false;
+			int activeIndex          = -1;
+			int clickedIndex         = -1;
+			bool m_selection_change  = false;
+		} m_state;
+
+		// Save Location for the log
+		ImGuiTextBuffer m_log_buffer;
+
+		// Save for filter of log
+		ImGuiTextFilter m_log_filter;
+
+		// Offsets of line height
+		ImVector<int>   m_offsets;
+
+	} m_Console;
+
+	// Keeps the number of popups at each location
+	int m_PopUpCount[PopUpPosition::Count] = { 0 };
+	/*
+		int TopLeft     = 0;
+		int TopRight    = 0;
+		int BottomRight = 0;
+		int BottomLeft  = 0;
+		int Center      = 0;
+		int Mouse       = 0;
+	*/
+
 	// PPFX
 	// --------------
 	bool m_show_ppfx = false;
 
 private:
-	friend int Input_Editor(ImGuiTextEditCallbackData *data);
+	friend int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data);
 
-	// Console Matches PopUp
-	bool PopUp(ImVec2& pos, ImVec2& size);
-	
+	// Creates a GameObject in the Selected GameObject's space
 	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	
+	// ObjectsList Panel
 	void ObjectsList();
 
+	// File IO
 	void SaveLoad();
 	void OpenLevel();
 	void SaveLevel();
+	void AutoSave(float dt);
 
+	// ImGui
 	void MenuBar();
 	void SettingsPanel(float dt);
-	void Console();
 	void PPFX();
 
+	// Click Handling
 	void OnClick();
 
+	// Keypresses
 	void KeyBindings();
+
+	// Undo/Redo
+	void Undo_Action();
+	void Redo_Action();
+
+	int GetPopUpCount(PopUpPosition pos);
+	void IncrementPopUpCount(PopUpPosition pos);
+	void DecrementPopUpCount(PopUpPosition pos);
 
 public:
 	Editor(Engine *engine, GLFWwindow *window);
 	~Editor();
 
+	// Continues the editor process
 	void Update();
 
+	std::string GetSaveTitle() const;
+
+	// Function call for window size changing
 	void ResizeEvent(int w, int h);
 
 	// Works like printf -- for display_date use true
@@ -341,21 +405,32 @@ public:
 	
 	// No timestamp
 	void Internal_Log(const char *log_message, ...);
-	void Clear();
 
+	// Undo/Redo Fucntions
 	void Push_Action(EditorAction&& a);
-	void Undo_Action();
-	void Redo_Action();
 
+	// Adds a popups to the list
 	void AddPopUp(PopUpWindow&& pop);
 
+	// Change the Selected GameObject
 	void SetGameObject(GameObject new_object);
+
+	// Show the GameObjects in a list
 	void PrintObjects();
+
+	// Show/Hide the Editor
 	void ToggleEditor();
 
+	// Gizmos
 	void Tools();
 
+	// Add a command to the console
 	void RegisterCommand(const char *command, std::function<void()>&& f);
 
+	// Default Editor Style
+	static void ResetStyle();
+
+
+	// Returns the EditorState for use externally
 	EditorState& GetEditorState() { return m_editorState; }
 };

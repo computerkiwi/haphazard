@@ -163,6 +163,17 @@ public:
 
 		return *this;
 	}
+
+	template <typename T>
+	LoggingProxy& operator <<(const T& rhs)
+	{
+		std::stringstream ss;
+		ss << rhs;
+		logger.ObjectLog_ProxyAppend(ss.str().c_str());
+
+		return *this;
+	}
+
 };
 
 

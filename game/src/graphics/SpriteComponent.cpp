@@ -41,8 +41,15 @@ SpriteComponent::SpriteComponent(Resource *res)
 
 void SpriteComponent::SetTextureResource(Resource *res)
 {
-	assert(res->GetResourceType() == ResourceType::TEXTURE || res->GetResourceType() == ResourceType::ANIMATION);
-	m_TextureHandler.SetResource(res);
+	if (res)
+	{
+		assert(res->GetResourceType() == ResourceType::TEXTURE || res->GetResourceType() == ResourceType::ANIMATION);
+		m_TextureHandler.SetResource(res);
+	}
+	else
+	{
+		m_TextureHandler.SetResource(Resource::GetDefaultResource(ResourceType::TEXTURE));
+	}
 }
 
 

@@ -5,25 +5,32 @@ PRIMARY AUTHOR: Sweet
 Copyright � 2017 DigiPen (USA) Corporation.
 */
 
+// Main Includes
 #include "Editor.h"
 #include "Type_Binds.h"
 
+// GameObject, Spaces
 #include "GameObjectSystem/GameObject.h"
-#include "GameObjectSystem\GameSpace.h"
-#include "GameObjectSystem\ObjectInfo.h"
-#include "Engine\Physics\RigidBody.h"
-#include "graphics\SpriteComponent.h"
-#include "graphics\Particles.h"
-#include "Engine\Physics\Collider2D.h"
-#include "Scripting\ScriptComponent.h"
-#include "graphics\Camera.h"
-#include "graphics\Background.h"
+#include "GameObjectSystem/GameSpace.h"
 
-#include "graphics\DebugGraphic.h"
+// Components
+#include "GameObjectSystem/ObjectInfo.h"
+#include "Engine/Physics/RigidBody.h"
+#include "graphics/SpriteComponent.h"
+#include "graphics/Particles.h"
+#include "Engine/Physics/Collider2D.h"
+#include "Scripting/ScriptComponent.h"
+#include "graphics/Camera.h"
+#include "graphics/Background.h"
 
-#include "Input\Input.h"
+// Draw debug shapes
+#include "graphics/DebugGraphic.h"
+
+// Keypress and Mouse
+#include "Input/Input.h"
 
 #include <cfloat>
+#include "graphics/Text.h"
 
 using namespace ImGui;
 
@@ -83,6 +90,28 @@ void Action_General_Collider(EditorAction& a)
 	ComponentHandle<Collider> handle(a.handle);
 
 	meta::Any colliderData(&handle->ColliderData());
+
+	if (a.redo)
+	{
+		colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
+	}
+	else
+	{
+		colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+	}
+}
+
+
+template <class Collider, typename T>
+void Action_General_Collider(EditorAction& a)
+{
+	ComponentHandle<Collider> handle(a.handle);
+	GameObject object = handle.GetGameObject();
+
+
+	meta::Any colliderData(&handle->ColliderData());
+
+	ObjectsMatchScale[object].value = !ObjectsMatchScale[object].value;
 
 	if (a.redo)
 	{
@@ -176,7 +205,7 @@ const char * ErrorList[] =
 struct EditorBoolWrapper
 {
 	bool value = false;
-	operator bool() const { return value; }
+	implicit operator bool() const { return value; }
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
@@ -199,14 +228,14 @@ ClickedList widget_click;
 // Saves a float in a temporary value then stores the new value and the saved value
 // Undo pops the saved value
 // Redo pops the new value
-#define Drag(NAME, SAVE, ITEM)																				 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag(NAME, SAVE, ITEM)																						 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}																										 
 
 // Setups the detection of the drag slider has been clicked
@@ -216,14 +245,14 @@ ClickedList widget_click;
 // Saves Anything instead of just a float -- used for glm::vecX
 //    This version is used since the meta system does not register
 //    parts of glm::vec2 or similar objects
-#define Drag_Vec(NAME, SAVE, ITEM, VEC)																		 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag_Vec(NAME, SAVE, ITEM, VEC)																				 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = VEC;																						 \
+		{																											 \
+			SAVE = VEC;																								 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -234,14 +263,14 @@ ClickedList widget_click;
 //    This version is used since the meta system does not register
 //    parts of glm::vec2 or similar objects
 //	  Min and Max
-#define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)																		 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))													 \
-	{																										 \
+#define Drag_Vec_MinMax(NAME, SAVE, ITEM, VEC, MIN, MAX)															 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SLIDER_STEP, MIN, MAX))												 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = VEC;																						 \
+		{																											 \
+			SAVE = VEC;																								 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -249,14 +278,14 @@ ClickedList widget_click;
 //     Undo pops the saved value
 //     Redo pops the new value
 //     Change Speed
-#define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)															 \
-	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))														 \
-	{																										 \
+#define Drag_Float_Speed(NAME, SAVE, ITEM, SPEED)																	 \
+	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED))																 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -265,28 +294,28 @@ ClickedList widget_click;
 //     Redo pops the new value
 //     Change Speed
 //     Min and Max
-#define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)															 \
+#define Drag_Float_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)													 \
 	if (DragFloat_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
-	{																										 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
 //     Saves a int in a temporary value then stores the new value and the saved value
 //     Undo pops the saved value
 //     Redo pops the new value
-#define Drag_Int(NAME, SAVE, ITEM)																			 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))													 \
-	{																										 \
+#define Drag_Int(NAME, SAVE, ITEM)																					 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SLIDER_STEP))															 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -294,14 +323,14 @@ ClickedList widget_click;
 //     Undo pops the saved value
 //     Redo pops the new value
 //     Change Speed
-#define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))															 \
-	{																										 \
+#define Drag_Int_Speed(NAME, SAVE, ITEM, SPEED)																		 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED))																	 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Setups the detection of the drag slider has been clicked
@@ -310,32 +339,32 @@ ClickedList widget_click;
 //     Redo pops the new value
 //     Change Speed
 //     Min and Max
-#define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)																 \
-	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))															 \
-	{																										 \
+#define Drag_Int_Speed_MinMax(NAME, SAVE, ITEM, SPEED, MIN, MAX)													 \
+	if (DragInt_ReturnOnClick(NAME, &ITEM, SPEED, MIN, MAX))														 \
+	{																												 \
 		if (widget_click[#SAVE] == false)																			 \
-		{																									 \
-			SAVE = ITEM;																					 \
+		{																											 \
+			SAVE = ITEM;																							 \
 			widget_click[#SAVE] = true;																				 \
-		}																									 \
+		}																											 \
 	}
 
 // Mouse_1 (Drag_Key, defined at top) is released
 // Pushes the action into the editor
-#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)														 \
+#define DragRelease(COMPONENT, SAVE, ITEM, META_NAME)																 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });  \
+	{																												 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, decltype(ITEM)> });			 \
 		widget_click[#SAVE] = false;																				 \
 	}
 
 // Mouse_1 (Drag_Key, defined at top) is released
 // Pushes the action into the editor
 // Save the data, but pass it to a different Action_General function
-#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
+#define DragRelease_Type(COMPONENT, SAVE, ITEM, META_NAME, TYPE)													 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
+	{																												 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, Action_General<COMPONENT, TYPE> });					 \
 		widget_click[#SAVE] = false;																				 \
 	}
 
@@ -344,8 +373,8 @@ ClickedList widget_click;
 // Cast SAVE and ITEM to TYPE then save them
 #define DragRelease_Type_CastAll(COMPONENT, SAVE, ITEM, META_NAME, TYPE)											 \
 	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
-	{																										 \
-		editor->Push_Action({ TYPE(SAVE), TYPE(ITEM),  META_NAME, handle, Action_General<COMPONENT, TYPE> });			 \
+	{																												 \
+		editor->Push_Action({ TYPE(SAVE), TYPE(ITEM),  META_NAME, handle, Action_General<COMPONENT, TYPE> });		 \
 		widget_click[#SAVE] = false;																				 \
 	}
 
@@ -364,6 +393,7 @@ struct SpriteSave
 	int    AT_frame  = 0;
 	float  AT_fps = 0;
 	float  AT_timer  = 0;
+	glm::vec4 m_Color = glm::vec4(1, 1, 1, 1);
 } spriteSave;
 
 // Particles Save Location
@@ -394,7 +424,8 @@ struct CameraSave
 struct BackgroundSave
 {
 	Texture* m_Texture;
-	
+	ResourceID m_resID;
+
 	BACKGROUND_TYPE m_Type;
 	
 	glm::vec4 m_ParallaxBounds;
@@ -447,6 +478,11 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
+			glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
+			glm::vec2 diff = transform->GetPosition() - parentPos;
+
+			transform->SetPosition(diff);
+
 			// It was clicked, Set the parent
 			transform->SetParent(object);
 			if (object.GetComponent<HierarchyComponent>().IsValid())
@@ -836,6 +872,41 @@ void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor)
 #define SLIDER_STEP 0.01f
 #define ID_MASK 0xFFFFFF
 
+
+static void Display_Hierarchy(GameObject object)
+{
+	// Get the children
+	auto children = object.GetComponent<HierarchyComponent>();
+
+	// Foreach child check if they have more kids and display those
+	for (auto& child : children->GetList())
+	{
+		// Has Kids
+		if (child.GetComponent<HierarchyComponent>().IsValid())
+		{
+			// Add a space for spacing
+			std::string name = object.GetName();
+			name += " ";
+
+			// Show a tree node
+			if (TreeNode(name.c_str()))
+			{
+				// Call this function for the child
+				Display_Hierarchy(child);
+
+				Separator();
+				TreePop();
+			}
+		}
+		else
+		{
+			// Just display the GameObject
+			Text(object.GetName().c_str());
+		}
+	}
+}
+
+
 // Binds the imgui function calls to the Transform Component
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor)
 {
@@ -844,7 +915,26 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	DebugGraphic::DrawSquare(transform->GetPosition(), scale + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0,1,0,1));
 
 	EditorComponentHandle handle = { object.Getid(), true };
-		
+	
+	SameLine();
+	if (Button("Children"))
+	{
+		OpenPopup("Children##transform_parent");
+	}
+
+	if (BeginPopup("Children##transform_parent"))
+	{
+		if (object.GetComponent<HierarchyComponent>().IsValid())
+		{
+			Display_Hierarchy(object);
+		}
+		else
+		{
+			editor->AddPopUp(PopUpWindow("Has no children.", 2.0f, PopUpPosition::Mouse));
+		}
+		EndPopup();
+	}
+
 	SameLine();
 	if (transform->GetParent())
 	{
@@ -872,6 +962,12 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 			if (Choose_Parent_ObjectList(editor, transform, object))
 			{
 				editor->Push_Action({ parent, transform->m_parent, "parent", handle, Action_General<TransformComponent, decltype(parent)> });
+
+				// Turn off Gravity
+				if (object.GetComponent<RigidBodyComponent>().IsValid())
+				{
+					object.GetComponent<RigidBodyComponent>()->SetGravity(glm::vec3());
+				}
 			}
 			EndPopup();
 		}
@@ -996,60 +1092,6 @@ void ImGui_RigidBody(RigidBodyComponent *rb, GameObject object, Editor * editor)
 }
 
 
-// Binds the imgui function calls to the Sprite Component
-void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
-{
-	if (CollapsingHeader("Sprite"))
-	{
-		EditorComponentHandle handle = { object.Getid(), true };
-		if (Button("Remove##sprite"))
-		{
-			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
-			object.DeleteComponent<SpriteComponent>();
-			return;
-		}
-
-		//if (sprite->IsAnimated())
-		//{
-		//	float FrameRate = sprite->GetFPS();
-		//	Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, sprite->AT_fps, SLIDER_STEP, 0, FLT_MAX);
-		//	DragRelease(SpriteComponent, spriteSave.AT_fps, sprite->AT_fps, "fps");
-		//
-		//	int frame = sprite->AT_frame;
-		//	SliderInt("Frame", &frame, 0, sprite->GetAnimatedTexture()->GetMaxFrame());
-		//	sprite->SetFrame(frame);
-		//}
-
-
-		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
-		
-		ResourceID id = sprite->GetResourceID();
-
-		Separator();
-		BeginChild("Sprites", ImVec2(0, 125), true);
-		for (auto resource : sprites)
-		{
-			if (resource->Id() == id)
-			{
-				PushStyleColor(ImGuiCol_Header, ImVec4( 223/255.0f, 104/255.0f, 76/255.0f, 1.0f ));
-				Selectable(resource->FileName().c_str(), true);
-				PopStyleColor();
-				continue;
-			}
-			if (Selectable(resource->FileName().c_str()))
-			{
-				// Is resource ref counted, can I store pointers to them?
-				sprite->SetTextureResource(resource);
-				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
-			}
-		}
-		EndChild();
-	}
-}
-
-
 // Binds the imgui function calls to the Collider Component
 void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 {
@@ -1093,24 +1135,36 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		if (TreeNode("Dimensions"))
 		{
-			Checkbox("Match Scale", &(ObjectsMatchScale[object].value));
-
-			if (ObjectsMatchScale[object])
+			if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
 			{
 				colliderSave.m_dimensions = collider->m_dimensions;
-
-				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
 
 				if (collider->isStatic())
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<StaticCollider2DComponent> });
+						handle, Action_General_Collider<StaticCollider2DComponent, bool> });
 				}
 				else
 				{
 					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<DynamicCollider2DComponent> });
+						handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
 				}
+			}
+
+			if (ObjectsMatchScale[object])
+			{
+				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
+
+				//if (collider->isStatic())
+				//{
+				//	editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+				//		handle, Action_General_Collider<StaticCollider2DComponent> });
+				//}
+				//else
+				//{
+				//	editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+				//		handle, Action_General_Collider<DynamicCollider2DComponent> });
+				//}
 			}
 
 			Drag_Vec("X##collider_dim", colliderSave.m_dimensions, collider->m_dimensions.x, collider->m_dimensions);
@@ -1293,6 +1347,95 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 }
 
 
+// Binds the imgui function calls to the Sprite Component
+void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
+{
+	if (CollapsingHeader("Sprite", ImGuiTreeNodeFlags_Framed))
+	{
+		EditorComponentHandle handle = { object.Getid(), true };
+		TextureHandler& texture = sprite->m_TextureHandler;
+
+		if (Button("Remove##sprite"))
+		{
+			editor->Push_Action({ *sprite, 0, nullptr, handle, Action_DeleteComponent<SpriteComponent> });
+			object.DeleteComponent<SpriteComponent>();
+			return;
+		}
+
+		SameLine();
+		if (Button("Colors##sprite_color"))
+		{
+
+			if (!widget_click["Colors##sprite_color"])
+			{
+				spriteSave.m_Color = sprite->m_Color;
+				widget_click["Colors##sprite_color"] = true;
+			}
+
+			OpenPopup("##sprite_color_picker");
+		}
+
+		SameLine();
+		if (Button("Reset##sprite_sprite_reset"))
+		{
+			editor->Push_Action({ texture.m_Texture->Id(), -1, "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			sprite->SetTextureID(-1);
+		}
+
+		if (BeginPopup("##sprite_color_picker"))
+		{
+			ColorPicker4("Sprite Color", &sprite->m_Color.x, ImGuiColorEditFlags_AlphaBar);
+
+			EndPopup();
+		}
+		else if (widget_click["Colors##sprite_color"] == true)
+		{
+			editor->Push_Action({ spriteSave.m_Color, sprite->m_Color, "color", handle, Action_General<SpriteComponent, glm::vec4> });
+			widget_click["Colors##sprite_color"] = false;
+		}
+
+
+		if (texture.m_IsAnimated)
+		{
+			float FrameRate = texture.m_FPS;
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
+
+			int frame = texture.m_CurrentFrame;
+			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
+			texture.m_CurrentFrame = frame;
+		}
+
+
+		ResourceManager& rm = engine->GetResourceManager();
+
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+
+		ResourceID id = sprite->GetResourceID();
+
+		Separator();
+		BeginChild("Sprites", ImVec2(0, 125), true);
+		for (auto resource : sprites)
+		{
+			if (resource->Id() == id)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
+			if (Selectable(resource->FileName().c_str()))
+			{
+				// Is resource ref counted, can I store pointers to them?
+				sprite->SetTextureResource(resource);
+				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			}
+		}
+		EndChild();
+	}
+}
+
+
 const char * const EmissionShape_Names[] =
 {
 	"Point",
@@ -1469,9 +1612,16 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			{
 				ResourceManager& rm = engine->GetResourceManager();
 
-				std::vector<Resource *> sprites = rm.GetResourcesOfType(ResourceType::TEXTURE);
+				std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
 
 				Separator();
+
+				if (Button("Reset##paritcles_sprite_reset"))
+				{
+					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+					settings.texture_resourceID = -1;
+				}
+				SameLine();
 				BeginChild("Sprites", ImVec2(0, 125), true);
 				for (auto resource : sprites)
 				{
@@ -1560,6 +1710,14 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 
+		if (Button("Remove##background_remove"))
+		{
+			editor->Push_Action({ *background, 0, nullptr, handle, Action_DeleteComponent<BackgroundComponent> });
+			object.DeleteComponent<BackgroundComponent>();
+			return;
+		}
+
+
 		int type = static_cast<int>(background->m_Type);
 		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
 		{
@@ -1625,9 +1783,48 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 			Separator();
 			TreePop();
 		}
+
+		ResourceManager& rm = engine->GetResourceManager();
+
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+
+		Separator();
+
+		if (Button("Reset##background_reset"))
+		{
+			editor->Push_Action({ bgSave.m_resID, -1, "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+			background->m_resID = -1;
+		}
+		SameLine();
+		BeginChild("Sprites", ImVec2(0, 125), true);
+		for (auto resource : sprites)
+		{
+			if (resource->Id() == background->m_resID)
+			{
+				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				Selectable(resource->FileName().c_str(), true);
+				PopStyleColor();
+				continue;
+			}
+			if (Selectable(resource->FileName().c_str()))
+			{
+				// Is resource ref counted, can I store pointers to them?
+				editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+				background->m_resID = resource->Id();
+			}
+		}
+		EndChild();
 	}
 }
 
+
+void ImGui_Text(TextComponent *text, GameObject object, Editor *editor)
+{
+	if (CollapsingHeader("Text##text_component"))
+	{
+		
+	}
+}
 
 // Text Component
 

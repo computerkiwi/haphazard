@@ -63,6 +63,11 @@ public:
 	ResourceManager& GetResourceManager() { return m_resManager; }
 
 	float CalculateDt();
+
+	void AppendToWindowTitle(std::string& str);
+	void AppendToWindowTitle(const char *str);
+	bool IsWindowTitleDirty() const;
+
 private:
 
 	Init_EnginePointer m_init;
@@ -71,6 +76,9 @@ private:
 	bool m_running = true;
 
 	GLFWwindow *m_window;
+	std::string m_WindowTitle;
+	std::string m_WindowAppend;
+
 	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
 	ResourceManager m_resManager;

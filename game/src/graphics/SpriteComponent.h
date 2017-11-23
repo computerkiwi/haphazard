@@ -43,7 +43,9 @@ private: // Variables
 	META_REGISTER(SpriteComponent)
 	{
 		META_DefineType(SpriteComponent);
-		META_DefineGetterSetter(SpriteComponent, ResourceID, GetResourceID, SetTextureID, "resourceID");
+		META_DefineType(glm::vec4);
+
+		META_DefineMember(SpriteComponent, m_Color, "color");
 	}
 
 };

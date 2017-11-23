@@ -164,6 +164,21 @@ std::vector<Resource*> ResourceManager::GetResourcesOfType(ResourceType type)
 	return vec;
 }
 
+std::vector<Resource *> ResourceManager::GetResourcesOfTypeAlphabetical(ResourceType type)
+{
+	std::vector<Resource *> vec;
+	GetResourcesOfType(type, vec);
+
+	std::sort(vec.begin(), vec.end(),
+	
+	[](Resource *first, Resource *second) -> bool
+	{
+		return first->GetFilename() < second->GetFilename();
+	});
+
+	return vec;
+}
+
 Resource *ResourceManager::Get(ResourceID id)
 {
 	// Search in the map for the resource and return it if it exists.

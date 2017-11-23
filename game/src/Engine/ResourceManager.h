@@ -11,6 +11,11 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <string>
 #include <vector>
 
+
+#define DEFAULT_TEXTURE_NAME "default.png"
+
+
+
 // New resource types must be registered here and in ResourceRegistration.cpp
 enum class ResourceType : int
 {
@@ -21,6 +26,17 @@ enum class ResourceType : int
 	ANIMATION, // make AnimationResource that derives Resource and do the thing at ResourceRegistration.cpp
 	COUNT
 };
+
+
+constexpr char *ResourceTypeNames[] =
+{
+	"Texture",
+	"Script",
+	"Sound",
+	"Animation"
+};
+
+
 
 typedef size_t ResourceID;
 
@@ -36,10 +52,25 @@ public:
 
 	bool IsLoaded() { return m_isLoaded; }
 	std::string FileName() { return m_fileName; }
+	const std::string& GetFilename() const { return m_fileName; }
 	ResourceID Id() { return m_id; }
 	ResourceType GetResourceType() { return GetType(); }
 
 	static ResourceID FilenameToID(const char *fileName);
+
+	// Returns default source for a type
+	static Resource *GetDefaultResource(ResourceType type);
+	static ResourceID GetDefaultResourceID(ResourceType type);
+
+	static const char *GetResourceTypeName(ResourceType type) 
+	{
+		if (static_cast<int>(type) == -1)
+		{
+			return "Invalid";
+		}
+
+		return ResourceTypeNames[static_cast<int>(type)]; 
+	}
 
 	// Registration functions.
 	static Resource *AllocateNewResource(ResourceType type, const char *folderPath, const char *fileName);
@@ -78,6 +109,7 @@ public:
 
 	void GetResourcesOfType(ResourceType type, std::vector<Resource *>& vec);
 	std::vector<Resource *> GetResourcesOfType(ResourceType type);
+	std::vector<Resource *> GetResourcesOfTypeAlphabetical(ResourceType type);
 
 	Resource *Get(ResourceID id);
 	Resource *Get(const char *fileName);
