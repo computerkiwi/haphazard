@@ -311,7 +311,7 @@ glm::vec3 Collision_SAT_BoxCircle(const BoxCorners& rectangle, glm::vec2 center2
 	// if the second objects is the circle, the resolution vector will be opposite the first
 	glm::vec3 inverseEscapeVector = Collision_SAT_CircleBox(center2, radius2, rectangle);
 
-	return -inverseEscapeVector;
+	return inverseEscapeVector;
 }
 
 glm::vec3 Collision_CircleCircle(glm::vec2 center1, float radius1, glm::vec2 center2, float radius2)
@@ -344,8 +344,133 @@ glm::vec3 Collision_CircleCircle(glm::vec2 center1, float radius1, glm::vec2 cen
 	}
 }
 
+glm::vec3 Collision_SAT_CapsuleBox(glm::vec2 capsuleCenter, glm::vec2 capsuleDimensions, float rotation, const BoxCorners& box)
+{
+	// information about the capsule
+	CapsuleInformation capsule(capsuleCenter, capsuleDimensions, rotation);
 
-glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2)
+	// get the corners of the rectangle of the capsule box
+	BoxCorners capsuleBox(capsuleCenter, capsule.m_boxDimensions, rotation);
+
+	// do collision on each of the three components of the capsule
+	glm::vec3 escapeVector1 = Collision_SAT_CircleBox(capsule.m_topCircleCenter, capsule.m_circleRadius, box);
+	//!?!? MAKE AN OPTIMIZED SAT WHERE ONLY THE LEFT AND RIGHT SIDES ARE CHECKED BECAUSE TOP AND BOTTOM ARE IN CIRCLES
+	glm::vec3 escapeVector2 = Collision_SAT(capsuleBox, box);
+	glm::vec3 escapeVector3 = Collision_SAT_CircleBox(capsule.m_botCircleCenter, capsule.m_circleRadius, box);
+
+	// the real escape vector to be contructed from the three calculated above
+	glm::vec3 realEscapeVector(escapeVector1);
+
+	// use all of the escape vectors to estimate the actual collision that needs to be resolved
+	if (escapeVector2.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+	}
+	if (escapeVector2.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+	}
+	if (escapeVector3.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+	}
+	if (escapeVector3.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+	}
+
+	return realEscapeVector;
+}
+
+glm::vec3 Collision_SAT_BoxCapsule(const BoxCorners& box, glm::vec2 capsuleCenter, glm::vec2 capsuleDimensions, float rotation)
+{
+	glm::vec3 inverseEscapeVector = Collision_SAT_CapsuleBox(capsuleCenter, capsuleDimensions, rotation, box);
+
+	return inverseEscapeVector;
+}
+
+glm::vec3 Collision_SAT_CapsuleCircle(glm::vec2 capsuleCenter, glm::vec2 capsuleDimensions, float capsuleRotation, glm::vec2 circleCenter, float circleRadius)
+{
+	// information about the capsule
+	CapsuleInformation capsule(capsuleCenter, capsuleDimensions, capsuleRotation);
+
+	// get the corners of the rectangle of the capsule box
+	BoxCorners capsuleBox(capsuleCenter, capsule.m_boxDimensions, capsuleRotation);
+
+	// do collision on each of the three components of the capsule
+	glm::vec3 escapeVector1 = Collision_CircleCircle(capsule.m_topCircleCenter, capsule.m_circleRadius, circleCenter, circleRadius);
+	glm::vec3 escapeVector2 = Collision_SAT_BoxCircle(capsuleBox, circleCenter, circleRadius);
+	glm::vec3 escapeVector3 = Collision_CircleCircle(capsule.m_botCircleCenter, capsule.m_circleRadius, circleCenter, circleRadius);
+
+	// the real escape vector to be contructed from the three calculated above
+	glm::vec3 realEscapeVector(escapeVector1);
+
+	// use all of the escape vectors to estimate the actual collision that needs to be resolved
+	if (escapeVector2.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+	}
+	if (escapeVector2.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+	}
+	if (escapeVector3.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+	}
+	if (escapeVector3.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+	}
+
+	return realEscapeVector;
+}
+
+glm::vec3 Collision_SAT_CircleCapsule(glm::vec2 circleCenter, float circleRadius, glm::vec2 capsuleCenter, glm::vec2 capsuleDimensions, float capsuleRotation)
+{
+	glm::vec3 inverseEscapeVector = Collision_SAT_CapsuleCircle(capsuleCenter, capsuleDimensions, capsuleRotation, circleCenter, circleRadius);
+
+	return inverseEscapeVector;
+}
+
+glm::vec3 Collision_SAT_CapsuleCapsule(glm::vec2 capsule1Center, glm::vec2 capsule1Dimensions, float capsule1Rotation, 
+	                                   glm::vec2 capsule2Center, glm::vec2 capsule2Dimensions, float capsule2Rotation)
+{
+	// get information about the other capsule
+	CapsuleInformation capsule2(capsule2Center, capsule2Dimensions, capsule2Rotation);
+
+	BoxCorners capsule2Box(capsule2Center, capsule2.m_boxDimensions, capsule2Rotation);
+
+	// do collision on each of the three components of the capsule against the other
+	glm::vec3 escapeVector1 = Collision_SAT_CapsuleCircle(capsule1Center, capsule1Dimensions, capsule1Rotation, capsule2.m_topCircleCenter, capsule2.m_circleRadius);
+	glm::vec3 escapeVector2 = Collision_SAT_CapsuleBox(capsule1Center, capsule1Dimensions, capsule1Rotation, capsule2Box);
+	glm::vec3 escapeVector3 = Collision_SAT_CapsuleCircle(capsule1Center, capsule1Dimensions, capsule1Rotation, capsule2.m_botCircleCenter, capsule2.m_circleRadius);
+
+	// the real escape vector to be contructed from the three calculated above
+	glm::vec3 realEscapeVector(escapeVector1);
+
+	// use all of the escape vectors to estimate the actual collision that needs to be resolved
+	if (escapeVector2.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+	}
+	if (escapeVector2.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+	}
+	if (escapeVector3.x)
+	{
+		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+	}
+	if (escapeVector3.y)
+	{
+		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+	}
+
+	return realEscapeVector;
+}
+
+glm::vec3 Collision_AABBToAABB(const BoxCollider& Box1, const BoxCollider& Box2)
 {
 	glm::vec3 penetrationVector(0);
 	glm::vec3 minValue(0);
@@ -626,6 +751,18 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 		{
 			DebugGraphic::DrawCircle(position, dimensions.x / 2, glm::vec4(1, 0, 1, 1));
 		}
+		else if (tDynamiColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderCapsule))
+		{
+			// get information about the capsule
+			CapsuleInformation capsule(position, dimensions, rotation);
+
+			// top circle
+			DebugGraphic::DrawCircle(capsule.m_topCircleCenter, capsule.m_circleRadius, glm::vec4(1, 0, 1, 1));
+			// rectangle
+			DebugGraphic::DrawSquare(capsule.m_boxCenter, capsule.m_boxDimensions, DegreesToRadians(capsule.m_boxRotation), glm::vec4(1, 0, 1, 1));
+			// bottom circle
+			DebugGraphic::DrawCircle(capsule.m_botCircleCenter, capsule.m_circleRadius, glm::vec4(1, 0, 1, 1));
+		}
 	}
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
@@ -644,6 +781,18 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 		else if (tStaticColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderCircle))
 		{
 			DebugGraphic::DrawCircle(position, dimensions.x / 2, glm::vec4(.1f, .5f, 1, 1));
+		}
+		else if (tStaticColliderHandle->ColliderData().ColliderIsShape(Collider2D::colliderType::colliderCapsule))
+		{
+			// get information about the capsule
+			CapsuleInformation capsule(position, dimensions, rotation);
+
+			// top circle
+			DebugGraphic::DrawCircle(capsule.m_topCircleCenter, capsule.m_circleRadius, glm::vec4(.1f, .5f, 1, 1));
+			// rectangle
+			DebugGraphic::DrawSquare(capsule.m_boxCenter, capsule.m_boxDimensions, DegreesToRadians(capsule.m_boxRotation), glm::vec4(.1f, .5f, 1, 1));
+			// bottom circle
+			DebugGraphic::DrawCircle(capsule.m_botCircleCenter, capsule.m_circleRadius, glm::vec4(.1f, .5f, 1, 1));
 		}
 	}
 }
@@ -764,14 +913,20 @@ void PhysicsSystem::Update(float dt)
 				int object1Shape = collider1.GetColliderShape();
 				int object2Shape = collider2.GetColliderShape();
 
+				// figure out what type of collision is taking place
 				bool boxBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderBox;
 				bool circleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCircle ||
 				                          object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderBox;
 				bool circleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCircle;
+				bool capsuleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCapsule ||
+					                       object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderBox;
+				bool capsuleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCapsule ||
+					                          object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderCircle;
+				bool capsuleCapsuleCollision = object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderCapsule;
 
-				// check for collision on non-rotated boxes
 				if (boxBoxCollision)
 				{
+					// check for collision on non-rotated boxes
 					if (object1Rotation == 0 && object2Rotation == 0)
 					{
 						resolutionVector = Collision_AABBToAABB(transform, collider1, otherTransform, collider2);
@@ -796,9 +951,9 @@ void PhysicsSystem::Update(float dt)
 						glm::vec2 dimensions = tStaticColliderHandle->ColliderData().GetDimensions();
 						// get the rotation of the box
 						float rotation = tStaticColliderHandle->ColliderData().GetRotationOffset() + otherTransform->GetRotation();
-
+						// get the corners of the rectangle
 						BoxCorners rectangle(center2, dimensions, rotation);
-
+						// get the resolution vector of the collision
 						resolutionVector = Collision_SAT_CircleBox(center1, radius, rectangle);
 					}
 					else // if object2 is the circle
@@ -809,9 +964,9 @@ void PhysicsSystem::Update(float dt)
 						glm::vec2 dimensions = dynamicCollider->ColliderData().GetDimensions();
 						// get the rotation of the box
 						float rotation = dynamicCollider->ColliderData().GetRotationOffset() + transform->GetRotation();
-
+						// get the corners of the rectangle
 						BoxCorners rectangle(center2, dimensions, rotation);
-
+						// get the resolution vector of the collision
 						resolutionVector = Collision_SAT_BoxCircle(rectangle, center2, radius);
 					}
 				}
@@ -827,7 +982,76 @@ void PhysicsSystem::Update(float dt)
 
 					resolutionVector = Collision_CircleCircle(center1, radius1, center2, radius2);
 				}
+				else if (capsuleBoxCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tStaticColliderHandle->ColliderData().GetOffset());
 
+					// if object 1 is the capsule
+					if (object1Shape == Collider2D::colliderType::colliderCapsule)
+					{
+						float capsuleRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+						float boxRotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+
+						BoxCorners box(center2, tStaticColliderHandle->ColliderData().GetDimensions(), boxRotation);
+
+						resolutionVector = Collision_SAT_CapsuleBox(center1, dynamicCollider->ColliderData().GetDimensions(), capsuleRotation, box);
+					}
+					else // else object 2 is the capsule
+					{
+						float capsuleRotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+						float boxRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+						BoxCorners box(center1, dynamicCollider->ColliderData().GetDimensions(), boxRotation);
+
+						resolutionVector = Collision_SAT_BoxCapsule(box, center2, tStaticColliderHandle->ColliderData().GetDimensions(), capsuleRotation);
+					}
+				}
+				else if (capsuleCircleCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tStaticColliderHandle->ColliderData().GetOffset());
+
+					// if object 1 is the capsule
+					if (object1Shape == Collider2D::colliderType::colliderCapsule)
+					{
+						// capsule information
+						glm::vec2 capsuleDimensions = dynamicCollider->ColliderData().GetDimensions();
+						float capsuleRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+						// circle information
+						float circleRadius = tStaticColliderHandle->ColliderData().GetDimensions().x * 0.5f;
+
+						resolutionVector = Collision_SAT_CapsuleCircle(center1, capsuleDimensions, capsuleRotation, center2, circleRadius);
+					}
+					else // else object 2 is the capsule
+					{
+						// circle information
+						float circleRadius = dynamicCollider->ColliderData().GetDimensions().x * 0.5f;
+
+						// capsule information
+						glm::vec2 capsuleDimensions = tStaticColliderHandle->ColliderData().GetDimensions();
+						float capsuleRotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+
+						resolutionVector = Collision_SAT_CircleCapsule(center1, circleRadius, center2, capsuleDimensions, capsuleRotation);
+					}
+				}
+				else if (capsuleCapsuleCollision)
+				{
+					// capsule1 information
+					glm::vec2 c1center = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 c1Dimensions = dynamicCollider->ColliderData().GetDimensions();
+					float c1Rotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+					// capsule2 information
+					glm::vec2 c2center = otherTransform->GetPosition() + static_cast<glm::vec2>(tStaticColliderHandle->ColliderData().GetOffset());
+					glm::vec2 c2Dimensions = tStaticColliderHandle->ColliderData().GetDimensions();
+					float c2Rotation = otherTransform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
+
+					resolutionVector = Collision_SAT_CapsuleCapsule(c1center, c1Dimensions, c1Rotation, c2center, c2Dimensions, c2Rotation);
+				}
 
 				// if there was a collision, resolve it
 				if (resolutionVector.x || resolutionVector.y)
@@ -880,6 +1104,11 @@ void PhysicsSystem::Update(float dt)
 				bool circleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCircle ||
 					object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderBox;
 				bool circleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCircle;
+				bool capsuleBoxCollision = object1Shape == Collider2D::colliderType::colliderBox && object2Shape == Collider2D::colliderType::colliderCapsule ||
+					object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderBox;
+				bool capsuleCircleCollision = object1Shape == Collider2D::colliderType::colliderCircle && object2Shape == Collider2D::colliderType::colliderCapsule ||
+					object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderCircle;
+				bool capsuleCapsuleCollision = object1Shape == Collider2D::colliderType::colliderCapsule && object2Shape == Collider2D::colliderType::colliderCapsule;
 
 				// check for collision on non-rotated boxes
 				if (boxBoxCollision)
@@ -938,6 +1167,76 @@ void PhysicsSystem::Update(float dt)
 					float radius2 = tDynamiColliderHandle->ColliderData().GetDimensions().x / 2.0f;
 
 					resolutionVector = Collision_CircleCircle(center1, radius1, center2, radius2);
+				}
+				else if (capsuleBoxCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tDynamiColliderHandle->ColliderData().GetOffset());
+
+					// if object 1 is the capsule
+					if (object1Shape == Collider2D::colliderType::colliderCapsule)
+					{
+						float capsuleRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+						float boxRotation = otherTransform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+
+						BoxCorners box(center2, tDynamiColliderHandle->ColliderData().GetDimensions(), boxRotation);
+
+						resolutionVector = Collision_SAT_CapsuleBox(center1, dynamicCollider->ColliderData().GetDimensions(), capsuleRotation, box);
+					}
+					else // else object 2 is the capsule
+					{
+						float capsuleRotation = otherTransform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+						float boxRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+						BoxCorners box(center1, dynamicCollider->ColliderData().GetDimensions(), boxRotation);
+
+						resolutionVector = Collision_SAT_BoxCapsule(box, center2, tDynamiColliderHandle->ColliderData().GetDimensions(), capsuleRotation);
+					}
+				}
+				else if (capsuleCircleCollision)
+				{
+					// the centers of the colliders
+					glm::vec2 center1 = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 center2 = otherTransform->GetPosition() + static_cast<glm::vec2>(tDynamiColliderHandle->ColliderData().GetOffset());
+
+					// if object 1 is the capsule
+					if (object1Shape == Collider2D::colliderType::colliderCapsule)
+					{
+						// capsule information
+						glm::vec2 capsuleDimensions = dynamicCollider->ColliderData().GetDimensions();
+						float capsuleRotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+						// circle information
+						float circleRadius = tDynamiColliderHandle->ColliderData().GetDimensions().x * 0.5f;
+
+						resolutionVector = Collision_SAT_CapsuleCircle(center1, capsuleDimensions, capsuleRotation, center2, circleRadius);
+					}
+					else // else object 2 is the capsule
+					{
+						// circle information
+						float circleRadius = dynamicCollider->ColliderData().GetDimensions().x * 0.5f;
+
+						// capsule information
+						glm::vec2 capsuleDimensions = tDynamiColliderHandle->ColliderData().GetDimensions();
+						float capsuleRotation = otherTransform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+
+						resolutionVector = Collision_SAT_CircleCapsule(center1, circleRadius, center2, capsuleDimensions, capsuleRotation);
+					}
+				}
+				else if (capsuleCapsuleCollision)
+				{
+					// capsule1 information
+					glm::vec2 c1center = transform->GetPosition() + static_cast<glm::vec2>(dynamicCollider->ColliderData().GetOffset());
+					glm::vec2 c1Dimensions = dynamicCollider->ColliderData().GetDimensions();
+					float c1Rotation = transform->GetRotation() + dynamicCollider->ColliderData().GetRotationOffset();
+
+					// capsule2 information
+					glm::vec2 c2center = otherTransform->GetPosition() + static_cast<glm::vec2>(tDynamiColliderHandle->ColliderData().GetOffset());
+					glm::vec2 c2Dimensions = tDynamiColliderHandle->ColliderData().GetDimensions();
+					float c2Rotation = otherTransform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
+
+					resolutionVector = Collision_SAT_CapsuleCapsule(c1center, c1Dimensions, c1Rotation, c2center, c2Dimensions, c2Rotation);
 				}
 
 

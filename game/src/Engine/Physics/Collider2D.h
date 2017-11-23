@@ -17,6 +17,7 @@ constexpr char *collider_types[] =
 {
 	"Box"
 	"Circle"
+	"Capsule"
 };
 
 class DynamicCollider2DComponent;
@@ -31,6 +32,7 @@ public:
 		staticCollider = 1 << 0,  // DO NOT set staticCollider yourself, it is taken care of interally
 		colliderBox    = 1 << 1,
 		colliderCircle = 1 << 2,
+		colliderCapsule= 1 << 3,
 
 		collider_max // Used by the editor
 	};

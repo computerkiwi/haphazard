@@ -354,8 +354,8 @@ Editor::~Editor()
 void Editor::Update()
 {
 	// Check if Editor is being shown
-	debugSetDisplayHitboxes(m_editorState.show);
-	debugSetDisplayRaycasts(m_editorState.show);
+	debugSetDisplayHitboxes(true);
+	debugSetDisplayRaycasts(true);
 
 	if (m_editorState.show)
 	{

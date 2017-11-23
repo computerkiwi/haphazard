@@ -1,5 +1,5 @@
 /*
-FILE: Collider2D.h
+FILE: PhysicsInternalTools.h
 PRIMARY AUTHOR: Brett Schiff
 
 Useful tools used throughout the physics system that aren't deserving of their own files individually
@@ -21,9 +21,22 @@ public:
 	float m_rotation;
 };
 
+class CapsuleInformation
+{
+public:
+	glm::vec2 m_boxCenter;
+	glm::vec2 m_boxDimensions;
+	glm::vec2 m_topCircleCenter;
+	glm::vec2 m_botCircleCenter;
+	float m_circleRadius;
+	float m_boxRotation;
+
+	CapsuleInformation(glm::vec2 center, glm::vec2 dimensions, float rotation);
+};
+
 bool Collision_PointToBoxQuick(const glm::vec2& point, const BoxCorners& box, float boxRotation);
 
-glm::vec3 Collision_AABBToAABB(BoxCollider& Box1, BoxCollider& Box2);
+glm::vec3 Collision_AABBToAABB(const BoxCollider& Box1, const BoxCollider& Box2);
 glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider);
 
 glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2);
