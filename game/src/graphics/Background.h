@@ -62,12 +62,6 @@ private:
 
 	META_REGISTER(BackgroundComponent)
 	{
-		// HACK: Doing this because I really need to set up a way to order these.
-		META_DefineType(glm::vec4);
-		META_DefineType(glm::vec2);
-
-		META_DefineType(BackgroundComponent);
-
 		META_DefineGetterSetter(BackgroundComponent, ResourceID, GetResourceID, SetResourceID, "resourceID");
 
 		META_DefineGetterSetter(BackgroundComponent, int, GetType, SetType, "backgroundType");

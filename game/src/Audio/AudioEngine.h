@@ -45,8 +45,6 @@ namespace Audio
 		META_NAMESPACE(Audio);
 		META_REGISTER(SoundHandle)
 		{
-			META_DefineType(SoundHandle);
-
 			META_DefineFunction(SoundHandle, IsPlaying, "IsPlaying");
 			META_DefineFunction(SoundHandle, Stop, "Stop");
 		}

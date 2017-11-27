@@ -442,8 +442,16 @@ namespace meta
 #define META_DefineFunction(TYPE, FUNCTION, NAME) (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<TYPE>(#TYPE).addFunction(NAME, &TYPE::FUNCTION))
 
 #define META_NAMESPACE(NAMESPACE)
+
+#define META_PREREGISTER(DUMMY_TYPE) public: template <typename Dummy = int> static void Meta__Preregister__##DUMMY_TYPE()
+
+// Preregistration function acts as a first pass to get everything setup before adding details to the types.
 // Templated to allow types. Any type that has been meta registered is allowed.
-#define META_REGISTER(TYPE) private: friend class ::meta::Type; public: template <typename Dummy = int> static void Meta__Register__##TYPE()
+#define META_REGISTER(TYPE) private: \
+                                     friend class ::meta::Type; \
+                             public: \
+                                     static void Meta__First_Pass_Register__##TYPE() { META_DefineType(TYPE); } \
+                                     template <typename Dummy = int> static void Meta__Register__##TYPE()
 
 #include "meta.inl"
 #include "MemberGetSet.inl"

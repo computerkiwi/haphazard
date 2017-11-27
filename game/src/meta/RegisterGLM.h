@@ -14,7 +14,7 @@ namespace meta
 	class RegisterGLM
 	{
 		META_NAMESPACE(::meta);
-		META_REGISTER(RegisterGLM)
+		META_PREREGISTER(RegisterGLM)
 		{
 			META_DefineType(glm::vec2);
 			META_DefineMember(glm::vec2, x, "x");

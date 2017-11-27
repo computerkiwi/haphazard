@@ -46,6 +46,7 @@ private: // Variables
 		META_DefineType(glm::vec4);
 
 		META_DefineMember(SpriteComponent, m_Color, "color");
+		META_DefineMember(SpriteComponent, m_TextureHandler, "textureHandler");
 	}
 
 };

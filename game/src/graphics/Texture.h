@@ -71,10 +71,11 @@ class TextureHandler
 {
 	friend void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor);
 public:
-	TextureHandler(Resource* texture);
+	TextureHandler(Resource* texture = nullptr);
 	void SetResource(Resource* texture);
 	void Update(float dt);
 
+	void SetResourceID(ResourceID id);
 	ResourceID GetResourceID() const { return m_Texture->Id(); }
 	Texture* GetTexture() const { return reinterpret_cast<Texture*>(m_Texture->Data()); }
 
@@ -88,4 +89,16 @@ private:
 	int m_CurrentFrame = 0;
 	float m_FPS = 0;
 	float m_Timer = 0;
+
+	META_REGISTER(TextureHandler)
+	{
+		META_DefineType(TextureHandler);
+
+		META_DefineMember(TextureHandler, m_IsAnimated, "isAnimated");
+		META_DefineMember(TextureHandler, m_CurrentFrame, "currentFrame");
+		META_DefineMember(TextureHandler, m_FPS, "fps");
+		META_DefineMember(TextureHandler, m_Timer, "timer");
+
+		META_DefineGetterSetter(TextureHandler, ResourceID, GetResourceID, SetResourceID, "id");
+	}
 };

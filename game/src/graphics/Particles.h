@@ -77,12 +77,6 @@ struct ParticleSettings
 
 	META_REGISTER(ParticleSettings)
 	{
-		
-		META_DefineType(bool);       // HACK
-		META_DefineType(glm::vec2);  // HACK
-		META_DefineType(glm::vec4);  // HACK
-		META_DefineType(ResourceID);  // HACK
-
 		META_DefineType(EmissionShape);
 		META_DefineType(SimulationSpace);
 

@@ -34,10 +34,6 @@ public:
 
 	META_REGISTER(ObjectInfo)
 	{
-		// HACK: Just register std::string first whatever.
-		META_DefineType(std::string);
-
-		META_DefineType(ObjectInfo);
 		META_DefineMember(ObjectInfo, ObjectInfo::m_name, "name");
 		META_DefineMember(ObjectInfo, m_id, "id");
 	}

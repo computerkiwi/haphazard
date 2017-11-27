@@ -136,7 +136,7 @@ namespace meta
 	class BuiltInRegistration
 	{
 		META_NAMESPACE(::meta);
-		META_REGISTER(BuiltInRegistration)
+		META_PREREGISTER(BuiltInRegistration)
 		{
 			// List taken from https://www.tutorialspoint.com/cplusplus/cpp_data_types.htm
 

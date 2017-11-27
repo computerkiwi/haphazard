@@ -108,10 +108,6 @@ private:
 	META_REGISTER(Collider2D)
 	{
 		// HACK: Do some safety registration.
-		META_DefineType(int);
-		META_DefineType(float);
-		META_DefineType(glm::vec3);
-		META_DefineType(CollisionLayer);
 		META_DefineType(collisionType);
 
 		META_DefineType(Collider2D);

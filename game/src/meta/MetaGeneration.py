@@ -71,7 +71,7 @@ def FindMacroValues(fileString, macro):
 
 	return values
 
-def ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHeadersList):
+def ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHeadersList, outputPreTypesList):
 	with open(fileName, 'r') as file:
 		fString = file.read()
 
@@ -82,16 +82,22 @@ def ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHea
 	typeNames = FindMacroValues(fString, "META_REGISTER")
 	for typeName in typeNames:
 		outputTypesList.append(typeName)
+		
+	preTypes = FindMacroValues(fString, "META_PREREGISTER")
+	for preType in preTypes:
+		outputPreTypesList.append(preType)
 
-	if (len(typeNames) > 0):
+	if (len(typeNames) > 0 or len(preTypes) > 0):
 		outputHeadersList.append(fileName)
 
-def ParseHeaders(headerFilesList, outputTypesList, outputNamespacesList, outputHeadersList):
+def ParseHeaders(headerFilesList, outputTypesList, outputNamespacesList, outputHeadersList, outputPreTypesList):
 	for fileName in headerFilesList:
-		ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHeadersList)
+		ParseSingleHeader(fileName, outputTypesList, outputNamespacesList, outputHeadersList, outputPreTypesList)
 		
-def GenerateFile(filePath, typesList, namespacesList, headersList):
+def GenerateFile(filePath, typesList, namespacesList, headersList, preTypesList):
 	REGISTRATION_FUNCTION_PREFIX = "Meta__Register__"
+	FIRST_PASS_FUNCTION_PREFIX = "Meta__First_Pass_Register__"
+	PREREGISTRATION_FUNCTION_PREFIX = "Meta__Preregister__"
 
 	with open(filePath, 'w') as file:
 		for headerPath in headersList:
@@ -101,6 +107,16 @@ def GenerateFile(filePath, typesList, namespacesList, headersList):
 			
 		file.write("namespace meta\n{\nvoid Init()\n{\n")
 
+		
+		# Preregistration functions:
+		for preType in preTypesList:
+			file.write(preType + "::" + PREREGISTRATION_FUNCTION_PREFIX + preType +"();\n")
+
+		# First pass functions:
+		for typeName in typesList:
+			file.write(typeName + "::" + FIRST_PASS_FUNCTION_PREFIX + typeName +"();\n")
+
+		# Registration functions:
 		for typeName in typesList:
 			file.write(typeName + "::" + REGISTRATION_FUNCTION_PREFIX + typeName +"();\n")
 
@@ -115,6 +131,7 @@ headerFilePaths = GetHeaderFiles(sourceDirectory)
 typesList = []
 namespacesList = []
 headersList = []
+outputPreTypesList = []
 
-ParseHeaders(headerFilePaths, typesList, namespacesList, headersList)
-GenerateFile(outputPath, typesList, namespacesList, headersList)
+ParseHeaders(headerFilePaths, typesList, namespacesList, headersList, outputPreTypesList)
+GenerateFile(outputPath, typesList, namespacesList, headersList, outputPreTypesList)

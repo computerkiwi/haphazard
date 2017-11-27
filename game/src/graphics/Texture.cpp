@@ -220,6 +220,12 @@ void TextureHandler::Update(float dt)
 	}
 }
 
+void TextureHandler::SetResourceID(ResourceID id)
+{
+	Resource *resource = engine->GetResourceManager().Get(id);
+	SetResource(resource);
+}
+
 void TextureHandler::SetAnimatedTextureFPS(float fps)
 {
 	m_FPS = fps;
