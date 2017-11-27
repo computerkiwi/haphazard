@@ -23,6 +23,7 @@ public:
 
 private:
 	AnimatedTexture* m_atex;
+	std::string m_textureName;
 	int m_spriteWidth;
 	int m_spriteHeight;
 	int m_spritesX;

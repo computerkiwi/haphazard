@@ -46,7 +46,7 @@ class AnimatedTexture : public Texture
 {
 public:
 	AnimatedTexture(const char* file);
-	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites);
+	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites, float fps = 0);
 	
 	// Returns top left of sprite frame
 	virtual glm::vec4 GetBounds(int frame = 0);
@@ -80,7 +80,7 @@ public:
 	Texture* GetTexture() const { return reinterpret_cast<Texture*>(m_Texture->Data()); }
 
 	void SetAnimatedTextureFPS(float fps);
-	void SetAnimatedTextureFrame(float fps);
+	void SetAnimatedTextureFrame(int frame);
 
 private:
 	Resource* m_Texture;

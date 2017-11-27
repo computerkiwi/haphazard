@@ -156,8 +156,8 @@ AnimatedTexture::AnimatedTexture(const char* file)
 {
 }
 
-AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites)
-	: Texture { file }, m_spritesX { spritesY }, m_spritesY { spritesX }, m_numSprites { numSprites }
+AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites, float fps)
+	: Texture { file }, m_spritesX { spritesY }, m_spritesY { spritesX }, m_numSprites { numSprites }, m_DefaultFPS { fps }
 {
 	m_spriteWidth = spriteWidth / (float)MAX_WIDTH;
 	m_spriteHeight = spriteHeight / (float)MAX_HEIGHT;
@@ -195,7 +195,7 @@ void TextureHandler::SetResource(Resource* texture)
 
 	m_Texture = texture;
 
-	m_IsAnimated = texture->GetResourceType() == ResourceType::TEXTURE;
+	m_IsAnimated = texture->GetResourceType() == ResourceType::ANIMATION;
 	if (m_IsAnimated)
 	{
 		AnimatedTexture* anim = reinterpret_cast<AnimatedTexture*>(m_Texture->Data());
@@ -232,7 +232,7 @@ void TextureHandler::SetAnimatedTextureFPS(float fps)
 	m_Timer = 0;
 }
 
-void TextureHandler::SetAnimatedTextureFrame(float frame)
+void TextureHandler::SetAnimatedTextureFrame(int frame)
 {
 	m_CurrentFrame = frame;
 	m_Timer = 0;

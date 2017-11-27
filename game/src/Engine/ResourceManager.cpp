@@ -20,7 +20,7 @@ void Resource::Load()
 		return;
 	}
 
-	LoadData((m_folderPath + '/' + m_fileName).c_str());
+	LoadData((m_folderPath + '\\' + m_fileName).c_str());
 
 	m_isLoaded = true;
 }
