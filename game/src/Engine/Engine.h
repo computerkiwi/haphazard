@@ -120,7 +120,6 @@ private:
 
 	META_REGISTER(Engine)
 	{
-		META_DefineType(Engine);
 		META_DefineSerializeFunction(Engine, EngineSerializeFunction);
 		META_DefineDeserializeAssignFunction(Engine, EngineDeserializeAssign);
 	}

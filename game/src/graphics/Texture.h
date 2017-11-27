@@ -92,8 +92,6 @@ private:
 
 	META_REGISTER(TextureHandler)
 	{
-		META_DefineType(TextureHandler);
-
 		META_DefineMember(TextureHandler, m_IsAnimated, "isAnimated");
 		META_DefineMember(TextureHandler, m_CurrentFrame, "currentFrame");
 		META_DefineMember(TextureHandler, m_FPS, "fps");

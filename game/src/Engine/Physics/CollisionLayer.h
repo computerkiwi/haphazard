@@ -54,7 +54,6 @@ private:
 
 	META_REGISTER(CollisionLayer)
 	{
-		META_DefineType(CollisionLayer);
 		META_DefineMember(CollisionLayer, m_layer, "layer");
 	}
 };

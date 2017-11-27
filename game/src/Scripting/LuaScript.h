@@ -66,8 +66,6 @@ private:
 
 	META_REGISTER(LuaScript)
 	{
-		META_DefineType(LuaScript);
-
 		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
 		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
 	}

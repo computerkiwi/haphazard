@@ -69,8 +69,6 @@ struct ScriptComponent
 
 	META_REGISTER(ScriptComponent)
 	{
-		META_DefineType(ScriptComponent);
-
 		META_DefineSerializeFunction(ScriptComponent, ScriptComponentSerializeFunction);
 		META_DefineDeserializeAssignFunction(ScriptComponent, ScriptComponentDeserializeAssign);
 	}

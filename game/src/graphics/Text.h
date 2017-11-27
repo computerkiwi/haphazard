@@ -73,6 +73,5 @@ private:
 
 	META_REGISTER(TextComponent)
 	{
-		META_DefineType(TextComponent);
 	}
 };

@@ -106,8 +106,6 @@ private:
 
 	META_REGISTER(Camera)
 	{
-		META_DefineType(Camera);
-
 		META_DefineGetterSetter(Camera, glm::vec2, GetPosition, SetPosition, "position");
 
 		META_DefineGetterSetter(Camera, float, GetZoom, SetZoom, "zoom");

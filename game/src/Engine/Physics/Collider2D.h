@@ -110,7 +110,6 @@ private:
 		// HACK: Do some safety registration.
 		META_DefineType(collisionType);
 
-		META_DefineType(Collider2D);
 		META_DefineMember(Collider2D, m_colliderShape, "colliderShape");
 		META_DefineMember(Collider2D, m_offset, "offset");
 		META_DefineMember(Collider2D, m_dimensions, "dimensions");
@@ -149,7 +148,6 @@ private:
 
 	META_REGISTER(StaticCollider2DComponent)
 	{
-		META_DefineType(StaticCollider2DComponent);
 		META_DefineMember(StaticCollider2DComponent, m_colliderData, "colliderData");
 	}
 };
@@ -179,7 +177,6 @@ private:
 
 	META_REGISTER(DynamicCollider2DComponent)
 	{
-		META_DefineType(DynamicCollider2DComponent);
 		META_DefineMember(DynamicCollider2DComponent, m_colliderData, "colliderData");
 
 	}

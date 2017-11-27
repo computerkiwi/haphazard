@@ -127,7 +127,6 @@ private:
 
 	META_REGISTER(GameObject)
 	{
-		META_DefineType(GameObject);
 		META_DefineMember(GameObject, m_objID, "id");
 
 		META_DefineFunction(GameObject, Duplicate, "Duplicate");

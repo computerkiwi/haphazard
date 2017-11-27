@@ -80,8 +80,6 @@ struct ParticleSettings
 		META_DefineType(EmissionShape);
 		META_DefineType(SimulationSpace);
 
-		META_DefineType(ParticleSettings);
-
 		META_DefineMember(ParticleSettings, isLooping, "isLooping");
 
 		META_DefineMember(ParticleSettings, emissionRate, "EmissionRate");
@@ -212,6 +210,5 @@ private:
 
 	META_REGISTER(ParticleSystem)
 	{
-		META_DefineType(ParticleSystem);
 	}
 };

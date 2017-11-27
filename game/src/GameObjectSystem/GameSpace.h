@@ -324,7 +324,6 @@ private:
 
 	META_REGISTER(GameSpace)
 	{
-		META_DefineType(GameSpace);
 		META_DefineSerializeFunction(GameSpace, GameSpaceSerialize);
 		META_DefineDeserializeAssignFunction(GameSpace, GameSpaceDeserializeAssign);
 	}

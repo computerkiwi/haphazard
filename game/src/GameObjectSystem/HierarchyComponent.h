@@ -26,7 +26,6 @@ public:
 
 	META_REGISTER(HierarchyComponent)
 	{
-		META_DefineType(HierarchyComponent);
 	}
 
 };

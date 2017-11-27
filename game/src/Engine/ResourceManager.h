@@ -121,8 +121,6 @@ private:
 
 	META_REGISTER(ResourceManager)
 	{
-		META_DefineType(ResourceManager);
-
 		// TODO: Make a proper static function meta registration.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<ResourceManager>("ResourceManager").addStaticFunction("GetManager", &ResourceManager::GetManager).endClass();
 	}
