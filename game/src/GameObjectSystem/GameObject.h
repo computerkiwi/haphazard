@@ -146,6 +146,7 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>,            "GetSprite");
 		META_DefineFunction(GameObject, GetComponentPointer<Camera>,                     "GetCamera");
+		META_DefineFunction(GameObject, GetComponentPointer<ScriptComponent>,            "GetScripts");
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");

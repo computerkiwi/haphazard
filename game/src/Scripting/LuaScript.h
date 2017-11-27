@@ -53,6 +53,14 @@ public:
 		return m_thisObj;
 	}
 
+	// Returns the environment table for the script as a lua_CFunction.
+	int GetScriptEnvironmentLua(lua_State *L)
+	{
+		// Get the environment function and tell lua we're returning one thing.
+		GetScriptEnvironment();
+		return 1;
+	}
+
 private:
 	// Puts the environment table for this script on the Lua stack.
 	void GetScriptEnvironment();
@@ -70,5 +78,7 @@ private:
 	{
 		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
 		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<LuaScript>("LuaScript").addCFunction("GetScriptEnvironment", &GetScriptEnvironmentLua).endClass();
 	}
 };

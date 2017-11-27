@@ -41,6 +41,22 @@ struct ScriptComponent
 
 	std::vector<LuaScript> scripts;
 
+	// Returns a script with the given filename on the component, or nullptr if it doesn't exist.
+	LuaScript *GetScriptByFilename(const char *fileName)
+	{
+		// Go through the scripts until we find the one with the proper filename.
+		for (auto& script : scripts)
+		{
+			if (script.GetResourceID() == Resource::FilenameToID(fileName))
+			{
+				return &script;
+			}
+		}
+
+		// If we got here we didn't find the script.
+		return nullptr;
+	}
+
 	static rapidjson::Value ScriptComponentSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator)
 	{
 		// Const cast away is fine because we're not really changing anything.
@@ -79,5 +95,7 @@ struct ScriptComponent
 	{
 		META_DefineSerializeFunction(ScriptComponent, ScriptComponentSerializeFunction);
 		META_DefineDeserializeAssignFunction(ScriptComponent, ScriptComponentDeserializeAssign);
+
+		META_DefineFunction(ScriptComponent, GetScriptByFilename, "GetScriptByFilename");
 	}
 };
