@@ -15,6 +15,7 @@ class LuaScript
 {
 public:
 	LuaScript();
+	LuaScript(const LuaScript& other);
 
 	LuaScript(Resource *resource, GameObject thisObj);
 
@@ -40,16 +41,6 @@ public:
 		return m_resID;
 	}
 
-private:
-	// Puts the environment table for this script on the Lua stack.
-	void GetScriptEnvironment();
-
-	void UpdateThisObject();
-
-	GameObject m_thisObj;
-	ResourceID m_resID;
-	int m_environmentID;
-	lua_State *m_L;
 
 	void SetThisObject(GameObject obj)
 	{
@@ -62,7 +53,18 @@ private:
 		return m_thisObj;
 	}
 
+private:
+	// Puts the environment table for this script on the Lua stack.
+	void GetScriptEnvironment();
 
+	void SetupEnvironment(const char *scriptString);
+
+	void UpdateThisObject();
+
+	GameObject m_thisObj;
+	ResourceID m_resID;
+	int m_environmentID;
+	lua_State *m_L;
 
 	META_REGISTER(LuaScript)
 	{

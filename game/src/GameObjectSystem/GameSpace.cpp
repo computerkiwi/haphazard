@@ -60,6 +60,14 @@ void ComponentMap<HierarchyComponent>::Delete(GameObject_ID object)
 	}
 }
 
+template <>
+void ComponentMap<ScriptComponent>::Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
+{
+	if (m_components.find(originalObject) != m_components.end())
+	{
+		m_components.emplace(newObject, ScriptComponent(m_components.find(originalObject)->second, newObject));
+	}
+}
 
 void GameSpace::RegisterSystem(SystemBase *newSystem, std::size_t priority)
 {
