@@ -8,6 +8,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Engine\Engine.h"
 #include "GameObject.h"
 
+#include "Scripting/ScriptComponent.h"
+
 extern Engine *engine;
 
 GameObject::GameObject() : m_objID(INVALID_GAMEOBJECT_ID)
@@ -196,6 +198,36 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 		// Add it to the space.
 		gameObject.AddComponent(anyComponent);
 	}
+}
+
+// Takes 1 parameter: string fileName
+int GameObject::GetScript(lua_State * L)
+{
+	// Expecting two parameters. This gameobject and filename string.
+	int temp = lua_gettop(L);
+	assert(temp == 2);
+
+	// Pull out the filename string.
+	const char *fileName = luaL_checkstring(L, 2);
+
+	// Get the scriptcomponent and check for valididity.
+	ComponentHandle<ScriptComponent> handle = GetComponent<ScriptComponent>();
+	if (!handle.IsValid())
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// Get the script and check for valididity.
+	LuaScript *script = handle->GetScriptByFilename(fileName);
+	if (script == nullptr)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// Everything's valid, so let the script give us its environment.
+	return script->GetScriptEnvironmentLua(L);
 }
 
 std::vector<meta::Any> GameObject::GetComponentPointersMeta()

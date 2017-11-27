@@ -125,6 +125,9 @@ private:
 		return GetComponent<T>().Get();
 	}
 
+	// Gets a script by name (1 parameter from Lua - string name)
+	int GetScript(lua_State *L);
+
 	META_REGISTER(GameObject)
 	{
 		META_DefineMember(GameObject, m_objID, "id");
@@ -150,6 +153,9 @@ private:
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
+
+		// Takes 1 parameter: string fileName
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addCFunction("GetScript", &GetScript);
 
 		// TODO: Make this use the meta function.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();

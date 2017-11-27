@@ -1,14 +1,14 @@
+-- Simple test for getting scripts from within scripts.
+
 function dumpTable(tab)
 	for k,v in pairs(tab) do print(tostring(k) .. " - " .. type(v)) end
 end
 
 function Update(dt)
-	local scripts = this:GetScripts()
-	local script = scripts:GetScriptByFilename("PlayerController.lua")
-	local scriptTable = script:GetScriptEnvironment()
-
-	dumpTable(scriptTable)
+	local script = this:GetScript("PlayerController.lua")
 	
-	scriptTable.STACK_HEIGHT = 50
+	--dumpTable(scriptTable)
+	
+	script.STACK_HEIGHT = 50
 	
 end
