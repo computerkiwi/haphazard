@@ -14,7 +14,7 @@ GameObject::GameObject() : m_id(0), m_active(true), m_destroyed(false), m_space(
 {
 }
 
-GameObject::GameObject(int id, GameSpaceIndex gameSpace) : m_id(id), m_active(true), m_destroyed(false), m_space(gameSpace)
+GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_id(id), m_active(true), m_destroyed(false), m_space(gameSpace)
 {
 }
 

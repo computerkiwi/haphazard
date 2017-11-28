@@ -292,7 +292,7 @@ void Editor::Update()
 		}
 		else
 		{
-			ImGui_GameObject(GameObject(m_selected_object), this);
+			ImGui_GameObject(m_selected_object, this);
 		}
 
 		#ifdef _DEBUG
@@ -534,11 +534,22 @@ void Editor::KeyBindings()
 		OpenLevel();
 	}
 
+
+	// Duplicate
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::D))
+	{
+		if (m_selected_object)
+		{
+			m_selected_object = m_selected_object.Duplicate();
+
+		}
+	}
+
 	if (Input::IsPressed(Key::Delete))
 	{
 		if (m_selected_object)
 		{
-			GameObject(m_selected_object).Destroy();
+			m_selected_object.Destroy();
 		}
 	}
 
@@ -547,7 +558,7 @@ void Editor::KeyBindings()
 	if (Input::IsPressed(Key::Space))
 	{
 		// Move Camera to object
-		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+		// m_editor_cam.SetPosition(m_selected_object.GetComponent<TransformComponent>()->GetPosition());
 	}
 
 	// Play/Pause the Editor
@@ -628,7 +639,7 @@ void Editor::QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& 
 {
 	if (m_selected_object)
 	{
-		GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
+		GameObject object = m_engine->GetSpace(m_selected_object.GetIndex())->NewGameObject(name);
 
 		// Add a transform component
 		object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
@@ -738,7 +749,7 @@ void Editor::Tools()
 {
 	if (m_selected_object)
 	{
-		ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+		ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
@@ -860,7 +871,7 @@ void Editor::Tools()
 
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 				Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
 				
 				// Reset the click state
@@ -971,7 +982,7 @@ void Editor::Tools()
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
 				// Get the transform handle
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 
 				// Push the action using the Scale Before and the scale after
 				Push_Action({ objectSave.GetScale(), handle->GetScale(), "scale", { m_selected_object, true }, Action_General<TransformComponent, glm::vec3> });
@@ -1040,7 +1051,7 @@ void Editor::Tools()
 			// Check if the user is done with the click and push the action
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 				Push_Action({ objectSave.GetRotation(), handle->GetRotation(), "rotation", { m_selected_object, true }, Action_General<TransformComponent, float> });
 				m_editorState.MouseDragClick = false;
 			}
