@@ -140,7 +140,7 @@ void RenderSystem::RenderSprites(float dt)
 			spriteHandle->UpdateTextureHandler(dt);
 
 			// Places vertex data into data vector to be used in Vertex VBO
-			spriteHandle->SetRenderData(transform->GetMatrix4(), &data);
+			spriteHandle->SetRenderData(transform.Get(), &data);
 
 			// Places texture in tex vector to be used in Texture VBO
 			tex.push_back(spriteHandle->GetTextureRenderID());

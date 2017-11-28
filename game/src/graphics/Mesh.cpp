@@ -37,10 +37,10 @@ Mesh::Mesh()
 	
 	// Setup VBOs for this VAO
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	Shaders::spriteShader->ApplyAttributes(3, 9); // Apply instance attributes
+	Shaders::spriteShader->ApplyAttributes(3, 10); // Apply instance attributes
 
 	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
-	Shaders::spriteShader->ApplyAttributes(9, 10); // Apply texture instance attribute
+	Shaders::spriteShader->ApplyAttributes(10, 11); // Apply texture instance attribute
 
 	// VBO for non chaning vertex data
 	glGenBuffers(1, &vboID);

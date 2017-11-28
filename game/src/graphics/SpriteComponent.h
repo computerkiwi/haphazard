@@ -25,7 +25,7 @@ public:
 	ResourceID GetResourceID() const { return m_TextureHandler.GetResourceID(); }
 	GLuint GetTextureRenderID() const { return m_TextureHandler.GetTexture()->GetLayer(); }
 
-	void SetRenderData(glm::mat4 matrix, std::vector<float>* data);
+	void SetRenderData(const TransformComponent* transform, std::vector<float>* data);
 	void UpdateTextureHandler(float dt);
 
 	void SetColor(glm::vec4 col) { m_Color = col; }

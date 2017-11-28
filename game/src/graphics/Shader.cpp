@@ -299,13 +299,14 @@ namespace Shaders
 		attribs.push_back(ShaderProgram::Attribute("texcoord", 2, GL_FLOAT, sizeof(float), false, 9, 7));
 
 		// Instance Attribs
-		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 24, 0, true));
-		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 24, 4, true));
+		attribs.push_back(ShaderProgram::Attribute("color", 4, GL_FLOAT, sizeof(float), false, 26, 0, true));
+		attribs.push_back(ShaderProgram::Attribute("texBox", 4, GL_FLOAT, sizeof(float), false, 26, 4, true));
 		// Model matrix
-		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 24, 8, true));
-		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 24, 12, true));
-		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 24, 16, true));
-		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 24, 20, true));
+		attribs.push_back(ShaderProgram::Attribute(5, 4, GL_FLOAT, sizeof(float), false, 26, 8, true));
+		attribs.push_back(ShaderProgram::Attribute(6, 4, GL_FLOAT, sizeof(float), false, 26, 12, true));
+		attribs.push_back(ShaderProgram::Attribute(7, 4, GL_FLOAT, sizeof(float), false, 26, 16, true));
+		attribs.push_back(ShaderProgram::Attribute(8, 4, GL_FLOAT, sizeof(float), false, 26, 20, true));
+		attribs.push_back(ShaderProgram::Attribute("texScale", 2, GL_FLOAT, sizeof(float), false, 26, 24, true));
 
 		attribs.push_back(ShaderProgram::Attribute("texLayer", 1, GL_INT, sizeof(int), false, 1, 0, true));
 

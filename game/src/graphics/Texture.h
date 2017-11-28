@@ -17,6 +17,7 @@ class Editor;
 
 class Texture
 {
+	friend class TextureHandler;
 public:
 	// Load texture from file
 	Texture(const char* file);
@@ -83,8 +84,19 @@ public:
 	void SetAnimatedTextureFPS(float fps);
 	void SetAnimatedTextureFrame(int frame);
 
+	float GetTextureAspectRatio();
+
+	void SetTiling(bool isTiling) { m_IsTiling = isTiling; }
+	bool IsTiling() { return m_IsTiling; }
+
+	void SetTileScale(glm::vec2 scale) { m_TileAmount = scale; }
+	glm::vec2 GetTileAmount() { return m_TileAmount; }
+
 private:
 	Resource* m_Texture;
+
+	bool m_IsTiling = false;
+	glm::vec2 m_TileAmount = glm::vec2(1,1);
 
 	bool m_IsAnimated;
 	int m_CurrentFrame = 0;
@@ -93,6 +105,8 @@ private:
 
 	META_REGISTER(TextureHandler)
 	{
+		META_DefineMember(TextureHandler, m_IsTiling, "isTiling");
+		META_DefineMember(TextureHandler, m_TileAmount, "tileScale");
 		META_DefineMember(TextureHandler, m_IsAnimated, "isAnimated");
 		META_DefineMember(TextureHandler, m_CurrentFrame, "currentFrame");
 		META_DefineMember(TextureHandler, m_FPS, "fps");

@@ -228,6 +228,12 @@ glm::vec4 TextureHandler::GetBounds() const
 	}
 	return reinterpret_cast<Texture*>(m_Texture->Data())->GetBounds();
 }
+
+float TextureHandler::GetTextureAspectRatio()
+{
+	glm::vec4 bounds = GetBounds();
+	return (bounds.z - bounds.x) / (bounds.w - bounds.y); // Width / Height
+}
 	
 void TextureHandler::SetResourceID(ResourceID id)
 {

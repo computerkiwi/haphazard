@@ -59,7 +59,7 @@ void SpriteComponent::SetTextureID(ResourceID res)
 	SetTextureResource(resource);
 }
 
-void SpriteComponent::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
+void SpriteComponent::SetRenderData(const TransformComponent* transform, std::vector<float>* data)
 {
 	data->push_back(m_Color.x);
 	data->push_back(m_Color.y);
@@ -74,8 +74,21 @@ void SpriteComponent::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 	data->push_back(bounds.w);
 
 	// Load data into array
+	glm::mat4 matrix = transform->GetMatrix4();
 	for (int i = 0; i < 4 * 4; i++)
 		data->push_back(matrix[i / 4][i % 4]);
+
+
+	if (m_TextureHandler.IsTiling())
+	{
+		data->push_back(transform->GetScale().x * m_TextureHandler.GetTileAmount().x);
+		data->push_back(transform->GetScale().y * m_TextureHandler.GetTileAmount().y);
+	}
+	else
+	{
+		data->push_back(1);
+		data->push_back(1);
+	}
 }
 
 void SpriteComponent::UpdateTextureHandler(float dt)
