@@ -528,11 +528,20 @@ void Editor::KeyBindings()
 		m_editorState.fileNewFile = true;
 	}
 
-	// Open Dialog Box
+	// Open Level
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
 	{
 		OpenLevel();
 	}
+
+	if (Input::IsPressed(Key::Delete))
+	{
+		if (m_selected_object)
+		{
+			GameObject(m_selected_object).Destroy();
+		}
+	}
+
 
 	// Move Camera to Object
 	if (Input::IsPressed(Key::Space))
@@ -661,9 +670,9 @@ void Editor::OnClick()
 		glm::vec2 scale;
 
 		// Check the current object first, cache basically
-		if (m_selected_object)
+		if (m_selected_object.IsValid())
 		{
-			ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+			ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 			pos = transform.Get()->GetPosition();
 			scale = transform.Get()->GetScale();
 
@@ -681,11 +690,11 @@ void Editor::OnClick()
 		// Check EVERY object
 		for (auto id : m_objects)
 		{
-			if (id)
-			{
-				// Get the GameObject id
-				GameObject object = id;
+			// Get the GameObject id
+			GameObject object = id;
 
+			if (object.IsValid())
+			{
 				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
 				scale = transform.Get()->GetScale();
@@ -1197,44 +1206,52 @@ void Editor::PrintObjects()
 			ImGui::Separator();
 			continue;
 		}
+		
+		// Assign the GameObject to a temp
 		object = object_id;
-		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
-		// Save the buffer based off name size, max name size is 8
-		if (name.size() > 10)
+		// Check if the object exist (checks if destoryed)
+		if (object.IsValid())
 		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
-		else
-		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
+			// Grab the name to display
+			std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
-		// Multiselect with Left Control + LClick
-		if (Input::IsHeldDown(Key::LeftControl))
-		{
-			// Draw each object
-			if (ImGui::Selectable(name_buffer))
+			// Save the buffer based off name size, max name size is 8
+			if (name.size() > 10)
 			{
-				if (m_multiselect.m_size < MAX_SELECT)
+				snprintf(name_buffer, sizeof(name_buffer),
+					"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+			}
+			else
+			{
+				snprintf(name_buffer, sizeof(name_buffer),
+					"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+			}
+
+			// Multiselect with Left Control + LClick
+			if (Input::IsHeldDown(Key::LeftControl))
+			{
+				// Draw each object
+				if (ImGui::Selectable(name_buffer))
 				{
-					m_multiselect.push_back(object);
-				}
+					if (m_multiselect.m_size < MAX_SELECT)
+					{
+						m_multiselect.push_back(object);
+					}
 
-				SetGameObject(object);
+					SetGameObject(object);
+				}
+			}
+			else
+			{
+				if (ImGui::Selectable(name_buffer))
+				{
+					m_multiselect.clear();
+					SetGameObject(object);
+					break;
+				}
 			}
 		}
-		else
-		{
-			if (ImGui::Selectable(name_buffer))
-			{
-				m_multiselect.clear();
-				SetGameObject(object);
-				break;
-			}
-		}		
 	}
 }
 

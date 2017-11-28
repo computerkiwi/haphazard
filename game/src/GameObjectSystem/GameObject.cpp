@@ -10,11 +10,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 extern Engine *engine;
 
-GameObject::GameObject() : m_objID(INVALID_GAMEOBJECT_ID)
+GameObject::GameObject() : m_id(0), m_active(true), m_destroyed(false), m_space(0)
 {
 }
 
-GameObject::GameObject(int id, GameSpaceIndex gameSpace) : m_id(id), m_space(gameSpace)
+GameObject::GameObject(int id, GameSpaceIndex gameSpace) : m_id(id), m_active(true), m_destroyed(false), m_space(gameSpace)
 {
 }
 
@@ -63,12 +63,12 @@ void GameObject::SetSpace(GameSpaceIndex index)
 	m_space = index;
 }
 
-std::string GameObject::GetName()
+std::string GameObject::GetName() const
 {
 	return GetComponent<ObjectInfo>()->m_name;
 }
 
-void GameObject::SetName(const std::string & name)
+void GameObject::SetName(const std::string & name) const
 {
 	GetComponent<ObjectInfo>()->m_name = name;
 }
@@ -85,6 +85,67 @@ void GameObject::Delete()
 	GetSpace()->Delete(m_objID);
 	m_objID = 0;
 }
+
+
+bool GameObject::IsValid() const
+{
+	return (m_objID != INVALID_GAMEOBJECT_ID) && !m_destroyed;
+}
+
+
+bool GameObject::Usable() const
+{
+	return IsValid() && m_active;
+}
+
+
+bool GameObject::IsActive() const
+{
+	return m_active;
+}
+
+
+void GameObject::On()
+{
+	m_active = true;
+}
+
+
+void GameObject::Off()
+{
+	m_active = false;
+}
+
+
+void GameObject::SetActive(bool state)
+{
+	m_active = state;
+}
+
+
+bool GameObject::IsDestroyed() const
+{
+	return m_destroyed;
+}
+
+
+void GameObject::Destroy()
+{
+	m_destroyed = true;
+}
+
+
+void GameObject::Restore()
+{
+	m_destroyed = false;
+}
+
+
+void GameObject::SetDestroy(bool state)
+{
+	m_destroyed = state;
+}
+
 
 rapidjson::Value GameObject::GameObjectSerialize(const void *gameObjectPtr, rapidjson::Document::AllocatorType& allocator)
 {
@@ -113,6 +174,7 @@ rapidjson::Value GameObject::GameObjectSerialize(const void *gameObjectPtr, rapi
 	return jsonObject;
 }
 
+
 // This is very not threadsafe. Should probably be called before each deserialize.
 static GameSpaceIndex deserializeGameSpace = 0;
 void GameObject::SetDeserializeSpace(GameSpaceIndex index)
@@ -120,15 +182,18 @@ void GameObject::SetDeserializeSpace(GameSpaceIndex index)
 	deserializeGameSpace = 0;
 }
 
+
 rapidjson::Value GameObject::SerializeObject(rapidjson::Document::AllocatorType& allocator) const
 {
 	return GameObjectSerialize(this, allocator);
 }
 
+
 void GameObject::DeserializeObject(rapidjson::Value& jsonValue)
 {
 	GameObjectDeserializeAssign(this, jsonValue);
 }
+
 
 GameObject GameObject::FindByName(const char * name)
 {
@@ -142,6 +207,7 @@ GameObject GameObject::FindByName(const char * name)
 	}
 	return GameObject();
 }
+
 
 GameObject GameObject::FindByTag(const char * tagStr)
 {
@@ -159,6 +225,7 @@ GameObject GameObject::FindByTag(const char * tagStr)
 	}
 	return GameObject();
 }
+
 
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
@@ -203,10 +270,6 @@ std::vector<meta::Any> GameObject::GetComponentPointersMeta()
 	return GetSpace()->GetObjectComponentPointersMeta(m_objID);
 }
 
-bool GameObject::IsValid() const
-{
-	return (m_objID != INVALID_GAMEOBJECT_ID);
-}
 
 GameObject_ID GameObject::ConstructID(int id, GameSpaceIndex spaceIndex)
 {

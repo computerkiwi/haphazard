@@ -184,6 +184,25 @@ void Action_AddComponent<DynamicCollider2DComponent>(EditorAction& a)
 }
 
 
+void Action_General_GameObjectDelete(EditorAction& a)
+{
+	GameObject object = a.save.GetData<GameObject>();
+
+
+	if (object.IsValid())
+	{
+		if (a.redo)
+		{
+			object.Destroy();
+		}
+		else
+		{
+			object.Restore();
+		}
+	}
+}
+
+
 const char * ErrorList[] = 
 {
 	"Error 00: See Max if you see this",
@@ -528,7 +547,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
-			object.Delete();
+			object.Destroy();
+			editor->Push_Action({ object, object, nullptr, EditorComponentHandle(), Action_General_GameObjectDelete });
 			editor->SetGameObject(0);
 			End();
 			return;

@@ -75,8 +75,8 @@ public:
 
 	void SetSpace(GameSpaceIndex index);
 
-	std::string GetName();
-	void SetName(const std::string& name);
+	std::string GetName() const;
+	void SetName(const std::string& name) const;
 
 	template <typename T>
 	void DeleteComponent()
@@ -84,13 +84,31 @@ public:
 		GetSpace()->DeleteComponent<T>(m_objID);
 	}
 
+
+	bool operator ==(GameObject rhs) const { return m_objID == rhs.m_objID; }
 	operator bool() const { return m_objID; }
-	operator GameObject_ID() { return m_objID; }
+	operator GameObject_ID() const { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();
 
 	bool IsValid() const;
+
+	bool Usable() const;
+
+	bool IsActive() const;
+	void SetActive(bool state);
+
+	// Sets Active to false
+	void Off();
+
+	// Sets Active to On
+	void On();
+
+	void SetDestroy(bool state);
+	bool IsDestroyed() const;
+	void Destroy();
+	void Restore();
 
 	static GameObject_ID ConstructID(int id, GameSpaceIndex spaceIndex);
 
@@ -108,8 +126,10 @@ private:
 	{
 		struct
 		{
-			int m_id     : 24;
-			int m_space  : 8;
+			int m_id        : 24;
+			int m_active    : 1;
+			int m_destroyed : 1;
+			int m_space     : 6;
 		};
 		GameObject_ID m_objID;
 	};
