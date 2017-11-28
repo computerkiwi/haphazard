@@ -92,10 +92,16 @@ public:
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();
 
+
+	// Checks if valid id and not destroyed
 	bool IsValid() const;
 
+
+	// Checks for IsValid and IsActive
 	bool Usable() const;
 
+
+	// Checks if the GameObject is Active
 	bool IsActive() const;
 	void SetActive(bool state);
 
@@ -148,16 +154,32 @@ private:
 	META_REGISTER(GameObject)
 	{
 		META_DefineType(GameObject);
+
 		META_DefineMember(GameObject, m_objID, "id");
 
-		META_DefineFunction(GameObject, Duplicate, "Duplicate");
+		META_DefineFunction(GameObject, IsValid,      "IsValid");
+		META_DefineFunction(GameObject, Usable,       "Usable");
+
+		META_DefineFunction(GameObject, Duplicate,    "Duplicate");
 		META_DefineFunction(GameObject, Delete,       "Delete");
+
+		META_DefineFunction(GameObject, IsDestroyed,  "IsDestroyed");
+		META_DefineFunction(GameObject, Destroy,      "Destroy");
+		META_DefineFunction(GameObject, Restore,      "Restore");
+
+
+		META_DefineFunction(GameObject, IsActive,     "IsActive");
+		META_DefineFunction(GameObject, SetActive,    "SetActive");
+
+		META_DefineFunction(GameObject, On,  "On");
+		META_DefineFunction(GameObject, Off, "Off");
+
 
 		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");
 		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
 		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
 		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
-		META_DefineFunction(GameObject, DeleteComponent<Camera>,					            "DeleteCamera");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>,					  "DeleteCamera");
 
 
 		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");
@@ -167,6 +189,7 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<DynamicCollider2DComponent>, "GetDynamicCollider");
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>,            "GetSprite");
 		META_DefineFunction(GameObject, GetComponentPointer<Camera>,                     "GetCamera");
+
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
