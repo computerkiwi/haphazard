@@ -23,8 +23,9 @@ void AnimationResource::LoadData(const char *filePath)
 	m_numSprites   = file["frameCount"].GetInt();
 	
 	// Construct the texture's file path.
-	std::string texturePath = Resource::GetFolderName(ResourceType::TEXTURE);
-	texturePath.append("/");
+	std::string texturePath = "assets\\";
+	texturePath.append(Resource::GetFolderName(ResourceType::TEXTURE));
+	texturePath.append("\\");
 	texturePath.append(m_textureName);
 
 	// Create the texture.

@@ -37,7 +37,7 @@ protected: // Static variables
 	static GLuint m_TextureArray;
 	static GLuint m_layers;
 
-private: // Variables
+ // Variables
 	GLuint m_layer;
 	glm::vec4 m_bounds;
 };
@@ -46,7 +46,7 @@ class AnimatedTexture : public Texture
 {
 public:
 	AnimatedTexture(const char* file);
-	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites, float fps = 0);
+	AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites, float fps = 1);
 	
 	// Returns top left of sprite frame
 	virtual glm::vec4 GetBounds(int frame = 0);
@@ -78,6 +78,7 @@ public:
 	void SetResourceID(ResourceID id);
 	ResourceID GetResourceID() const { return m_Texture->Id(); }
 	Texture* GetTexture() const { return reinterpret_cast<Texture*>(m_Texture->Data()); }
+	glm::vec4 GetBounds() const;
 
 	void SetAnimatedTextureFPS(float fps);
 	void SetAnimatedTextureFrame(int frame);

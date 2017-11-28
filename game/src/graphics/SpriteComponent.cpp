@@ -66,7 +66,7 @@ void SpriteComponent::SetRenderData(glm::mat4 matrix, std::vector<float>* data)
 	data->push_back(m_Color.z);
 	data->push_back(m_Color.w);
 
-	glm::vec4 bounds = m_TextureHandler.GetTexture()->GetBounds();
+	glm::vec4 bounds = m_TextureHandler.GetBounds();
 
 	data->push_back(bounds.x);
 	data->push_back(bounds.y);
