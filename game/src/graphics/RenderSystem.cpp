@@ -301,7 +301,12 @@ void RenderSystem::RenderLights(float dt)
 		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
 		Screen::GetLayerFrameBuffer(layer)->Use();
 
-		data.clear();
+		
+		// Bind sprite shader
+		Shaders::lightShader->Use();
+		Shaders::lightShader->SetVariable("Resolution", glm::vec2(Settings::ScreenWidth(), Settings::ScreenHeight()));
+		
+		LightComponent::BindVAO();
 
 		for (auto& lightHandle : *lights)
 		{
@@ -315,29 +320,38 @@ void RenderSystem::RenderLights(float dt)
 			if (static_cast<int>(transform->GetZLayer()) != layer)
 				continue;
 
+			data.clear();
+
 			// Places vertex data into data vector to be used in Vertex VBO
 			lightHandle->SetRenderData(transform->GetPosition(), &data);
 
 			// Keep count of all meshes used in instancing call
-			numLights++;
+			//numLights++;
+			
+			// Bind buffers and set instance data of all sprites
+			LightComponent::BindInstanceVBO();
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_DYNAMIC_DRAW);
+			
+			float range = lightHandle->GetRange();
+			float verts[] =
+			{
+				-0.5f * range,  0.5f * range,
+				-0.5f * range, -0.5f * range,
+				0.5f * range, -0.5f * range, 
+
+				0.5f * range, -0.5f * range, 
+				0.5f * range,  0.5f * range, 
+				-0.5f * range,  0.5f * range,
+			};
+
+			LightComponent::BindVertexVBO();
+			glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_DYNAMIC_DRAW);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
-		if (numLights == 0)
-			return;
-
-		// Bind sprite shader
-		Shaders::lightShader->Use();
-
-		Shaders::lightShader->SetVariable("Resolution", glm::vec2(Settings::ScreenWidth(), Settings::ScreenHeight()));
-
-		// Bind buffers and set instance data of all sprites
-		LightComponent::BindInstanceVBO();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_DYNAMIC_DRAW);
-
-		LightComponent::BindVAO();
-
 		// Draw all sprites in this layer
-		glDrawArraysInstanced(GL_TRIANGLES, 0, numLights * 6, numLights);
+		//glDrawArraysInstanced(GL_TRIANGLES, 0, numLights * 6, numLights);
 	}
 }
 

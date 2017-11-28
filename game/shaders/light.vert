@@ -16,18 +16,26 @@ layout (std140, binding = 1) uniform Matrices
 uniform vec2 Resolution;
 
 out vec4 Color;
-out vec4 SourcePos;
+out vec2 Center;
 out float Range;
 out vec2 Res;
 
 void main()
 {
 	Color = color;
-	Range = range ;
-
-	SourcePos = proj * view * vec4(position, 0, 1.0); // World to screen
-
-	gl_Position = vec4(vpos,0,1); //proj * view * vec4(vpos + position, 0, 1.0);
-
+	Range = range;
 	Res = Resolution;
+
+	mat4 model;
+	model[0] = model[1] = model[2] = vec4(0);
+	model[0][0] = model[1][1] = model[2][2] = 1;
+	model[3] = vec4(position.x, position.y, 0, 1);
+
+	gl_Position = proj * view * model * vec4(vpos, 0, 1.0);
+
+	Center = (proj * view * model * vec4(0, 0, 0, 1.0)).xy;
+
+	//SourcePos = proj * view * vec4(position, 0, 1.0); // World to screen
+	//SourcePos.x += 0.5;
+	//SourcePos.y += 0.5 / (Resolution.x / Resolution.y);
 }

@@ -1,7 +1,12 @@
-#version 330 core
-layout(pixel_center_integer) in vec4 gl_FragCoord;
+#version 430 core
 
-in vec4 SourcePos;
+layout (std140, binding = 1) uniform Matrices
+{
+	uniform mat4 view;
+	uniform mat4 proj;
+};
+
+out vec2 Center;
 in vec4 Color;
 in float Range;
 in vec2 Res;
@@ -10,13 +15,10 @@ out vec4 outColor;
 
 void main()
 {
-	vec2 FragPos = gl_FragCoord.xy / Res;
+	//float Dist = Center.x * gl_FragCoord.x + Center.y * gl_FragCoord.y;
 
-	float Dist = distance(FragPos, SourcePos.xy * (Res.x / Res.y) ); //distance(gl_FragCoord, SourcePos);
+	//if(Dist > Range)
+	//	discard;
 
-	if(Dist > Range)
-		discard;
-
-	outColor = Color * (Range - Dist);
-	outColor.w = 1;
+	outColor = vec4(1,0,1,1);
 }

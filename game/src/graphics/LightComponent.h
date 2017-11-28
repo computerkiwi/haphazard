@@ -14,7 +14,7 @@ class LightComponent
 {
 	friend class RenderSystem;
 public:
-	LightComponent(float range = 0.25f, glm::vec4 color = glm::vec4(1, 1, 1, 1));
+	LightComponent(float range = 1.0f, glm::vec4 color = glm::vec4(1, 1, 1, 1));
 
 	void SetRange(float range)      { m_range = range;  }
 	void SetColor(glm::vec4 color)  { m_color = color;  }
@@ -41,6 +41,7 @@ private: // Instancing Buffers
 
 	static const int DataSize() { return 2 + 4 + 1; } // Position + Color + Range
 	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, m_instanceVBO); }
+	static void BindVertexVBO() { glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO); }
 	static void BindVAO() { glBindVertexArray(m_VAO); }
 	static void SetUpBuffers();
 
