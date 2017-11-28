@@ -108,6 +108,10 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 
 	const int WIDTH = 4;
 
+	GameObject animated = m_spaces[0]->NewGameObject("Animated");
+	animated.AddComponent<TransformComponent>(glm::vec3(0, 0, 2), glm::vec3(1, 1, 0));
+	animated.AddComponent<SpriteComponent>(m_resManager.Get("fontAnim.json"));
+
 	GameObject ground = m_spaces[0]->NewGameObject("Ground");
 	ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(3 * WIDTH - .1f, -1.66666f, 0), glm::vec3(WIDTH, 1, 1), 10));
 	ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));

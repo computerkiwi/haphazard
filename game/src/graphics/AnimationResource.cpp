@@ -5,11 +5,31 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "AnimationResource.h"
+#include "Util/Serialization.h"
 
 void AnimationResource::LoadData(const char *filePath)
 {
-	// Get this shit (member variables) from the file 
-	m_atex = new AnimatedTexture(filePath, m_spriteWidth, m_spriteHeight, m_spritesX, m_spritesY, m_numSprites);
+	// Load the file.
+	rapidjson::Document file = LoadJsonFile(filePath);
+	auto temp = file.GetType();
+
+	// Pull all the info we need out.
+	m_textureName  = file["textureName"].GetString();
+	m_spriteWidth  = file["frameWidth"].GetInt();
+	m_spriteHeight = file["frameHeight"].GetInt();
+	m_spritesX     = file["framesX"].GetInt();
+	m_spritesY     = file["framesY"].GetInt();
+	m_FPS          = file["fps"].GetFloat();
+	m_numSprites   = file["frameCount"].GetInt();
+	
+	// Construct the texture's file path.
+	std::string texturePath = "assets\\";
+	texturePath.append(Resource::GetFolderName(ResourceType::TEXTURE));
+	texturePath.append("\\");
+	texturePath.append(m_textureName);
+
+	// Create the texture.
+	m_atex = new AnimatedTexture(texturePath.c_str(), m_spriteWidth, m_spriteHeight, m_spritesX, m_spritesY, m_numSprites, m_FPS);
 }
 
 void AnimationResource::UnloadData()

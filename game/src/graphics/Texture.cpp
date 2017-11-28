@@ -156,8 +156,8 @@ AnimatedTexture::AnimatedTexture(const char* file)
 {
 }
 
-AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites)
-	: Texture { file }, m_spritesX { spritesY }, m_spritesY { spritesX }, m_numSprites { numSprites }
+AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHeight, int spritesX, int spritesY, int numSprites, float fps)
+	: Texture { file }, m_spritesX { spritesX }, m_spritesY { spritesY }, m_numSprites { numSprites }, m_DefaultFPS { fps }
 {
 	m_spriteWidth = spriteWidth / (float)MAX_WIDTH;
 	m_spriteHeight = spriteHeight / (float)MAX_HEIGHT;
@@ -165,7 +165,7 @@ AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHe
 
 glm::vec4 AnimatedTexture::GetBounds(int frame)
 {
-	glm::vec2 lower = glm::vec2(m_spriteWidth * (frame % m_spritesX), m_spriteHeight * (frame / m_spritesX));
+	glm::vec2 lower = glm::vec2(m_bounds.x + m_spriteWidth * (frame % m_spritesX), m_bounds.y + m_spriteHeight * (frame / m_spritesX));
 	return glm::vec4(lower, lower + glm::vec2(m_spriteWidth, m_spriteHeight));
 }
 
@@ -195,7 +195,7 @@ void TextureHandler::SetResource(Resource* texture)
 
 	m_Texture = texture;
 
-	m_IsAnimated = texture->GetResourceType() == ResourceType::TEXTURE;
+	m_IsAnimated = texture->GetResourceType() == ResourceType::ANIMATION;
 	if (m_IsAnimated)
 	{
 		AnimatedTexture* anim = reinterpret_cast<AnimatedTexture*>(m_Texture->Data());
@@ -220,6 +220,15 @@ void TextureHandler::Update(float dt)
 	}
 }
 
+glm::vec4 TextureHandler::GetBounds() const
+{
+	if (m_IsAnimated)
+	{
+		return reinterpret_cast<AnimatedTexture*>(m_Texture->Data())->GetBounds(m_CurrentFrame);
+	}
+	return reinterpret_cast<Texture*>(m_Texture->Data())->GetBounds();
+}
+	
 void TextureHandler::SetResourceID(ResourceID id)
 {
 	Resource *resource = engine->GetResourceManager().Get(id);
@@ -232,7 +241,7 @@ void TextureHandler::SetAnimatedTextureFPS(float fps)
 	m_Timer = 0;
 }
 
-void TextureHandler::SetAnimatedTextureFrame(float frame)
+void TextureHandler::SetAnimatedTextureFrame(int frame)
 {
 	m_CurrentFrame = frame;
 	m_Timer = 0;
