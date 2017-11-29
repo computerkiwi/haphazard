@@ -2,7 +2,7 @@
 FILE: ObjectInfo.h
 PRIMARY AUTHOR: Sweet
 
-Copyright © 2017 DigiPen (USA) Corporation.
+Copyright ï¿½ 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -21,6 +21,9 @@ public:
 	GameObject_ID m_id;
 	std::map<std::size_t, std::string> m_tags;
 
+	bool m_destroyed = false;
+	bool m_active = true;
+
 	ObjectInfo() : m_name(""), m_id(INVALID_GAMEOBJECT_ID) {}
 
 	ObjectInfo(GameObject_ID id) : m_name(""), m_id(id) {}
@@ -36,6 +39,9 @@ public:
 	{
 		META_DefineMember(ObjectInfo, ObjectInfo::m_name, "name");
 		META_DefineMember(ObjectInfo, m_id, "id");
+
+		META_DefineMember(ObjectInfo, m_destroyed, "destroyed");
+		META_DefineMember(ObjectInfo, m_active, "active");
 	}
 };
 

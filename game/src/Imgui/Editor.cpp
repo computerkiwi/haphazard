@@ -292,7 +292,7 @@ void Editor::Update()
 		}
 		else
 		{
-			ImGui_GameObject(GameObject(m_selected_object), this);
+			ImGui_GameObject(m_selected_object, this);
 		}
 
 		#ifdef _DEBUG
@@ -470,29 +470,32 @@ void Editor::Internal_Log(const char * log_message, ...)
 void Editor::KeyBindings()
 {
 	// Widget
-	if (Input::IsPressed(Key::Q))
-	{
-		m_gizmo = Editor::Gizmo::none;
-	}
 
-	// Translation
-	else if (Input::IsPressed(Key::W))
+	if (!ImGui::GetIO().WantCaptureKeyboard)
 	{
-		m_gizmo = Editor::Gizmo::Translation;
-	}
+		if (Input::IsPressed(Key::Q))
+		{
+			m_gizmo = Editor::Gizmo::none;
+		}
 
-	// Scale
-	else if (Input::IsPressed(Key::E))
-	{
-		m_gizmo = Editor::Gizmo::Scale;
-	}
+		// Translation
+		else if (Input::IsPressed(Key::W))
+		{
+			m_gizmo = Editor::Gizmo::Translation;
+		}
 
-	// Rotation
-	else if (Input::IsPressed(Key::R))
-	{
-		m_gizmo = Editor::Gizmo::Rotation;
-	}
+		// Scale
+		else if (Input::IsPressed(Key::E))
+		{
+			m_gizmo = Editor::Gizmo::Scale;
+		}
 
+		// Rotation
+		else if (Input::IsPressed(Key::R))
+		{
+			m_gizmo = Editor::Gizmo::Rotation;
+		}
+	}
 
 	// Undo
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
@@ -528,17 +531,37 @@ void Editor::KeyBindings()
 		m_editorState.fileNewFile = true;
 	}
 
-	// Open Dialog Box
+	// Open Level
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
 	{
 		OpenLevel();
 	}
 
+
+	// Duplicate
+	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::D))
+	{
+		if (m_selected_object)
+		{
+			m_selected_object = m_selected_object.Duplicate();
+
+		}
+	}
+
+	if (Input::IsPressed(Key::Delete))
+	{
+		if (m_selected_object)
+		{
+			m_selected_object.Destroy();
+		}
+	}
+
+
 	// Move Camera to Object
 	if (Input::IsPressed(Key::Space))
 	{
 		// Move Camera to object
-		// m_editor_cam.SetPosition(GameObject(m_selected_object).GetComponent<TransformComponent>()->GetPosition());
+		// m_editor_cam.SetPosition(m_selected_object.GetComponent<TransformComponent>()->GetPosition());
 	}
 
 	// Play/Pause the Editor
@@ -564,8 +587,15 @@ void Editor::Push_Action(EditorAction&& action)
 		}
 		else
 		{
+
+			// Delete all the old actions
+			while (m_actions.size != m_actions.history.size())
+			{
+				m_actions.history.pop_back();
+			}
+
 			// We need to catch back up to the actual size
-			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, action);
+			m_actions.history.emplace_back(action);
 			++m_actions.size;
 		}
 	}
@@ -573,7 +603,7 @@ void Editor::Push_Action(EditorAction&& action)
 	{
 		// Zero actions saved, so just start at the beginning
 		m_actions.history.clear();
-		m_actions.history.emplace(m_actions.history.begin(), action);
+		m_actions.history.emplace_back(action);
 		++m_actions.size;
 	}
 
@@ -619,7 +649,7 @@ void Editor::QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& 
 {
 	if (m_selected_object)
 	{
-		GameObject object = m_engine->GetSpace(GameObject(m_selected_object).GetIndex())->NewGameObject(name);
+		GameObject object = m_engine->GetSpace(m_selected_object.GetIndex())->NewGameObject(name);
 
 		// Add a transform component
 		object.AddComponent<TransformComponent>(glm::vec3(pos.x, pos.y, 1.0f), glm::vec3(size.x, size.y, 1.0f));
@@ -661,9 +691,9 @@ void Editor::OnClick()
 		glm::vec2 scale;
 
 		// Check the current object first, cache basically
-		if (m_selected_object)
+		if (m_selected_object.IsValid())
 		{
-			ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+			ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 			pos = transform.Get()->GetPosition();
 			scale = transform.Get()->GetScale();
 
@@ -681,11 +711,11 @@ void Editor::OnClick()
 		// Check EVERY object
 		for (auto id : m_objects)
 		{
-			if (id)
-			{
-				// Get the GameObject id
-				GameObject object = id;
+			// Get the GameObject id
+			GameObject object = id;
 
+			if (object.IsValid())
+			{
 				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
 				scale = transform.Get()->GetScale();
@@ -729,7 +759,7 @@ void Editor::Tools()
 {
 	if (m_selected_object)
 	{
-		ComponentHandle<TransformComponent> transform = GameObject(m_selected_object).GetComponent<TransformComponent>();
+		ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
@@ -779,7 +809,7 @@ void Editor::Tools()
 				else
 				{
 					// Check if we need to save the old value
-					if (!m_editorState.MouseDragClick)
+					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 					{
 						bool freeze_axis = false;
 
@@ -851,7 +881,7 @@ void Editor::Tools()
 
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 				Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
 				
 				// Reset the click state
@@ -911,7 +941,7 @@ void Editor::Tools()
 				glm::vec2 mouseChange = mouse - m_prevMouse;
 
 				// Check if we need to save the old value of the object
-				if (!m_editorState.MouseDragClick)
+				if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 				{
 					objectSave.SetScale(object.GetComponent<TransformComponent>()->GetScale());
 					m_editorState.MouseDragClick = true;
@@ -962,7 +992,7 @@ void Editor::Tools()
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
 				// Get the transform handle
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 
 				// Push the action using the Scale Before and the scale after
 				Push_Action({ objectSave.GetScale(), handle->GetScale(), "scale", { m_selected_object, true }, Action_General<TransformComponent, glm::vec3> });
@@ -1003,7 +1033,7 @@ void Editor::Tools()
 				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
 				{
 					// Check if we need to save the current value
-					if (!m_editorState.MouseDragClick)
+					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 					{
 						objectSave.SetRotation(object.GetComponent<TransformComponent>()->GetRotation());
 						m_editorState.MouseDragClick = true;
@@ -1025,13 +1055,13 @@ void Editor::Tools()
 				rotation *= (180.0f / PI);
 
 				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
-				m_prevMouse = Input::GetMousePos_World();
+				m_prevMouse = mouse;
 			}
 
 			// Check if the user is done with the click and push the action
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
-				ComponentHandle<TransformComponent> handle = GameObject(m_selected_object).GetComponent<TransformComponent>();
+				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
 				Push_Action({ objectSave.GetRotation(), handle->GetRotation(), "rotation", { m_selected_object, true }, Action_General<TransformComponent, float> });
 				m_editorState.MouseDragClick = false;
 			}
@@ -1059,10 +1089,11 @@ void Editor::AddPopUp(PopUpWindow&& pop)
 
 void Editor::UpdatePopUps(float dt)
 {
-	if (Input::IsPressed(Key::I))
-	{
-		AddPopUp(PopUpWindow("Test ", 2.0f, PopUpPosition::Mouse));
-	}
+	// Here for Popup Testing
+	// if (Input::IsPressed(Key::I))
+	// {
+	//		AddPopUp(PopUpWindow("Test ", 2.0f, PopUpPosition::Mouse));
+	// }
 
 	int width = 0;
 	int height = 0;
@@ -1197,44 +1228,52 @@ void Editor::PrintObjects()
 			ImGui::Separator();
 			continue;
 		}
+		
+		// Assign the GameObject to a temp
 		object = object_id;
-		std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
-		// Save the buffer based off name size, max name size is 8
-		if (name.size() > 10)
+		// Check if the object exist (checks if destoryed)
+		if (object.IsValid())
 		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
-		else
-		{
-			snprintf(name_buffer, sizeof(name_buffer),
-				"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
-		}
+			// Grab the name to display
+			std::string& name = object.GetComponent<ObjectInfo>().Get()->m_name;
 
-		// Multiselect with Left Control + LClick
-		if (Input::IsHeldDown(Key::LeftControl))
-		{
-			// Draw each object
-			if (ImGui::Selectable(name_buffer))
+			// Save the buffer based off name size, max name size is 8
+			if (name.size() > 10)
 			{
-				if (m_multiselect.m_size < MAX_SELECT)
+				snprintf(name_buffer, sizeof(name_buffer),
+					"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+			}
+			else
+			{
+				snprintf(name_buffer, sizeof(name_buffer),
+					"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+			}
+
+			// Multiselect with Left Control + LClick
+			if (Input::IsHeldDown(Key::LeftControl))
+			{
+				// Draw each object
+				if (ImGui::Selectable(name_buffer))
 				{
-					m_multiselect.push_back(object);
-				}
+					if (m_multiselect.m_size < MAX_SELECT)
+					{
+						m_multiselect.push_back(object);
+					}
 
-				SetGameObject(object);
+					SetGameObject(object);
+				}
+			}
+			else
+			{
+				if (ImGui::Selectable(name_buffer))
+				{
+					m_multiselect.clear();
+					SetGameObject(object);
+					break;
+				}
 			}
 		}
-		else
-		{
-			if (ImGui::Selectable(name_buffer))
-			{
-				m_multiselect.clear();
-				SetGameObject(object);
-				break;
-			}
-		}		
 	}
 }
 

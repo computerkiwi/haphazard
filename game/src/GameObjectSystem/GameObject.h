@@ -39,7 +39,7 @@ public:
 		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
-	void AddComponent(meta::Any& component);
+	void AddComponent(meta::Any& component) const;
 
 	template <typename T>
 	ComponentHandle<T> GetComponent() const
@@ -75,8 +75,8 @@ public:
 
 	void SetSpace(GameSpaceIndex index);
 
-	std::string GetName();
-	void SetName(const std::string& name);
+	std::string GetName() const;
+	void SetName(const std::string& name) const;
 
 	template <typename T>
 	void DeleteComponent()
@@ -84,13 +84,47 @@ public:
 		GetSpace()->DeleteComponent<T>(m_objID);
 	}
 
+
+	bool operator ==(GameObject rhs) const { return m_objID == rhs.m_objID; }
 	operator bool() const { return m_objID; }
-	operator GameObject_ID() { return m_objID; }
+	operator GameObject_ID() const { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.
 	std::vector<meta::Any> GetComponentPointersMeta();
 
+
+	// Checks if valid id and not destroyed
 	bool IsValid() const;
+
+
+	// Checks for IsValid and IsActive
+	bool Usable() const;
+
+
+	// Checks if the GameObject is Active
+	bool IsActive() const;
+	void SetActive(bool state) const;
+
+
+	// Turns on the GameObject
+	void Activate() const;
+	void On() const;
+
+	// Turns off the GameObject
+	void Deactivate() const;
+	void Off() const;
+
+	// Destroys the Object
+	void SetDestroy(bool state) const;
+	
+	// Check if the Object is Destroyed
+	bool IsDestroyed() const;
+	bool IsAlive() const;
+
+	// Change the Destroyed State of the Object
+	void Destroy() const;
+	void Restore() const;
+
 
 	static GameObject_ID ConstructID(int id, GameSpaceIndex spaceIndex);
 
@@ -101,15 +135,17 @@ public:
 	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
 
 	static GameObject FindByName(const char *name);
+
 	static GameObject FindByTag(const char * tagStr);
+	static std::vector<GameObject> FindAllByTag(const char *tagStr);
 
 private:
 	union
 	{
 		struct
 		{
-			int m_id     : 24;
-			int m_space  : 8;
+			int m_id        : 24;
+			int m_space     : 8;
 		};
 		GameObject_ID m_objID;
 	};
@@ -132,14 +168,32 @@ private:
 	{
 		META_DefineMember(GameObject, m_objID, "id");
 
-		META_DefineFunction(GameObject, Duplicate, "Duplicate");
+		META_DefineFunction(GameObject, IsValid,      "IsValid");
+		META_DefineFunction(GameObject, Usable,       "Usable");
+
+		META_DefineFunction(GameObject, Duplicate,    "Duplicate");
 		META_DefineFunction(GameObject, Delete,       "Delete");
+
+		META_DefineFunction(GameObject, IsActive,     "IsAlive");
+		META_DefineFunction(GameObject, IsDestroyed,  "IsDestroyed");
+		META_DefineFunction(GameObject, Destroy,      "Destroy");
+		META_DefineFunction(GameObject, Restore,      "Restore");
+
+
+		META_DefineFunction(GameObject, IsActive,     "IsActive");
+		META_DefineFunction(GameObject, SetActive,    "SetActive");
+
+		META_DefineFunction(GameObject, Activate,     "Activate");
+		META_DefineFunction(GameObject, Deactivate,   "Deactivate");
+		META_DefineFunction(GameObject, On,           "On");
+		META_DefineFunction(GameObject, Off,          "Off");
+
 
 		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");
 		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
 		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
 		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
-		META_DefineFunction(GameObject, DeleteComponent<Camera>,					            "DeleteCamera");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>,					  "DeleteCamera");
 
 
 		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");
@@ -150,6 +204,7 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>,            "GetSprite");
 		META_DefineFunction(GameObject, GetComponentPointer<Camera>,                     "GetCamera");
 		META_DefineFunction(GameObject, GetComponentPointer<ScriptComponent>,            "GetScripts");
+
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");

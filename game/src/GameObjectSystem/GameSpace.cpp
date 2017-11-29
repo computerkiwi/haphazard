@@ -40,6 +40,24 @@ GameObject_ID GenerateID()
 	return lastGeneratedID++;
 }
 
+
+void GameSpaceManagerID::DeleteDestroyed()
+{
+	std::vector<GameObject_ID> objects;
+	CollectAllObjects(objects);
+
+	for (auto id : objects)
+	{
+		GameObject object = id;
+
+		if (object.IsDestroyed())
+		{
+			object.Delete();
+		}
+	}
+}
+
+
 //-----------
 // GameSpace
 //-----------
