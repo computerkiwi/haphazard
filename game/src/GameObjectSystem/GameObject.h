@@ -39,7 +39,7 @@ public:
 		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
 	}
 
-	void AddComponent(meta::Any& component);
+	void AddComponent(meta::Any& component) const;
 
 	template <typename T>
 	ComponentHandle<T> GetComponent() const
@@ -103,18 +103,28 @@ public:
 
 	// Checks if the GameObject is Active
 	bool IsActive() const;
-	void SetActive(bool state);
+	void SetActive(bool state) const;
 
-	// Sets Active to false
-	void Off();
 
-	// Sets Active to On
-	void On();
+	// Turns on the GameObject
+	void Activate() const;
+	void On() const;
 
-	void SetDestroy(bool state);
+	// Turns off the GameObject
+	void Deactivate() const;
+	void Off() const;
+
+	// Destroys the Object
+	void SetDestroy(bool state) const;
+	
+	// Check if the Object is Destroyed
 	bool IsDestroyed() const;
-	void Destroy();
-	void Restore();
+	bool IsAlive() const;
+
+	// Change the Destroyed State of the Object
+	void Destroy() const;
+	void Restore() const;
+
 
 	static GameObject_ID ConstructID(int id, GameSpaceIndex spaceIndex);
 
@@ -133,9 +143,7 @@ private:
 		struct
 		{
 			int m_id        : 24;
-			int m_active    : 1;
-			int m_destroyed : 1;
-			int m_space     : 6;
+			int m_space     : 8;
 		};
 		GameObject_ID m_objID;
 	};

@@ -164,7 +164,7 @@ std::vector<Resource*> ResourceManager::GetResourcesOfType(ResourceType type)
 	return vec;
 }
 
-std::vector<Resource *> ResourceManager::GetResourcesOfTypeAlphabetical(ResourceType type)
+std::vector<Resource *> ResourceManager::GetResourcesOfType_Alphabetical(ResourceType type)
 {
 	std::vector<Resource *> vec;
 	GetResourcesOfType(type, vec);
@@ -178,6 +178,7 @@ std::vector<Resource *> ResourceManager::GetResourcesOfTypeAlphabetical(Resource
 
 	return vec;
 }
+
 
 Resource *ResourceManager::Get(ResourceID id)
 {

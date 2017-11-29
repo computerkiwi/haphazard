@@ -586,6 +586,12 @@ void Editor::Push_Action(EditorAction&& action)
 		{
 			// We need to catch back up to the actual size
 			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, action);
+
+			while (m_actions.size != m_actions.history.size())
+			{
+				m_actions.history.pop_back();
+			}
+
 			++m_actions.size;
 		}
 	}
@@ -593,7 +599,7 @@ void Editor::Push_Action(EditorAction&& action)
 	{
 		// Zero actions saved, so just start at the beginning
 		m_actions.history.clear();
-		m_actions.history.emplace(m_actions.history.begin(), action);
+		m_actions.history.emplace_back(action);
 		++m_actions.size;
 	}
 
@@ -799,7 +805,7 @@ void Editor::Tools()
 				else
 				{
 					// Check if we need to save the old value
-					if (!m_editorState.MouseDragClick)
+					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 					{
 						bool freeze_axis = false;
 
@@ -931,7 +937,7 @@ void Editor::Tools()
 				glm::vec2 mouseChange = mouse - m_prevMouse;
 
 				// Check if we need to save the old value of the object
-				if (!m_editorState.MouseDragClick)
+				if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 				{
 					objectSave.SetScale(object.GetComponent<TransformComponent>()->GetScale());
 					m_editorState.MouseDragClick = true;
@@ -1023,7 +1029,7 @@ void Editor::Tools()
 				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
 				{
 					// Check if we need to save the current value
-					if (!m_editorState.MouseDragClick)
+					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
 					{
 						objectSave.SetRotation(object.GetComponent<TransformComponent>()->GetRotation());
 						m_editorState.MouseDragClick = true;
@@ -1045,7 +1051,7 @@ void Editor::Tools()
 				rotation *= (180.0f / PI);
 
 				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
-				m_prevMouse = Input::GetMousePos_World();
+				m_prevMouse = mouse;
 			}
 
 			// Check if the user is done with the click and push the action

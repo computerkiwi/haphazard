@@ -10,11 +10,11 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 extern Engine *engine;
 
-GameObject::GameObject() : m_id(0), m_active(true), m_destroyed(false), m_space(0)
+GameObject::GameObject() : m_id(0), m_space(0)
 {
 }
 
-GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_id(id), m_active(true), m_destroyed(false), m_space(gameSpace)
+GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_id(id), m_space(gameSpace)
 {
 }
 
@@ -25,7 +25,7 @@ implicit GameObject::GameObject(GameObject_ID id) : m_objID(id)
 
 
 // Tries to add a component by type.
-void GameObject::AddComponent(meta::Any& component)
+void GameObject::AddComponent(meta::Any& component) const
 {
 	GetSpace()->AddComponentMeta(m_objID, component);
 }
@@ -89,61 +89,80 @@ void GameObject::Delete()
 
 bool GameObject::IsValid() const
 {
-	return (m_objID != INVALID_GAMEOBJECT_ID) && !m_destroyed;
+	return (m_objID != INVALID_GAMEOBJECT_ID);
 }
 
 
 bool GameObject::Usable() const
 {
-	return IsValid() && m_active;
+	return IsValid() && IsAlive();
 }
 
 
 bool GameObject::IsActive() const
 {
-	return m_active;
+	return GetComponent<ObjectInfo>()->m_active;
 }
 
 
-void GameObject::On()
+void GameObject::Activate() const
 {
-	m_active = true;
+	GetComponent<ObjectInfo>()->m_active = true;
 }
 
 
-void GameObject::Off()
+void GameObject::Deactivate() const
 {
-	m_active = false;
+	GetComponent<ObjectInfo>()->m_active = false;
 }
 
 
-void GameObject::SetActive(bool state)
+void GameObject::On() const
 {
-	m_active = state;
+	GetComponent<ObjectInfo>()->m_active = true;
+}
+
+
+void GameObject::Off() const
+{
+	GetComponent<ObjectInfo>()->m_active = false;
+}
+
+
+void GameObject::SetActive(bool state) const
+{
+	GetComponent<ObjectInfo>()->m_active = state;
 }
 
 
 bool GameObject::IsDestroyed() const
 {
-	return m_destroyed;
+	return GetComponent<ObjectInfo>()->m_destroyed;
 }
 
 
-void GameObject::Destroy()
+bool GameObject::IsAlive() const
 {
-	m_destroyed = true;
+	return !(GetComponent<ObjectInfo>()->m_destroyed);
 }
 
 
-void GameObject::Restore()
+
+void GameObject::Destroy() const
 {
-	m_destroyed = false;
+	GetComponent<ObjectInfo>()->m_destroyed = true;
 }
 
 
-void GameObject::SetDestroy(bool state)
+void GameObject::Restore() const
 {
-	m_destroyed = state;
+	GetComponent<ObjectInfo>()->m_destroyed = false;
+}
+
+
+void GameObject::SetDestroy(bool state) const
+{
+	GetComponent<ObjectInfo>()->m_destroyed = state;
 }
 
 

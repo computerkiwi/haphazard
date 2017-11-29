@@ -458,7 +458,6 @@ struct BackgroundSave
 } bgSave;
 
 
-
 bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
 	// Get all the names of the objects
@@ -1417,8 +1416,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		if (texture.m_IsAnimated)
 		{
-			float FrameRate = texture.m_FPS;
-			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, 0.05f, 0, FLT_MAX);
 			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
 
 			int frame = texture.m_CurrentFrame;
@@ -1428,12 +1426,13 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 
 		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
 		ResourceID id = sprite->GetResourceID();
 
 		Separator();
+		editor->GetSearchBars().sprite.Draw("Search", -100.0f);
+
 		BeginChild("Sprites", ImVec2(0, 125), true);
 		for (auto resource : sprites)
 		{
@@ -1444,11 +1443,15 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 				PopStyleColor();
 				continue;
 			}
-			if (Selectable(resource->FileName().c_str()))
+
+			if (editor->GetSearchBars().sprite.PassFilter(resource->FileName().c_str()))
 			{
-				// Is resource ref counted, can I store pointers to them?
-				sprite->SetTextureResource(resource);
-				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+				if (Selectable(resource->FileName().c_str()))
+				{
+					// Is resource ref counted, can I store pointers to them?
+					sprite->SetTextureResource(resource);
+					editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+				}
 			}
 		}
 		EndChild();
@@ -1631,17 +1634,20 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			if (TreeNode("Sprite"))
 			{
 				ResourceManager& rm = engine->GetResourceManager();
-
-				std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+				std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
 				Separator();
 
+
+				editor->GetSearchBars().particles.Draw("Search", 100.0f);
+				SameLine();
 				if (Button("Reset##paritcles_sprite_reset"))
 				{
 					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
 					settings.texture_resourceID = -1;
 				}
-				SameLine();
+				
+
 				BeginChild("Sprites", ImVec2(0, 125), true);
 				for (auto resource : sprites)
 				{
@@ -1652,11 +1658,15 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 						PopStyleColor();
 						continue;
 					}
-					if (Selectable(resource->FileName().c_str()))
+
+					if (editor->GetSearchBars().particles.PassFilter(resource->FileName().c_str()))
 					{
-						// Is resource ref counted, can I store pointers to them?
-						editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
-						settings.texture_resourceID = resource->Id();
+						if (Selectable(resource->FileName().c_str()))
+						{
+							// Is resource ref counted, can I store pointers to them?
+							editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+							settings.texture_resourceID = resource->Id();
+						}
 					}
 				}
 				EndChild();
@@ -1805,17 +1815,19 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 		}
 
 		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
 		Separator();
-
+		
+		editor->GetSearchBars().background.Draw("Search", 100.0f);
+		SameLine();
 		if (Button("Reset##background_reset"))
 		{
 			editor->Push_Action({ bgSave.m_resID, -1, "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
 			background->m_resID = -1;
 		}
-		SameLine();
+		
+		
 		BeginChild("Sprites", ImVec2(0, 125), true);
 		for (auto resource : sprites)
 		{
@@ -1826,11 +1838,15 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 				PopStyleColor();
 				continue;
 			}
-			if (Selectable(resource->FileName().c_str()))
+
+			if (editor->GetSearchBars().background.PassFilter(resource->FileName().c_str()))
 			{
-				// Is resource ref counted, can I store pointers to them?
-				editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
-				background->m_resID = resource->Id();
+				if (Selectable(resource->FileName().c_str()))
+				{
+					// Is resource ref counted, can I store pointers to them?
+					editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+					background->m_resID = resource->Id();
+				}
 			}
 		}
 		EndChild();
