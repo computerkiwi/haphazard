@@ -470,29 +470,32 @@ void Editor::Internal_Log(const char * log_message, ...)
 void Editor::KeyBindings()
 {
 	// Widget
-	if (Input::IsPressed(Key::Q))
-	{
-		m_gizmo = Editor::Gizmo::none;
-	}
 
-	// Translation
-	else if (Input::IsPressed(Key::W))
+	if (!ImGui::GetIO().WantCaptureKeyboard)
 	{
-		m_gizmo = Editor::Gizmo::Translation;
-	}
+		if (Input::IsPressed(Key::Q))
+		{
+			m_gizmo = Editor::Gizmo::none;
+		}
 
-	// Scale
-	else if (Input::IsPressed(Key::E))
-	{
-		m_gizmo = Editor::Gizmo::Scale;
-	}
+		// Translation
+		else if (Input::IsPressed(Key::W))
+		{
+			m_gizmo = Editor::Gizmo::Translation;
+		}
 
-	// Rotation
-	else if (Input::IsPressed(Key::R))
-	{
-		m_gizmo = Editor::Gizmo::Rotation;
-	}
+		// Scale
+		else if (Input::IsPressed(Key::E))
+		{
+			m_gizmo = Editor::Gizmo::Scale;
+		}
 
+		// Rotation
+		else if (Input::IsPressed(Key::R))
+		{
+			m_gizmo = Editor::Gizmo::Rotation;
+		}
+	}
 
 	// Undo
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::Z))
