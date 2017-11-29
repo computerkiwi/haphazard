@@ -1655,14 +1655,14 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				ResourceManager& rm = engine->GetResourceManager();
 				std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
-				editor->GetSearchBars().particles.Draw("Search", 100.0f);
-				SameLine();
+				
 				if (Button("Reset##paritcles_sprite_reset"))
 				{
 					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
 					settings.texture_resourceID = -1;
 				}
-				
+				SameLine();
+				editor->GetSearchBars().particles.Draw("Search", 100.0f);
 
 				BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 				for (auto resource : sprites)
@@ -1834,14 +1834,14 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 
 		Separator();
 		
-		editor->GetSearchBars().background.Draw("Search", 100.0f);
-		SameLine();
+		
 		if (Button("Reset##background_reset"))
 		{
 			editor->Push_Action({ bgSave.m_resID, -1, "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
 			background->m_resID = -1;
 		}
-		
+		SameLine();
+		editor->GetSearchBars().background.Draw("Search", 100.0f);
 		
 		BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 		for (auto resource : sprites)
