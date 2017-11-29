@@ -25,6 +25,11 @@ bool LuaIsPressed(int val)
 	return Input::IsHeldDown(static_cast<Key>(val));
 }
 
+bool LuaIsTriggered(int val)
+{
+	return Input::IsPressed(static_cast<Key>(val));
+}
+
 bool LuaGamepadIsPressed(int player, int button)
 {
   return Input::GamepadIsPressed(static_cast<PlayerID>(player), static_cast<GamepadButton>(button));
@@ -33,6 +38,11 @@ bool LuaGamepadIsPressed(int player, int button)
 float LuaGamepadGetAxis(int player, int axis)
 {
   return Input::GamepadGetAxis(static_cast<PlayerID>(player), static_cast<GamepadAxis>(axis));
+}
+
+glm::vec2 LuaMousePos()
+{
+	return Input::GetMousePos_World();
 }
 
 int LuaGamepadsConnected()
@@ -44,12 +54,14 @@ int LuaGamepadsConnected()
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
-    .addFunction("IsPressed", &LuaIsPressed)
+		.addFunction("IsPressed", &LuaIsPressed)
+		.addFunction("IsTriggered", &LuaIsTriggered)
     .addFunction("GamepadIsPressed", &LuaGamepadIsPressed)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
     .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
     .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
+		.addFunction("GetMousePos", &LuaMousePos)
 
 		.addFunction("PlaySound", Audio::PlaySound);
 		
