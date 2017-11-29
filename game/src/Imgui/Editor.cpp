@@ -587,14 +587,15 @@ void Editor::Push_Action(EditorAction&& action)
 		}
 		else
 		{
-			// We need to catch back up to the actual size
-			m_actions.history.emplace(m_actions.history.begin() + m_actions.size, action);
 
+			// Delete all the old actions
 			while (m_actions.size != m_actions.history.size())
 			{
 				m_actions.history.pop_back();
 			}
 
+			// We need to catch back up to the actual size
+			m_actions.history.emplace_back(action);
 			++m_actions.size;
 		}
 	}
@@ -1088,10 +1089,11 @@ void Editor::AddPopUp(PopUpWindow&& pop)
 
 void Editor::UpdatePopUps(float dt)
 {
-	if (Input::IsPressed(Key::I))
-	{
-		AddPopUp(PopUpWindow("Test ", 2.0f, PopUpPosition::Mouse));
-	}
+	// Here for Popup Testing
+	// if (Input::IsPressed(Key::I))
+	// {
+	//		AddPopUp(PopUpWindow("Test ", 2.0f, PopUpPosition::Mouse));
+	// }
 
 	int width = 0;
 	int height = 0;

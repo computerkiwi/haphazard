@@ -135,7 +135,9 @@ public:
 	void GameObject::DeserializeObject(rapidjson::Value& jsonValue);
 
 	static GameObject FindByName(const char *name);
+
 	static GameObject FindByTag(const char * tagStr);
+	static std::vector<GameObject> FindAllByTag(const char *tagStr);
 
 private:
 	union
@@ -171,6 +173,7 @@ private:
 		META_DefineFunction(GameObject, Duplicate,    "Duplicate");
 		META_DefineFunction(GameObject, Delete,       "Delete");
 
+		META_DefineFunction(GameObject, IsActive,     "IsAlive");
 		META_DefineFunction(GameObject, IsDestroyed,  "IsDestroyed");
 		META_DefineFunction(GameObject, Destroy,      "Destroy");
 		META_DefineFunction(GameObject, Restore,      "Restore");
@@ -179,8 +182,10 @@ private:
 		META_DefineFunction(GameObject, IsActive,     "IsActive");
 		META_DefineFunction(GameObject, SetActive,    "SetActive");
 
-		META_DefineFunction(GameObject, On,  "On");
-		META_DefineFunction(GameObject, Off, "Off");
+		META_DefineFunction(GameObject, Activate,     "Activate");
+		META_DefineFunction(GameObject, Deactivate,   "Deactivate");
+		META_DefineFunction(GameObject, On,           "On");
+		META_DefineFunction(GameObject, Off,          "Off");
 
 
 		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");

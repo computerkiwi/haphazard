@@ -34,8 +34,19 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 using namespace ImGui;
 
-#define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
-#define GAMEOBJECT_WINDOW_POS  ImVec2(1200, 30)
+
+
+
+
+#define GAMEOBJECT_WINDOW_SIZE ImVec2(425, 675)
+#define GAMEOBJECT_WINDOW_POS  ImVec2(1490, 30)
+
+
+#define SPRITE_SELECTED_COLOR    ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f)
+#define SPRITE_ASSETS_LIST_SIZE  ImVec2(0, 250)
+
+
+
 
 template <class Component, typename T>
 void Action_General(EditorAction& a)
@@ -1433,12 +1444,12 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		Separator();
 		editor->GetSearchBars().sprite.Draw("Search", -100.0f);
 
-		BeginChild("Sprites", ImVec2(0, 125), true);
+		BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 		for (auto resource : sprites)
 		{
 			if (resource->Id() == id)
 			{
-				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 				Selectable(resource->FileName().c_str(), true);
 				PopStyleColor();
 				continue;
@@ -1617,8 +1628,6 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
 
-				Separator();
-
 				Text("End Color");
 				Drag_Vec_MinMax("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor, 0, 1);
 				Drag_Vec_MinMax("G##particles_endColor", particleSave.endColor, settings.endColor.y, settings.endColor, 0, 1);
@@ -1627,7 +1636,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
 
-
+				Separator();
 				TreePop();
 			}
 
@@ -1635,9 +1644,6 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			{
 				ResourceManager& rm = engine->GetResourceManager();
 				std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
-
-				Separator();
-
 
 				editor->GetSearchBars().particles.Draw("Search", 100.0f);
 				SameLine();
@@ -1648,12 +1654,12 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				}
 				
 
-				BeginChild("Sprites", ImVec2(0, 125), true);
+				BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 				for (auto resource : sprites)
 				{
 					if (resource->Id() == settings.texture_resourceID)
 					{
-						PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+						PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 						Selectable(resource->FileName().c_str(), true);
 						PopStyleColor();
 						continue;
@@ -1671,7 +1677,6 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				}
 				EndChild();
 
-				Separator();
 				TreePop();
 			}
 
@@ -1828,12 +1833,12 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 		}
 		
 		
-		BeginChild("Sprites", ImVec2(0, 125), true);
+		BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 		for (auto resource : sprites)
 		{
 			if (resource->Id() == background->m_resID)
 			{
-				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 				Selectable(resource->FileName().c_str(), true);
 				PopStyleColor();
 				continue;

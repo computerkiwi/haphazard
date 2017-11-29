@@ -246,6 +246,27 @@ GameObject GameObject::FindByTag(const char * tagStr)
 }
 
 
+std::vector<GameObject> GameObject::FindAllByTag(const char *tagStr)
+{
+	std::vector<GameObject> objects;
+	
+	size_t object_tag = hash(tagStr);
+
+	for (auto& info : *engine->GetSpace(0)->GetComponentMap<ObjectInfo>())
+	{
+		for (auto& tag : info->m_tags)
+		{
+			if (tag.first == object_tag)
+			{
+				objects.emplace_back(info->m_id);
+			}
+		}
+	}
+
+	return objects;
+}
+
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
