@@ -38,8 +38,8 @@ using namespace ImGui;
 
 
 
-#define GAMEOBJECT_WINDOW_SIZE ImVec2(425, 675)
-#define GAMEOBJECT_WINDOW_POS  ImVec2(1490, 30)
+#define GAMEOBJECT_WINDOW_SIZE ImVec2(460, 744)
+#define GAMEOBJECT_WINDOW_POS  ImVec2(1465, 30)
 
 
 #define SPRITE_SELECTED_COLOR    ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f)
@@ -724,12 +724,13 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		}
 
 
-		if (Button("Add Component"))
+		if (Button("Add Component##object"))
 		{
 			OpenPopup("Components");
 		}
 
-		if (Button("Save Prefab"))
+		SameLine();
+		if (Button("Save Prefab##object"))
 		{
 			object.SaveToFile("objectout.json");
 		}
@@ -966,6 +967,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		else
 		{
 			editor->AddPopUp(PopUpWindow("Has no children.", 2.0f, PopUpPosition::Mouse));
+			CloseCurrentPopup();
 		}
 		EndPopup();
 	}
