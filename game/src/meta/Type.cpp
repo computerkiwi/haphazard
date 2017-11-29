@@ -5,6 +5,7 @@ PRIMARY AUTHOR: Kieran Williams
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
+#include "Universal.h"
 #include "meta.h"
 #include <assert.h>
 #include <vector>
@@ -195,9 +196,20 @@ namespace meta
 		auto members = GetMembers();
 		for (const auto& member : members)
 		{
-			Any deserializedMember(jsonData[member->GetName().c_str()]);
-			assert(deserializedMember.GetType() == member->GetType());
-			member->Set(object, deserializedMember.GetDataPointer());
+			std::string memberName = member->GetName();
+
+			if (jsonData.HasMember(memberName.c_str()))
+			{
+
+				Any deserializedMember(jsonData[memberName.c_str()]);
+				assert(deserializedMember.GetType() == member->GetType());
+				member->Set(object, deserializedMember.GetDataPointer());
+			}
+			else
+			{
+				logger.SetNextChannel(Logging::Channel::META);
+				logger << "Couldn't find member " << memberName << " when deserializing a(n) " << this->m_name << '\n';
+			}
 		}
 	}
 
