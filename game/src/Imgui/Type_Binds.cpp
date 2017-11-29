@@ -1162,25 +1162,30 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				return;
 			}
 		}
+		SameLine();
+		if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
+		{
+			colliderSave.m_dimensions = collider->m_dimensions;
+
+			if (collider->isStatic())
+			{
+				editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+					handle, Action_General_Collider<StaticCollider2DComponent, bool> });
+			}
+			else
+			{
+				editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+					handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
+			}
+
+			if (ObjectsMatchScale[object].value)
+			{
+				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
+			}
+		}
 
 		if (TreeNode("Dimensions"))
 		{
-			if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
-			{
-				colliderSave.m_dimensions = collider->m_dimensions;
-
-				if (collider->isStatic())
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<StaticCollider2DComponent, bool> });
-				}
-				else
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
-				}
-			}
-
 			if (ObjectsMatchScale[object])
 			{
 				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
