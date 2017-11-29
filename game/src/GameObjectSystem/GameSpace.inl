@@ -79,7 +79,9 @@ template <typename T>
 template <typename... Args>
 void ComponentMap<T>::emplaceComponent(GameObject_ID id, Args&&... args)
 {
-	m_components.emplace(id, T(std::forward<Args>(args)...));
+	T obj(std::forward<Args>(args)...);
+
+	m_components.insert_or_assign(id, obj);
 }
 
 template <typename T>

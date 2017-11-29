@@ -317,7 +317,7 @@ private:
 		{
 			// Setup the gamespace to use and deserialize the object.
 			GameObject::SetDeserializeSpace(gameSpace.m_index);
-			GameObject obj;
+			GameObject obj = gameSpace.NewGameObject("");
 			obj.DeserializeObject(jsonGameObject);
 		}
 	}

@@ -10,6 +10,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Scripting/ScriptComponent.h"
 
+#include "Util/Serialization.h"
+
 extern Engine *engine;
 
 GameObject::GameObject() : m_id(0), m_space(0)
@@ -269,12 +271,32 @@ std::vector<GameObject> GameObject::FindAllByTag(const char *tagStr)
 }
 
 
+void GameObject::SaveToFile(const char * fileName)
+{
+	// Make a document for the allocator.
+	// TODO: Figure out how to get an allocator without bothering with a whole document.
+	rapidjson::Document doc;
+
+	JsonToFile(this->SerializeObject(doc.GetAllocator()), fileName);
+}
+
+GameObject GameObject::LoadPrefab(const char * fileName)
+{
+	auto jsonObj = LoadJsonFile(fileName);
+
+	GameObject obj = engine->GetSpace(0)->NewGameObject("");
+	obj.DeserializeObject(jsonObj);
+
+	return obj;
+}
+
+
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
 
-	// We should be assigning to an invalid GameObject.
-	assert(!gameObject.IsValid());
+	// We should be assigning to a valid GameObject.
+	assert(gameObject.IsValid());
 
 	// Assertions saying we have the right type of value.
 	assert(jsonValue.IsObject());
@@ -288,8 +310,8 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	GameObject_ID id = static_cast<GameObject_ID>(jsonId.GetInt64());
 
 	// Setup the GameObject's id.
-	gameObject.m_objID = id;
-	gameObject.m_space = deserializeGameSpace; // From static function. Must be called before this.
+	//gameObject.m_objID = id;
+	//gameObject.m_space = deserializeGameSpace; // From static function. Must be called before this.
 
 	// Get the array of components.
 	rapidjson::Value componentArray;
@@ -301,6 +323,8 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	{
 		// Pull out the component and its type.
 		meta::Any anyComponent(jsonComponent);
+
+		anyComponent.SetGameObjectID(gameObject.Getid());
 
 		// Add it to the space.
 		gameObject.AddComponent(anyComponent);

@@ -70,10 +70,15 @@ public:
 
 private:
 
+	void FileLoadInternal(const char *fileName);
+
 	Init_EnginePointer m_init;
 
 	float m_dt = (1 / 60.0f);
 	bool m_running = true;
+
+	bool m_fileLoadFlag = false;
+	std::string m_fileToLoad;
 
 	GLFWwindow *m_window;
 	std::string m_WindowTitle;

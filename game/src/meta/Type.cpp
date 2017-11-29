@@ -12,6 +12,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 
+#include "GameObjectSystem/GameObject.h"
+
 namespace meta
 {
 
@@ -196,6 +198,14 @@ namespace meta
 			Any deserializedMember(jsonData[member->GetName().c_str()]);
 			assert(deserializedMember.GetType() == member->GetType());
 			member->Set(object, deserializedMember.GetDataPointer());
+		}
+	}
+
+	void Type::SetGameObjectID(void * object, GameObject_ID id)
+	{
+		if (m_setGameObjectIDFunction != nullptr)
+		{
+			m_setGameObjectIDFunction(object, id);
 		}
 	}
 }

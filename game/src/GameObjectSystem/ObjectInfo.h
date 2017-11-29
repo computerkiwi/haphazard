@@ -32,8 +32,16 @@ public:
 
 	ObjectInfo(GameObject_ID id, ObjectInfo& rhs) : m_name(rhs.m_name), m_id(id), m_tags(rhs.m_tags) {}
 
-
 	void AddTag(const char *name) { m_tags.emplace(hash(name), name); }
+
+private:
+	// For meta.
+	static void SetObjectID(void *objectInfoPtr, GameObject_ID id)
+	{
+		ObjectInfo& objectInfo = *reinterpret_cast<ObjectInfo *>(objectInfoPtr);
+
+		objectInfo.m_id = id;
+	}
 
 	META_REGISTER(ObjectInfo)
 	{
@@ -42,6 +50,8 @@ public:
 
 		META_DefineMember(ObjectInfo, m_destroyed, "destroyed");
 		META_DefineMember(ObjectInfo, m_active, "active");
+
+		META_DefineSetGameObjectIDFunction(ObjectInfo, SetObjectID);
 	}
 };
 
