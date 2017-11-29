@@ -138,12 +138,12 @@ class Editor
 		friend class Editor;
 
 		// File IO State
-		bool fileOpened = false;
-		bool fileNewFile = true;
-		bool fileDirty = false;
+		bool fileOpened = false;	 // If the file was opened
+		bool fileNewFile = true;	 // Is this a new file
+		bool fileDirty = false;      // File needs to be saved
 
-		float saveInterval = 5.0f; // Save Invterval in minutes
-		float saveTimer;           // How long since last save
+		float saveInterval = 5.0f;   // Save Invterval in minutes
+		float saveTimer = 0.0f;      // How long since last save
 
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
@@ -188,7 +188,7 @@ class Editor
 	int m_current_space_index = 0;
 
 	// Current GameObject(s)
-	GameObject_ID m_selected_object = 0;
+	GameObject m_selected_object = 0;
 	Array<GameObject_ID, MAX_SELECT> m_multiselect;
 
 	// Save spot for string editing
@@ -238,6 +238,14 @@ class Editor
 	// Save Location of all popups -- vector works since usually not many popups
 	std::vector<PopUpWindow> m_pop_ups;
 
+
+	// Search Bars for Sprites
+	struct SearchBars
+	{
+		ImGuiTextFilter sprite;
+		ImGuiTextFilter particles;
+		ImGuiTextFilter background;
+	} m_searches;
 
 public:
 	// Console
@@ -430,6 +438,7 @@ public:
 	// Default Editor Style
 	static void ResetStyle();
 
+	Editor::SearchBars& GetSearchBars() { return m_searches; }
 
 	// Returns the EditorState for use externally
 	EditorState& GetEditorState() { return m_editorState; }

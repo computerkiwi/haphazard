@@ -401,6 +401,8 @@ public:
 		}
 	}
 
+	void DeleteDestroyed();
+
 	void CollectAllObjectsDelimited(std::vector<GameObject_ID>& objects)
 	{
 		objects.clear();

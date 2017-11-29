@@ -10,6 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <map>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 
 #define DEFAULT_TEXTURE_NAME "default.png"
@@ -109,7 +110,25 @@ public:
 
 	void GetResourcesOfType(ResourceType type, std::vector<Resource *>& vec);
 	std::vector<Resource *> GetResourcesOfType(ResourceType type);
-	std::vector<Resource *> GetResourcesOfTypeAlphabetical(ResourceType type);
+	std::vector<Resource *> GetResourcesOfType_Alphabetical(ResourceType type);
+
+	template <typename... Types>
+	std::vector<Resource *> ResourceManager::GetResourcesOfTypes_Alphabetical(Types&&... types)
+	{
+		std::vector<Resource *> vec;
+
+		using expander = int[];
+		expander{ (static_cast<void>(GetResourcesOfType(std::forward<Types>(types), vec)), 0)... };
+
+		std::sort(vec.begin(), vec.end(),
+
+			[](Resource *first, Resource *second) -> bool
+		{
+			return first->GetFilename() < second->GetFilename();
+		});
+
+		return vec;
+	}
 
 	Resource *Get(ResourceID id);
 	Resource *Get(const char *fileName);

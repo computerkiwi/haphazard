@@ -34,8 +34,19 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 using namespace ImGui;
 
-#define GAMEOBJECT_WINDOW_SIZE ImVec2(375, 600)
-#define GAMEOBJECT_WINDOW_POS  ImVec2(1200, 30)
+
+
+
+
+#define GAMEOBJECT_WINDOW_SIZE ImVec2(460, 744)
+#define GAMEOBJECT_WINDOW_POS  ImVec2(1465, 30)
+
+
+#define SPRITE_SELECTED_COLOR    ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f)
+#define SPRITE_ASSETS_LIST_SIZE  ImVec2(0, 250)
+
+
+
 
 template <class Component, typename T>
 void Action_General(EditorAction& a)
@@ -179,6 +190,25 @@ void Action_AddComponent<DynamicCollider2DComponent>(EditorAction& a)
 		if (a.save.GetData<bool>())
 		{
 			handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
+		}
+	}
+}
+
+
+void Action_General_GameObjectDelete(EditorAction& a)
+{
+	GameObject object = a.save.GetData<GameObject>();
+
+
+	if (object.IsValid())
+	{
+		if (a.redo)
+		{
+			object.Destroy();
+		}
+		else
+		{
+			object.Restore();
 		}
 	}
 }
@@ -439,7 +469,6 @@ struct BackgroundSave
 } bgSave;
 
 
-
 bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child)
 {
 	// Get all the names of the objects
@@ -528,7 +557,8 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
-			object.Delete();
+			object.Destroy();
+			editor->Push_Action({ object, object, nullptr, EditorComponentHandle(), Action_General_GameObjectDelete });
 			editor->SetGameObject(0);
 			End();
 			return;
@@ -694,12 +724,13 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		}
 
 
-		if (Button("Add Component"))
+		if (Button("Add Component##object"))
 		{
 			OpenPopup("Components");
 		}
 
-		if (Button("Save Prefab"))
+		SameLine();
+		if (Button("Save Prefab##object"))
 		{
 			object.SaveToFile("objectout.json");
 		}
@@ -936,6 +967,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		else
 		{
 			editor->AddPopUp(PopUpWindow("Has no children.", 2.0f, PopUpPosition::Mouse));
+			CloseCurrentPopup();
 		}
 		EndPopup();
 	}
@@ -1137,25 +1169,30 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				return;
 			}
 		}
+		SameLine();
+		if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
+		{
+			colliderSave.m_dimensions = collider->m_dimensions;
+
+			if (collider->isStatic())
+			{
+				editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+					handle, Action_General_Collider<StaticCollider2DComponent, bool> });
+			}
+			else
+			{
+				editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
+					handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
+			}
+
+			if (ObjectsMatchScale[object].value)
+			{
+				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
+			}
+		}
 
 		if (TreeNode("Dimensions"))
 		{
-			if (Checkbox("Match Scale##collider", &(ObjectsMatchScale[object].value)))
-			{
-				colliderSave.m_dimensions = collider->m_dimensions;
-
-				if (collider->isStatic())
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<StaticCollider2DComponent, bool> });
-				}
-				else
-				{
-					editor->Push_Action({ colliderSave.m_dimensions, collider->m_dimensions, "dimensions",
-						handle, Action_General_Collider<DynamicCollider2DComponent, bool> });
-				}
-			}
-
 			if (ObjectsMatchScale[object])
 			{
 				collider->m_dimensions = object.GetComponent<TransformComponent>()->GetScale();
@@ -1402,8 +1439,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		if (texture.m_IsAnimated)
 		{
-			float FrameRate = texture.m_FPS;
-			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, SLIDER_STEP, 0, FLT_MAX);
+			Drag_Float_Speed_MinMax("Frame Rate##sprites", spriteSave.AT_fps, texture.m_FPS, 0.05f, 0, FLT_MAX);
 			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
 
 			int frame = texture.m_CurrentFrame;
@@ -1413,27 +1449,32 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 
 		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
 		ResourceID id = sprite->GetResourceID();
 
 		Separator();
-		BeginChild("Sprites", ImVec2(0, 125), true);
+		editor->GetSearchBars().sprite.Draw("Search", -100.0f);
+
+		BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 		for (auto resource : sprites)
 		{
 			if (resource->Id() == id)
 			{
-				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 				Selectable(resource->FileName().c_str(), true);
 				PopStyleColor();
 				continue;
 			}
-			if (Selectable(resource->FileName().c_str()))
+
+			if (editor->GetSearchBars().sprite.PassFilter(resource->FileName().c_str()))
 			{
-				// Is resource ref counted, can I store pointers to them?
-				sprite->SetTextureResource(resource);
-				editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+				if (Selectable(resource->FileName().c_str()))
+				{
+					// Is resource ref counted, can I store pointers to them?
+					sprite->SetTextureResource(resource);
+					editor->Push_Action({ id, resource->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+				}
 			}
 		}
 		EndChild();
@@ -1599,8 +1640,6 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
 
-				Separator();
-
 				Text("End Color");
 				Drag_Vec_MinMax("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor, 0, 1);
 				Drag_Vec_MinMax("G##particles_endColor", particleSave.endColor, settings.endColor.y, settings.endColor, 0, 1);
@@ -1609,44 +1648,47 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
 
-
+				Separator();
 				TreePop();
 			}
 
 			if (TreeNode("Sprite"))
 			{
 				ResourceManager& rm = engine->GetResourceManager();
+				std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
-				std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
-
-				Separator();
-
+				
 				if (Button("Reset##paritcles_sprite_reset"))
 				{
 					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
 					settings.texture_resourceID = -1;
 				}
 				SameLine();
-				BeginChild("Sprites", ImVec2(0, 125), true);
+				editor->GetSearchBars().particles.Draw("Search", 100.0f);
+
+				BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 				for (auto resource : sprites)
 				{
 					if (resource->Id() == settings.texture_resourceID)
 					{
-						PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+						PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 						Selectable(resource->FileName().c_str(), true);
 						PopStyleColor();
 						continue;
 					}
-					if (Selectable(resource->FileName().c_str()))
+
+					if (editor->GetSearchBars().particles.PassFilter(resource->FileName().c_str()))
 					{
-						// Is resource ref counted, can I store pointers to them?
-						editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
-						settings.texture_resourceID = resource->Id();
+						if (Selectable(resource->FileName().c_str()))
+						{
+							// Is resource ref counted, can I store pointers to them?
+							editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+							settings.texture_resourceID = resource->Id();
+						}
 					}
 				}
 				EndChild();
 
-				Separator();
 				TreePop();
 			}
 
@@ -1790,32 +1832,38 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 		}
 
 		ResourceManager& rm = engine->GetResourceManager();
-
-		std::vector<Resource *> sprites = rm.GetResourcesOfTypeAlphabetical(ResourceType::TEXTURE);
+		std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
 
 		Separator();
-
+		
+		
 		if (Button("Reset##background_reset"))
 		{
 			editor->Push_Action({ bgSave.m_resID, -1, "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
 			background->m_resID = -1;
 		}
 		SameLine();
-		BeginChild("Sprites", ImVec2(0, 125), true);
+		editor->GetSearchBars().background.Draw("Search", 100.0f);
+		
+		BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
 		for (auto resource : sprites)
 		{
 			if (resource->Id() == background->m_resID)
 			{
-				PushStyleColor(ImGuiCol_Header, ImVec4(223 / 255.0f, 104 / 255.0f, 76 / 255.0f, 1.0f));
+				PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
 				Selectable(resource->FileName().c_str(), true);
 				PopStyleColor();
 				continue;
 			}
-			if (Selectable(resource->FileName().c_str()))
+
+			if (editor->GetSearchBars().background.PassFilter(resource->FileName().c_str()))
 			{
-				// Is resource ref counted, can I store pointers to them?
-				editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
-				background->m_resID = resource->Id();
+				if (Selectable(resource->FileName().c_str()))
+				{
+					// Is resource ref counted, can I store pointers to them?
+					editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
+					background->m_resID = resource->Id();
+				}
 			}
 		}
 		EndChild();
