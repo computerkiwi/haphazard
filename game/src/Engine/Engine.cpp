@@ -153,7 +153,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	fire.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
 	fire.GetComponent<ParticleSystem>()->SetParticleLifetime(1.0f);
 	fire.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
-	fire.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
+	fire.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::SHAPE_CIRLCE_EDGE, 0.1f, 0.1f);
 	fire.GetComponent<ParticleSystem>()->SetHasTrail(false);
 	fire.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
 	fire.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
@@ -169,7 +169,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	player1.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
 	player1.GetComponent<ParticleSystem>()->SetParticleLifetime(1.0f);
 	player1.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
-	player1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::CIRLCE_EDGE, 0.1f, 0.1f);
+	player1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::SHAPE_CIRLCE_EDGE, 0.1f, 0.1f);
 	player1.GetComponent<ParticleSystem>()->SetHasTrail(false);
 	player1.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
 	player1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);

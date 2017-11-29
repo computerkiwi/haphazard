@@ -423,6 +423,9 @@ public:
 	// Change the Selected GameObject
 	void SetGameObject(GameObject new_object);
 
+	// Get the editor's current object
+	GameObject GetSelectedObject() const { return m_selected_object; }
+
 	// Show the GameObjects in a list
 	void PrintObjects();
 

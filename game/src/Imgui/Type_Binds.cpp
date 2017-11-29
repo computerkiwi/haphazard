@@ -9,10 +9,6 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Editor.h"
 #include "Type_Binds.h"
 
-// GameObject, Spaces
-#include "GameObjectSystem/GameObject.h"
-#include "GameObjectSystem/GameSpace.h"
-
 // Components
 #include "GameObjectSystem/ObjectInfo.h"
 #include "Engine/Physics/RigidBody.h"
@@ -23,14 +19,26 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "graphics/Camera.h"
 #include "graphics/Background.h"
 
+// GameObject, Spaces
+#include "GameObjectSystem/GameObject.h"
+#include "GameObjectSystem/GameSpace.h"
+
 // Draw debug shapes
 #include "graphics/DebugGraphic.h"
+#include "graphics/Text.h"
 
 // Keypress and Mouse
 #include "Input/Input.h"
 
 #include <cfloat>
-#include "graphics/Text.h"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
+#ifdef _WIN32
+	#include <Windows.h>
+	#include <psapi.h>
+#endif
 
 using namespace ImGui;
 
@@ -152,47 +160,6 @@ void Action_DeleteComponent(EditorAction& a)
 
 
 
-#define Push_AddComponent(TYPE) editor->Push_Action({ 0, 0, nullptr, { object.Getid(), true }, Action_AddComponent<TYPE> });
-template <class Component>
-void Action_AddComponent(EditorAction& a)
-{
-	ComponentHandle<Component> handle(a.handle);
-
-	if (a.redo)
-	{
-		handle.GetGameObject().AddComponent<Component>();
-	}
-	else
-	{
-		handle.GetGameObject().DeleteComponent<Component>();
-	}
-}
-
-
-template <>
-void Action_AddComponent<DynamicCollider2DComponent>(EditorAction& a)
-{
-	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
-
-	if (a.redo)
-	{
-		handle.GetGameObject().AddComponent<DynamicCollider2DComponent>();
-
-		if (a.save.GetData<bool>())
-		{
-			handle.GetGameObject().AddComponent<RigidBodyComponent>();
-		}
-	}
-	else
-	{
-		handle.GetGameObject().DeleteComponent<DynamicCollider2DComponent>();
-
-		if (a.save.GetData<bool>())
-		{
-			handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
-		}
-	}
-}
 
 
 void Action_General_GameObjectDelete(EditorAction& a)
@@ -248,8 +215,8 @@ MatchScaleBool ObjectsMatchScale;
 typedef std::map<const char *, EditorBoolWrapper> ClickedList;
 ClickedList widget_click;
 
-// Error Message for when adding a component that exist
-#define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
+// DynamicCollider Action
+void Action_AddComponent_DynamicCollider(EditorAction& a);
 
 // Button to release the drag sliders
 #define Drag_Key Key::Mouse_1
@@ -530,6 +497,153 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 }
 
 
+#ifdef _WIN32
+
+// Windows Code for Opening a Level
+void LoadPreFab()
+{
+	// Save the path to the file
+	char filename[MAX_PATH] = { 0 };
+
+	// Struct to file before passing it to a function
+	OPENFILENAME file;
+
+	// Init the struct
+	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
+	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
+	file.hwndOwner = glfwGetWin32Window(engine->GetWindow());
+
+	// Filter out any files that don't fit this format
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
+	file.lpstrFile = filename;
+
+	// The cout of the buffer
+	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
+	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
+	file.Flags = OFN_DONTADDTORECENT;
+
+	// Function Call to open the dialag box
+	if (GetOpenFileName(&file))
+	{
+		// Log and load the file in the engine
+		logger << "[EDITOR] Saving File: " << filename << "\n";
+
+		GameObject::LoadPrefab(filename);
+	}
+	else
+	{
+		// Print out any errors.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+
+// Windows Code for Opening a Level
+void SavePrefab(GameObject object)
+{
+	// Save the path to the file
+	char filename[MAX_PATH] = { 0 };
+
+	// Checks for file extensions
+	std::string full_filename;
+
+	// Struct to file before passing it to a function
+	OPENFILENAME file;
+
+	// Init the struct
+	ZeroMemory(&file, sizeof(file));
+
+	// Save the size of the struct
+	file.lStructSize = sizeof(file);
+
+	// Tell windows which window owns this action
+	file.hwndOwner = glfwGetWin32Window(engine->GetWindow());
+
+	// Filter out any files that don't fit this format
+	file.lpstrFilter = "JSON\0*.json\0Any File\0*.*\0";
+
+	// Pointer to the filename buffer
+	file.lpstrFile = filename;
+
+	// The cout of the buffer
+	file.nMaxFile = MAX_PATH;
+
+	// Window title of the dialog box
+	file.lpstrFileTitle = "Load a level";
+
+	// Flags to prevent openning non-existant files
+	file.Flags = OFN_DONTADDTORECENT;
+
+	// Function Call to open the dialag box
+	if (GetSaveFileName(&file))
+	{
+		// Log and load the file in the engine
+		logger << "[EDITOR] Saving File: " << filename << "\n";
+		full_filename = filename;
+
+		if (full_filename.find(".json") == std::string::npos)
+		{
+			full_filename += ".json";
+		}
+
+		object.SaveToFile(full_filename.c_str());
+	}
+	else
+	{
+		// Print out any errors.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE:   Logging::Log("CDERR_DIALOGFAILURE\n",   Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_FINDRESFAILURE:  Logging::Log("CDERR_FINDRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_INITIALIZATION:  Logging::Log("CDERR_INITIALIZATION\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOADRESFAILURE:  Logging::Log("CDERR_LOADRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOADSTRFAILURE:  Logging::Log("CDERR_LOADSTRFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_LOCKRESFAILURE:  Logging::Log("CDERR_LOCKRESFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_MEMALLOCFAILURE: Logging::Log("CDERR_MEMALLOCFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_MEMLOCKFAILURE:  Logging::Log("CDERR_MEMLOCKFAILURE\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOHINSTANCE:     Logging::Log("CDERR_NOHINSTANCE\n",     Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOHOOK:          Logging::Log("CDERR_NOHOOK\n",          Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_NOTEMPLATE:      Logging::Log("CDERR_NOTEMPLATE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case CDERR_STRUCTSIZE:      Logging::Log("CDERR_STRUCTSIZE\n",      Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_BUFFERTOOSMALL:  Logging::Log("FNERR_BUFFERTOOSMALL\n",  Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_INVALIDFILENAME: Logging::Log("FNERR_INVALIDFILENAME\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		case FNERR_SUBCLASSFAILURE: Logging::Log("FNERR_SUBCLASSFAILURE\n", Logging::Channel::CORE, Logging::Priority::CRITICAL_PRIORITY); break;
+		default: Logging::Log("[EDITOR] User closed OpenLevel Dialog.");
+		}
+	}
+}
+
+#endif
+
+
 void ImGui_GameObject(GameObject object, Editor *editor)
 {
 	// Check if a nullptr was passed
@@ -598,6 +712,79 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			// Everything has a transform
 			// Everything is going to have a data component
 
+			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<RigidBodyComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<RigidBodyComponent>();
+					Push_AddComponent(RigidBodyComponent);
+				}
+			}
+			if (Button("Dynamic Collider", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					if (object.GetComponent<StaticCollider2DComponent>().IsValid())
+					{
+						editor->AddPopUp(PopUpWindow(ErrorList[HasStaticCollider], 2.0f, PopUpPosition::Mouse));
+					}
+					else
+					{
+						bool added_rigidbody = false;
+
+						object.AddComponent<DynamicCollider2DComponent>();
+						if (!object.GetComponent<RigidBodyComponent>().IsValid())
+						{
+							added_rigidbody = true;
+							object.AddComponent<RigidBodyComponent>();
+							editor->AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
+						}
+
+						editor->Push_Action({ 0, added_rigidbody, nullptr,{ object.Getid(), true }, Action_AddComponent_DynamicCollider });
+					}
+				}
+			}
+			if (Button("Static Collider", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					if (object.GetComponent<DynamicCollider2DComponent>().IsValid() || object.GetComponent<RigidBodyComponent>().IsValid())
+					{
+						editor->AddPopUp(PopUpWindow(ErrorList[HasRigidBodyDynamicCollider], 2.0f, PopUpPosition::Mouse));
+					}
+					else
+					{
+						object.AddComponent<StaticCollider2DComponent>(glm::vec3(1, 1, 0), collisionLayers::allCollision, Collider2D::colliderType::colliderBox);
+						Push_AddComponent(StaticCollider2DComponent);
+					}
+				}
+			}
+			Separator();
+			if (Button("Script", COMPONENT_BUTTON_SIZE))
+			{
+				if (object.GetComponent<ScriptComponent>().IsValid())
+				{
+					HAS_COMPONENT;
+				}
+				else
+				{
+					object.AddComponent<ScriptComponent>();
+					Push_AddComponent(ScriptComponent);
+				}
+			}
+			Separator();
 			if (Button("Sprite", COMPONENT_BUTTON_SIZE))
 			{
 				if (object.GetComponent<SpriteComponent>().IsValid())
@@ -646,79 +833,6 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 					Push_AddComponent(BackgroundComponent);
 				}
 			}
-			Separator();
-			if (Button("RigidBody", COMPONENT_BUTTON_SIZE))
-			{
-				if (object.GetComponent<RigidBodyComponent>().IsValid())
-				{
-					HAS_COMPONENT;
-				}
-				else
-				{
-					object.AddComponent<RigidBodyComponent>();
-					Push_AddComponent(RigidBodyComponent);
-				}
-			}
-			if (Button("Dynamic Collider", COMPONENT_BUTTON_SIZE))
-			{
-				if (object.GetComponent<DynamicCollider2DComponent>().IsValid())
-				{
-					HAS_COMPONENT;
-				}
-				else
-				{
-					if (object.GetComponent<StaticCollider2DComponent>().IsValid())
-					{
-						editor->AddPopUp(PopUpWindow(ErrorList[HasStaticCollider], 2.0f, PopUpPosition::Mouse));
-					}
-					else
-					{
-						bool added_rigidbody = false;
-
-						object.AddComponent<DynamicCollider2DComponent>();
-						if (!object.GetComponent<RigidBodyComponent>().IsValid())
-						{
-							added_rigidbody = true;
-							object.AddComponent<RigidBodyComponent>();
-							editor->AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
-						}
-
-						editor->Push_Action({ 0, added_rigidbody, nullptr,{ object.Getid(), true }, Action_AddComponent<DynamicCollider2DComponent> });
-					}
-				}
-			}
-			if (Button("Static Collider", COMPONENT_BUTTON_SIZE))
-			{
-				if (object.GetComponent<StaticCollider2DComponent>().IsValid())
-				{
-					HAS_COMPONENT;
-				}
-				else
-				{
-					if (object.GetComponent<DynamicCollider2DComponent>().IsValid() || object.GetComponent<RigidBodyComponent>().IsValid())
-					{
-						editor->AddPopUp(PopUpWindow(ErrorList[HasRigidBodyDynamicCollider], 2.0f, PopUpPosition::Mouse));
-					}
-					else
-					{
-						object.AddComponent<StaticCollider2DComponent>(glm::vec3(1, 1, 0), collisionLayers::allCollision, Collider2D::colliderType::colliderBox);
-						Push_AddComponent(StaticCollider2DComponent);
-					}
-				}
-			}
-			Separator();
-			if (Button("Script", COMPONENT_BUTTON_SIZE))
-			{
-				if (object.GetComponent<ScriptComponent>().IsValid())
-				{
-					HAS_COMPONENT;
-				}
-				else
-				{
-					object.AddComponent<ScriptComponent>();
-					Push_AddComponent(ScriptComponent);
-				}
-			}
 
 			EndPopup();
 		}
@@ -732,7 +846,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Save Prefab##object"))
 		{
-			object.SaveToFile("objectout.json");
+			SavePrefab(object);
 		}
 
 
@@ -765,6 +879,10 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			ImGui_Collider2D(&object.GetComponent<DynamicCollider2DComponent>().Get()->ColliderData(), object, editor);
 		}
 
+		if (object.GetComponent<ScriptComponent>().IsValid())
+		{
+			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
+		}
 
 		if (object.GetComponent<SpriteComponent>().IsValid())
 		{
@@ -774,11 +892,6 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		if (object.GetComponent<ParticleSystem>().IsValid())
 		{
 			ImGui_Particles(object.GetComponent<ParticleSystem>().Get(), object, editor);
-		}
-
-		if (object.GetComponent<ScriptComponent>().IsValid())
-		{
-			ImGui_Script(object.GetComponent<ScriptComponent>().Get(), object, editor);
 		}
 
 		if (object.GetComponent<Camera>().IsValid())

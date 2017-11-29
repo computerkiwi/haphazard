@@ -35,6 +35,9 @@ enum ErrorIndex
 
 #define MAX_SELECT 10
 
+void LoadPreFab();
+void SavePrefab(GameObject object);
+
 void ImGui_GameObject(GameObject object, Editor *editor);
 void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor);
 
@@ -48,3 +51,32 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
 void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
 void ImGui_Text(TextComponent *text, GameObject object, Editor *editor);
+
+
+// Error Message for when adding a component that exist
+#define HAS_COMPONENT editor->AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
+
+// Error Message for when adding a component that exist
+#define HAS_COMPONENT_Editor AddPopUp(PopUpWindow(ErrorList[HasComponent], 2.0f, PopUpPosition::Mouse))
+
+// Pushes the add component to the undo/redo system
+#define Push_AddComponent(TYPE) editor->Push_Action({ 0, 0, nullptr, { object.Getid(), true }, Action_AddComponent<TYPE> })
+
+
+#define Push_AddComponent_Editor(TYPE) Push_Action({ 0, 0, nullptr, { m_selected_object.Getid(), true }, Action_AddComponent<TYPE> })
+
+
+template <class Component>
+void Action_AddComponent(EditorAction& a)
+{
+	ComponentHandle<Component> handle(a.handle);
+
+	if (a.redo)
+	{
+		handle.GetGameObject().AddComponent<Component>();
+	}
+	else
+	{
+		handle.GetGameObject().DeleteComponent<Component>();
+	}
+}
