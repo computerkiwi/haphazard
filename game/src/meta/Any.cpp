@@ -7,6 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "meta.h"
 #include "rapidjson/document.h"
+#include "GameObjectSystem/GameObject.h"
 
 namespace meta
 {
@@ -250,6 +251,11 @@ namespace meta
 	rapidjson::Value Any::Serialize(rapidjson::Document::AllocatorType& allocator)
 	{
 		return m_type->GetDeepestDereference()->Serialize(GetDeepestDataPointer(), allocator);
+	}
+
+	void Any::SetGameObjectID(GameObject_ID id)
+	{
+		m_type->GetDeepestDereference()->SetGameObjectID(GetDeepestDataPointer(), id);
 	}
 
 	void *Any::GetDataPointer()

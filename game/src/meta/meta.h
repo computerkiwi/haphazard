@@ -43,6 +43,8 @@ namespace meta
 		void Destructor(void *object);
 	}
 
+	typedef int GameObject_ID;
+
 	class Type
 	{
 	public:
@@ -54,6 +56,7 @@ namespace meta
 		typedef void(*MoveAssignmentFunction)(void *destination, void *source);
 		typedef void(*DestructorFunction)(void *object);
 
+		typedef void(*SetGameObjectIDFunction)(void *object, GameObject_ID id);
 		typedef rapidjson::Value(*SerializeFunction)(const void *object, rapidjson::Document::AllocatorType& allocator);
 		typedef void(*DeserializeAssignFunction)(void *object, rapidjson::Value& jsonObject);
 
@@ -62,7 +65,7 @@ namespace meta
 			Type *dereferenceType)
 			: m_size(size), m_name(name),
 			defaultConstructor(dcf), copyConstructor(ccf), moveConstructor(mcf), assignmentOperator(af), moveAssignmentOperator(maf), destructor(df), 
-			m_serializeFunction(sf), m_deserializeAssignFunction(nullptr),
+			m_serializeFunction(sf), m_deserializeAssignFunction(nullptr), m_setGameObjectIDFunction(nullptr),
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
 			// If this fails we're trying to access a type before properly registering it.
@@ -118,12 +121,18 @@ namespace meta
 		{
 			m_deserializeAssignFunction = func;
 		}
+		void SetSetGameObjectIDFunction(SetGameObjectIDFunction func)
+		{
+			m_setGameObjectIDFunction = func;
+		}
 
 		rapidjson::Value Serialize(const void *object, rapidjson::Document::AllocatorType& allocator);
 
 		void DeserializeConstruct(void *objectBuffer, rapidjson::Value& jsonObject);
 
 		void DeserializeAssign(void *object, rapidjson::Value& jsonObject);
+
+		void SetGameObjectID(void *object, GameObject_ID id);
 
 	private:
 		size_t m_size;
@@ -136,6 +145,7 @@ namespace meta
 
 		SerializeFunction m_serializeFunction;
 		DeserializeAssignFunction m_deserializeAssignFunction;
+		SetGameObjectIDFunction m_setGameObjectIDFunction;
 	};
 
 
@@ -332,6 +342,8 @@ namespace meta
 		//---------------
 		rapidjson::Value Serialize(rapidjson::Document::AllocatorType& allocator);
 
+		void SetGameObjectID(GameObject_ID id);
+
 	private:
 		void *GetDataPointer();
 		const void *GetDataPointer() const;
@@ -434,6 +446,8 @@ namespace meta
 
 #define META_DefineSerializeFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetSerializeFunction(FUNCTION_PTR))
 #define META_DefineDeserializeAssignFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetDeserializeAssignFunction(FUNCTION_PTR))
+
+#define META_DefineSetGameObjectIDFunction(TYPE, FUNCTION_PTR) (::meta::GetTypePointer<TYPE>()->SetSetGameObjectIDFunction(FUNCTION_PTR))
 
 #define META_DefineGetterSetter(BASETYPE, MEMBERTYPE, GETTER, SETTER, NAME) (::meta::GetTypePointer<BASETYPE>()->RegisterMember<BASETYPE, MEMBERTYPE>(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER));\
                                (luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<BASETYPE>(#BASETYPE).addProperty(NAME, &BASETYPE::GETTER, &BASETYPE::SETTER))

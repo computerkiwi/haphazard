@@ -103,6 +103,9 @@ public:
 	static GameObject FindByName(const char *name);
 	static GameObject FindByTag(const char * tagStr);
 
+	void SaveToFile(const char *fileName);
+	static GameObject LoadPrefab(const char * fileName);
+
 private:
 	union
 	{
@@ -160,5 +163,7 @@ private:
 		// TODO: Make this use the meta function.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByTag", FindByTag).endClass();
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("LoadPrefab", LoadPrefab).endClass();
 	}
 };

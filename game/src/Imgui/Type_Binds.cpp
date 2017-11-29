@@ -699,6 +699,11 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			OpenPopup("Components");
 		}
 
+		if (Button("Save Prefab"))
+		{
+			object.SaveToFile("objectout.json");
+		}
+
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 

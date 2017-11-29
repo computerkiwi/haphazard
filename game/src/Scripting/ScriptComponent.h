@@ -91,11 +91,27 @@ struct ScriptComponent
 		}
 	}
 
+private:
+
+	// For meta. (Mostly deserialization)
+	static void MetaSetObject(void *scriptPtr, GameObject_ID id)
+	{
+		ScriptComponent& script = *reinterpret_cast<ScriptComponent *>(scriptPtr);
+
+		for (LuaScript& script : script.scripts)
+		{
+			script.SetThisObject(id);
+		}
+
+	}
+
 	META_REGISTER(ScriptComponent)
 	{
 		META_DefineSerializeFunction(ScriptComponent, ScriptComponentSerializeFunction);
 		META_DefineDeserializeAssignFunction(ScriptComponent, ScriptComponentDeserializeAssign);
 
 		META_DefineFunction(ScriptComponent, GetScriptByFilename, "GetScriptByFilename");
+
+		META_DefineSetGameObjectIDFunction(ScriptComponent, MetaSetObject);
 	}
 };

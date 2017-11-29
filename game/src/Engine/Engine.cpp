@@ -161,7 +161,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	fire.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
 	fire.GetComponent<ParticleSystem>()->SetRotationRate(1);
 
-	player1.AddComponent<TransformComponent>(glm::vec3(10, -1, 1));
 	player1.AddComponent<ParticleSystem>();
 	player1.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 0.6f));
 	player1.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
@@ -200,6 +199,12 @@ int frameCounter = 0;
 void Engine::Update()
 {
 	Timer frameCap;
+
+	if (m_fileLoadFlag)
+	{
+		FileLoadInternal(m_fileToLoad.c_str());
+		m_fileLoadFlag = false;
+	}
 
 	if (glfwWindowShouldClose(m_window))
 		m_running = false;
@@ -278,10 +283,8 @@ void Engine::StringLoad(const char *jsonString)
 
 void Engine::FileLoad(const char *fileName)
 {
-	logger << "Loading Game -> File: " << fileName;
-	rapidjson::Document doc = LoadJsonFile(fileName);
-
-	meta::DeserializeAssign(*this, doc);
+	m_fileLoadFlag = true;
+	m_fileToLoad = fileName;
 }
 
 float Engine::CalculateDt()
@@ -337,6 +340,14 @@ void Engine::AppendToWindowTitle(const char *str)
 bool Engine::IsWindowTitleDirty() const 
 { 
 	return timeCounter >= 999990.9f;
+}
+
+void Engine::FileLoadInternal(const char * fileName)
+{
+	logger << "Loading Game -> File: " << fileName;
+	rapidjson::Document doc = LoadJsonFile(fileName);
+
+	meta::DeserializeAssign(*this, doc);
 }
 
 

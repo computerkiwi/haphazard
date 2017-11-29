@@ -74,10 +74,20 @@ private:
 	int m_environmentID;
 	lua_State *m_L;
 
+	// For meta. (Mostly deserialization)
+	static void MetaSetObject(void *scriptPtr, GameObject_ID id)
+	{
+		LuaScript& script = *reinterpret_cast<LuaScript *>(scriptPtr);
+
+		script.SetThisObject(id);
+	}
+
 	META_REGISTER(LuaScript)
 	{
 		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
 		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
+
+		META_DefineSetGameObjectIDFunction(LuaScript, &MetaSetObject);
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<LuaScript>("LuaScript").addCFunction("GetScriptEnvironment", &GetScriptEnvironmentLua).endClass();
 	}
