@@ -34,6 +34,8 @@ Camera::Camera()
 
 	if (m_CurrActiveCamera == nullptr)
 		Use();
+
+	ApplyCameraMatrices();
 }
 
 Camera::Camera(const Camera & other) : m_Position(other.m_Position), m_Center(other.m_Position), 
@@ -43,6 +45,14 @@ Camera::Camera(const Camera & other) : m_Position(other.m_Position), m_Center(ot
 {
 	// We become the active cam if we're copying an active cam.
 	SetIsActiveCam(other.IsActiveCam());
+}
+
+Camera::~Camera()
+{
+	if (m_CurrActiveCamera == this)
+	{
+		m_CurrActiveCamera = nullptr;
+	}
 }
 
 

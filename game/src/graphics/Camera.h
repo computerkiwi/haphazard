@@ -25,6 +25,8 @@ public:
 
 	Camera();
 	Camera(const Camera& other);
+	~Camera();
+
 	void Use() { m_CurrActiveCamera = this; ApplyCameraMatrices(); }
 	bool IsActiveCam() const { return this == m_CurrActiveCamera; };
 
