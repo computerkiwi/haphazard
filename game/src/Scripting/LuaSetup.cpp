@@ -1,38 +1,15 @@
-#pragma once
+/*
+FILE: LuaSetup.cpp
+PRIMARY AUTHOR: Kieran
 
-#define DEAD_ZONE_MIN -0.05
-#define DEAD_ZONE_MAX  0.05
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 
-typedef enum KeyState : int
-{
-  Released = 0,
-  Pressed  = 1,
-  HeldDown = 2
-} KeyState;
+#include "LuaSetup.h"
 
-// Player number
-typedef enum PlayerID : int
-{
-  Player1,
-  Player2,
-  Player3,
-  Player4
-} PlayerID;
+const char *setup = R"SETUP_DELIMITER(
 
-typedef enum Action : int
-{
-  Jump,
-  Attack,
-  Stack,
-  Toss,
-  MoveLeft,
-  MoveRight
-} Action;
-
-// All keyboard and mouse buttons
-enum class Key : int
-{
-  // For fancy meese
+KEY = {
   Mouse_1 = 0,
   Mouse_2 = 1,
   Mouse_3 = 2,
@@ -48,11 +25,11 @@ enum class Key : int
 
   Unknown = -1,
   Space = 32,
-  Apostrophe = 39, // '
-  Comma = 44,      // ,
-  Minus = 45,      // -
-  Period = 46,     // .
-  Slash = 47,      // /
+  Apostrophe = 39, 
+  Comma = 44,      
+  Minus = 45,      
+  Period = 46,     
+  Slash = 47,      
 
   Zero = 48,
   One = 49,
@@ -64,9 +41,8 @@ enum class Key : int
   Seven = 55,
   Eight = 56,
   Nine = 57,
-  Semicolon = 59,  // ;
-  Equal = 61,      // =
-
+  Semicolon = 59,  
+  Equal = 61,      
   A = 65,
   B = 66,
   C = 67,
@@ -99,8 +75,8 @@ enum class Key : int
   BracketRight = 93,
   GraveAccent = 96,
 
-  World_1 = 161, // Non-US #1
-  World_2 = 162, // Non-US #2
+  World_1 = 161, 
+  World_2 = 162, 
 
   Escape = 256,
   Enter = 257,
@@ -165,39 +141,11 @@ enum class Key : int
   RightControl = 345,
   RightAlt = 346
 
-};
+}
 
-enum class GamepadButton : int
+)SETUP_DELIMITER";
+
+void SetupLua(lua_State * L)
 {
-  A,
-  B,
-  X,
-  Y,
-  LeftTrigger,
-  RightTrigger,
-  Back,
-  Start,
-  Guide,          // Which button is this?
-  LeftThumb,
-  RightThumb,
-  Up,
-  Right,
-  Down,
-  Left
-};
-
-enum class GamepadAxis : int
-{
-  LeftAnalog_X,
-  LeftAnalog_Y,
-  RightAnalog_X,
-  RightAnalog_Y,
-  LeftTrigger,
-  RightTrigger,
-
-  LeftAnalog,  // Both left XY axes
-  RightAnalog, // Both right XY axes
-
-  Horizontal = LeftAnalog_X,
-  Vertical = LeftAnalog_Y,
-};
+	luaL_dostring(L, setup);
+}

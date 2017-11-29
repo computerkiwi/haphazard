@@ -207,6 +207,7 @@
     <ClCompile Include="src\Scripting\LuaEngine.cpp" />
     <ClCompile Include="src\Scripting\LuaRegistration.cpp" />
     <ClCompile Include="src\Scripting\LuaScript.cpp" />
+    <ClCompile Include="src\Scripting\LuaSetup.cpp" />
     <ClCompile Include="src\Scripting\ScriptingUtil.cpp" />
     <ClCompile Include="src\Scripting\ScriptResource.cpp" />
     <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
@@ -262,6 +263,7 @@
     <ClInclude Include="src\Scripting\LuaEngine.h" />
     <ClInclude Include="src\Scripting\LuaRegistration.h" />
     <ClInclude Include="src\Scripting\LuaScript.h" />
+    <ClInclude Include="src\Scripting\LuaSetup.h" />
     <ClInclude Include="src\Scripting\ScriptComponent.h" />
     <ClInclude Include="src\Scripting\ScriptingUtil.h" />
     <ClInclude Include="src\Scripting\ScriptResource.h" />

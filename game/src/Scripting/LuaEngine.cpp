@@ -9,6 +9,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "lua.hpp"
 #include "ScriptingUtil.h"
 #include "LuaRegistration.h"
+#include "LuaSetup.h"
 
 namespace
 {
@@ -24,6 +25,8 @@ namespace
 	{
 		lua_State *L = luaL_newstate();
 		luaL_openlibs(L);
+
+		SetupLua(L);
 
 		SetupEnvironmentTable(L);
 
