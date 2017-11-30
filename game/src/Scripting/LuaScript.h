@@ -61,6 +61,16 @@ public:
 		return 1;
 	}
 
+	// Calls the start function on the script if it's needed.
+	void TryStartCall()
+	{
+		if (m_needsStartCall)
+		{
+			RunFunction("Start", 0, 0);
+			m_needsStartCall = false;
+		}
+	}
+
 private:
 	// Puts the environment table for this script on the Lua stack.
 	void GetScriptEnvironment();
@@ -68,6 +78,8 @@ private:
 	void SetupEnvironment(const char *scriptString);
 
 	void UpdateThisObject();
+
+	bool m_needsStartCall = true;
 
 	GameObject m_thisObj;
 	ResourceID m_resID;

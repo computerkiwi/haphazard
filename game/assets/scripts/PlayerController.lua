@@ -31,7 +31,7 @@ end
 
 -- Sets variables based on which player we are.
 function SpecifyPlayer()
-
+	
 	local name = this:GetName()
 
   GAMEPAD_JUMP   = 0  -- A
@@ -147,10 +147,13 @@ function UnstackedUpdate(dt)
 	rBody.velocity = tempVel
 end
 
+function Start()
+	SpecifyPlayer()
+end
+
 -- Called from the engine each frame.
 function Update(dt)
-	-- When the start function is implemented, this should be moved there.
-	SpecifyPlayer()
+
 	
 	-- Call a different update based on our state.
 	if (stacked)
