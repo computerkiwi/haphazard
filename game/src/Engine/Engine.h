@@ -68,6 +68,16 @@ public:
 	void AppendToWindowTitle(const char *str);
 	bool IsWindowTitleDirty() const;
 
+	static Engine *GetEngine()
+	{
+		return engine;
+	}
+
+	static void LoadLevel(const char *fileName)
+	{
+		engine->FileLoad(fileName);
+	}
+
 private:
 
 	void FileLoadInternal(const char *fileName);
@@ -127,6 +137,11 @@ private:
 	{
 		META_DefineSerializeFunction(Engine, EngineSerializeFunction);
 		META_DefineDeserializeAssignFunction(Engine, EngineDeserializeAssign);
+
+		META_DefineFunction(Engine, FileLoad, "LoadLevel");
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Engine>("Engine").addStaticFunction("GetEngine", &GetEngine);
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Engine>("Engine").addStaticFunction("LoadLevel", &LoadLevel);
 	}
 };
 
