@@ -19,6 +19,8 @@ class BoxCorners;
 class Raycast
 {
 public:
+	// default constuctor for meta system(ABSOLUTELY DO NOT USE THIS EVER)
+	Raycast();
 	// constructor with direction in degrees
 	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range, collisionLayers layer = collisionLayers::allCollision);
 	// constructor with direction along a vector
@@ -42,7 +44,7 @@ private:
 	glm::vec2 m_intersection;
 	glm::vec2 m_normalizedDirection;
 	GameObject m_gameObjectHit;
-	collisionLayers m_layer;
+	int m_layer; // only an int for META reasons, it should only ever be a collisionLayer
 
 	META_REGISTER(Raycast)
 	{

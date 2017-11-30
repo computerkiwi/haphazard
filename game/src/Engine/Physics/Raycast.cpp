@@ -356,6 +356,15 @@ void RayCastCalculator::CalculateCast_Circle(glm::vec2 center, float radius, con
 }
 
 
+Raycast::Raycast() : m_length(0),
+                     m_startPosition(glm::vec2(0)),
+	                 m_intersection(glm::vec2(0)),
+	                 m_normalizedDirection(glm::vec2(1, 0)),
+	                 m_gameObjectHit(0),
+	                 m_layer(collisionLayers::noCollision)
+{
+}
+
 // constructor with direction in degrees
 Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
 	             glm::vec2 startPoint, float direction, float range, collisionLayers layer)

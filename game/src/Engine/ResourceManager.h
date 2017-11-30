@@ -113,7 +113,7 @@ public:
 	std::vector<Resource *> GetResourcesOfType_Alphabetical(ResourceType type);
 
 	template <typename... Types>
-	std::vector<Resource *> ResourceManager::GetResourcesOfTypes_Alphabetical(Types&&... types)
+	std::vector<Resource *> GetResourcesOfTypes_Alphabetical(Types&&... types)
 	{
 		std::vector<Resource *> vec;
 
