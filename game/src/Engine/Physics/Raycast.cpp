@@ -16,6 +16,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "../../graphics/DebugGraphic.h"
 #include "../../GameObjectSystem/GameSpace.h"
 #include "GameObjectSystem\TransformComponent.h"
+#include "Engine\Engine.h"
 
 #define DEGREES_PER_RADIAN 57.2957795131f
 
@@ -445,4 +446,20 @@ void Raycast::Draw(glm::vec4 color, bool drawBoxAtStartPoint, bool drawBoxAtEndP
 	{
 		DrawSmallBoxAtPosition(m_intersection);
 	}
+}
+
+Raycast Raycast::Cast(size_t space, glm::vec2 startPoint, float direction, float range, collisionLayers layer)
+{
+	ComponentMap<DynamicCollider2DComponent>* dynamicColliders = engine->GetSpace(space)->GetComponentMap<DynamicCollider2DComponent>();
+	ComponentMap<StaticCollider2DComponent>* staticColliders = engine->GetSpace(space)->GetComponentMap<StaticCollider2DComponent>();
+
+	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, layer);
+}
+
+Raycast Raycast::Cast(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer)
+{
+	ComponentMap<DynamicCollider2DComponent>* dynamicColliders = engine->GetSpace(space)->GetComponentMap<DynamicCollider2DComponent>();
+	ComponentMap<StaticCollider2DComponent>* staticColliders = engine->GetSpace(space)->GetComponentMap<StaticCollider2DComponent>();
+
+	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, layer);
 }
