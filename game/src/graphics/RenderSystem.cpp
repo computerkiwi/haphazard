@@ -56,13 +56,16 @@ void RenderSystem::UpdateCameras(float dt)
 	int numCameras = 0;
 	for (auto& camera : *cameras)
 	{
+		numCameras++;
+		if (!camera->IsActiveCam()) // Only update the active camera
+			continue;
+
 		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())
 		{
 			continue;
 		}
-		numCameras++;
 		//Update Cameras
 
 		if (resizeCameras)
