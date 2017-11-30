@@ -56,6 +56,12 @@ void RenderSystem::UpdateCameras(float dt)
 	int numCameras = 0;
 	for (auto& camera : *cameras)
 	{
+
+		if (!camera->IsActiveCam())
+		{
+			continue;
+		}
+
 		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())
@@ -65,18 +71,9 @@ void RenderSystem::UpdateCameras(float dt)
 		numCameras++;
 		//Update Cameras
 
-		if (resizeCameras)
-		{
-			// Screen resized, update camera matrices
-			camera->SetAspectRatio(width / (float)height);
-		}
-
-		// If transform moved, update camera matrices
-		if (transform->GetPosition() != camera->GetPosition())
-			camera->SetPosition(transform->GetPosition());
-
-		if (transform->GetRotation() != camera->GetRotation())
-			camera->SetRotation(transform->GetRotation());
+		camera->SetAspectRatio(width / (float)height);
+		camera->SetPosition(transform->GetPosition());
+		camera->SetRotation(transform->GetRotation());
 	}
 	resizeCameras = false;
 

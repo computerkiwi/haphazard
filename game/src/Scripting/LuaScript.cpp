@@ -39,6 +39,13 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	lua_getfield(m_L, -1, functionName);
 	lua_remove(m_L, -2);
 
+	// If the function wasn't there don't bother.
+	if (lua_isnil(m_L, -1))
+	{
+		lua_remove(m_L, -1);
+		return;
+	}
+
 	// Put the function under the arguments on the stack.
 	lua_insert(m_L, -1 - args);
 
