@@ -397,5 +397,7 @@ GLFWwindow *WindowInit()
 
 	glfwSetWindowSizeCallback(window, RenderSystem::ResizeWindowEvent);
 
+	RenderSystem::ResizeWindowEvent(window, Settings::ScreenWidth(), Settings::ScreenHeight());
+
 	return window;
 }
