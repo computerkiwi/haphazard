@@ -49,7 +49,6 @@ GameObject_ID GameObject::Getid() const
 
 GameSpace *GameObject::GetSpace() const
 {
-	assert(IsValid());
 	// (0xFF00000000000000 & m_objID) >> EXTRACTION_SHIFT
 	return engine->GetSpace(m_space);
 }
@@ -93,7 +92,12 @@ void GameObject::Delete()
 
 bool GameObject::IsValid() const
 {
-	return (m_objID != INVALID_GAMEOBJECT_ID);
+	if (m_objID == INVALID_GAMEOBJECT_ID)
+	{
+		return false;
+	}
+
+	return engine->GetSpace(m_space)->GetInternalComponent<ObjectInfo>(m_objID) != nullptr;
 }
 
 

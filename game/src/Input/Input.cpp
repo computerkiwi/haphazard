@@ -229,6 +229,12 @@ namespace Input
   // Stores keyboard input information to be set as Current State in next frame
   void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mods)
   {
+    // Key unrecognized, do nothing
+    if (key == static_cast<int>(Key::Unknown))
+    {
+      return;
+    }
+
     if (key)
     {
       switch (action)

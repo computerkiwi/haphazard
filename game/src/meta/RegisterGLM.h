@@ -9,6 +9,15 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "meta.h"
 #include "glm/glm.hpp"
 
+static glm::vec2 AddVec2(const glm::vec2& vec1, const glm::vec2& vec2)
+{
+	return vec1 + vec2;
+}
+static glm::vec2 SubVec2(const glm::vec2& vec1, const glm::vec2& vec2)
+{
+	return vec1 - vec2;
+}
+
 namespace meta
 {
 	class RegisterGLM
@@ -16,9 +25,15 @@ namespace meta
 		META_NAMESPACE(::meta);
 		META_PREREGISTER(RegisterGLM)
 		{
-			META_DefineType(glm::vec2);
-			META_DefineMember(glm::vec2, x, "x");
-			META_DefineMember(glm::vec2, y, "y");
+			using namespace glm;
+
+			META_DefineType(vec2);
+			META_DefineMember(vec2, x, "x");
+			META_DefineMember(vec2, y, "y");
+			typedef glm::vec2(vec2::*Vec2AddFunction)(glm::vec2 *vec);
+			luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<glm::vec2>("vec2")
+				.addStaticFunction("Add", AddVec2)
+				.addStaticFunction("Sub", SubVec2);
 
 			META_DefineType(glm::vec3);
 			META_DefineMember(glm::vec3, x, "x");

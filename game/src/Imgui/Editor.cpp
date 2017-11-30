@@ -14,7 +14,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Standard Includes
 #include "Engine/Engine.h"
 #include "Util/Logging.h"
-
+#include "graphics\Settings.h"
 
 // ImGui Init, NewFrame, Shutdown Calls
 #include "../Imgui/imgui-setup.h"
@@ -239,7 +239,7 @@ Editor::~Editor()
 }
 
 
-void Editor::Update()
+void Editor::Update(float dt)
 {
 	// Check if Editor is being shown
 	debugSetDisplayHitboxes(m_editorState.show);
@@ -255,12 +255,17 @@ void Editor::Update()
 
 		if (m_editorState.first_update)
 		{
-			//prev_camera = Camera::GetActiveCamera();
-			//m_editor_cam.SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-			//m_editor_cam.SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-			//m_editor_cam.SetPosition(glm::vec2(0, 0));
-			//m_editor_cam.SetZoom(3);
-			//m_editor_cam.Use();
+			prev_camera = Camera::GetActiveCamera();
+			
+			if (m_editor_cam == nullptr)
+			{
+				m_editor_cam = new Camera();
+			}
+			m_editor_cam->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+			m_editor_cam->SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+			m_editor_cam->SetPosition(prev_camera->GetPosition());
+			m_editor_cam->SetZoom(prev_camera->GetZoom());
+			m_editor_cam->Use();
 
 			m_editorState.first_update = false;
 		}
@@ -280,7 +285,7 @@ void Editor::Update()
 		// Top Bar
 		MenuBar();
 
-		KeyBindings();
+		KeyBindings(dt);
 
 		// ImGui::ShowTestWindow();
 
@@ -351,8 +356,8 @@ void Editor::Update()
 			m_editorState.show = false;
 			m_editorState.exiting = false;
 
-			//prev_camera->Use();
-			//prev_camera = nullptr;
+			prev_camera->Use();
+			prev_camera = nullptr;
 		}
 	}
 }
@@ -361,7 +366,8 @@ void Editor::Update()
 // Called whenever the Window is Resized
 void Editor::ResizeEvent(int w, int h)
 {
-	m_editor_cam.SetAspectRatio(static_cast<float>(w) / h);
+	if(m_editor_cam != nullptr)
+		m_editor_cam->SetAspectRatio(static_cast<float>(w) / h);
 }
 
 
@@ -502,7 +508,7 @@ void Editor::Internal_Log(const char * log_message, ...)
 
 
 // Check all the Editor KeyBindings
-void Editor::KeyBindings()
+void Editor::KeyBindings(float dt)
 {
 	// Widget
 
@@ -604,6 +610,28 @@ void Editor::KeyBindings()
 	{
 		m_editorState.freeze = !m_editorState.freeze;
 	}
+
+	// Editor camera controls
+	if (Input::IsHeldDown(Key::Right))
+	{
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(dt * 2, 0));
+	}
+
+	if (Input::IsHeldDown(Key::Left))
+	{
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(-dt * 2, 0));
+	}
+
+	if (Input::IsHeldDown(Key::Up))
+	{
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, dt * 2));
+	}
+
+	if (Input::IsHeldDown(Key::Down))
+	{
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * 2));
+	}
+
 }
 
 
@@ -1664,7 +1692,16 @@ int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data)
 // Toggle the flag that Shows/Hides the Editor
 void Editor::ToggleEditor()
 {
-	m_editorState.show = !m_editorState.show;
+	if (!m_editorState.show)
+	{
+		m_editorState.show = true;
+	}
+	else
+	{
+		m_editorState.exiting = true;
+	}
+
+
 }
 
 

@@ -89,12 +89,23 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
 	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.15f));
 	MainCamera.AddComponent<Camera>();
-	MainCamera.GetComponent<Camera>()->Use();
 	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
 	MainCamera.GetComponent<Camera>()->SetZoom(3);
+	MainCamera.GetComponent<Camera>()->Use();
 	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
+
+	/*
+	GameObject SecondCamera = m_spaces[0]->NewGameObject("Second Camera");
+	SecondCamera.AddComponent<TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(0.15f));
+	SecondCamera.AddComponent<Camera>();
+	SecondCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	SecondCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
+	SecondCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
+	SecondCamera.GetComponent<Camera>()->SetZoom(3);
+	SecondCamera.GetComponent<Camera>()->Use();
+	*/
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -211,7 +222,12 @@ void Engine::Update()
 
 	m_dt = CalculateDt();
 
-	m_spaces[0]->Update(m_dt);
+	if (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze)
+	{
+		m_spaces[0]->Update(0);
+	}
+	else
+		m_spaces[0]->Update(m_dt);
 
 	Input::Update();
 
@@ -219,7 +235,7 @@ void Engine::Update()
 
 	if (Input::IsPressed(Key::GraveAccent))
 		m_editor.ToggleEditor();
-	m_editor.Update();
+	m_editor.Update(m_dt);
 	
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
@@ -295,11 +311,6 @@ float Engine::CalculateDt()
 	float currentFrame = (float)glfwGetTime();
 	float dt = currentFrame - last;
 	last = currentFrame;
-
-	if (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze)
-	{
-		return 0;
-	}
 
 	return dt;
 }

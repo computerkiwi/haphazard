@@ -44,10 +44,10 @@ function SpecifyPlayer()
 	
 		otherPlayerName = "Player2"
 		
-		KEY_JUMP  = 87 -- W
-		KEY_DOWN  = 83 -- S
-		KEY_LEFT  = 65 -- A
-		KEY_RIGHT = 68 -- D
+		KEY_JUMP  = KEY.W
+		KEY_DOWN  = KEY.S
+		KEY_LEFT  = KEY.A
+		KEY_RIGHT = KEY.D
 
     PLAYER_NUM     = 1  -- Player 2
 
@@ -56,10 +56,10 @@ function SpecifyPlayer()
 	
 		otherPlayerName = "Player1"
 		
-		KEY_JUMP  = 265 -- Up
-		KEY_DOWN  = 264 -- Down
-		KEY_LEFT  = 263 -- Left
-		KEY_RIGHT = 262 -- Right
+		KEY_JUMP  = KEY.Up
+		KEY_DOWN  = KEY.Down
+		KEY_LEFT  = KEY.Left
+		KEY_RIGHT = KEY.Right
 
     PLAYER_NUM     = 0  -- Player 1
 	

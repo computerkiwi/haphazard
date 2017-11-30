@@ -86,7 +86,7 @@ public:
 
 
 	bool operator ==(GameObject rhs) const { return m_objID == rhs.m_objID; }
-	operator bool() const { return m_objID; }
+	operator bool() const { return IsValid(); }
 	operator GameObject_ID() const { return m_objID; }
 
 	// These are pointers, not handles. They probably won't last long.

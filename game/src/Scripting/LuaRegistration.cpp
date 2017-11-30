@@ -42,6 +42,10 @@ float LuaGamepadGetAxis(int player, int axis)
 
 glm::vec2 LuaMousePos()
 {
+	glm::vec2 vec;
+
+	vec + vec;
+
 	return Input::GetMousePos_World();
 }
 

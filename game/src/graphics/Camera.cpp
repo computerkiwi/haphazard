@@ -16,21 +16,24 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 Camera* Camera::m_CurrActiveCamera = nullptr;
 
+GLuint Camera::m_MatricesUbo = 0;
+
 Camera::Camera()
 {
-	glGenBuffers(1, &m_MatricesUbo);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_MatricesUbo);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW); // allocate memory
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
-
-	if (Shaders::spriteShader)
+	if (m_MatricesUbo == 0)
 	{
+		glGenBuffers(1, &m_MatricesUbo);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_MatricesUbo);
+		glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW); // allocate memory
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_MatricesUbo, 0, 2 * sizeof(glm::mat4));
+	
 		GLuint blockIndex = glGetUniformBlockIndex(Shaders::spriteShader->GetProgramID(), "Matrices");
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_MatricesUbo); // Set this location to 1
 		glUniformBlockBinding(Shaders::spriteShader->GetProgramID(), blockIndex, 1);
 	}
+
 
 	if (m_CurrActiveCamera == nullptr)
 		Use();
@@ -39,10 +42,18 @@ Camera::Camera()
 Camera::Camera(const Camera & other) : m_Position(other.m_Position), m_Center(other.m_Position), 
                                        m_Up(other.m_Up), m_Rotation(other.m_Rotation), 
 	                                     m_Zoom(other.m_Zoom), m_AspectRatio(other.m_AspectRatio), 
-	                                     m_Near(other.m_Near), m_Far(other.m_Far), m_MatricesUbo(other.m_MatricesUbo)
+	                                     m_Near(other.m_Near), m_Far(other.m_Far)
 {
 	// We become the active cam if we're copying an active cam.
 	SetIsActiveCam(other.IsActiveCam());
+}
+
+Camera::~Camera()
+{
+	if (m_CurrActiveCamera == this)
+	{
+		m_CurrActiveCamera = nullptr;
+	}
 }
 
 

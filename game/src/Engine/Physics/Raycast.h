@@ -19,6 +19,8 @@ class BoxCorners;
 class Raycast
 {
 public:
+	// default constuctor for meta system(ABSOLUTELY DO NOT USE THIS EVER)
+	Raycast();
 	// constructor with direction in degrees
 	Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, glm::vec2 startPoint, float direction, float range, collisionLayers layer = collisionLayers::allCollision);
 	// constructor with direction along a vector
@@ -32,13 +34,30 @@ public:
 	// methods
 	void Draw(glm::vec4 color = glm::vec4(1, 0, 1, 1), bool drawBoxAtStartPoint = 1, bool drawBoxAtEndPoint = 1);
 
+	// static methods(for lua basically)
+	static Raycast Cast(size_t space, glm::vec2 startPoint, float direction, float range, collisionLayers layer = collisionLayers::allCollision);
+	static Raycast Cast(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer = collisionLayers::allCollision);
+
 private:
 	float m_length;
 	glm::vec2 m_startPosition;
 	glm::vec2 m_intersection;
 	glm::vec2 m_normalizedDirection;
 	GameObject m_gameObjectHit;
-	collisionLayers m_layer;
+	int m_layer; // only an int for META reasons, it should only ever be a collisionLayer
+
+	META_REGISTER(Raycast)
+	{
+
+		META_DefineMember(Raycast, m_length, "length");
+		META_DefineMember(Raycast, m_startPosition, "startPosition");
+		META_DefineMember(Raycast, m_intersection, "intersection");
+		META_DefineMember(Raycast, m_normalizedDirection, "normalizedDirection");
+		META_DefineMember(Raycast, m_gameObjectHit, "gameObjectHit");
+		META_DefineMember(Raycast, m_layer, "layer");
+
+		META_DefineFunction(Raycast, Draw, "Draw");
+	}
 };
 
 class BoxCorners
