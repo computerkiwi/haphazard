@@ -120,7 +120,7 @@ class Editor
 
 	// Editor
 	Camera *prev_camera;
-	Camera m_editor_cam;
+	Camera *m_editor_cam = nullptr;
 	struct EditorState
 	{
 		bool first_update = true;
@@ -386,7 +386,7 @@ private:
 	void OnClick();
 
 	// Keypresses
-	void KeyBindings();
+	void KeyBindings(float dt);
 
 	// Undo/Redo
 	void Undo_Action();
@@ -401,7 +401,7 @@ public:
 	~Editor();
 
 	// Continues the editor process
-	void Update();
+	void Update(float dt);
 
 	std::string GetSaveTitle() const;
 
