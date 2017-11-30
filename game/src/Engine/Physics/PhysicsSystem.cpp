@@ -998,7 +998,7 @@ void PhysicsSystem::Update(float dt)
 
 		float colorval = (1.0f / collisionLayers::numLayers) * ((i % collisionLayers::numLayers) +1);
 
-		testCast.Draw(glm::vec4(colorval, colorval, colorval, 1));
+		//testCast.Draw(glm::vec4(colorval, colorval, colorval, 1));
 	}
 
 	/*glm::vec2 testPoint(1, 0);
