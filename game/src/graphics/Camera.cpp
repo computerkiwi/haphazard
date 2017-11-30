@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "Camera.h"
 #include "Shaders.h"
+#include "RenderSystem.h"
 
 #include "glm\glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,6 +32,9 @@ Camera::Camera()
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_MatricesUbo); // Set this location to 1
 		glUniformBlockBinding(Shaders::spriteShader->GetProgramID(), blockIndex, 1);
 	}
+
+	// Give us a valid position.
+	SetPosition(glm::vec2(0, 0));
 
 	if (m_CurrActiveCamera == nullptr)
 		Use();
