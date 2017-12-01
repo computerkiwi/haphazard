@@ -120,7 +120,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
 	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(0.65, 1, 0));
 	player1.AddComponent<RigidBodyComponent>();
-	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderBox));
+	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderCapsule));
 	player1.AddComponent<SpriteComponent>(m_resManager.Get("GnomeRed.png"));
 	player1.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player1));
 
@@ -128,7 +128,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	GameObject player2 = m_spaces[0]->NewGameObject("Player2");
 	player2.AddComponent<TransformComponent>(glm::vec3(1, 0, 0), glm::vec3(0.65, 1, 0));
 	player2.AddComponent<RigidBodyComponent>();
-	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderBox));
+	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderCapsule));
 	player2.AddComponent<SpriteComponent>(m_resManager.Get("GnomeBlue.png"));
 	player2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player2));
 

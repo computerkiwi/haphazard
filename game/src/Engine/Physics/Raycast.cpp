@@ -13,6 +13,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include <math.h>
 
 #include "Raycast.h"
+#include "PhysicsInternalTools.h"
 #include "../../graphics/DebugGraphic.h"
 #include "../../GameObjectSystem/GameSpace.h"
 #include "GameObjectSystem\TransformComponent.h"
@@ -200,6 +201,26 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 		{
 			// calculate the actual raycast
 			CalculateCast_Circle(circleCenter, circleDiameter / 2, transform.GetGameObject());
+		}
+	}
+	else if (colliderData.ColliderIsShape(Collider2D::colliderType::colliderCapsule))
+	{
+		glm::vec2 circleCenter = transform->GetPosition() + colliderData.GetOffset();
+		float circleDiameter = std::max(colliderData.GetDimensions().x, colliderData.GetDimensions().y);
+
+		CapsuleInformation capsule(circleCenter, colliderData.GetDimensions(), transform->GetRotation() + colliderData.GetRotationOffset());
+
+		// if circle collision to quickly eliminate far away objects
+		if (CirclesCollide(raycastCenter, raycastRadius, circleCenter, circleDiameter))
+		{
+			BoxCorners corners(capsule.m_boxCenter, capsule.m_boxDimensions, capsule.m_boxRotation);
+
+			GameObject gameObject = transform.GetGameObject();
+
+			// calculate the actual raycast
+			CalculateCast_Circle(capsule.m_topCircleCenter, capsule.m_circleRadius, gameObject);
+			CalculateCast_Box(corners, gameObject);
+			CalculateCast_Circle(capsule.m_botCircleCenter, capsule.m_circleRadius, gameObject);
 		}
 	}
 }
