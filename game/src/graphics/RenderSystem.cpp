@@ -87,8 +87,15 @@ void RenderSystem::UpdateCameras(float dt)
 	{
 		Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "There are no cameras in the scene!");
 	}
-	else if(Camera::GetActiveCamera())
+	else if (Camera::GetActiveCamera())
+	{
 		Camera::GetActiveCamera()->Use();
+	}
+	else
+	{
+		Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "No camera set for use, choosing active camera");
+		cameras->begin()->Use();
+	}
 }
 
 void RenderSystem::RenderSprites(float dt)

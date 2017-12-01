@@ -119,7 +119,7 @@ class Editor
 	friend bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	// Editor
-	Camera *prev_camera;
+	Camera *prev_camera = nullptr;
 	Camera *m_editor_cam = nullptr;
 	struct EditorState
 	{

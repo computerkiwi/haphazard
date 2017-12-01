@@ -1816,6 +1816,7 @@ void Editor::SaveLoad()
 		m_load = false;
 		m_editorState.fileNewFile = true;
 		m_editorState.fileOpened = true;
+		m_editorState.exiting = true;
 	}
 }
 
