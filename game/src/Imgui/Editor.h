@@ -119,13 +119,14 @@ class Editor
 	friend bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, GameObject child);
 
 	// Editor
-	Camera *prev_camera;
-	Camera m_editor_cam;
+	Camera *prev_camera = nullptr;
+	Camera *m_editor_cam = nullptr;
 	struct EditorState
 	{
 		bool first_update = true;
 		bool show = false;
 		bool exiting = false;
+		bool reload = false;
 
 		bool freeze = true;
 
@@ -138,6 +139,8 @@ class Editor
 		friend class Editor;
 
 		// File IO State
+		bool fileSave = false;
+		bool fileLoad = false;
 		bool fileOpened = false;	 // If the file was opened
 		bool fileNewFile = true;	 // Is this a new file
 		bool fileDirty = false;      // File needs to be saved
@@ -147,6 +150,8 @@ class Editor
 
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
+
+		bool MouseCameraDragClick   = false; // User is moving camera via mouse
 	} m_editorState;
 
 
@@ -173,13 +178,13 @@ class Editor
 	{
 		bool default_collider_match_scale = true;
 
+		float cameraSpeed = 50.0f;
+
 	} m_editorSettings;
 
 
 	// Save/Load
 	// --------------
-	bool m_save = false;
-	bool m_load = false;
 	std::string m_filename = "NoFile.json";
 
 
@@ -366,7 +371,8 @@ private:
 	friend int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data);
 
 	// Creates a GameObject in the Selected GameObject's space
-	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name);
 	
 	// ObjectsList Panel
 	void ObjectsList();
@@ -386,7 +392,7 @@ private:
 	void OnClick();
 
 	// Keypresses
-	void KeyBindings();
+	void KeyBindings(float dt);
 
 	// Undo/Redo
 	void Undo_Action();
@@ -401,7 +407,7 @@ public:
 	~Editor();
 
 	// Continues the editor process
-	void Update();
+	void Update(float dt);
 
 	std::string GetSaveTitle() const;
 
@@ -423,6 +429,9 @@ public:
 	// Change the Selected GameObject
 	void SetGameObject(GameObject new_object);
 
+	// Get the editor's current object
+	GameObject GetSelectedObject() const { return m_selected_object; }
+
 	// Show the GameObjects in a list
 	void PrintObjects();
 
@@ -442,4 +451,7 @@ public:
 
 	// Returns the EditorState for use externally
 	EditorState& GetEditorState() { return m_editorState; }
+
+	void Reload() { m_editorState.reload = true; m_editorState.exiting = true; }
+
 };

@@ -34,6 +34,21 @@ public:
 
 	void AddTag(const char *name) { m_tags.emplace(hash(name), name); }
 
+	bool HasTag(const char *tag)
+	{
+		// Look for the tag in the map.
+		for (auto& tagPair : m_tags)
+		{
+			if (tagPair.second == tag)
+			{
+				return true;
+			}
+		}
+
+		// If we got here we couldn't find it.
+		return false;
+	}
+
 private:
 	// For meta.
 	static void SetObjectID(void *objectInfoPtr, GameObject_ID id)

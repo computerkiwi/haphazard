@@ -24,6 +24,16 @@ void ScriptSystem::Update(float dt)
 {
 	ComponentMap<ScriptComponent> *scripts = GetGameSpace()->GetComponentMap<ScriptComponent>();
 
+	// Call start on everything that needs it.
+	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
+	{
+		for (LuaScript& script : scriptComp->scripts)
+		{
+			script.TryStartCall();
+		}
+	}
+
+	// Call update on everything that needs it.
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
 		for (LuaScript& script : scriptComp->scripts)

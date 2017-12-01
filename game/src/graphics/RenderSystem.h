@@ -27,6 +27,9 @@ public:
 
 	// Inherited via SystemBase
 	virtual SystemBase * NewDuplicate() override;
+
+	static void RefreshCameras();
+
 private:
 	void UpdateCameras(float dt);
 	void RenderSprites(float dt);

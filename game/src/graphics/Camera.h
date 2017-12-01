@@ -77,6 +77,9 @@ private:
 	float GetFarPlane() const { return m_Far; }
 
 	static Camera* m_CurrActiveCamera;
+	
+	// Uniform buffer object location
+	static GLuint m_MatricesUbo;
 
 	//View matrix
 	glm::vec3 m_Position = glm::vec3(0, 0, 5.0f);
@@ -90,9 +93,6 @@ private:
 	float m_AspectRatio;
 	float m_Near = 1.0f;
 	float m_Far = 10.0f;
-
-	// Uniform buffer object location
-	GLuint m_MatricesUbo;
 
 	void SetIsActiveCam(bool isActive)
 	{

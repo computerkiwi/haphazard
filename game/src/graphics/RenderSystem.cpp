@@ -56,27 +56,21 @@ void RenderSystem::UpdateCameras(float dt)
 	int numCameras = 0;
 	for (auto& camera : *cameras)
 	{
+		numCameras++;
+		if (!camera->IsActiveCam()) // Only update the active camera
+			continue;
+
 		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
 		if (!transform.IsValid())
 		{
 			continue;
 		}
-		numCameras++;
 		//Update Cameras
 
-		if (resizeCameras)
-		{
-			// Screen resized, update camera matrices
-			camera->SetAspectRatio(width / (float)height);
-		}
-
-		// If transform moved, update camera matrices
-		if (transform->GetPosition() != camera->GetPosition())
-			camera->SetPosition(transform->GetPosition());
-
-		if (transform->GetRotation() != camera->GetRotation())
-			camera->SetRotation(transform->GetRotation());
+		camera->SetAspectRatio(width / (float)height);
+		camera->SetPosition(transform->GetPosition());
+		camera->SetRotation(transform->GetRotation());
 	}
 	resizeCameras = false;
 
@@ -84,8 +78,15 @@ void RenderSystem::UpdateCameras(float dt)
 	{
 		Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "There are no cameras in the scene!");
 	}
-	else if(Camera::GetActiveCamera())
+	else if (Camera::GetActiveCamera())
+	{
 		Camera::GetActiveCamera()->Use();
+	}
+	else
+	{
+		Logging::Log(Logging::GRAPHICS, Logging::MEDIUM_PRIORITY, "No camera set for use, choosing active camera");
+		cameras->begin()->Use();
+	}
 }
 
 void RenderSystem::RenderSprites(float dt)

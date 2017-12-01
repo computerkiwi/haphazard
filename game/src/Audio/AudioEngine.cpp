@@ -58,13 +58,15 @@ namespace Audio
 	{
 		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
-		FMOD::Sound *sound = reinterpret_cast<FMOD::Sound *>(ResourceManager::GetManager().Get(fileName)->Data());
+		std::string file = fileName;
 
-		if (sound == nullptr)
+		if (ResourceManager::GetManager().Get(fileName) == nullptr)
 		{
-			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to play not loaded file", fileName);
-			return SoundHandle(nullptr);
+			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to unloaded audio file ", fileName);
+			file = "default.wav";
 		}
+
+		FMOD::Sound *sound = reinterpret_cast<FMOD::Sound *>(ResourceManager::GetManager().Get(file.c_str())->Data());
 
 		FMOD::Channel *channel;
 		fmodSystem->playSound(sound, nullptr, false, &channel);

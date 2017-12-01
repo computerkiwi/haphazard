@@ -6,25 +6,30 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 -- Variables
-moveSpeed   = 2 -- 10
-jumpSpeed   = 2 -- 25
-fallForce = 8
-moveDir     = 0
+moveSpeed   = 2
+jumpSpeed   = 4
+fallSpeed   = 2
+
+tossSpeed   = 5
+
 stackHeight = 0.5 -- Move to start function (set using gnome size)
 stackTimer  = 0   -- Timer until player can stack again
-lastPos     = nil -- Last position (for reviving); Vector type?
 stackParent = nil -- Player at the bottom of the stack for stacked update
+
+lastPos     = nil -- Last position (for reviving); Vector type?
+moveDir     = 0
 
 -- Bools
 jumpEnabled  = false
 moveEnabled  = true
 stackEnabled = false
+tossEnabled  = false
 onGround     = true
 
 -- Enums
 PLAYER_LAYER  =  4
 PLAYER_NUM    = -1 -- Set temporarily as invalid number
-STACK_TIME    = 1
+STACK_TIME    =  1
 
 -- Move directions
 MOVE_LEFT  = -1 -- Player moving left
@@ -36,6 +41,7 @@ DEADZONE = 0.5 -- Joystick dead zone
 -- Gamepad Buttons found under KeyMap.h
 JUMP   = 0 -- A
 ATTACK = 1 -- B
+TOSS   = 3 -- Y
 
 HORIZONTAL_AXIS = 0
 
@@ -47,6 +53,7 @@ function UpdateMovement(dt)
   local playerTransform = this:GetTransform()
 
   newVelocity = playerBody.velocity
+  acceleration = playerBody.acceleration
 
   -- Calculate x velocity
   newVelocity.x = moveDir * moveSpeed
@@ -58,6 +65,8 @@ function UpdateMovement(dt)
     jumpEnabled = false
     onGround = false
   end
+
+  -- TODO: using dt to calculate y velocity doesn't work :<
 
   -- Update player velocity
   playerBody.velocity = newVelocity
@@ -102,6 +111,12 @@ function StackedUpdate(dt)
 
   -- Update velocity
   this:GetRigidBody().velocity = playerVelocity
+end -- fn end
+
+function TossUpdate(dt)
+
+
+
 end -- fn end
 
 -- Updates each frame
@@ -172,7 +187,7 @@ function StackPlayers(other)
   local playerPos = playerTransform.position
   local otherPos = otherTransform.position
 
-  local snapDistance = 0.5 -- horizontal distance from other gnome
+  local snapDistance = 1 -- horizontal distance from other gnome
   local xDistance = playerPos.x -- x-axis distance between players
 
   -- How do I get the absolute value? Hmmmm
@@ -184,7 +199,7 @@ function StackPlayers(other)
   end
 
   -- TODO: Change to use raycast downwards to check for gnome collision
-  if ((playerPos.y > otherPos.y) and (xDistance < snapDistance))
+  if (playerPos.y > otherPos.y)
   then
     -- Players are stacked
     stackEnabled = true
@@ -214,6 +229,8 @@ function SetKeyboardControls(name)
     KEY_DOWN  = 83 -- S
     KEY_LEFT  = 65 -- A
     KEY_RIGHT = 68 -- D
+    KEY_TOSS  = 84 -- T
+
   else
     PLAYER_NUM = 1
 
@@ -222,6 +239,7 @@ function SetKeyboardControls(name)
 		KEY_DOWN  = 264 -- Down
 		KEY_LEFT  = 263 -- Left
 		KEY_RIGHT = 262 -- Right
+    KEY_TOSS  = 334 -- Numpad_Add
   end
 end -- fn end
 
@@ -247,6 +265,14 @@ function GetInputGamepad()
   else
     jumpEnabled = false
   end
+
+  -- Player tosses
+  if (GamepadIsPressed(PLAYER_NUM, TOSS))
+  then
+    tossEnabled = true
+  else
+    tossEnabled = false
+  end
 end -- fn end
 
 -- Keyboard input
@@ -270,5 +296,13 @@ function GetInputKeyboard()
     jumpEnabled = true
   else
     jumpEnabled = false
+  end
+
+  -- Player tosses (and is not stacked on other player)
+  if (IsPressed(KEY_TOSS) and stackEnabled == false)
+  then
+    tossEnabled = true
+  else
+    tossEnabled = false
   end
 end -- fn end
