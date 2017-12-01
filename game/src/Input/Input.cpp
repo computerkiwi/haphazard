@@ -35,6 +35,7 @@ namespace Input
   static glm::vec2 cursorPos;              // x, y cursor positions; top-left is origin
   static glm::vec2 prevCursorPos;          // x, y of cursor last frame
   static std::vector<Gamepad *> gamepads;  // TEMP: vector of gamepad objects
+  static glm::vec2 scrollOffset;           // x, y mouse wheel offset (x is 0 coz vertical)
 
   static InputData prevState(MAX_KEY_SIZE); // Holds previous key states
   static InputData currState(MAX_KEY_SIZE); // Holds current key states
@@ -59,6 +60,7 @@ namespace Input
     glfwSetCursorPosCallback(inputWindow, CursorCallback);         // Cursor position
     glfwSetMouseButtonCallback(inputWindow, MouseButtonCallback);  // Mouse buttons
     glfwSetJoystickCallback(GamepadCallback);                      // Gamepad connectivity
+    glfwSetScrollCallback(inputWindow, ScrollCallback);            // Mouse wheel
 
     // Allocate memory for gamepads
     for (int i = 0; i < MAX_PLAYERS; ++i)
@@ -305,6 +307,22 @@ namespace Input
       // Disable gamepad
       gamepads[joy]->DisableGamepad();
     }
+  }
+
+  // Detects mouse wheel
+  static void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset)
+  {
+    scrollOffset.x = xOffset;
+    scrollOffset.y = yOffset;
+  }
+
+  glm::vec2 GetScroll()
+  {
+    //std::cout << "X scroll: " << scrollOffset.x << std::endl;
+    //std::cout << "Y scroll: " << scrollOffset.y << std::endl;
+
+    // y is 1 (up) or -1 (down)
+    return scrollOffset;
   }
 
   // Helper function to delay update until input is read
