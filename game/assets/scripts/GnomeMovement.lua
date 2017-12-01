@@ -61,7 +61,7 @@ function UpdateMovement(dt)
   -- Calculate y valocity
   if (jumpEnabled == true and onGround == true)
   then
-    newVelocity.y = newVelocity.y + jumpSpeed
+    newVelocity.y = jumpSpeed
     jumpEnabled = false
     onGround = false
   end

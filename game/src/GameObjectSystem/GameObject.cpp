@@ -294,6 +294,11 @@ GameObject GameObject::LoadPrefab(const char * fileName)
 	return obj;
 }
 
+bool GameObject::HasTag(const char * tagName)
+{
+	return GetComponent<ObjectInfo>()->HasTag(tagName);
+}
+
 
 void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Value& jsonValue)
 {
