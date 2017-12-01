@@ -48,6 +48,7 @@ void BackgroundComponent::Render(glm::vec2 pos)
 	case BACKGROUND_TYPE::BACKGROUND:
 	case BACKGROUND_TYPE::FOREGROUND:
 		box = t;
+		Shaders::backgroundShader->SetVariable("Percent", glm::vec2(0,0));
 		break;
 	case BACKGROUND_TYPE::BACKGROUND_PARALLAX:
 	case BACKGROUND_TYPE::FOREGROUND_PARALLAX:
@@ -55,6 +56,8 @@ void BackgroundComponent::Render(glm::vec2 pos)
     glm::vec2 p = glm::vec2( (pos.x - m_ParallaxBounds.x) / (m_ParallaxBounds.z - m_ParallaxBounds.x),
                              (pos.y - m_ParallaxBounds.y) / (m_ParallaxBounds.w - m_ParallaxBounds.y) );
 
+
+	Shaders::backgroundShader->SetVariable("Percent", p);
 
 		if (m_ParallaxBounds.z == 0)
 			p.x = 1;
@@ -79,10 +82,18 @@ void BackgroundComponent::Render(glm::vec2 pos)
 
 	//Render
 	Shaders::backgroundShader->Use();
+	Shaders::backgroundShader->SetVariable("XRange", glm::vec2(m_SubTexturePosition.x, m_SubTexturePosition.x + m_SubTextureSize.x));
+	Shaders::backgroundShader->SetVariable("YRange", glm::vec2(m_SubTexturePosition.y, m_SubTexturePosition.y + m_SubTextureSize.y));
 	m_Mesh->Bind();
 	Texture::BindArray();
-	glUniform4f(m_UniTexBox, box.x, box.y, box.z, box.w);
-	glUniform1ui(m_UniTexLayer, m_Texture->GetLayer());
+
+	//glUniform4f(m_UniTexBox, box.x, box.y, box.z, box.w);
+	//glUniform4f(m_UniTexBox, t.x, t.y, t.z, t.w);
+	//glUniform1ui(m_UniTexLayer, m_Texture->GetLayer());
+	Shaders::backgroundShader->SetVariable("TexBox", m_Texture->GetBounds());
+	Shaders::backgroundShader->SetVariable("TexLayer", m_Texture->GetLayer());
+
+
 	m_Mesh->DrawTris();
 }
 
