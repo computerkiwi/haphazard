@@ -311,7 +311,7 @@
                                     "meta_object_data": {
                                         "timer": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.366668701171875
+                                            "meta_object_data": 0.399749755859375
                                         },
                                         "isTiling": {
                                             "meta_type_name": "bool",
@@ -336,7 +336,7 @@
                                         },
                                         "currentFrame": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 5
+                                            "meta_object_data": 0
                                         },
                                         "id": {
                                             "meta_type_name": "unsigned long long",
@@ -718,7 +718,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.303497314453125
+                                            "meta_object_data": -0.3006134033203125
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -1281,7 +1281,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.303497314453125
+                                            "meta_object_data": -0.3006134033203125
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -1660,18 +1660,18 @@
                             "meta_object_data": {
                                 "zoom": {
                                     "meta_type_name": "float",
-                                    "meta_object_data": 18.264333724975587
+                                    "meta_object_data": 18.26923942565918
                                 },
                                 "position": {
                                     "meta_type_name": "vec2",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 8.875182151794434
+                                            "meta_object_data": 8.912378311157227
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.09564314037561417
+                                            "meta_object_data": 0.1045023575425148
                                         }
                                     }
                                 },
@@ -1714,11 +1714,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 8.875179290771485
+                                            "meta_object_data": 8.877753257751465
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.09564025700092316
+                                            "meta_object_data": 0.0962556004524231
                                         }
                                     }
                                 },
@@ -4395,7 +4395,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.303497314453125
+                                            "meta_object_data": -0.3006134033203125
                                         },
                                         "z": {
                                             "meta_type_name": "float",
