@@ -27,10 +27,10 @@ Note to future self: Possible future optimizations
 
 enum EmissionShape : int
 {
-	POINT		  = 0,
-	CIRCLE_VOLUME = 1,
-	CIRLCE_EDGE	  = 2,
-	SQUARE_VOLUME = 3
+	SHAPE_POINT		     = 0,
+	SHAPE_CIRCLE_VOLUME  = 1,
+	SHAPE_CIRLCE_EDGE	 = 2,
+	SHAPE_SQUARE_VOLUME  = 3
 };
 
 enum SimulationSpace
@@ -46,7 +46,7 @@ struct ParticleSettings
 	float			emissionRate = 1;				 // Time (in seconds) between each particle spawning
 	int				particlesPerEmission = 1;		 // Particles emitted per emission
 	glm::vec3		burstEmission = {0.0f,0,0};		 // Burst settings: particles min, particles max, reoccurance rate in seconds
-	EmissionShape	emissionShape = POINT;			 // Shape particles are emitted in
+	EmissionShape	emissionShape = SHAPE_POINT;			 // Shape particles are emitted in
 	glm::vec2		emissionShapeScale = {1,1};		 // Scale of emission shape around center point of emission
 	SimulationSpace particleSpace = WORLD;			 // Particle simulation space
 	// Lifetimes									 

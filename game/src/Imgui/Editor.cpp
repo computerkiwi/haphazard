@@ -26,8 +26,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem/GameObject.h"
 
 // Components
+#include "GameObjectSystem/ObjectInfo.h"
 #include "Engine/Physics/RigidBody.h"
 #include "graphics/SpriteComponent.h"
+#include "graphics/Particles.h"
+#include "Engine/Physics/Collider2D.h"
+#include "Scripting/ScriptComponent.h"
+#include "graphics/Camera.h"
+#include "graphics/Background.h"
 #include "Engine/Physics/Raycast.h"
 
 // Key and Mouse Input
@@ -82,6 +88,32 @@ void Action_General(EditorAction& a)
 		obj.SetPointerMember(a.name, a.save.GetData<T>());
 	}
 }
+
+
+void Action_AddComponent_DynamicCollider(EditorAction& a)
+{
+	ComponentHandle<DynamicCollider2DComponent> handle(a.handle);
+
+	if (a.redo)
+	{
+		handle.GetGameObject().AddComponent<DynamicCollider2DComponent>();
+
+		if (a.save.GetData<bool>())
+		{
+			handle.GetGameObject().AddComponent<RigidBodyComponent>();
+		}
+	}
+	else
+	{
+		handle.GetGameObject().DeleteComponent<DynamicCollider2DComponent>();
+
+		if (a.save.GetData<bool>())
+		{
+			handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
+		}
+	}
+}
+
 
 
 // AABB Rectangle check for mouse
@@ -152,7 +184,7 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 	// Exit the game, probably should be editor?
 	RegisterCommand("exit", [this]() { m_engine->Exit(); });
 
-	RegisterCommand("reload", [this]() { m_engine->Exit(); });
+	RegisterCommand("reload", [this]() {  });
 
 	// Display past commands
 	RegisterCommand("history",
@@ -173,7 +205,10 @@ Editor::Editor(Engine *engine, GLFWwindow *window) : m_engine(engine), m_objects
 		Editor::Internal_Log("    Current Objects: \n");
 		for (auto& object : m_objects)
 		{
-			Editor::Internal_Log("     - %d : %s \n", object, GameObject(object).GetComponent<ObjectInfo>().Get()->m_name.c_str());
+			if (GameObject(object).IsValid())
+			{
+				Editor::Internal_Log("     - %d : %s \n", object, GameObject(object).GetComponent<ObjectInfo>().Get()->m_name.c_str());
+			}
 		}
 	});
 
@@ -201,6 +236,9 @@ Editor::~Editor()
 {
 	// Close ImGui
 	ImGui_ImplGlfwGL3_Shutdown();
+
+	// Clean up the editor's camera
+	delete m_editor_cam;
 }
 
 
@@ -222,10 +260,14 @@ void Editor::Update(float dt)
 		{
 			prev_camera = Camera::GetActiveCamera();
 			
+			// Check if the Editor camera needs init'd
 			if (m_editor_cam == nullptr)
 			{
+				// Allocate here so the shaders are init'd
 				m_editor_cam = new Camera();
 			}
+
+			// Setup the Editor Camera
 			m_editor_cam->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			m_editor_cam->SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 			m_editor_cam->SetPosition(prev_camera->GetPosition());
@@ -323,6 +365,12 @@ void Editor::Update(float dt)
 
 			prev_camera->Use();
 			prev_camera = nullptr;
+
+			if (m_editorState.reload)
+			{
+				m_editorState.reload = false;
+				m_editorState.show = true;
+			}
 		}
 	}
 }
@@ -526,21 +574,21 @@ void Editor::KeyBindings(float dt)
 	{
 		if (m_actions.history.size())
 		{
-			m_save = true;
+			m_editorState.fileSave = true;
 		}
 	}
 
 	// Save As
 	if (Input::IsHeldDown(Key::LeftShift) && Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
 	{
-		m_save = true;
+		m_editorState.fileSave = true;
 		m_editorState.fileNewFile = true;
 	}
 
 	// Open Level
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
 	{
-		OpenLevel();
+		m_editorState.fileLoad = true;
 	}
 
 
@@ -597,6 +645,27 @@ void Editor::KeyBindings(float dt)
 		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * 2));
 	}
 
+	if (Input::IsHeldDown(Key::MouseButton_Right) && !ImGui::GetIO().WantCaptureMouse)
+	{
+		glm::vec2 mouse = Input::GetMousePos_World();
+
+		if (!m_editorState.MouseCameraDragClick)
+		{
+			m_editorState.MouseCameraDragClick = true;
+			m_prevMouse = mouse;
+		}
+
+		glm::vec2 diff = mouse - m_prevMouse;
+
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - (diff * dt) * m_editorSettings.cameraSpeed);
+
+		m_prevMouse = mouse;
+	}
+
+	if (Input::IsReleased(Key::MouseButton_Right))
+	{
+		m_editorState.MouseCameraDragClick = false;
+	}
 }
 
 
@@ -1682,19 +1751,19 @@ void Editor::MenuBar()
 			// Save the current game
 			if (ImGui::MenuItem("Save"))
 			{
-				m_save = true;
+				m_editorState.fileSave = true;
 			}
 
 			if (ImGui::MenuItem("Save As..."))
 			{
 				m_editorState.fileOpened = false;
-				m_save = true;
+				m_editorState.fileSave = true;
 			}
 
 			// Load an file
 			if (ImGui::MenuItem("Load"))
 			{
-				m_load = true;
+				m_editorState.fileLoad = true;
 			}
 
 			// Separator to show a different item group
@@ -1749,8 +1818,182 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("GameObject##menuBar"))
+		{
+			if (ImGui::MenuItem("Save PreFab##menuBar"))
+			{
+				if (m_selected_object.IsValid())
+				{
+					SavePrefab(m_selected_object);
+				}
+			}
+
+			if (ImGui::MenuItem("Load PreFab##menuBar"))
+			{
+				LoadPreFab();
+			}
+
+			// Add Component Buttons
+			if (ImGui::BeginMenu("Components"))
+			{
+				// Everything has a transform
+				// Everything is going to have a data component
+
+				if (ImGui::MenuItem("RigidBody"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<RigidBodyComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<RigidBodyComponent>();
+							Push_AddComponent_Editor(RigidBodyComponent);
+						}
+					}
+				}
+				if (ImGui::MenuItem("Dynamic Collider"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<DynamicCollider2DComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							if (m_selected_object.GetComponent<StaticCollider2DComponent>().IsValid())
+							{
+								AddPopUp(PopUpWindow(ErrorList[HasStaticCollider], 2.0f, PopUpPosition::Mouse));
+							}
+							else
+							{
+								bool added_rigidbody = false;
+
+								m_selected_object.AddComponent<DynamicCollider2DComponent>();
+								if (!m_selected_object.GetComponent<RigidBodyComponent>().IsValid())
+								{
+									added_rigidbody = true;
+									m_selected_object.AddComponent<RigidBodyComponent>();
+									AddPopUp(PopUpWindow("Added a RigidBody Component.", 1.5f, PopUpPosition::Mouse));
+								}
+
+								Push_Action({ 0, added_rigidbody, nullptr,{ m_selected_object.Getid(), true }, Action_AddComponent_DynamicCollider });
+							}
+						}
+					}
+				}
+				if (ImGui::MenuItem("Static Collider"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<StaticCollider2DComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							if (m_selected_object.GetComponent<DynamicCollider2DComponent>().IsValid() || m_selected_object.GetComponent<RigidBodyComponent>().IsValid())
+							{
+								AddPopUp(PopUpWindow(ErrorList[HasRigidBodyDynamicCollider], 2.0f, PopUpPosition::Mouse));
+							}
+							else
+							{
+								m_selected_object.AddComponent<StaticCollider2DComponent>(glm::vec3(1, 1, 0), collisionLayers::allCollision, Collider2D::colliderType::colliderBox);
+								Push_AddComponent_Editor(StaticCollider2DComponent);
+							}
+						}
+					}
+				}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Script"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<ScriptComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<ScriptComponent>();
+							Push_AddComponent_Editor(ScriptComponent);
+						}
+					}
+				}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Sprite"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<SpriteComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<SpriteComponent>();
+							Push_AddComponent_Editor(SpriteComponent);
+						}
+					}
+				}
+
+				if (ImGui::MenuItem("Particle System"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<ParticleSystem>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<ParticleSystem>();
+							Push_AddComponent_Editor(ParticleSystem);
+						}
+					}
+				}
+				if (ImGui::MenuItem("Camera"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<Camera>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<Camera>();
+							Push_AddComponent_Editor(Camera);
+						}
+					}
+				}
+				if (ImGui::MenuItem("Background"))
+				{
+					if (m_selected_object.IsValid())
+					{
+						if (m_selected_object.GetComponent<BackgroundComponent>().IsValid())
+						{
+							HAS_COMPONENT_Editor;
+						}
+						else
+						{
+							m_selected_object.AddComponent<BackgroundComponent>();
+							Push_AddComponent_Editor(BackgroundComponent);
+						}
+					}
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
+
 		// Push next menu
-		if (ImGui::BeginMenu("Windows"))
+		if (ImGui::BeginMenu("Windows##menuBar"))
 		{
 			// Button Toggle for the Settings Panel
 			if (ImGui::MenuItem("Settings", nullptr, m_editorState.settings))
@@ -1790,7 +2033,7 @@ void Editor::MenuBar()
 void Editor::SaveLoad()
 {
 	// Check if we need to save
-	if (m_save)
+	if (m_editorState.fileSave)
 	{
 		if (m_editorState.fileOpened)
 		{
@@ -1805,18 +2048,21 @@ void Editor::SaveLoad()
 		}
 
 		m_editorState.fileDirty = false;
-		m_save = false;
+		m_editorState.fileSave = false;
 	}
 
 	// Check if we need to load
-	if (m_load)
+	if (m_editorState.fileLoad)
 	{
 		logger << "[EDITOR] Opening Level Dialog\n";
 		OpenLevel();
-		m_load = false;
+		
+		m_editorState.fileLoad = false;
+		
 		m_editorState.fileNewFile = true;
 		m_editorState.fileOpened = true;
-		m_editorState.exiting = true;
+
+		Reload();
 	}
 }
 
@@ -1909,6 +2155,8 @@ void Editor::OpenLevel()
 		// Pass the filename to the engine
 		logger << "[EDITOR] Loading File: " << filename << "\n";
 		m_engine->FileLoad(filename);
+
+		m_filename = filename;
 	}
 	else
 	{
@@ -2103,14 +2351,14 @@ void Editor::SettingsPanel(float dt)
 	// Save the current data
 	if (Button("Save##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
-		m_save = true;
+		m_editorState.fileSave = true;
 	}
 	SameLine();
 
 	// Load a file
 	if (Button("Load##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
-		m_load = true;
+		m_editorState.fileLoad = true;
 	}
 
 	// Allow users to change Save Interval	
@@ -2135,6 +2383,9 @@ void Editor::SettingsPanel(float dt)
 
 	}
 
+	ImGui::PushItemWidth(110);
+	ImGui::DragFloat("Camera Speed", &m_editorSettings.cameraSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
+	ImGui::PopItemWidth();
 
 	ImGui::Separator();
 
