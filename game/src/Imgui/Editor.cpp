@@ -755,6 +755,12 @@ void Editor::QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& 
 	}
 }
 
+// Overload creates at camera position.
+void Editor::QuickCreateGameObject(const char *name)
+{
+	QuickCreateGameObject(name, m_editor_cam->GetCenter());
+}
+
 
 void Editor::SetGameObject(GameObject new_object)
 {
@@ -1396,7 +1402,7 @@ void Editor::ObjectsList()
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
 
 			// Add a transform component
-			object.AddComponent<TransformComponent>();
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetCenter(), 0));
 
 			m_selected_object = object.Getid();
 
@@ -1410,7 +1416,7 @@ void Editor::ObjectsList()
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
 
 			// Add a transform component
-			object.AddComponent<TransformComponent>();
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetCenter(), 0));
 
 			m_selected_object = object.Getid();
 

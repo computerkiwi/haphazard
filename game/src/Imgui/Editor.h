@@ -371,7 +371,8 @@ private:
 	friend int Editor::Console::Input_Callback(ImGuiTextEditCallbackData *data);
 
 	// Creates a GameObject in the Selected GameObject's space
-	void QuickCreateGameObject(const char *name, glm::vec2& pos = glm::vec2(0, 0), glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name, glm::vec2& pos, glm::vec2& size = glm::vec2(1, 1));
+	void QuickCreateGameObject(const char *name);
 	
 	// ObjectsList Panel
 	void ObjectsList();
