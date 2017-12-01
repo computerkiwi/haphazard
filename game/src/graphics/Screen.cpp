@@ -112,6 +112,9 @@ void Screen::ResizeScreen(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
+	if (!m_View)
+		return;
+
 	m_View->SetDimensions(width, height);
 
 	FrameBuffer::ResizePrivateFrameBuffers(width, height);
