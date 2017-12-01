@@ -142,6 +142,8 @@ public:
 	void SaveToFile(const char *fileName);
 	static GameObject LoadPrefab(const char * fileName);
 
+	bool HasTag(const char *tagName);
+
 private:
 	union
 	{
@@ -211,6 +213,8 @@ private:
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
+
+		META_DefineFunction(GameObject, HasTag, "HasTag");
 
 		// Takes 1 parameter: string fileName
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addCFunction("GetScript", &GetScript);
