@@ -46,6 +46,15 @@ void ComponentMap<T>::Duplicate(GameObject_ID originalObject, GameObject_ID newO
 	}
 }
 
+template <typename T>
+void ComponentMap<T>::CreateFrom(GameObject sourceObject)
+{
+	if (sourceObject.GetComponent<T>().IsValid())
+	{
+		m_components.emplace(sourceObject, *sourceObject.GetComponent<T>());
+	}
+}
+
 
 template <typename T>
 void ComponentMap<T>::Delete(GameObject_ID object)

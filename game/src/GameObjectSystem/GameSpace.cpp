@@ -138,6 +138,15 @@ void GameSpace::Update(float dt)
 	}
 }
 
+void GameSpace::CreateFrom(GameObject object)
+{
+	for (auto& map : m_componentMaps)
+	{
+		map.second->CreateFrom(object);
+	}
+}
+
+
 GameObject GameSpace::Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
 {
 	for (auto& c_map : m_componentMaps)

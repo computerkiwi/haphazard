@@ -107,12 +107,12 @@ public:
 
 
 	// Turns on the GameObject
-	void Activate() const;
-	void On() const;
+	void Activate();
+	void On();
 
 	// Turns off the GameObject
-	void Deactivate() const;
-	void Off() const;
+	void Deactivate();
+	void Off();
 
 	// Destroys the Object
 	void SetDestroy(bool state) const;

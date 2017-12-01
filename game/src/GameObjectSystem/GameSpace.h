@@ -95,7 +95,7 @@ public:
 	}
 
 	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) = 0;
-
+	virtual void CreateFrom(GameObject sourceObject) = 0;
 	virtual void Delete(GameObject_ID object) = 0;
 
 	// This is a pointer, not a handle. It probably won't be valid very long.
@@ -127,6 +127,8 @@ public:
 	T *get(GameObject_ID id);
 
 	void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
+
+	void CreateFrom(GameObject sourceObject) override;
 
 	void Delete(GameObject_ID object) override;
 
@@ -244,6 +246,8 @@ public:
 	template <typename T>
 	void DeleteComponent(GameObject_ID id);
 
+	void CreateFrom(GameObject object);
+
 	GameObject GetGameObject(GameObject_ID id) const;
 
 	GameObject NewGameObject(const char *name) const;
@@ -334,6 +338,8 @@ class GameSpaceManagerID
 {
 	std::vector<GameSpace> m_spaces;
 
+	GameSpace m_inactive;
+
 public:
 	size_t GetSize() const
 	{
@@ -343,6 +349,22 @@ public:
 	inline std::vector<GameSpace>& GetSpaces()
 	{
 		return m_spaces;
+	}
+
+	GameSpace& GetInActive()
+	{
+		return m_inactive;
+	}
+
+	void CreateTo(GameSpaceIndex destination, GameObject source)
+	{
+		m_spaces[destination].CreateFrom(source);
+	}
+
+
+	void EraseFrom(GameSpaceIndex space, GameObject source)
+	{
+		m_spaces[space].Delete(source);
 	}
 
 	// Returns index of the new space.

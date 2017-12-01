@@ -113,15 +113,19 @@ bool GameObject::IsActive() const
 }
 
 
-void GameObject::Activate() const
+void GameObject::Activate()
 {
+	engine->GetSpaceManager()->CreateTo(GetIndex(), m_objID);
+	engine->GetSpaceManager()->GetInActive().Delete(m_objID);
 	GetComponent<ObjectInfo>()->m_active = true;
 }
 
 
-void GameObject::Deactivate() const
+void GameObject::Deactivate()
 {
 	GetComponent<ObjectInfo>()->m_active = false;
+	engine->GetSpaceManager()->GetInActive().CreateFrom(m_objID);
+	Delete();
 }
 
 
