@@ -236,6 +236,9 @@ Editor::~Editor()
 {
 	// Close ImGui
 	ImGui_ImplGlfwGL3_Shutdown();
+
+	// Clean up the editor's camera
+	delete m_editor_cam;
 }
 
 
@@ -257,10 +260,14 @@ void Editor::Update(float dt)
 		{
 			prev_camera = Camera::GetActiveCamera();
 			
+			// Check if the Editor camera needs init'd
 			if (m_editor_cam == nullptr)
 			{
+				// Allocate here so the shaders are init'd
 				m_editor_cam = new Camera();
 			}
+
+			// Setup the Editor Camera
 			m_editor_cam->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			m_editor_cam->SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 			m_editor_cam->SetPosition(prev_camera->GetPosition());
@@ -358,6 +365,12 @@ void Editor::Update(float dt)
 
 			prev_camera->Use();
 			prev_camera = nullptr;
+
+			if (m_editorState.reload)
+			{
+				m_editorState.reload = false;
+				m_editorState.show = true;
+			}
 		}
 	}
 }
@@ -561,21 +574,21 @@ void Editor::KeyBindings(float dt)
 	{
 		if (m_actions.history.size())
 		{
-			m_save = true;
+			m_editorState.fileSave = true;
 		}
 	}
 
 	// Save As
 	if (Input::IsHeldDown(Key::LeftShift) && Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::S))
 	{
-		m_save = true;
+		m_editorState.fileSave = true;
 		m_editorState.fileNewFile = true;
 	}
 
 	// Open Level
 	if (Input::IsHeldDown(Key::LeftControl) && Input::IsPressed(Key::O))
 	{
-		OpenLevel();
+		m_editorState.fileLoad = true;
 	}
 
 
@@ -632,6 +645,27 @@ void Editor::KeyBindings(float dt)
 		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * 2));
 	}
 
+	if (Input::IsHeldDown(Key::MouseButton_Right) && !ImGui::GetIO().WantCaptureMouse)
+	{
+		glm::vec2 mouse = Input::GetMousePos_World();
+
+		if (!m_editorState.MouseCameraDragClick)
+		{
+			m_editorState.MouseCameraDragClick = true;
+			m_prevMouse = mouse;
+		}
+
+		glm::vec2 diff = mouse - m_prevMouse;
+
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - (diff * dt) * m_editorSettings.cameraSpeed);
+
+		m_prevMouse = mouse;
+	}
+
+	if (Input::IsReleased(Key::MouseButton_Right))
+	{
+		m_editorState.MouseCameraDragClick = false;
+	}
 }
 
 
@@ -1717,19 +1751,19 @@ void Editor::MenuBar()
 			// Save the current game
 			if (ImGui::MenuItem("Save"))
 			{
-				m_save = true;
+				m_editorState.fileSave = true;
 			}
 
 			if (ImGui::MenuItem("Save As..."))
 			{
 				m_editorState.fileOpened = false;
-				m_save = true;
+				m_editorState.fileSave = true;
 			}
 
 			// Load an file
 			if (ImGui::MenuItem("Load"))
 			{
-				m_load = true;
+				m_editorState.fileLoad = true;
 			}
 
 			// Separator to show a different item group
@@ -1999,7 +2033,7 @@ void Editor::MenuBar()
 void Editor::SaveLoad()
 {
 	// Check if we need to save
-	if (m_save)
+	if (m_editorState.fileSave)
 	{
 		if (m_editorState.fileOpened)
 		{
@@ -2014,17 +2048,21 @@ void Editor::SaveLoad()
 		}
 
 		m_editorState.fileDirty = false;
-		m_save = false;
+		m_editorState.fileSave = false;
 	}
 
 	// Check if we need to load
-	if (m_load)
+	if (m_editorState.fileLoad)
 	{
 		logger << "[EDITOR] Opening Level Dialog\n";
 		OpenLevel();
-		m_load = false;
+		
+		m_editorState.fileLoad = false;
+		
 		m_editorState.fileNewFile = true;
 		m_editorState.fileOpened = true;
+
+		Reload();
 	}
 }
 
@@ -2313,14 +2351,14 @@ void Editor::SettingsPanel(float dt)
 	// Save the current data
 	if (Button("Save##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
-		m_save = true;
+		m_editorState.fileSave = true;
 	}
 	SameLine();
 
 	// Load a file
 	if (Button("Load##editor_settings" SETTINGS_BUTTON_SIZE))
 	{
-		m_load = true;
+		m_editorState.fileLoad = true;
 	}
 
 	// Allow users to change Save Interval	
@@ -2345,6 +2383,9 @@ void Editor::SettingsPanel(float dt)
 
 	}
 
+	ImGui::PushItemWidth(110);
+	ImGui::DragFloat("Camera Speed", &m_editorSettings.cameraSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
+	ImGui::PopItemWidth();
 
 	ImGui::Separator();
 

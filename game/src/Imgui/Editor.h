@@ -126,6 +126,7 @@ class Editor
 		bool first_update = true;
 		bool show = false;
 		bool exiting = false;
+		bool reload = false;
 
 		bool freeze = true;
 
@@ -138,6 +139,8 @@ class Editor
 		friend class Editor;
 
 		// File IO State
+		bool fileSave = false;
+		bool fileLoad = false;
 		bool fileOpened = false;	 // If the file was opened
 		bool fileNewFile = true;	 // Is this a new file
 		bool fileDirty = false;      // File needs to be saved
@@ -147,6 +150,8 @@ class Editor
 
 		bool imguiWantMouse = false; // Mouse Over imgui
 		bool MouseDragClick = false; // Mouse Click
+
+		bool MouseCameraDragClick   = false; // User is moving camera via mouse
 	} m_editorState;
 
 
@@ -173,13 +178,13 @@ class Editor
 	{
 		bool default_collider_match_scale = true;
 
+		float cameraSpeed = 50.0f;
+
 	} m_editorSettings;
 
 
 	// Save/Load
 	// --------------
-	bool m_save = false;
-	bool m_load = false;
 	std::string m_filename = "NoFile.json";
 
 
@@ -445,4 +450,7 @@ public:
 
 	// Returns the EditorState for use externally
 	EditorState& GetEditorState() { return m_editorState; }
+
+	void Reload() { m_editorState.reload = true; m_editorState.exiting = true; }
+
 };
