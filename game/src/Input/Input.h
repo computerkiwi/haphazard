@@ -52,6 +52,7 @@ namespace Input
   	glm::vec2 GetPrevMousePos();
   	glm::vec2 GetPrevMousePos_World();
     glm::vec2 ScreenToWorld(glm::vec2 cursor);
+    glm::vec2 GetScroll();
 
     ////////// Callback Functions //////////
     // GLFW doesn't know what an object is, needs static
@@ -60,4 +61,5 @@ namespace Input
     static void CursorCallback(GLFWwindow * window, double xpos, double ypos);
     static void MouseButtonCallback(GLFWwindow * window, int button, int action, int mod);
     static void GamepadCallback(int joy, int event);
+    static void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset);
 };
