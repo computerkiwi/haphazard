@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Variables
 moveSpeed   = 2
-jumpSpeed   = 2
+jumpSpeed   = 4
 fallSpeed   = 2
 
 tossSpeed   = 5
@@ -187,7 +187,7 @@ function StackPlayers(other)
   local playerPos = playerTransform.position
   local otherPos = otherTransform.position
 
-  local snapDistance = 0.5 -- horizontal distance from other gnome
+  local snapDistance = 1 -- horizontal distance from other gnome
   local xDistance = playerPos.x -- x-axis distance between players
 
   -- How do I get the absolute value? Hmmmm
@@ -199,7 +199,7 @@ function StackPlayers(other)
   end
 
   -- TODO: Change to use raycast downwards to check for gnome collision
-  if ((playerPos.y > otherPos.y) and (xDistance < snapDistance))
+  if (playerPos.y > otherPos.y)
   then
     -- Players are stacked
     stackEnabled = true
