@@ -96,8 +96,14 @@ void ResourceManager::Init()
 		std::string directoryPathString = std::string(ASSETS_FOLDER) + "/" + Resource::GetFolderName(resType) + "/";
 
 		// Get all the files from it.
-		for (auto iter : filesystem::directory_iterator(directoryPathString.c_str()))
+		for (auto iter : filesystem::recursive_directory_iterator(directoryPathString.c_str()))
 		{
+			// Skip directories.
+			if (iter.status().type() == filesystem::file_type::directory || iter.status().type() == filesystem::file_type::symlink)
+			{
+				continue;
+			}
+
 			// Extract info about the file.
 			std::string fileName;
 			fileName = iter.path().filename().string();
