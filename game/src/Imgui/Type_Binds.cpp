@@ -89,6 +89,23 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 }
 
 
+template <typename T>
+void Action_General_Particle(EditorAction& a)
+{
+	ComponentHandle<ParticleSystem> handle(a.handle);
+	meta::Any obj(handle->GetSettings());
+
+	if (a.redo)
+	{
+		obj.SetPointerMember(a.name, a.current.GetData<T>());
+	}
+	else
+	{
+		obj.SetPointerMember(a.name, a.save.GetData<T>());
+	}
+}
+
+
 void Action_General_Tags(EditorAction& a)
 {
 	ComponentHandle<ObjectInfo> handle(a.handle);
@@ -375,6 +392,15 @@ void Action_AddComponent_DynamicCollider(EditorAction& a);
 		widget_click[#SAVE] = false;																				 \
 	}
 
+// Mouse_1 (Drag_Key, defined at top) is released
+// Pushes the action into the editor
+#define DragRelease_Func(COMPONENT, SAVE, ITEM, META_NAME, FUNC)																 \
+	if (Input::IsReleased(Drag_Key) && widget_click[#SAVE] == true)													 \
+	{																												 \
+		editor->Push_Action({ SAVE, ITEM,  META_NAME, handle, FUNC });			 \
+		widget_click[#SAVE] = false;																				 \
+	}
+
 // Transform Component Save Location
 TransformComponent transformSave;
 
@@ -391,6 +417,7 @@ struct SpriteSave
 	float  AT_fps = 0;
 	float  AT_timer  = 0;
 	glm::vec4 m_Color = glm::vec4(1, 1, 1, 1);
+	glm::vec2 m_TileAmount;
 } spriteSave;
 
 // Particles Save Location
@@ -671,11 +698,14 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
-			object.Destroy();
-			editor->Push_Action({ object, object, nullptr, EditorComponentHandle(), Action_General_GameObjectDelete });
-			editor->SetGameObject(0);
+			object.DeleteInternal();
 			End();
 			return;
+		}
+
+		if (Checkbox("Active##object_active", &object.GetComponent<ObjectInfo>()->m_active))
+		{
+			editor->Push_Action({ !object.GetComponent<ObjectInfo>()->m_active, object.GetComponent<ObjectInfo>()->m_active, "active", { object, true }, Action_General<ObjectInfo, bool> });
 		}
 
 		SameLine();
@@ -1520,7 +1550,6 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		SameLine();
 		if (Button("Colors##sprite_color"))
 		{
-
 			if (!widget_click["Colors##sprite_color"])
 			{
 				spriteSave.m_Color = sprite->m_Color;
@@ -1549,6 +1578,16 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			widget_click["Colors##sprite_color"] = false;
 		}
 
+
+		Checkbox("Tiled", &sprite->m_TextureHandler.m_IsTiling);
+
+		if (TreeNode("Titled Amount##sprite_titled"))
+		{
+			DragFloat("X##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.x, SLIDER_STEP, 0, FLT_MAX);
+			DragFloat("Y##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.y, SLIDER_STEP, 0, FLT_MAX);
+
+			TreePop();
+		}
 
 		if (texture.m_IsAnimated)
 		{
@@ -1629,10 +1668,10 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		Checkbox("Looping", &settings.isLooping);
 		
 		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, 0.005f, FLT_MAX);
-		DragRelease(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate");
+		DragRelease_Func(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate", Action_General_Particle<decltype(settings.emissionRate)>);
 
 		Drag_Int_Speed_MinMax("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.05f, 1, INT_MAX);
-		DragRelease(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission");
+		DragRelease_Func(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission", Action_General_Particle<decltype(settings.particlesPerEmission)>);
 
 
 		if (TreeNode("Burst##particles"))
@@ -1642,7 +1681,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, FLT_MAX);
 			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, FLT_MAX);
 
-			DragRelease(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission");
+			DragRelease_Func(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission", Action_General_Particle<decltype(settings.burstEmission)>);
 			Separator();
 			TreePop();
 		}
@@ -1658,7 +1697,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Drag_Vec("X##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.x, settings.emissionShapeScale);
 			Drag_Vec("Y##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.y, settings.emissionShapeScale);
 
-			DragRelease(ParticleSettings, particleSave.emissionShapeScale, settings.emissionShapeScale, "EmissionShapeScale");
+			DragRelease_Func(ParticleSettings, particleSave.emissionShapeScale, settings.emissionShapeScale, "EmissionShapeScale", Action_General_Particle<decltype(settings.emissionShapeScale)>);
 
 			TreePop();
 		}
@@ -1668,13 +1707,13 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		Combo("Simulation Space##particles", reinterpret_cast<int *>(&settings.particleSpace), SimulationSpace_Names, _countof(SimulationSpace_Names));
 
 		Drag("Emitter Lifetime##particles", particleSave.emitterLifetime, settings.emitterLifetime);
-		DragRelease(ParticleSettings, particleSave.emitterLifetime, settings.emitterLifetime, "EmitterLifetime");
+		DragRelease_Func(ParticleSettings, particleSave.emitterLifetime, settings.emitterLifetime, "EmitterLifetime", Action_General_Particle<decltype(settings.emitterLifetime)>);
 
 		Drag("Lifetime##particles", particleSave.particleLifetime, settings.particleLifetime);
-		DragRelease(ParticleSettings, particleSave.particleLifetime, settings.particleLifetime, "EmitterLifetime");
+		DragRelease_Func(ParticleSettings, particleSave.particleLifetime, settings.particleLifetime, "EmitterLifetime", Action_General_Particle<decltype(settings.particleLifetime)>);
 
 		Drag("Lifetime Variance##particles", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance);
-		DragRelease(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance");
+		DragRelease_Func(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance", Action_General_Particle<decltype(settings.particleLifetimeVariance)>);
 
 		Separator();
 
@@ -1683,14 +1722,14 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Drag_Vec("X##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.x, settings.startingVelocity);
 			Drag_Vec("Y##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.y, settings.startingVelocity);
 
-			DragRelease(ParticleSettings, particleSave.startingVelocity, settings.startingVelocity, "StartingVelocity");
+			DragRelease_Func(ParticleSettings, particleSave.startingVelocity, settings.startingVelocity, "StartingVelocity", Action_General_Particle<decltype(settings.startingVelocity)>);
 
 			if (TreeNode("Variance##particles"))
 			{
 				Drag_Vec("X##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.x, settings.startingVelocityVariance);
 				Drag_Vec("Y##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.y, settings.startingVelocityVariance);
 
-				DragRelease(ParticleSettings, particleSave.startingVelocityVariance, settings.startingVelocityVariance, "StartingVelocityVariance");
+				DragRelease_Func(ParticleSettings, particleSave.startingVelocityVariance, settings.startingVelocityVariance, "StartingVelocityVariance", Action_General_Particle<decltype(settings.startingVelocityVariance)>);
 
 				TreePop();
 			}
@@ -1703,7 +1742,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Drag_Vec("X##particles_acceleration", particleSave.acceleration, settings.acceleration.x, settings.acceleration);
 			Drag_Vec("Y##particles_acceleration", particleSave.acceleration, settings.acceleration.y, settings.acceleration);
 
-			DragRelease(ParticleSettings, particleSave.acceleration, settings.acceleration, "Acceleration");
+			DragRelease_Func(ParticleSettings, particleSave.acceleration, settings.acceleration, "Acceleration", Action_General_Particle<decltype(settings.acceleration)>);
 
 			Separator();
 			TreePop();
@@ -1719,7 +1758,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Drag_Vec("X##particles_scale_end", particleSave.scaleOverTime, settings.scaleOverTime.z, particleSave.scaleOverTime);
 			Drag_Vec("Y##particles_scale_end", particleSave.scaleOverTime, settings.scaleOverTime.w, particleSave.scaleOverTime);
 
-			DragRelease(ParticleSettings, particleSave.scaleOverTime, settings.scaleOverTime, "ScaleOverTime");
+			DragRelease_Func(ParticleSettings, particleSave.scaleOverTime, settings.scaleOverTime, "ScaleOverTime", Action_General_Particle<decltype(settings.scaleOverTime)>);
 
 			Separator();
 			TreePop();
@@ -1728,14 +1767,14 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		if (TreeNode("Rotation##rotation_particles"))
 		{
 			Drag("Start##particles_rotation", particleSave.startRotation, settings.startRotation);
-			DragRelease(ParticleSystem, particleSave.startRotation, settings.startRotation, "StartRotation");
+			DragRelease_Func(ParticleSystem, particleSave.startRotation, settings.startRotation, "StartRotation", Action_General_Particle<decltype(settings.scaleOverTime)>);
 
 
 			Drag("Variance##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation);
-			DragRelease(ParticleSystem, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation");
+			DragRelease_Func(ParticleSystem, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation", Action_General_Particle<decltype(settings.startRotationVariation)>);
 			
 			Drag("Rate##particles_rot_rate", particleSave.rotationRate, settings.rotationRate);
-			DragRelease(ParticleSystem, particleSave.rotationRate, settings.rotationRate, "RotationRate");
+			DragRelease_Func(ParticleSystem, particleSave.rotationRate, settings.rotationRate, "RotationRate", Action_General_Particle<decltype(settings.rotationRate)>);
 
 			Separator();
 			TreePop();
@@ -1751,7 +1790,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec_MinMax("B##particles_startColor", particleSave.startColor, settings.startColor.z, settings.startColor, 0, 1);
 				Drag_Vec_MinMax("A##particles_startColor", particleSave.startColor, settings.startColor.w, settings.startColor, 0, 1);
 
-				DragRelease(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor");
+				DragRelease_Func(ParticleSystem, particleSave.startColor, settings.startColor, "StartColor", Action_General_Particle<decltype(settings.startColor)>);
 
 				Text("End Color");
 				Drag_Vec_MinMax("R##particles_endColor", particleSave.endColor, settings.endColor.x, settings.endColor, 0, 1);
@@ -1759,7 +1798,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec_MinMax("B##particles_endColor", particleSave.endColor, settings.endColor.z, settings.endColor, 0, 1);
 				Drag_Vec_MinMax("A##particles_endColor", particleSave.endColor, settings.endColor.w, settings.endColor, 0, 1);
 
-				DragRelease(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor");
+				DragRelease_Func(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor", Action_General_Particle<decltype(settings.endColor)>);
 
 				Separator();
 				TreePop();
@@ -1773,7 +1812,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				
 				if (Button("Reset##paritcles_sprite_reset"))
 				{
-					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+					editor->Push_Action({ settings.texture_resourceID, -1, "TextureResourceID", handle, Action_General_Particle<ResourceID> });
 					settings.texture_resourceID = -1;
 				}
 				SameLine();
@@ -1795,7 +1834,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 						if (Selectable(resource->FileName().c_str()))
 						{
 							// Is resource ref counted, can I store pointers to them?
-							editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General<ParticleSystem, ResourceID> });
+							editor->Push_Action({ settings.texture_resourceID, resource->Id(), "TextureResourceID", handle, Action_General_Particle<ResourceID> });
 							settings.texture_resourceID = resource->Id();
 						}
 					}
@@ -1813,14 +1852,14 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		{
 			if (Checkbox("Has Trail##particles", &settings.hasTrail))
 			{
-				editor->Push_Action({ !settings.hasTrail, settings.hasTrail, "HasTrail", handle, Action_General<ParticleSystem, bool> });
+				editor->Push_Action({ !settings.hasTrail, settings.hasTrail, "HasTrail", handle, Action_General_Particle<bool> });
 			}
 
 			Drag("Rate##particles_trail", particleSave.trailEmissionRate, settings.trailEmissionRate);
-			DragRelease(ParticleSystem, particleSave.trailEmissionRate, settings.trailEmissionRate, "TrailEmissionRate");
+			DragRelease_Func(ParticleSystem, particleSave.trailEmissionRate, settings.trailEmissionRate, "TrailEmissionRate", Action_General_Particle<decltype(settings.trailEmissionRate)>);
 
 			Drag("Lifetime##particles_trail", particleSave.trailLifetime, settings.trailLifetime);
-			DragRelease(ParticleSystem, particleSave.trailLifetime, settings.trailLifetime, "TrailLifetime");
+			DragRelease_Func(ParticleSystem, particleSave.trailLifetime, settings.trailLifetime, "TrailLifetime", Action_General_Particle<decltype(settings.trailLifetime)>);
 
 			if (TreeNode("Color##trail_particles"))
 			{
@@ -1830,7 +1869,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec("B##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.z, settings.trailStartColor);
 				Drag_Vec("A##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.w, settings.trailStartColor);
 				
-				DragRelease(ParticleSystem, particleSave.trailStartColor, settings.trailStartColor, "TrailStartColor");
+				DragRelease_Func(ParticleSystem, particleSave.trailStartColor, settings.trailStartColor, "TrailStartColor", Action_General_Particle<decltype(settings.trailStartColor)>);
 
 				Separator();
 
@@ -1840,7 +1879,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec("B##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.z, settings.trailEndColor);
 				Drag_Vec("A##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.w, settings.trailEndColor);
 
-				DragRelease(ParticleSystem, particleSave.trailEndColor, settings.trailEndColor, "TrailEndColor");
+				DragRelease_Func(ParticleSystem, particleSave.trailEndColor, settings.trailEndColor, "TrailEndColor", Action_General_Particle<decltype(settings.trailEndColor)>);
 
 				TreePop();
 			}
@@ -1975,7 +2014,7 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 				{
 					// Is resource ref counted, can I store pointers to them?
 					editor->Push_Action({ background->m_resID, resource->Id(), "resourceID", handle, Action_General<BackgroundComponent, ResourceID> });
-					background->m_resID = resource->Id();
+					background->SetResource(resource);
 				}
 			}
 		}

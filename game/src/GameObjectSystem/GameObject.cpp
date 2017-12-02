@@ -83,10 +83,15 @@ GameObject_ID GameObject::Duplicate() const
 }
 
 
-void GameObject::Delete()
+void GameObject::DeleteInternal()
 {
 	GetSpace()->Delete(m_objID);
-	m_objID = 0;
+}
+
+
+void GameObject::Delete()
+{
+	Destroy();
 }
 
 
@@ -97,6 +102,7 @@ bool GameObject::IsValid() const
 		return false;
 	}
 
+	// GetComponent checks IsValid
 	return engine->GetSpace(m_space)->GetInternalComponent<ObjectInfo>(m_objID) != nullptr;
 }
 
@@ -113,31 +119,27 @@ bool GameObject::IsActive() const
 }
 
 
-void GameObject::Activate()
+void GameObject::Activate() const
 {
-	engine->GetSpaceManager()->CreateTo(GetIndex(), m_objID);
-	engine->GetSpaceManager()->GetInActive().Delete(m_objID);
 	GetComponent<ObjectInfo>()->m_active = true;
 }
 
 
-void GameObject::Deactivate()
+void GameObject::Deactivate() const
 {
 	GetComponent<ObjectInfo>()->m_active = false;
-	engine->GetSpaceManager()->GetInActive().CreateFrom(m_objID);
-	Delete();
 }
 
 
 void GameObject::On() const
 {
-	GetComponent<ObjectInfo>()->m_active = true;
+	Activate();
 }
 
 
 void GameObject::Off() const
 {
-	GetComponent<ObjectInfo>()->m_active = false;
+	Deactivate();
 }
 
 

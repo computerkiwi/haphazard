@@ -67,6 +67,7 @@ public:
 
 	GameObject_ID Duplicate() const;
 
+	// Flags the object to be deleted
 	void Delete();
 
 	GameSpace *GetSpace() const;
@@ -86,6 +87,7 @@ public:
 
 
 	bool operator ==(GameObject rhs) const { return m_objID == rhs.m_objID; }
+	bool operator ==(GameObject_ID rhs) const { return m_objID == rhs; }
 	operator bool() const { return IsValid(); }
 	operator GameObject_ID() const { return m_objID; }
 
@@ -107,12 +109,12 @@ public:
 
 
 	// Turns on the GameObject
-	void Activate();
-	void On();
+	void Activate() const;
+	void On() const;
 
 	// Turns off the GameObject
-	void Deactivate();
-	void Off();
+	void Deactivate() const;
+	void Off() const;
 
 	// Destroys the Object
 	void SetDestroy(bool state) const;
@@ -125,6 +127,8 @@ public:
 	void Destroy() const;
 	void Restore() const;
 
+	// Removes the object
+	void DeleteInternal();
 
 	static GameObject_ID ConstructID(int id, GameSpaceIndex spaceIndex);
 

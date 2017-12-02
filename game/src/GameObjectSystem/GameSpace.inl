@@ -47,7 +47,7 @@ void ComponentMap<T>::Duplicate(GameObject_ID originalObject, GameObject_ID newO
 }
 
 template <typename T>
-void ComponentMap<T>::CreateFrom(GameObject sourceObject)
+void ComponentMap<T>::Duplicate(GameObject sourceObject)
 {
 	if (sourceObject.GetComponent<T>().IsValid())
 	{

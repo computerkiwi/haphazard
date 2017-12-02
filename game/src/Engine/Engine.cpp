@@ -62,7 +62,7 @@ Init_EnginePointer::Init_EnginePointer(Engine *e)
 }
 
 				   // Init OpenGL and start window
-Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window)
+Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window), m_spaces()
 {
 	m_WindowTitle.reserve(256);
 
@@ -239,6 +239,8 @@ void Engine::Update()
 	
 	glfwSwapBuffers(m_window);
 	glfwPollEvents();
+
+	m_spaces.DeleteObjects();
 
 	frameCap.waitUntil(16666);
 

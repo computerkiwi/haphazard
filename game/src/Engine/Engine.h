@@ -94,8 +94,8 @@ private:
 	std::string m_WindowTitle;
 	std::string m_WindowAppend;
 
-	GameSpaceManagerID m_spaces;
 	Editor   m_editor;
+	GameSpaceManagerID m_spaces;
 	ResourceManager m_resManager;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)

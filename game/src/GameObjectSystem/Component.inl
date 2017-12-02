@@ -73,3 +73,13 @@ bool ComponentHandle<T>::IsValid()
 {
 	return m_isValid;
 }
+
+
+// Returns true if this is a active component.
+template <typename T>
+bool ComponentHandle<T>::IsActive()
+{
+	return IsValid() && GameObject(m_objID).GetComponent<ObjectInfo>()->m_active;
+}
+
+

@@ -815,8 +815,8 @@ void Editor::OnClick()
 			{
 				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				scale = transform.Get()->GetScale();
-				pos = transform.Get()->GetPosition();
+				scale = transform->GetScale();
+				pos = transform->GetPosition();
 
 				// Check for non-collision
 				if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
@@ -1347,6 +1347,11 @@ void Editor::PrintObjects()
 					"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
 			}
 
+			if (!object.IsActive())
+			{
+				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(1,1,1,0.6f));
+			}
+
 			// Multiselect with Left Control + LClick
 			if (Input::IsHeldDown(Key::LeftControl))
 			{
@@ -1370,6 +1375,11 @@ void Editor::PrintObjects()
 					break;
 				}
 			}
+
+			if (!object.IsActive())
+			{
+				ImGui::PopStyleColor();
+			}
 		}
 	}
 }
@@ -1391,12 +1401,12 @@ void Editor::ObjectsList()
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
 		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::Button("Create###createObjectListButton"))
 		{
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
 
 			// Add a transform component
-			object.AddComponent<TransformComponent>();
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
 
 			m_selected_object = object.Getid();
 
@@ -1405,17 +1415,17 @@ void Editor::ObjectsList()
 
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
 
-		if (ImGui::Button("Create###createObjectListButton"))
-		{
-			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
-
-			// Add a transform component
-			object.AddComponent<TransformComponent>();
-
-			m_selected_object = object.Getid();
-
-			ImGui::CloseCurrentPopup();
-		}
+		//if (ImGui::Button("Create###createObjectListButton"))
+		//{
+		//	GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+		//
+		//	// Add a transform component
+		//	object.AddComponent<TransformComponent>();
+		//
+		//	m_selected_object = object.Getid();
+		//
+		//	ImGui::CloseCurrentPopup();
+		//}
 
 		ImGui::EndPopup();
 	}

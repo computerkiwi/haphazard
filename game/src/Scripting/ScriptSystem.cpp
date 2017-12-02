@@ -27,19 +27,25 @@ void ScriptSystem::Update(float dt)
 	// Call start on everything that needs it.
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
-		for (LuaScript& script : scriptComp->scripts)
+		if (scriptComp.IsActive())
 		{
-			script.TryStartCall();
+			for (LuaScript& script : scriptComp->scripts)
+			{
+				script.TryStartCall();
+			}
 		}
 	}
 
 	// Call update on everything that needs it.
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
-		for (LuaScript& script : scriptComp->scripts)
+		if (scriptComp.IsActive())
 		{
-			luabridge::push(script.GetLuaState(), dt);
-			script.RunFunction("Update", 1, 0);
+			for (LuaScript& script : scriptComp->scripts)
+			{
+				luabridge::push(script.GetLuaState(), dt);
+				script.RunFunction("Update", 1, 0);
+			}
 		}
 	}
 }
