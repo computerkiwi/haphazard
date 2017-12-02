@@ -529,8 +529,8 @@ glm::vec3 Collision_AABBToAABB(const BoxCollider& Box1, const BoxCollider& Box2)
 
 glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	BoxCollider Box1(AABB1Transform->GetPosition(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(AABB2Transform->GetPosition(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
+	BoxCollider Box1(AABB1Transform->GetPosition() + AABB1Collider.GetOffset(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
+	BoxCollider Box2(AABB2Transform->GetPosition() + AABB2Collider.GetOffset(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
 
 	return Collision_AABBToAABB(Box1, Box2);
 }

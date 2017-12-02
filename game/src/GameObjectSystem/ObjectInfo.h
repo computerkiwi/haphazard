@@ -58,8 +58,54 @@ private:
 		objectInfo.m_id = id;
 	}
 
+
+	// Making the tag map deserializable.
+	typedef std::map<std::size_t, std::string> TagMap;
+
+	static rapidjson::Value TagMapSerializeFunction(const void *tagMapPtr, rapidjson::Document::AllocatorType& allocator)
+	{
+		const TagMap& tagMap = *reinterpret_cast<const TagMap *>(tagMapPtr);
+
+		rapidjson::Value jsonTags;
+		jsonTags.SetObject();
+
+		for (auto& tagPair : tagMap)
+		{
+			rapidjson::Value key;
+			key.SetInt64(tagPair.first);
+
+			rapidjson::Value val;
+			val.SetString(tagPair.second.c_str(), allocator);
+
+			// val then key because val is a string.
+			jsonTags.AddMember(val, key, allocator);
+		}
+
+		return jsonTags;
+	}
+
+	static void TagMapDeserializeAssign(void *tagMapPtr, rapidjson::Value& jsonEngine)
+	{
+		TagMap& tagMap = *reinterpret_cast<TagMap *>(tagMapPtr);
+
+		for (auto& jsonPair : jsonEngine.GetObject())
+		{
+			size_t key = jsonPair.value.GetInt64();
+			std::string val = jsonPair.name.GetString();
+
+			tagMap.insert(std::make_pair(key, val));
+		}
+	}
+
+
 	META_REGISTER(ObjectInfo)
 	{
+		META_DefineType(TagMap);
+		META_DefineSerializeFunction(TagMap, TagMapSerializeFunction);
+		META_DefineDeserializeAssignFunction(TagMap, TagMapDeserializeAssign);
+
+		META_DefineMember(ObjectInfo, m_tags, "tags");
+
 		META_DefineMember(ObjectInfo, ObjectInfo::m_name, "name");
 		META_DefineMember(ObjectInfo, m_id, "id");
 
@@ -67,6 +113,7 @@ private:
 		META_DefineMember(ObjectInfo, m_active, "active");
 
 		META_DefineSetGameObjectIDFunction(ObjectInfo, SetObjectID);
+
 	}
 };
 
