@@ -1126,7 +1126,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		else
 		{
 			SameLine();
-			Text("Parent Object: %d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
+			Text("%d | %s", transform->GetParent().Getid() & ID_MASK, transform->GetParent().GetComponent<ObjectInfo>()->m_name.c_str());
 		}
 	}
 	else

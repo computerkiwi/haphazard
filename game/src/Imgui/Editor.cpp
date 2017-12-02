@@ -244,12 +244,11 @@ Editor::~Editor()
 
 void Editor::Update(float dt)
 {
-	// Check if Editor is being shown
-	debugSetDisplayHitboxes(true);
-	debugSetDisplayRaycasts(true);
-
 	if (m_editorState.show)
 	{
+		debugSetDisplayHitboxes(true);
+		debugSetDisplayRaycasts(true);
+
 		if (m_engine->IsWindowTitleDirty())
 		{
 			m_engine->AppendToWindowTitle(m_filename);
@@ -362,6 +361,9 @@ void Editor::Update(float dt)
 			m_editorState.first_update = true;
 			m_editorState.show = false;
 			m_editorState.exiting = false;
+
+			debugSetDisplayHitboxes(false);
+			debugSetDisplayRaycasts(false);
 
 			prev_camera->Use();
 			prev_camera = nullptr;
