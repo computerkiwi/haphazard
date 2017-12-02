@@ -671,7 +671,7 @@ void Editor::KeyBindings(float dt)
 		m_editorState.MouseCameraDragClick = false;
 	}
 
-	m_editorSettings.cameraZoom -= 0.25f * Input::GetScroll().y;
+	// m_editorSettings.cameraZoom -= 0.25f * Input::GetScroll().y; -- Coming Soon
 }
 
 
