@@ -259,10 +259,10 @@ void Editor::Update(float dt)
 		{
 			prev_camera = Camera::GetActiveCamera();
 			
-			// Check if the Editor camera needs init'd
+			// Check if the Editor camera needs allocated
 			if (m_editor_cam == nullptr)
 			{
-				// Allocate here so the shaders are init'd
+				// Allocate here so the shaders are init'd and the editor's camera isn't ready too soon
 				m_editor_cam = new Camera();
 			}
 
@@ -1420,7 +1420,7 @@ void Editor::ObjectsList()
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
 		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::Button("Create###createObjectListButton"))
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
 
@@ -1434,17 +1434,17 @@ void Editor::ObjectsList()
 
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
 
-		//if (ImGui::Button("Create###createObjectListButton"))
-		//{
-		//	GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
-		//
-		//	// Add a transform component
-		//	object.AddComponent<TransformComponent>();
-		//
-		//	m_selected_object = object.Getid();
-		//
-		//	ImGui::CloseCurrentPopup();
-		//}
+		if (ImGui::Button("Create###createObjectListButton"))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
 
 		ImGui::EndPopup();
 	}

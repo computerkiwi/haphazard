@@ -181,17 +181,6 @@ void Action_General_GameObjectDelete(EditorAction& a)
 	GameObject object = a.save.GetData<GameObject>();
 
 
-	if (object.IsValid())
-	{
-		if (a.redo)
-		{
-			object.Destroy();
-		}
-		else
-		{
-			object.Restore();
-		}
-	}
 }
 
 
@@ -695,6 +684,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
+			editor->GetDeletedObjects().Duplicate(object);
 			object.DeleteInternal();
 			End();
 			return;

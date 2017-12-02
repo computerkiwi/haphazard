@@ -203,6 +203,7 @@ class Editor
 	// List of delimited GameObjects
 	std::vector<GameObject_ID> m_objects;
 
+	GameSpace m_deleted_objects;
 
 	// Undo/Redo Actions
 	// --------------
@@ -447,6 +448,8 @@ public:
 
 	// Default Editor Style
 	static void ResetStyle();
+
+	GameSpace& GetDeletedObjects() { return m_deleted_objects; }
 
 	Editor::SearchBars& GetSearchBars() { return m_searches; }
 
