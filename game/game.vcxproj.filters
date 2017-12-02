@@ -171,6 +171,9 @@
     <None Include="shaders\editorsprite.vert" />
     <None Include="shaders\editorsprite.frag" />
     <None Include="assets\scripts\LevelProgress.lua" />
+    <None Include="assets\scripts\OnewayPlatform.lua" />
+    <None Include="assets\scripts\CoinScript.lua" />
+    <None Include="assets\scripts\PlayerStats.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
