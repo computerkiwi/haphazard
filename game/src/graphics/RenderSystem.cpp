@@ -62,7 +62,7 @@ void RenderSystem::UpdateCameras(float dt)
 
 		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = camera.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}
@@ -108,7 +108,7 @@ void RenderSystem::RenderSprites(float dt)
 	for (auto& spriteHandle : *sprites)
 	{
 		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}
@@ -129,7 +129,7 @@ void RenderSystem::RenderSprites(float dt)
 		{
 			// Check for valid transform
 			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
-			if (!transform.IsValid())
+			if (!transform.IsActive())
 			{
 				continue;
 			}
@@ -180,7 +180,7 @@ void RenderSystem::RenderText(float dt)
 	{
 		// Check for valid transform
 		ComponentHandle<TransformComponent> transform = textHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}
@@ -204,7 +204,7 @@ void RenderSystem::RenderParticles(float dt)
 	for (auto& particleHandle : *particles)
 	{
 		ComponentHandle<TransformComponent> transform = particleHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}
@@ -229,7 +229,7 @@ void RenderSystem::RenderBackgrounds(float dt)
 	for (auto& bgHandle : *backgrounds)
 	{
 		ComponentHandle<TransformComponent> transform = bgHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}
@@ -255,7 +255,7 @@ void RenderSystem::RenderForegrounds(float dt)
 	for (auto& bgHandle : *backgrounds)
 	{
 		ComponentHandle<TransformComponent> transform = bgHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsValid())
+		if (!transform.IsActive())
 		{
 			continue;
 		}

@@ -814,6 +814,10 @@ void MoveAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>& rigidBodi
 	for (auto tRigidBodyHandle : rigidBodies)
 	{
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
+		if (!transform.IsActive())
+		{
+			continue;
+		}
 		assert(transform.IsValid() && "Invalid Transform from Rigidbody in MoveAllDynamicObjects in PhysicsSystem.cpp");
 
 		// update position, velocity, and acceleration using stored values
@@ -843,6 +847,10 @@ void BrettsFunMagicalTestLoop(ComponentMap<DynamicCollider2DComponent> *allDynam
 		if (tDynamiColliderHandle->ColliderData().IsCollidingWithLayer(collisionLayers::allyProjectile))
 		{
 			ComponentHandle<RigidBodyComponent> rigidBody = tDynamiColliderHandle.GetSiblingComponent<RigidBodyComponent>();
+			if (!rigidBody.IsActive())
+			{
+				continue;
+			}
 			assert(rigidBody.IsValid() && "Invalid Transform from Rigidbody in ApplyGravityToAllDynamicObjects in PhysicsSystem.cpp");
 
 			rigidBody->AddVelocity(glm::vec3(-.1, .2, 0));
@@ -858,7 +866,10 @@ void ApplyGravityToAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>&
 {
 	for (auto tRigidBodyHandle : rigidBodies)
 	{
-		tRigidBodyHandle->AddVelocity(tRigidBodyHandle->Gravity() * dt);
+		if (tRigidBodyHandle.IsActive())
+		{
+			tRigidBodyHandle->AddVelocity(tRigidBodyHandle->Gravity() * dt);
+		}
 	}
 }
 
@@ -885,6 +896,11 @@ void PhysicsSystem::Update(float dt)
 		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
 		ComponentHandle<DynamicCollider2DComponent> dynamicCollider = tRigidBodyHandle.GetSiblingComponent<DynamicCollider2DComponent>();
 
+		if (!transform.IsActive())
+		{
+			continue;
+		}
+
 		// if transform and collider are valid, collide it with things
 		if (transform.IsValid() && dynamicCollider.IsValid())
 		{
@@ -895,6 +911,11 @@ void PhysicsSystem::Update(float dt)
 			// loop through all static colliders
 			for (auto tStaticColliderHandle : *allStaticColliders)
 			{
+				if (!tStaticColliderHandle.IsActive())
+				{
+					continue;
+				}
+
 				// get the colliders out of the objects
 				Collider2D collider1 = dynamicCollider->ColliderData();
 				Collider2D collider2 = tStaticColliderHandle->ColliderData();
@@ -1077,6 +1098,11 @@ void PhysicsSystem::Update(float dt)
 			// loop through all dynamic colliders
 			for (auto tDynamiColliderHandle : *allDynamicColliders)
 			{
+				if (!tDynamiColliderHandle.IsActive())
+				{
+					continue;
+				}
+
 				// get the colliders out of the objects
 				Collider2D collider1 = dynamicCollider->ColliderData();
 				Collider2D collider2 = tDynamiColliderHandle->ColliderData();

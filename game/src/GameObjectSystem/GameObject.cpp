@@ -83,10 +83,15 @@ GameObject_ID GameObject::Duplicate() const
 }
 
 
-void GameObject::Delete()
+void GameObject::DeleteInternal()
 {
 	GetSpace()->Delete(m_objID);
-	m_objID = 0;
+}
+
+
+void GameObject::Delete()
+{
+	Destroy();
 }
 
 
@@ -97,6 +102,7 @@ bool GameObject::IsValid() const
 		return false;
 	}
 
+	// GetComponent checks IsValid
 	return engine->GetSpace(m_space)->GetInternalComponent<ObjectInfo>(m_objID) != nullptr;
 }
 
@@ -127,13 +133,13 @@ void GameObject::Deactivate() const
 
 void GameObject::On() const
 {
-	GetComponent<ObjectInfo>()->m_active = true;
+	Activate();
 }
 
 
 void GameObject::Off() const
 {
-	GetComponent<ObjectInfo>()->m_active = false;
+	Deactivate();
 }
 
 

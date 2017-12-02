@@ -95,7 +95,7 @@ public:
 	}
 
 	virtual void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) = 0;
-
+	virtual void Duplicate(GameObject sourceObject) = 0;
 	virtual void Delete(GameObject_ID object) = 0;
 
 	// This is a pointer, not a handle. It probably won't be valid very long.
@@ -127,6 +127,8 @@ public:
 	T *get(GameObject_ID id);
 
 	void Duplicate(GameObject_ID originalObject, GameObject_ID newObject) override;
+
+	void Duplicate(GameObject sourceObject) override;
 
 	void Delete(GameObject_ID object) override;
 
@@ -244,6 +246,8 @@ public:
 	template <typename T>
 	void DeleteComponent(GameObject_ID id);
 
+	void Duplicate(GameObject object);
+
 	GameObject GetGameObject(GameObject_ID id) const;
 
 	GameObject NewGameObject(const char *name) const;
@@ -261,6 +265,19 @@ public:
 
 	std::vector<GameObject> CollectGameObjects();
 	void CollectGameObjects(std::vector<GameObject_ID>& objects);
+
+	bool CheckForObject(GameObject source)
+	{
+		for (auto& object_info : *GetComponentMap<ObjectInfo>())
+		{
+			if (object_info->m_id == source.Getid())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	// On the default engine.
 	static GameSpace *GetByIndex(GameSpaceIndex index);
@@ -335,6 +352,7 @@ class GameSpaceManagerID
 	std::vector<GameSpace> m_spaces;
 
 public:
+
 	size_t GetSize() const
 	{
 		return m_spaces.size();
@@ -343,6 +361,17 @@ public:
 	inline std::vector<GameSpace>& GetSpaces()
 	{
 		return m_spaces;
+	}
+
+	void DuplicateTo(GameSpaceIndex destination, GameObject source)
+	{
+		m_spaces[destination].Duplicate(source);
+	}
+
+
+	void EraseFrom(GameSpaceIndex space, GameObject source)
+	{
+		m_spaces[space].Delete(source);
 	}
 
 	// Returns index of the new space.
@@ -401,7 +430,7 @@ public:
 		}
 	}
 
-	void DeleteDestroyed();
+	void DeleteObjects();
 
 	void CollectAllObjectsDelimited(std::vector<GameObject_ID>& objects)
 	{

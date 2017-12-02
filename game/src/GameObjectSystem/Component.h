@@ -37,6 +37,9 @@ public:
 	// Returns true if this is a valid component.
 	bool IsValid();
 
+	// Returns true if this is a active component.
+	bool IsActive();
+
 private:
 	GameObject_ID m_objID;
 	bool m_isValid;

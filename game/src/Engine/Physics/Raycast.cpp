@@ -240,6 +240,10 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 		if (tDynamicColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
 		{
 			ComponentHandle<TransformComponent> transform = tDynamicColliderHandle.GetSiblingComponent<TransformComponent>();
+			if (!transform.IsActive())
+			{
+				continue;
+			}
 			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
 			Raycast(circleCenter, radius, transform, tDynamicColliderHandle->ColliderData());
@@ -251,6 +255,10 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 		if (tStaticColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
 		{
 			ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
+			if (!transform.IsActive())
+			{
+				continue;
+			}
 			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
 			Raycast(circleCenter, radius, transform, tStaticColliderHandle->ColliderData());

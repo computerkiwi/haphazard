@@ -90,7 +90,7 @@ private:
 		META_DefineMember(ParticleSettings, isLooping, "isLooping");
 
 		META_DefineMember(ParticleSettings, emissionRate, "EmissionRate");
-		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmisson");
+		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmission");
 		META_DefineMember(ParticleSettings, burstEmission, "BurstEmission");
 		META_DefineGetterSetter(ParticleSettings, int, GetEmissionShape, SetEmissionShape, "EmissionShape");
 		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScale");
@@ -193,6 +193,8 @@ public:
 
 	// Set color of trail, start color is color of trail near particle, end color is color of trail near tail end
 	void SetTrailColor(glm::vec4 start, glm::vec4 end) { m_settings.trailStartColor = start; m_settings.trailEndColor = end; }
+
+	ParticleSettings *GetSettings() { return &m_settings; }
 
 private:
 	friend void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);

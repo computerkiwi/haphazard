@@ -41,7 +41,7 @@ GameObject_ID GenerateID()
 }
 
 
-void GameSpaceManagerID::DeleteDestroyed()
+void GameSpaceManagerID::DeleteObjects()
 {
 	std::vector<GameObject_ID> objects;
 	CollectAllObjects(objects);
@@ -52,7 +52,7 @@ void GameSpaceManagerID::DeleteDestroyed()
 
 		if (object.IsDestroyed())
 		{
-			object.Delete();
+			object.DeleteInternal();
 		}
 	}
 }
@@ -137,6 +137,15 @@ void GameSpace::Update(float dt)
 		iter->second->Update(dt);
 	}
 }
+
+void GameSpace::Duplicate(GameObject object)
+{
+	for (auto& map : m_componentMaps)
+	{
+		map.second->Duplicate(object);
+	}
+}
+
 
 GameObject GameSpace::Duplicate(GameObject_ID originalObject, GameObject_ID newObject)
 {
