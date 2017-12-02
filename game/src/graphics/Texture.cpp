@@ -96,11 +96,11 @@ glm::ivec3 FindLocationForSprite(int width, int height)
 					// Will fit here
 					return glm::vec3(x, y, z);
 				}
-				if (x == result.second.x + 1) // If x isnt making any progress in x direction
+				if (x == result.second.x + 2) // If x isnt making any progress in x direction
 					break;
-				x = result.second.x + 1;
+				x = result.second.x + 2; // + 1 padding pixel
 			}
-			y = result.second.y + 1;
+			y = result.second.y + 2;
 		}
 	}
 	//assert(!"I cant load this image!");
