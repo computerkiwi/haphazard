@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Variables
 moveSpeed   = 2
-jumpSpeed   = 4
+jumpSpeed   = 4.5
 fallSpeed   = 2
 
 tossSpeed   = 5
@@ -158,22 +158,24 @@ function OnCollisionEnter(other)
   local otherName = other:GetName()
 
   -- Player collides with ground
-  if (otherName == "Ground")
+  if (other:HasTag("Ground"))
   then
     onGround = true
   -- Player collides with other player
   elseif(onGround == false)
   then
-    if ((otherName == "Player2" or otherName == "Player1") and (stackEnabled == false))
+    if (other:HasTag("Player") and stackEnabled == false)
     then
       StackPlayers(other)
     end
   -- Player collides with a coin
-  elseif(otherName == "Coin")
+  elseif(other:HasTag("Coin"))
   then
     -- TODO: Play a coin pickup effect
     -- Switch to coin script
     -- Destroy coin
+    -- GameObject:GetScript(filename of script)
+
   end
 end -- fn end
 
