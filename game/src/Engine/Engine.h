@@ -56,6 +56,7 @@ public:
 
 	std::string StringSave();
 	void FileSave(const char *fileName);
+	void FileSaveCompact(const char *fileName);
 
 	void StringLoad(const char *jsonString);
 	void FileLoad(const char *fileName);
