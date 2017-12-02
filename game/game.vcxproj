@@ -282,7 +282,10 @@
     <ClInclude Include="src\Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\scripts\CoinScript.lua" />
     <None Include="assets\scripts\LevelProgress.lua" />
+    <None Include="assets\scripts\OnewayPlatform.lua" />
+    <None Include="assets\scripts\PlayerStats.lua" />
     <None Include="PlayerController.lua" />
     <None Include="shaders\background.frag" />
     <None Include="shaders\background.vert" />
