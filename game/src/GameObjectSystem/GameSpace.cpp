@@ -45,9 +45,12 @@ void GameSpaceManagerID::DeleteObjects()
 {
 	for (auto& space : m_spaces)
 	{
-		for (auto& info : *space.GetComponentMap<ObjectInfo>())
+		ComponentMap<ObjectInfo> *map = space.GetComponentMap<ObjectInfo>();
+
+		for (auto info_iter = map->begin(); info_iter != map->end();)
 		{
-			GameObject object = info->m_id;
+			GameObject object = info_iter->m_id;
+			++info_iter;
 
 			if (object.IsDestroyed())
 			{
