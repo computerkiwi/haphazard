@@ -1594,7 +1594,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		Checkbox("Tiled", &sprite->m_TextureHandler.m_IsTiling);
 
-		if (TreeNode("Titled Amount##sprite_titled"))
+		if (TreeNode("Tiled Amount##sprite_titled"))
 		{
 			DragFloat("X##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.x, SLIDER_STEP, 0, FLT_MAX);
 			DragFloat("Y##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.y, SLIDER_STEP, 0, FLT_MAX);
