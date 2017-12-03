@@ -180,7 +180,16 @@ void Action_General_GameObjectDelete(EditorAction& a)
 {
 	GameObject object = a.save.GetData<GameObject>();
 
-
+	if (a.redo)
+	{
+		engine->GetEditor()->GetDeletedObjects().Duplicate(object);
+		object.Delete();
+	}
+	else
+	{
+		// Duplicate From Space Function
+		//object.GetSpace().DuplicateFromSpace(object, engine->GetEditor()->GetDeletedObjects());
+	}
 }
 
 

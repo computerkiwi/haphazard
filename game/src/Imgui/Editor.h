@@ -14,6 +14,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 
 #include "GameObjectSystem/GameObject.h"
+#include "GameObjectSystem/GameSpace.h"
 
 #include <glm/detail/type_vec2.hpp>
 #include "Util/DataStructures/Array/Array.h"
