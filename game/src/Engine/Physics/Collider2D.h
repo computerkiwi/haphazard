@@ -107,6 +107,12 @@ private:
 	float m_appliedElasticity;
 	collisionType m_collisionType;
 
+
+	bool IsCollidingWithLayerMeta(int layer) const
+	{
+		return IsCollidingWithLayer(static_cast<collisionLayers>(layer));
+	}
+
 	META_REGISTER(Collider2D)
 	{
 		// HACK: Do some safety registration.
@@ -121,6 +127,8 @@ private:
 		META_DefineMember(Collider2D, m_selfElasticity, "selfElasticity");
 		META_DefineMember(Collider2D, m_appliedElasticity, "appliedElasticity");
 		META_DefineMember(Collider2D, m_collisionType, "collisionType");
+
+		META_DefineFunction(Collider2D, IsCollidingWithLayerMeta, "IsCollidingWithLayer")
 	}
 };
 
