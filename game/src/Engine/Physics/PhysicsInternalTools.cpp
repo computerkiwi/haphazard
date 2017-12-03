@@ -22,8 +22,8 @@ CapsuleInformation::CapsuleInformation(glm::vec2 center, glm::vec2 dimensions, f
 	if (rotation != 0)
 	{
 		// get the scalar of the total each side will be
-		float xScalar = sin(DegreesToRadians(rotation));
-		float yScalar = cos(DegreesToRadians(rotation));
+		float xScalar = sin(DegreesToRadians(-rotation));
+		float yScalar = cos(DegreesToRadians(-rotation));
 
 		circleCenterOffset.x = circleCenterOffset.y * xScalar;
 		circleCenterOffset.y = circleCenterOffset.y * yScalar;

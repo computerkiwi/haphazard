@@ -259,10 +259,10 @@ void Editor::Update(float dt)
 		{
 			prev_camera = Camera::GetActiveCamera();
 			
-			// Check if the Editor camera needs init'd
+			// Check if the Editor camera needs allocated
 			if (m_editor_cam == nullptr)
 			{
-				// Allocate here so the shaders are init'd
+				// Allocate here so the shaders are init'd and the editor's camera isn't ready too soon
 				m_editor_cam = new Camera();
 			}
 
@@ -275,6 +275,8 @@ void Editor::Update(float dt)
 
 			m_editorState.first_update = false;
 		}
+		
+		m_editor_cam->SetZoom(m_editorSettings.cameraZoom);
 
 		// Check for click events
 		OnClick();
@@ -629,22 +631,22 @@ void Editor::KeyBindings(float dt)
 	// Editor camera controls
 	if (Input::IsHeldDown(Key::Right))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(dt * 2, 0));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(dt * m_editorSettings.cameraArrowSpeed, 0));
 	}
 
 	if (Input::IsHeldDown(Key::Left))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(-dt * 2, 0));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(-dt * m_editorSettings.cameraArrowSpeed, 0));
 	}
 
 	if (Input::IsHeldDown(Key::Up))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, dt * 2));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, dt * m_editorSettings.cameraArrowSpeed));
 	}
 
 	if (Input::IsHeldDown(Key::Down))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * 2));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * m_editorSettings.cameraArrowSpeed));
 	}
 
 	if (Input::IsHeldDown(Key::MouseButton_Right) && !ImGui::GetIO().WantCaptureMouse)
@@ -659,7 +661,7 @@ void Editor::KeyBindings(float dt)
 
 		glm::vec2 diff = mouse - m_prevMouse;
 
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - (diff * dt) * m_editorSettings.cameraSpeed);
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - diff /*(diff * dt) * m_editorSettings.cameraSpeed*/);
 
 		m_prevMouse = mouse;
 	}
@@ -667,6 +669,11 @@ void Editor::KeyBindings(float dt)
 	if (Input::IsReleased(Key::MouseButton_Right))
 	{
 		m_editorState.MouseCameraDragClick = false;
+	}
+
+	if (!ImGui::IsAnyWindowHovered())
+	{
+		m_editorSettings.cameraZoom -= 0.4f * ImGui::GetIO().MouseWheel;
 	}
 }
 
@@ -800,7 +807,7 @@ void Editor::OnClick()
 		{
 			ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 			pos = transform.Get()->GetPosition();
-			scale = transform.Get()->GetScale();
+			scale = abs(transform.Get()->GetScale());
 
 			// Check the selected object first
 			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
@@ -823,7 +830,7 @@ void Editor::OnClick()
 			{
 				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				scale = transform->GetScale();
+				scale = abs(transform->GetScale());
 				pos = transform->GetPosition();
 
 				// Check for non-collision
@@ -1058,7 +1065,16 @@ void Editor::Tools()
 				switch (m_scaleDir)
 				{
 				case EditorGizmoDirection::Dir_X:
-					scale.x += mouseChange.x;
+					//if (Input::IsHeldDown(Key::LeftControl))
+					//{
+						scale.x += mouseChange.x;
+					//}
+					//else
+					//{
+					//	transform->SetPosition(transform->GetPosition() + glm::vec2(mouseChange.x / 2.0f, 0));
+					//	scale.x += mouseChange.x;
+					//}
+					
 					break;
 
 				case EditorGizmoDirection::Dir_Y:
@@ -1066,12 +1082,11 @@ void Editor::Tools()
 					break;
 
 				case EditorGizmoDirection::Both:
-
-
 					if (Input::IsHeldDown(Key::LeftShift))
 					{
+						float ratio = scale.y / scale.x;
 						scale.x += mouseChange.x;
-						scale.y += mouseChange.x;
+						scale.y += ratio * mouseChange.x;
 					}
 					else
 					{
@@ -1110,7 +1125,6 @@ void Editor::Tools()
 			}
 
 			break;
-
 		}
 
 		case Gizmo::Rotation:
@@ -1409,7 +1423,7 @@ void Editor::ObjectsList()
 	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
 	{
 		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue) || ImGui::Button("Create###createObjectListButton"))
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
 		{
 			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
 
@@ -1423,17 +1437,17 @@ void Editor::ObjectsList()
 
 		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
 
-		//if (ImGui::Button("Create###createObjectListButton"))
-		//{
-		//	GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
-		//
-		//	// Add a transform component
-		//	object.AddComponent<TransformComponent>();
-		//
-		//	m_selected_object = object.Getid();
-		//
-		//	ImGui::CloseCurrentPopup();
-		//}
+		if (ImGui::Button("Create###createObjectListButton"))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
 
 		ImGui::EndPopup();
 	}
@@ -2100,7 +2114,7 @@ void Editor::AutoSave(float dt)
 		ss << std::time(nullptr) << "_AutoSave.json";
 
 		// Write the File
-		m_engine->FileSave(ss.str().c_str());
+		m_engine->FileSaveCompact(ss.str().c_str());
 
 		// Tell the user we auto saved
 		AddPopUp(PopUpWindow("Auto Saved.", 2.2f, PopUpPosition::BottomRight));
@@ -2403,6 +2417,8 @@ void Editor::SettingsPanel(float dt)
 
 	ImGui::PushItemWidth(110);
 	ImGui::DragFloat("Camera Speed", &m_editorSettings.cameraSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
+	ImGui::DragFloat("Camera Arrow Speed", &m_editorSettings.cameraArrowSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
+	ImGui::DragFloat("Camera Zoom",  &m_editorSettings.cameraZoom,  (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
 	ImGui::PopItemWidth();
 
 	ImGui::Separator();

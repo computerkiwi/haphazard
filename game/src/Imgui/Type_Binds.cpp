@@ -176,24 +176,19 @@ void Action_DeleteComponent(EditorAction& a)
 }
 
 
-
-
-
 void Action_General_GameObjectDelete(EditorAction& a)
 {
 	GameObject object = a.save.GetData<GameObject>();
 
-
-	if (object.IsValid())
+	if (a.redo)
 	{
-		if (a.redo)
-		{
-			object.Destroy();
-		}
-		else
-		{
-			object.Restore();
-		}
+		//engine->GetEditor()->GetDeletedObjects().Duplicate(object);
+		object.Delete();
+	}
+	else
+	{
+		// Duplicate From Space Function
+		//object.GetSpace().DuplicateFromSpace(object, engine->GetEditor()->GetDeletedObjects());
 	}
 }
 
@@ -698,6 +693,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
+			//editor->GetDeletedObjects().Duplicate(object);
 			object.DeleteInternal();
 			End();
 			return;
@@ -1064,7 +1060,7 @@ static void Display_Hierarchy(GameObject object)
 		if (child.GetComponent<HierarchyComponent>().IsValid())
 		{
 			// Add a space for spacing
-			std::string name = object.GetName();
+			std::string name = child.GetName();
 			name += " ";
 
 			// Show a tree node
@@ -1080,7 +1076,7 @@ static void Display_Hierarchy(GameObject object)
 		else
 		{
 			// Just display the GameObject
-			Text(object.GetName().c_str());
+			Text(child.GetName().c_str());
 		}
 	}
 }
@@ -1416,11 +1412,19 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 		DragRelease(Collider2D, colliderSave.m_selfElasticity, collider->m_selfElasticity, "selfElasticity");
 
 		// Collision Type
-		Combo("Collider Type##collider", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max) - 2);
+		Combo("Collider Type##collider", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max));
 		switch (index)
 		{
 		case 0:
 			collider->m_colliderShape = Collider2D::colliderType::colliderBox;
+			break;
+
+		case 1:
+			collider->m_colliderShape = Collider2D::colliderType::colliderCircle;
+			break;
+
+		case 2:
+			collider->m_colliderShape = Collider2D::colliderType::colliderCapsule;
 			break;
 
 		default:
@@ -1483,7 +1487,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 		ResourceManager& rm = engine->GetResourceManager();
-		std::vector<Resource *> scripts = rm.GetResourcesOfType(ResourceType::SCRIPT);
+		std::vector<Resource *> scripts = rm.GetResourcesOfTypes_Alphabetical(ResourceType::SCRIPT);
 
 		if (Button("Remove##script"))
 		{
@@ -1499,26 +1503,32 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 
 		if (BeginPopup("##script_add_script"))
 		{
+			editor->GetSearchBars().script.Draw("Search", 100);
+
 			for (auto& script : scripts)
 			{
 				if (!ObjectHasScript(script->Id(), script_c->scripts))
 				{
-					if (Selectable(script->FileName().c_str()))
+					if (editor->GetSearchBars().script.PassFilter(script->FileName().c_str()))
 					{
-						script_c->scripts.emplace_back(LuaScript(script, object));
+						if (Selectable(script->FileName().c_str()))
+						{
+							script_c->scripts.emplace_back(LuaScript(script, object));
+						}
 					}
 				}
 			}
 
 			EndPopup();
 		}
-
+		std::string id = "X##script_remove_script";
 		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
 		for (int i = 0; i < script_c->scripts.size(); i++)
 		{
 			LuaScript& script = script_c->scripts[i];
-			
-			if (Button("X##script_remove_script", ImVec2(25, 0)))
+			id += rm.Get(script.GetResourceID())->FileName();
+
+			if (Button(id.c_str(), ImVec2(25, 0)))
 			{
 				script_c->scripts.erase(script_c->scripts.begin() + i);
 				break;
@@ -1526,6 +1536,8 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 			SameLine();
 
 			Text(rm.Get(script.GetResourceID())->FileName().c_str());
+
+			id = "X##script_remove_script";
 		}
 		PopStyleVar();
 	}
@@ -1562,8 +1574,9 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		SameLine();
 		if (Button("Reset##sprite_sprite_reset"))
 		{
-			editor->Push_Action({ texture.m_Texture->Id(), -1, "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			ResourceID temp = texture.m_Texture->Id();
 			sprite->SetTextureID(-1);
+			editor->Push_Action({ temp, texture.m_Texture->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
 		}
 
 		if (BeginPopup("##sprite_color_picker"))
@@ -1581,7 +1594,7 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 
 		Checkbox("Tiled", &sprite->m_TextureHandler.m_IsTiling);
 
-		if (TreeNode("Titled Amount##sprite_titled"))
+		if (TreeNode("Tiled Amount##sprite_titled"))
 		{
 			DragFloat("X##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.x, SLIDER_STEP, 0, FLT_MAX);
 			DragFloat("Y##sprite_titled_amount", &sprite->m_TextureHandler.m_TileAmount.y, SLIDER_STEP, 0, FLT_MAX);

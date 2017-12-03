@@ -35,6 +35,8 @@ public:
 	ResourceID GetResourceID() const;
 	void SetResourceID(ResourceID id);
 
+	void SetBackgroundType(BACKGROUND_TYPE type) { m_Type = type; }
+
 private:
 	// Editor friend
 	friend void ImGui_Background(BackgroundComponent *background, GameObject object, Editor *editor);
@@ -62,6 +64,8 @@ private:
 
 	META_REGISTER(BackgroundComponent)
 	{
+		META_DefineType(BACKGROUND_TYPE);
+
 		META_DefineGetterSetter(BackgroundComponent, ResourceID, GetResourceID, SetResourceID, "resourceID");
 
 		META_DefineGetterSetter(BackgroundComponent, int, GetType, SetType, "backgroundType");

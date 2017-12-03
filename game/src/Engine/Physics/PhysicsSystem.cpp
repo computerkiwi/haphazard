@@ -725,8 +725,9 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform, ComponentHandle<RigidBodyComponent> rigidBody, glm::vec3 velocity, glm::vec3 acceleration)
 {
-	transform->SetPosition(transform->GetRelativePosition() + velocity * dt);
+	rigidBody->AddVelocity(rigidBody->Gravity() * dt);
 	rigidBody->AddVelocity(acceleration * dt);
+	transform->SetPosition(transform->GetRelativePosition() + velocity * dt);
 }
 
 void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders)
@@ -1297,7 +1298,7 @@ void PhysicsSystem::Update(float dt)
 	}
 
 	//Add Gravity to objects
-	ApplyGravityToAllDynamicObjects(dt, *rigidBodies);
+	//ApplyGravityToAllDynamicObjects(dt, *rigidBodies);
 
 /************************** TEST STUFF **************************/
 	//CollisionLayerTestFuction();

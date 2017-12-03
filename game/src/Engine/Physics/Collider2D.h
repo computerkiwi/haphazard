@@ -15,8 +15,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 constexpr char *collider_types[] =
 {
-	"Box"
-	"Circle"
+	"Box",
+	"Circle",
 	"Capsule"
 };
 
@@ -34,7 +34,7 @@ public:
 		colliderCircle = 1 << 2,
 		colliderCapsule= 1 << 3,
 
-		collider_max // Used by the editor
+		collider_max = 3 // Used by the editor
 	};
 
 	enum collisionType : int

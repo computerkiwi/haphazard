@@ -14,6 +14,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 
 #include "GameObjectSystem/GameObject.h"
+#include "GameObjectSystem/GameSpace.h"
 
 #include <glm/detail/type_vec2.hpp>
 #include "Util/DataStructures/Array/Array.h"
@@ -179,6 +180,8 @@ class Editor
 		bool default_collider_match_scale = true;
 
 		float cameraSpeed = 50.0f;
+		float cameraArrowSpeed = 3.8f;
+		float cameraZoom  = 3.0f;
 
 	} m_editorSettings;
 
@@ -202,6 +205,7 @@ class Editor
 	// List of delimited GameObjects
 	std::vector<GameObject_ID> m_objects;
 
+	//GameSpace m_deleted_objects;
 
 	// Undo/Redo Actions
 	// --------------
@@ -247,6 +251,8 @@ class Editor
 	// Search Bars for Sprites
 	struct SearchBars
 	{
+		ImGuiTextFilter script;
+
 		ImGuiTextFilter sprite;
 		ImGuiTextFilter particles;
 		ImGuiTextFilter background;
@@ -446,6 +452,8 @@ public:
 
 	// Default Editor Style
 	static void ResetStyle();
+
+	//GameSpace& GetDeletedObjects() { return m_deleted_objects; }
 
 	Editor::SearchBars& GetSearchBars() { return m_searches; }
 
