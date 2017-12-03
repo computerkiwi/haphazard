@@ -14,6 +14,8 @@ Copyright 2017 DigiPen (USA) Corporation.
 // Virtual class for commands
 class Event
 {
+  private:
+
   public:
     virtual ~Event() {}
     virtual void Execute() = 0; // Must be implemented by derived class
@@ -25,20 +27,31 @@ class JumpEvent
 
 
   public:
+     JumpEvent();
+    ~JumpEvent();
 
 };
 
 class StackEvent
 {
-
+  private:
+  public:
+     StackEvent();
+    ~StackEvent();
 };
 
 class AttackEvent
 {
-
+  private:
+  public:
+     AttackEvent();
+    ~AttackEvent();
 };
 
 class TossEvent
 {
-
+  private:
+  public:
+      TossEvent();
+     ~TossEvent();
 };

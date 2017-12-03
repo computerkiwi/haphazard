@@ -6,20 +6,19 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 function OnCollisionEnter(other)
-  
   -- Player takes coin
   if (other:HasTag("Player"))
   then
 
-    local score = GameObject.FindByName("AllCoins")
+    print("Coin collision")
+
+    local score = GameObject.FindByName("Stats")
 
     -- Increment score
     local script = score:GetScript("PlayerStats.lua")
     script.AddScore()
 
-    -- TODO: Change to inactive?
-    -- Delete the object
-    --this:Delete()
+    -- Deactivate the object
+    this:Deactivate()
   end
-
 end -- fn end

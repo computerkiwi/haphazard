@@ -12,14 +12,19 @@ TotalLives = 5
 TotalScore = 0
 CoinValue = 1
 
-function PlayerDamage()
+function AddLife()
+  TotalLives = TotalLives + 1
+end -- fn end
+
+function LoseLife()
+  TotalLives = TotalLives - 1
 end -- fn end
 
 function AddScore()
-
   TotalScore = TotalScore + CoinValue
+end -- fn end
 
-  print("Coin value:")
-  print(CoinValue)
+function ResetScore()
 
+  TotalScore = 0
 end -- fn end

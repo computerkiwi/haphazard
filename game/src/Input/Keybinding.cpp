@@ -8,6 +8,7 @@ PROJECT:
 Copyright 2017 DigiPen (USA) Corporation.
 *******************************************************/
 #include "Keybinding.h"
+#include <iostream>
 
 // Initialize keybinding
 Keybinding::Keybinding(PlayerID playerID)
@@ -76,58 +77,79 @@ GamepadButton Keybinding::GetGamepadKeybinding(Action action) const
     {
       return gamepad_->GetJump();
     }
-    case Action::MoveLeft:
+    case Action::Toss:
     {
-      return gamepad_;
+      return gamepad_->GetToss();
     }
-    case Action::MoveRight:
-    {
-      return moveRight_;
-    }
+  }
+}
+
+GamepadAxis Keybinding::GetGamepadKeybindingAxis(Action action) const
+{
+  if (action == Action::MoveLeft)
+  {
+    return gamepad_->GetMoveAxisX();
+  }
+  else
+  {
+    return gamepad_->GetMoveAxisY();
   }
 }
 
 void Keybinding::SetKeyboardJump(Key key)
 {
-  jump_ = jump;
+  keyboard_->SetJump(key);
 }
 
 void Keybinding::SetKeyboardAttack(Key key)
 {
-  attack_ = attack;
+  keyboard_->SetAttack(key);
 }
 
 void Keybinding::SetKeyboardStack(Key key)
 {
+  // There's no stack button why is this here
 }
 
 void Keybinding::SetKeyboardMoveLeft(Key key)
 {
-  moveLeft_ = left;
+  keyboard_->SetMoveLeft(key);
 }
 
 void Keybinding::SetKeyboardMoveRight(Key key)
 {
-  moveRight_ = right;
+  keyboard_->SetMoveRight(key);
 }
 
 void Keybinding::SetGamepadJump(GamepadButton button)
 {
-  jump_ = jump;
+  gamepad_->SetJump(button);
 }
 
 void Keybinding::SetGamepadAttack(GamepadButton button)
 {
-  attack_ = attack;
+  gamepad_->SetAttack(button);
 }
 
 void Keybinding::SetGamepadStack(GamepadButton button)
 {
+  // No staaaaack
 }
 
-void Keybinding::SetGamepadMove(GamepadAxis axis)
+void Keybinding::SetGamepadMoveButton(GamepadButton button, Action action)
 {
-  moveLeft_ = left;
+  if (action != Action::MoveLeft || action != Action::MoveRight)
+  {
+    printf("Cannot set move button: Invalid action");
+    return;
+  }
+
+  gamepad_->SetMoveButton(button, action);
+}
+
+void Keybinding::SetGamepadMoveAxis(GamepadAxis axis)
+{
+  gamepad_->SetMove(axis);
 }
 
 //=============================================
@@ -181,22 +203,53 @@ KeybindingKeyboard::~KeybindingKeyboard()
 
 void KeybindingKeyboard::SetJump(Key key)
 {
+  jump_ = key;
 }
 
 void KeybindingKeyboard::SetAttack(Key key)
 {
+  attack_ = key;
 }
 
 void KeybindingKeyboard::SetStack(Key key)
 {
+  stack_ = key;
 }
 
 void KeybindingKeyboard::SetMoveLeft(Key key)
 {
+  moveLeft_ = key;
 }
 
 void KeybindingKeyboard::SetMoveRight(Key key)
 {
+  moveRight_ = key;
+}
+
+Key KeybindingKeyboard::GetJump()
+{
+  return jump_;
+}
+
+
+Key KeybindingKeyboard::GetAttack()
+{
+  return attack_;
+}
+
+Key KeybindingKeyboard::GetStack()
+{
+  return stack_;
+}
+
+Key KeybindingKeyboard::GetMoveLeft()
+{
+  return moveLeft_;
+}
+
+Key KeybindingKeyboard::GetMoveRight()
+{
+  return moveRight_;
 }
 
 //=============================================
