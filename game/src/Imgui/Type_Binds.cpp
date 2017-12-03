@@ -1571,8 +1571,9 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 		SameLine();
 		if (Button("Reset##sprite_sprite_reset"))
 		{
-			editor->Push_Action({ texture.m_Texture->Id(), -1, "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
+			ResourceID temp = texture.m_Texture->Id();
 			sprite->SetTextureID(-1);
+			editor->Push_Action({ temp, texture.m_Texture->Id(), "resourceID", handle, Action_General<SpriteComponent, ResourceID> });
 		}
 
 		if (BeginPopup("##sprite_color_picker"))

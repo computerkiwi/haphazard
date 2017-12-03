@@ -671,7 +671,10 @@ void Editor::KeyBindings(float dt)
 		m_editorState.MouseCameraDragClick = false;
 	}
 
-	m_editorSettings.cameraZoom -= 0.4f * ImGui::GetIO().MouseWheel;
+	if (!ImGui::IsAnyWindowHovered())
+	{
+		m_editorSettings.cameraZoom -= 0.4f * ImGui::GetIO().MouseWheel;
+	}
 }
 
 
