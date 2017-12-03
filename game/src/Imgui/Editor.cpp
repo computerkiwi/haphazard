@@ -631,22 +631,22 @@ void Editor::KeyBindings(float dt)
 	// Editor camera controls
 	if (Input::IsHeldDown(Key::Right))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(dt * 2, 0));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(dt * m_editorSettings.cameraArrowSpeed, 0));
 	}
 
 	if (Input::IsHeldDown(Key::Left))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(-dt * 2, 0));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(-dt * m_editorSettings.cameraArrowSpeed, 0));
 	}
 
 	if (Input::IsHeldDown(Key::Up))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, dt * 2));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, dt * m_editorSettings.cameraArrowSpeed));
 	}
 
 	if (Input::IsHeldDown(Key::Down))
 	{
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * 2));
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() + glm::vec2(0, -dt * m_editorSettings.cameraArrowSpeed));
 	}
 
 	if (Input::IsHeldDown(Key::MouseButton_Right) && !ImGui::GetIO().WantCaptureMouse)
@@ -661,7 +661,7 @@ void Editor::KeyBindings(float dt)
 
 		glm::vec2 diff = mouse - m_prevMouse;
 
-		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - (diff * dt) * m_editorSettings.cameraSpeed);
+		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - diff /*(diff * dt) * m_editorSettings.cameraSpeed*/);
 
 		m_prevMouse = mouse;
 	}
@@ -2417,6 +2417,7 @@ void Editor::SettingsPanel(float dt)
 
 	ImGui::PushItemWidth(110);
 	ImGui::DragFloat("Camera Speed", &m_editorSettings.cameraSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
+	ImGui::DragFloat("Camera Arrow Speed", &m_editorSettings.cameraArrowSpeed, (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
 	ImGui::DragFloat("Camera Zoom",  &m_editorSettings.cameraZoom,  (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
 	ImGui::PopItemWidth();
 
