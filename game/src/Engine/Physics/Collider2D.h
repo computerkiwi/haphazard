@@ -128,7 +128,7 @@ private:
 		META_DefineMember(Collider2D, m_appliedElasticity, "appliedElasticity");
 		META_DefineMember(Collider2D, m_collisionType, "collisionType");
 
-		META_DefineFunction(Collider2D, IsCollidingWithLayerMeta, "IsCollidingWithLayer")
+		META_DefineFunction(Collider2D, IsCollidingWithLayerMeta, "IsCollidingWithLayer");
 	}
 };
 
