@@ -180,6 +180,7 @@ class Editor
 		bool default_collider_match_scale = true;
 
 		float cameraSpeed = 50.0f;
+		float cameraArrowSpeed = 3.8f;
 		float cameraZoom  = 3.0f;
 
 	} m_editorSettings;
