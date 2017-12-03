@@ -333,6 +333,8 @@ namespace Input
     {
       scrollCount = 0;
     }
+
+	  ImGui_ImplGlfwGL3_ScrollCallback(window, xOffset, yOffset);
   }
 
   glm::vec2 GetScroll()

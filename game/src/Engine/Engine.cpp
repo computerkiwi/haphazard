@@ -294,6 +294,17 @@ void Engine::FileSave(const char *fileName)
 	return JsonToPrettyFile(meta::Serialize(*this, doc.GetAllocator()), fileName);
 }
 
+void Engine::FileSaveCompact(const char *fileName)
+{
+	logger << "Saving Game -> File: " << fileName;
+
+	// Make a document for the allocator.
+	// TODO: Figure out how to get an allocator without bothering with a whole document.
+	rapidjson::Document doc;
+
+	return JsonToFile(meta::Serialize(*this, doc.GetAllocator()), fileName);
+}
+
 void Engine::StringLoad(const char *jsonString)
 {
 	logger << "Loading game -> String";

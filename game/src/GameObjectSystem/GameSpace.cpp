@@ -43,16 +43,16 @@ GameObject_ID GenerateID()
 
 void GameSpaceManagerID::DeleteObjects()
 {
-	std::vector<GameObject_ID> objects;
-	CollectAllObjects(objects);
-
-	for (auto id : objects)
+	for (auto& space : m_spaces)
 	{
-		GameObject object = id;
-
-		if (object.IsDestroyed())
+		for (auto& info : *space.GetComponentMap<ObjectInfo>())
 		{
-			object.DeleteInternal();
+			GameObject object = info->m_id;
+
+			if (object.IsDestroyed())
+			{
+				object.DeleteInternal();
+			}
 		}
 	}
 }
