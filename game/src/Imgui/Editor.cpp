@@ -76,16 +76,23 @@ void Action_General(EditorAction& a)
 	// Get the Component Object
 	meta::Any obj(handle.Get());
 
-	// Check if we want redo or undo
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		// Update the data to the new value (redo)
-		obj.SetPointerMember(a.name, a.current.GetData<T>());
+		// Check if we want redo or undo
+		if (a.redo)
+		{
+			// Update the data to the new value (redo)
+			obj.SetPointerMember(a.name, a.current.GetData<T>());
+		}
+		else
+		{
+			// Update the data with the old value (undo)
+			obj.SetPointerMember(a.name, a.save.GetData<T>());
+		}
 	}
 	else
 	{
-		// Update the data with the old value (undo)
-		obj.SetPointerMember(a.name, a.save.GetData<T>());
+		logger << "[EDITOR] Attempting to undo/redo on a deleted object. Undo for deleted objects is coming soon.\n";
 	}
 }
 
@@ -602,7 +609,6 @@ void Editor::KeyBindings(float dt)
 		if (m_selected_object)
 		{
 			m_selected_object = m_selected_object.Duplicate();
-
 		}
 	}
 
