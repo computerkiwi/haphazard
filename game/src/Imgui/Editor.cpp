@@ -270,7 +270,7 @@ void Editor::Update(float dt)
 			m_editor_cam->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			m_editor_cam->SetProjection(1.0f, static_cast<float>(Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 			m_editor_cam->SetPosition(prev_camera->GetPosition());
-			m_editor_cam->SetZoom(prev_camera->GetZoom());
+			m_editorSettings.cameraZoom = prev_camera->GetZoom();
 			m_editor_cam->Use();
 
 			m_editorState.first_update = false;
