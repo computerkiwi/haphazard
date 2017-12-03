@@ -19,16 +19,19 @@ stackHeight = 0.5 -- Move to start function (set using gnome size)
 stackTimer  = 0   -- Timer until player can stack again
 stackParent = nil -- Player at the bottom of the stack for stacked update
 
+weapon = nil -- Player weapon
+
 lastPos     = nil -- Last position (for reviving); Vector type?
 moveDir     = 0
 
 -- Bools
-jumpEnabled  = false
-moveEnabled  = true
-stackEnabled = false
-tossOther    = false
-isTossed     = false
-onGround     = true
+attackEnabled = false
+jumpEnabled   = false
+moveEnabled   = true
+stackEnabled  = false
+tossOther     = false
+isTossed      = false
+onGround      = true
 
 -- Enums
 PLAYER_LAYER  =  4
@@ -56,7 +59,7 @@ function UpdateMovement(dt)
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
 
-  local newVelocity = playerBody.velocity
+  local newVelocity  = playerBody.velocity
   local acceleration = playerBody.acceleration
 
   -- Calculate x velocity
@@ -136,12 +139,20 @@ function Update(dt)
     GetInputKeyboard()
   end
 
+--  if (attackEnabled)
+--  then
+--    local script = this:GetScript("RedGnomeAttack.lua")
+--    weapon:Activate()
+--  else
+--    weapon:Deactivate()  
+--  end
+
   -- Player is tossed
-  if (isTossed)
-  then
-    TossUpdate(dt)
+  --if (isTossed)
+  --then
+  --  TossUpdate(dt)
   -- Player is stacked
-  elseif (stackEnabled)
+  if (stackEnabled)
   then
     StackedUpdate(dt)
   -- Update regular player movement
@@ -168,14 +179,6 @@ function OnCollisionEnter(other)
     then
       StackPlayers(other)
     end
-  -- Player collides with a coin
-  elseif(other:HasTag("Coin"))
-  then
-    -- TODO: Play a coin pickup effect
-    -- Switch to coin script
-    -- Destroy coin
-    -- GameObject:GetScript(filename of script)
-
   end
 end -- fn end
 
@@ -228,24 +231,30 @@ function SetKeyboardControls(name)
 
     otherPlayer = GameObject.FindByName("Player2")
 
+    weapon = GameObject.FindByName("RedGnomeSword")
+
     -- TEMPORARY
-    KEY_JUMP  = 87 -- W
-    KEY_DOWN  = 83 -- S
-    KEY_LEFT  = 65 -- A
-    KEY_RIGHT = 68 -- D
-    KEY_TOSS  = 84 -- T
+    KEY_JUMP   = 87 -- W
+    KEY_DOWN   = 83 -- S
+    KEY_LEFT   = 65 -- A
+    KEY_RIGHT  = 68 -- D
+    KEY_TOSS   = 84 -- T
+    KEY_ATTACK = 89 -- Y
 
   else
     PLAYER_NUM = 1
     
     otherPlayer = GameObject.FindByName("Player1")
 
+--    weapon = GameObject.FindByName("RedGnomeSword")
+
     -- TEMPORARY
-		KEY_JUMP  = 265 -- Up
-		KEY_DOWN  = 264 -- Down
-		KEY_LEFT  = 263 -- Left
-		KEY_RIGHT = 262 -- Right
-    KEY_TOSS  = 334 -- Numpad_Add
+		KEY_JUMP   = 265 -- Up
+		KEY_DOWN   = 264 -- Down
+		KEY_LEFT   = 263 -- Left
+		KEY_RIGHT  = 262 -- Right
+    KEY_TOSS   = 334 -- Numpad_Add
+    KEY_ATTACK = 336 -- Numpad_Enter
   end
 end -- fn end
 
@@ -304,19 +313,49 @@ function GetInputKeyboard()
     jumpEnabled = false
   end
 
+  -- Player attacks
+  if (IsPressed(KEY_ATTACK))
+  then
+    attackEnabled = true
+  else
+    attackEnabled = false
+  end
+
+  -- TODO: MOVE TO OWN FUNCTION
   -- Player tosses (and is not stacked on other player)
   if (IsPressed(KEY_TOSS) and stackEnabled == false)
   then
     tossOther = true
     local script = otherPlayer:GetScript("GnomeMovement.lua")
-    script.EnableToss()
-    print("Enable Toss")
-    script.SetMoveDir(moveDir)
+    
+    if (script.IsStacked())
+    then    
+      script.EnableToss()
+      print("Enable Toss")
+      script.SetMoveDir(moveDir)
+      script.DisableStack()
+      script.TossOnce()
+      script.SetTimer()
+      tossEnabled = false
+    end
   else
     tossOther = false
 --    local script = otherPlayer:GetScript("GnomeMovement.lua")
 --    script.DisableToss()
   end
+end -- fn end
+
+function IsStacked()
+  return stackEnabled
+end -- fn end
+
+function TossOnce()
+  local playerBody = this:GetRigidBody()
+  local newVelocity = playerBody.velocity
+  newVelocity.y = throwSpeed
+
+  playerBody.velocity = newVelocity
+
 end -- fn end
 
 function TossUpdate(dt)
@@ -329,7 +368,6 @@ function TossUpdate(dt)
 
   -- Calculate x velocity
   newVelocity.x = moveDir * throwSpeed
-  newVelocity.y = throwSpeed
 
   -- Calculate y valocity
   if (jumpEnabled == true)
@@ -344,20 +382,22 @@ function TossUpdate(dt)
 end -- fn end
 
 function EnableToss()
-
   isTossed = true
-
 end -- fn end
 
+function SetTimer()
+  stackTimer = STACK_TIME
+end -- fn end
 
 function DisableToss()
-
   isTossed = false
-
 end -- fn end
 
+function DisableStack()
+  stackEnabled = false
+end -- fn end
+
+
 function SetMoveDir(dir)
-
   moveDir = dir
-
 end -- fn end

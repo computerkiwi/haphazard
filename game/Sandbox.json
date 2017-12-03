@@ -42,6 +42,235 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
+                                            "meta_object_data": -4.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": -4.5
+                                        }
+                                    }
+                                },
+                                "scale": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 18.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 8.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        }
+                                    }
+                                },
+                                "zLayer": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "rotation": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "parent": {
+                                    "meta_type_name": "GameObject",
+                                    "meta_object_data": {
+                                        "id": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "StaticCollider2DComponent",
+                            "meta_object_data": {
+                                "colliderData": {
+                                    "meta_type_name": "Collider2D",
+                                    "meta_object_data": {
+                                        "selfElasticity": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "colliderShape": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 3
+                                        },
+                                        "offset": {
+                                            "meta_type_name": "glm::vec3",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                },
+                                                "z": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                }
+                                            }
+                                        },
+                                        "collisionLayer": {
+                                            "meta_type_name": "CollisionLayer",
+                                            "meta_object_data": {
+                                                "layer": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 8
+                                                }
+                                            }
+                                        },
+                                        "dimensions": {
+                                            "meta_type_name": "glm::vec3",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 18.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 8.0
+                                                },
+                                                "z": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                }
+                                            }
+                                        },
+                                        "rotationOffset": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        },
+                                        "collisionType": {
+                                            "meta_type_name": "collisionType",
+                                            "meta_object_data": {}
+                                        },
+                                        "appliedElasticity": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "SpriteComponent",
+                            "meta_object_data": {
+                                "textureHandler": {
+                                    "meta_type_name": "TextureHandler",
+                                    "meta_object_data": {
+                                        "timer": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "isTiling": {
+                                            "meta_type_name": "bool",
+                                            "meta_object_data": true
+                                        },
+                                        "tileAmount": {
+                                            "meta_type_name": "vec2",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                }
+                                            }
+                                        },
+                                        "isAnimated": {
+                                            "meta_type_name": "bool",
+                                            "meta_object_data": false
+                                        },
+                                        "currentFrame": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        },
+                                        "id": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 1233411183
+                                        },
+                                        "fps": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "color": {
+                                    "meta_type_name": "glm::vec4",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "w": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "objID": 12,
+                    "componentArray": [
+                        {
+                            "meta_type_name": "ObjectInfo",
+                            "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 12
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {
+                                        "Ground": 185762651
+                                    }
+                                },
+                                "name": {
+                                    "meta_type_name": "std::string",
+                                    "meta_object_data": "Ground"
+                                },
+                                "destroyed": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": false
+                                },
+                                "active": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": true
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "TransformComponent",
+                            "meta_object_data": {
+                                "position": {
+                                    "meta_type_name": "vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
                                             "meta_object_data": 11.5
                                         },
                                         "y": {
@@ -234,14 +463,14 @@
                     ]
                 },
                 {
-                    "objID": 12,
+                    "objID": 13,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 12
+                                    "meta_object_data": 13
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -321,7 +550,7 @@
                                     "meta_object_data": {
                                         "timer": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.4000244140625
+                                            "meta_object_data": 0.283447265625
                                         },
                                         "isTiling": {
                                             "meta_type_name": "bool",
@@ -346,7 +575,7 @@
                                         },
                                         "currentFrame": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 62
+                                            "meta_object_data": 35
                                         },
                                         "id": {
                                             "meta_type_name": "unsigned long long",
@@ -384,14 +613,14 @@
                     ]
                 },
                 {
-                    "objID": 13,
+                    "objID": 14,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 13
+                                    "meta_object_data": 14
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -613,14 +842,14 @@
                     ]
                 },
                 {
-                    "objID": 14,
+                    "objID": 15,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 14
+                                    "meta_object_data": 15
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -695,14 +924,14 @@
                     ]
                 },
                 {
-                    "objID": 15,
+                    "objID": 16,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 15
+                                    "meta_object_data": 16
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -732,11 +961,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 22.88471031188965
+                                            "meta_object_data": 35.00055694580078
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 5.0
+                                            "meta_object_data": 6.0
                                         }
                                     }
                                 },
@@ -822,7 +1051,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.36474609375
+                                            "meta_object_data": 0.0
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -992,7 +1221,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 15
+                                                    "meta_object_data": 16
                                                 }
                                             }
                                         },
@@ -1260,18 +1489,22 @@
                                     }
                                 }
                             }
+                        },
+                        {
+                            "meta_type_name": "HierarchyComponent",
+                            "meta_object_data": {}
                         }
                     ]
                 },
                 {
-                    "objID": 16,
+                    "objID": 17,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 16
+                                    "meta_object_data": 17
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -1301,11 +1534,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 30.194271087646486
+                                            "meta_object_data": 17.258899688720704
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 5.990000247955322
+                                            "meta_object_data": 2.0
                                         }
                                     }
                                 },
@@ -1391,7 +1624,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.0
+                                            "meta_object_data": -0.36309814453125
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -1468,7 +1701,7 @@
                                         },
                                         "layersCollidedWith": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 10
+                                            "meta_object_data": 0
                                         },
                                         "collisionType": {
                                             "meta_type_name": "collisionType",
@@ -1561,7 +1794,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 16
+                                                    "meta_object_data": 17
                                                 }
                                             }
                                         },
@@ -1576,14 +1809,14 @@
                     ]
                 },
                 {
-                    "objID": 17,
+                    "objID": 18,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 17
+                                    "meta_object_data": 18
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -1666,7 +1899,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 17
+                                                    "meta_object_data": 18
                                                 }
                                             }
                                         },
@@ -1767,31 +2000,31 @@
                     ]
                 },
                 {
-                    "objID": 18,
+                    "objID": 19,
                     "componentArray": [
                         {
                             "meta_type_name": "Camera",
                             "meta_object_data": {
                                 "zoom": {
                                     "meta_type_name": "float",
-                                    "meta_object_data": 7.376303195953369
+                                    "meta_object_data": 18.187002182006837
                                 },
                                 "position": {
                                     "meta_type_name": "vec2",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 26.539508819580079
+                                            "meta_object_data": 25.750144958496095
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 5.495004653930664
+                                            "meta_object_data": 4.132669448852539
                                         }
                                     }
                                 },
                                 "aspectRatio": {
                                     "meta_type_name": "float",
-                                    "meta_object_data": 1.3333333730697632
+                                    "meta_object_data": 1.9180818796157838
                                 },
                                 "isActiveCam": {
                                     "meta_type_name": "bool",
@@ -1804,7 +2037,7 @@
                             "meta_object_data": {
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 18
+                                    "meta_object_data": 19
                                 },
                                 "tags": {
                                     "meta_type_name": "TagMap",
@@ -1832,11 +2065,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 26.539508819580079
+                                            "meta_object_data": 26.129745483398439
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 5.495004653930664
+                                            "meta_object_data": 4.000004768371582
                                         }
                                     }
                                 },
@@ -1887,7 +2120,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 18
+                                                    "meta_object_data": 19
                                                 }
                                             }
                                         },
@@ -1898,235 +2131,6 @@
                                     }
                                 }
                             ]
-                        }
-                    ]
-                },
-                {
-                    "objID": 19,
-                    "componentArray": [
-                        {
-                            "meta_type_name": "ObjectInfo",
-                            "meta_object_data": {
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 19
-                                },
-                                "tags": {
-                                    "meta_type_name": "TagMap",
-                                    "meta_object_data": {
-                                        "Ground": 185762651
-                                    }
-                                },
-                                "name": {
-                                    "meta_type_name": "std::string",
-                                    "meta_object_data": "Ground"
-                                },
-                                "destroyed": {
-                                    "meta_type_name": "bool",
-                                    "meta_object_data": false
-                                },
-                                "active": {
-                                    "meta_type_name": "bool",
-                                    "meta_object_data": true
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "TransformComponent",
-                            "meta_object_data": {
-                                "position": {
-                                    "meta_type_name": "vec2",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": -4.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": -4.5
-                                        }
-                                    }
-                                },
-                                "scale": {
-                                    "meta_type_name": "glm::vec3",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 18.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 8.0
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        }
-                                    }
-                                },
-                                "zLayer": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                },
-                                "rotation": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                },
-                                "parent": {
-                                    "meta_type_name": "GameObject",
-                                    "meta_object_data": {
-                                        "id": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 0
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "StaticCollider2DComponent",
-                            "meta_object_data": {
-                                "colliderData": {
-                                    "meta_type_name": "Collider2D",
-                                    "meta_object_data": {
-                                        "selfElasticity": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "colliderShape": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 3
-                                        },
-                                        "offset": {
-                                            "meta_type_name": "glm::vec3",
-                                            "meta_object_data": {
-                                                "x": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 0.0
-                                                },
-                                                "y": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 0.0
-                                                },
-                                                "z": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 0.0
-                                                }
-                                            }
-                                        },
-                                        "collisionLayer": {
-                                            "meta_type_name": "CollisionLayer",
-                                            "meta_object_data": {
-                                                "layer": {
-                                                    "meta_type_name": "int",
-                                                    "meta_object_data": 8
-                                                }
-                                            }
-                                        },
-                                        "dimensions": {
-                                            "meta_type_name": "glm::vec3",
-                                            "meta_object_data": {
-                                                "x": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 18.0
-                                                },
-                                                "y": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 8.0
-                                                },
-                                                "z": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 1.0
-                                                }
-                                            }
-                                        },
-                                        "rotationOffset": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "layersCollidedWith": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 0
-                                        },
-                                        "collisionType": {
-                                            "meta_type_name": "collisionType",
-                                            "meta_object_data": {}
-                                        },
-                                        "appliedElasticity": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "SpriteComponent",
-                            "meta_object_data": {
-                                "textureHandler": {
-                                    "meta_type_name": "TextureHandler",
-                                    "meta_object_data": {
-                                        "timer": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        },
-                                        "isTiling": {
-                                            "meta_type_name": "bool",
-                                            "meta_object_data": true
-                                        },
-                                        "tileAmount": {
-                                            "meta_type_name": "vec2",
-                                            "meta_object_data": {
-                                                "x": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 1.0
-                                                },
-                                                "y": {
-                                                    "meta_type_name": "float",
-                                                    "meta_object_data": 1.0
-                                                }
-                                            }
-                                        },
-                                        "isAnimated": {
-                                            "meta_type_name": "bool",
-                                            "meta_object_data": false
-                                        },
-                                        "currentFrame": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 0
-                                        },
-                                        "id": {
-                                            "meta_type_name": "unsigned long long",
-                                            "meta_object_data": 1233411183
-                                        },
-                                        "fps": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.0
-                                        }
-                                    }
-                                },
-                                "color": {
-                                    "meta_type_name": "glm::vec4",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        },
-                                        "w": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.0
-                                        }
-                                    }
-                                }
-                            }
                         }
                     ]
                 },
@@ -5126,7 +5130,7 @@
                                         },
                                         "layersCollidedWith": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 4
+                                            "meta_object_data": 0
                                         },
                                         "collisionType": {
                                             "meta_type_name": "collisionType",
@@ -7078,11 +7082,11 @@
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 349.44000244140627
+                                            "meta_object_data": 372.94000244140627
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 25.35000228881836
+                                            "meta_object_data": 23.35000228881836
                                         }
                                     }
                                 },
@@ -9751,7 +9755,7 @@
                                         },
                                         "layersCollidedWith": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 4
+                                            "meta_object_data": 0
                                         },
                                         "collisionType": {
                                             "meta_type_name": "collisionType",
@@ -12375,6 +12379,293 @@
                                     }
                                 }
                             ]
+                        }
+                    ]
+                },
+                {
+                    "objID": 67,
+                    "componentArray": [
+                        {
+                            "meta_type_name": "ObjectInfo",
+                            "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 67
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
+                                "name": {
+                                    "meta_type_name": "std::string",
+                                    "meta_object_data": "RedGnomeWeapon"
+                                },
+                                "destroyed": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": false
+                                },
+                                "active": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": true
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "TransformComponent",
+                            "meta_object_data": {
+                                "position": {
+                                    "meta_type_name": "vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 36.843841552734378
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 6.6107659339904789
+                                        }
+                                    }
+                                },
+                                "scale": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        }
+                                    }
+                                },
+                                "zLayer": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "rotation": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "parent": {
+                                    "meta_type_name": "GameObject",
+                                    "meta_object_data": {
+                                        "id": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 16
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "RigidBodyComponent",
+                            "meta_object_data": {
+                                "gravity": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "acceleration": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "velocity": {
+                                    "meta_type_name": "glm::vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "mass": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "DynamicCollider2DComponent",
+                            "meta_object_data": {
+                                "colliderData": {
+                                    "meta_type_name": "Collider2D",
+                                    "meta_object_data": {
+                                        "selfElasticity": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "colliderShape": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 2
+                                        },
+                                        "offset": {
+                                            "meta_type_name": "glm::vec3",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                },
+                                                "z": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 0.0
+                                                }
+                                            }
+                                        },
+                                        "collisionLayer": {
+                                            "meta_type_name": "CollisionLayer",
+                                            "meta_object_data": {
+                                                "layer": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 2
+                                                }
+                                            }
+                                        },
+                                        "dimensions": {
+                                            "meta_type_name": "glm::vec3",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                },
+                                                "z": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                }
+                                            }
+                                        },
+                                        "rotationOffset": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "layersCollidedWith": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        },
+                                        "collisionType": {
+                                            "meta_type_name": "collisionType",
+                                            "meta_object_data": {}
+                                        },
+                                        "appliedElasticity": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "SpriteComponent",
+                            "meta_object_data": {
+                                "textureHandler": {
+                                    "meta_type_name": "TextureHandler",
+                                    "meta_object_data": {
+                                        "timer": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        },
+                                        "isTiling": {
+                                            "meta_type_name": "bool",
+                                            "meta_object_data": false
+                                        },
+                                        "tileAmount": {
+                                            "meta_type_name": "vec2",
+                                            "meta_object_data": {
+                                                "x": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                },
+                                                "y": {
+                                                    "meta_type_name": "float",
+                                                    "meta_object_data": 1.0
+                                                }
+                                            }
+                                        },
+                                        "isAnimated": {
+                                            "meta_type_name": "bool",
+                                            "meta_object_data": false
+                                        },
+                                        "currentFrame": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        },
+                                        "id": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 1313143356
+                                        },
+                                        "fps": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.0
+                                        }
+                                    }
+                                },
+                                "color": {
+                                    "meta_type_name": "glm::vec4",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        },
+                                        "w": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.0
+                                        }
+                                    }
+                                }
+                            }
                         }
                     ]
                 }

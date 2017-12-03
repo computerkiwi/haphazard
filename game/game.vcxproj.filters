@@ -176,6 +176,7 @@
     <None Include="assets\scripts\PlatformOneWay.lua" />
     <None Include="assets\scripts\PlatformMove.lua" />
     <None Include="assets\scripts\TossScript.lua" />
+    <None Include="assets\scripts\RedGnomeAttack.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
