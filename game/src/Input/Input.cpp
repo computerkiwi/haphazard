@@ -35,7 +35,10 @@ namespace Input
   static glm::vec2 cursorPos;              // x, y cursor positions; top-left is origin
   static glm::vec2 prevCursorPos;          // x, y of cursor last frame
   static std::vector<Gamepad *> gamepads;  // TEMP: vector of gamepad objects
-  static glm::vec2 scrollOffset;           // x, y mouse wheel offset (x is 0 coz vertical)
+  static glm::vec2 currScroll;             // x, y mouse wheel offset (x is 0 coz vertical)
+  static glm::vec2 prevScroll;             // prev x, y mouse wheel state
+  static int scrollCount;                  // Number of scroll wheel ticks
+  static int scrollDir; 
 
   static InputData prevState(MAX_KEY_SIZE); // Holds previous key states
   static InputData currState(MAX_KEY_SIZE); // Holds current key states
@@ -72,6 +75,9 @@ namespace Input
         gamepads[i]->EnableGamepad();
       }
     }
+
+    scrollCount = 0;
+    scrollDir = 0;
   }
 
   // Calls GLFW functions to check and store input
@@ -82,8 +88,9 @@ namespace Input
     // Read gamepad input
     UpdateGamepads();
 
-    // Copy over current to previous key states
+    // Copy over current to previous states
     UpdateKeyStates();
+    UpdateScroll();
   }
 
   // Screen coordinates
@@ -114,6 +121,7 @@ namespace Input
 	  return ScreenToWorld(prevCursorPos);
   }
 
+  // Noah's code ======================================================
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
@@ -219,12 +227,11 @@ namespace Input
       printf("%c is released\n", letter3);
     }
 
-    //if (IsHeldDown(key2))
-    //{
-    //  glm::vec2 coordinates = GetMousePos_World();
-    //  printf("World coordinates: x = %f, y = %f\n", coordinates.x, coordinates.y);
-    //}
-
+    std::cout << "x curr scroll: " << currScroll.x << std::endl;
+    std::cout << "y curr scroll: " << currScroll.y << std::endl;
+    std::cout << "x prev scroll: " << prevScroll.x << std::endl;
+    std::cout << "y prev scroll: " << prevScroll.y << std::endl;
+    std::cout << "count: " << scrollCount << std::endl;
   }
 
   // Callback for GLFW keyboard input detection
@@ -312,17 +319,43 @@ namespace Input
   // Detects mouse wheel
   static void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset)
   {
-    scrollOffset.x = xOffset;
-    scrollOffset.y = yOffset;
+    // Store scroll data
+    currScroll.x = xOffset;
+    currScroll.y = yOffset;
+
+    // Increment counter until direction changes
+    // TODO: Frames might be too fast, fix it?
+    if (yOffset == prevScroll.y)
+    {
+      ++scrollCount;
+    }
+    else
+    {
+      scrollCount = 0;
+    }
   }
 
   glm::vec2 GetScroll()
   {
-    //std::cout << "X scroll: " << scrollOffset.x << std::endl;
-    //std::cout << "Y scroll: " << scrollOffset.y << std::endl;
-
     // y is 1 (up) or -1 (down)
-    return scrollOffset;
+    return prevScroll;
+  }
+
+  // Number of scroll tick
+  int GetScrollCount()
+  {
+    return scrollCount;
+  }
+
+  void UpdateScroll()
+  {
+    // Copy scroll data
+    prevScroll.x = currScroll.x;
+    prevScroll.y = currScroll.y;
+
+    // Reset scroll
+    currScroll.x = 0;
+    currScroll.y = 0;
   }
 
   // Helper function to delay update until input is read

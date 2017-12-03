@@ -44,6 +44,7 @@ namespace Input
     // Update functions
     void UpdateKeyStates();
     void UpdateGamepads();
+    void UpdateScroll();
 
     // Cursor functions
     glm::vec2 GetMousePos();
@@ -53,6 +54,7 @@ namespace Input
   	glm::vec2 GetPrevMousePos_World();
     glm::vec2 ScreenToWorld(glm::vec2 cursor);
     glm::vec2 GetScroll();
+    int GetScrollCount();
 
     ////////// Callback Functions //////////
     // GLFW doesn't know what an object is, needs static

@@ -5,12 +5,15 @@ PRIMARY AUTHOR: Lya Vera
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+-- Connections
+otherPlayer = nil
+
 -- Variables
 moveSpeed   = 2
 jumpSpeed   = 4.5
 fallSpeed   = 2
 
-tossSpeed   = 5
+throwSpeed = 6
 
 stackHeight = 0.5 -- Move to start function (set using gnome size)
 stackTimer  = 0   -- Timer until player can stack again
@@ -23,13 +26,14 @@ moveDir     = 0
 jumpEnabled  = false
 moveEnabled  = true
 stackEnabled = false
-tossEnabled  = false
+tossOther    = false
+isTossed     = false
 onGround     = true
 
 -- Enums
 PLAYER_LAYER  =  4
 PLAYER_NUM    = -1 -- Set temporarily as invalid number
-STACK_TIME    =  1
+STACK_TIME    =  0.8
 
 -- Move directions
 MOVE_LEFT  = -1 -- Player moving left
@@ -52,8 +56,8 @@ function UpdateMovement(dt)
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
 
-  newVelocity = playerBody.velocity
-  acceleration = playerBody.acceleration
+  local newVelocity = playerBody.velocity
+  local acceleration = playerBody.acceleration
 
   -- Calculate x velocity
   newVelocity.x = moveDir * moveSpeed
@@ -65,8 +69,6 @@ function UpdateMovement(dt)
     jumpEnabled = false
     onGround = false
   end
-
-  -- TODO: using dt to calculate y velocity doesn't work :<
 
   -- Update player velocity
   playerBody.velocity = newVelocity
@@ -113,12 +115,6 @@ function StackedUpdate(dt)
   this:GetRigidBody().velocity = playerVelocity
 end -- fn end
 
-function TossUpdate(dt)
-
-
-
-end -- fn end
-
 -- Updates each frame
 function Update(dt)
   -- Can we add playerID's to the player objects? :<
@@ -140,8 +136,12 @@ function Update(dt)
     GetInputKeyboard()
   end
 
+  -- Player is tossed
+  if (isTossed)
+  then
+    TossUpdate(dt)
   -- Player is stacked
-  if (stackEnabled)
+  elseif (stackEnabled)
   then
     StackedUpdate(dt)
   -- Update regular player movement
@@ -226,6 +226,8 @@ function SetKeyboardControls(name)
   then
     PLAYER_NUM = 0
 
+    otherPlayer = GameObject.FindByName("Player2")
+
     -- TEMPORARY
     KEY_JUMP  = 87 -- W
     KEY_DOWN  = 83 -- S
@@ -235,6 +237,8 @@ function SetKeyboardControls(name)
 
   else
     PLAYER_NUM = 1
+    
+    otherPlayer = GameObject.FindByName("Player1")
 
     -- TEMPORARY
 		KEY_JUMP  = 265 -- Up
@@ -303,8 +307,57 @@ function GetInputKeyboard()
   -- Player tosses (and is not stacked on other player)
   if (IsPressed(KEY_TOSS) and stackEnabled == false)
   then
-    tossEnabled = true
+    tossOther = true
+    local script = otherPlayer:GetScript("GnomeMovement.lua")
+    script.EnableToss()
+    print("Enable Toss")
+    script.SetMoveDir(moveDir)
   else
-    tossEnabled = false
+    tossOther = false
+--    local script = otherPlayer:GetScript("GnomeMovement.lua")
+--    script.DisableToss()
   end
+end -- fn end
+
+function TossUpdate(dt)
+  -- Connections
+  local playerBody = this:GetRigidBody()
+  local playerTransform = this:GetTransform()
+
+  local newVelocity = playerBody.velocity
+  local acceleration = playerBody.acceleration
+
+  -- Calculate x velocity
+  newVelocity.x = moveDir * throwSpeed
+  newVelocity.y = throwSpeed
+
+  -- Calculate y valocity
+  if (jumpEnabled == true)
+  then
+    newVelocity.y = jumpSpeed
+    jumpEnabled = false
+    isTossed = false
+  end
+
+  -- Update player velocity
+  playerBody.velocity = newVelocity
+end -- fn end
+
+function EnableToss()
+
+  isTossed = true
+
+end -- fn end
+
+
+function DisableToss()
+
+  isTossed = false
+
+end -- fn end
+
+function SetMoveDir(dir)
+
+  moveDir = dir
+
 end -- fn end
