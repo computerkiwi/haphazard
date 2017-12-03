@@ -46,6 +46,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Particles.h"
 #include "graphics\Background.h"
 
+#define DTLIMIT .033333f
+
 GLFWwindow* WindowInit(); 
 
 // Systems to register.
@@ -313,6 +315,11 @@ float Engine::CalculateDt()
 	float currentFrame = (float)glfwGetTime();
 	float dt = currentFrame - last;
 	last = currentFrame;
+
+	if (dt > DTLIMIT)
+	{
+		return DTLIMIT;
+	}
 
 	return dt;
 }
