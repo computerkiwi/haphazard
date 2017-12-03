@@ -5,18 +5,157 @@
             "meta_type_name": "GameSpace",
             "meta_object_data": [
                 {
-                    "objID": 19,
+                    "objID": 74,
+                    "componentArray": [
+                        {
+                            "meta_type_name": "Camera",
+                            "meta_object_data": {
+                                "zoom": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 19.657886505126954
+                                },
+                                "position": {
+                                    "meta_type_name": "vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 8.373783111572266
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.500001072883606
+                                        }
+                                    }
+                                },
+                                "aspectRatio": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 1.886051058769226
+                                },
+                                "isActiveCam": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": false
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "ObjectInfo",
+                            "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 74
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
+                                "name": {
+                                    "meta_type_name": "std::string",
+                                    "meta_object_data": "Main Camera"
+                                },
+                                "destroyed": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": false
+                                },
+                                "active": {
+                                    "meta_type_name": "bool",
+                                    "meta_object_data": true
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "TransformComponent",
+                            "meta_object_data": {
+                                "position": {
+                                    "meta_type_name": "vec2",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 8.373783111572266
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 1.500001072883606
+                                        }
+                                    }
+                                },
+                                "scale": {
+                                    "meta_type_name": "vec3",
+                                    "meta_object_data": {
+                                        "x": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.15000000596046449
+                                        },
+                                        "y": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.15000000596046449
+                                        },
+                                        "z": {
+                                            "meta_type_name": "float",
+                                            "meta_object_data": 0.15000000596046449
+                                        }
+                                    }
+                                },
+                                "zLayer": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "rotation": {
+                                    "meta_type_name": "float",
+                                    "meta_object_data": 0.0
+                                },
+                                "parent": {
+                                    "meta_type_name": "GameObject",
+                                    "meta_object_data": {
+                                        "id": {
+                                            "meta_type_name": "int",
+                                            "meta_object_data": 0
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "meta_type_name": "ScriptComponent",
+                            "meta_object_data": [
+                                {
+                                    "meta_type_name": "LuaScript",
+                                    "meta_object_data": {
+                                        "thisObject": {
+                                            "meta_type_name": "GameObject",
+                                            "meta_object_data": {
+                                                "id": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 74
+                                                }
+                                            }
+                                        },
+                                        "resourceID": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 2738079508
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "objID": 66,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 66
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 19
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -45,7 +184,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -95,7 +234,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -121,7 +260,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -228,18 +367,22 @@
                     ]
                 },
                 {
-                    "objID": 11,
+                    "objID": 67,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 67
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 11
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -268,7 +411,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -318,7 +461,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -344,7 +487,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -451,18 +594,22 @@
                     ]
                 },
                 {
-                    "objID": 12,
+                    "objID": 68,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 68
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Animated"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 12
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -491,7 +638,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -534,7 +681,7 @@
                                     "meta_object_data": {
                                         "timer": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.334625244140625
+                                            "meta_object_data": 0.10063934326171875
                                         },
                                         "isTiling": {
                                             "meta_type_name": "bool",
@@ -559,7 +706,7 @@
                                         },
                                         "currentFrame": {
                                             "meta_type_name": "int",
-                                            "meta_object_data": 9
+                                            "meta_object_data": 21
                                         },
                                         "id": {
                                             "meta_type_name": "unsigned long long",
@@ -597,18 +744,22 @@
                     ]
                 },
                 {
-                    "objID": 13,
+                    "objID": 69,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 69
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 13
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -637,7 +788,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -687,7 +838,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -713,7 +864,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -820,18 +971,22 @@
                     ]
                 },
                 {
-                    "objID": 14,
+                    "objID": 70,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 70
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Foreground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 14
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -860,7 +1015,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -898,18 +1053,22 @@
                     ]
                 },
                 {
-                    "objID": 15,
+                    "objID": 71,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 71
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Player1"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 15
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -938,7 +1097,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -977,7 +1136,7 @@
                             "meta_type_name": "RigidBodyComponent",
                             "meta_object_data": {
                                 "gravity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -994,7 +1153,7 @@
                                     }
                                 },
                                 "acceleration": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1011,7 +1170,7 @@
                                     }
                                 },
                                 "velocity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1019,7 +1178,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.3058319091796875
+                                            "meta_object_data": -0.22556304931640626
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -1048,7 +1207,7 @@
                                             "meta_object_data": 2
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1074,7 +1233,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1189,7 +1348,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 15
+                                                    "meta_object_data": 71
                                                 }
                                             }
                                         },
@@ -1245,7 +1404,7 @@
                                             }
                                         },
                                         "BurstEmission": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1461,18 +1620,22 @@
                     ]
                 },
                 {
-                    "objID": 16,
+                    "objID": 72,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 72
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Player2"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 16
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -1501,7 +1664,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1513,7 +1676,7 @@
                                         },
                                         "z": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": 0.0
+                                            "meta_object_data": 1.0
                                         }
                                     }
                                 },
@@ -1540,7 +1703,7 @@
                             "meta_type_name": "RigidBodyComponent",
                             "meta_object_data": {
                                 "gravity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1557,7 +1720,7 @@
                                     }
                                 },
                                 "acceleration": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1574,7 +1737,7 @@
                                     }
                                 },
                                 "velocity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1582,7 +1745,7 @@
                                         },
                                         "y": {
                                             "meta_type_name": "float",
-                                            "meta_object_data": -0.3058319091796875
+                                            "meta_object_data": -0.22556304931640626
                                         },
                                         "z": {
                                             "meta_type_name": "float",
@@ -1611,7 +1774,7 @@
                                             "meta_object_data": 2
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1637,7 +1800,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1752,7 +1915,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 16
+                                                    "meta_object_data": 72
                                                 }
                                             }
                                         },
@@ -1761,24 +1924,46 @@
                                             "meta_object_data": 350423133
                                         }
                                     }
+                                },
+                                {
+                                    "meta_type_name": "LuaScript",
+                                    "meta_object_data": {
+                                        "thisObject": {
+                                            "meta_type_name": "GameObject",
+                                            "meta_object_data": {
+                                                "id": {
+                                                    "meta_type_name": "int",
+                                                    "meta_object_data": 72
+                                                }
+                                            }
+                                        },
+                                        "resourceID": {
+                                            "meta_type_name": "unsigned long long",
+                                            "meta_object_data": 3560543853
+                                        }
+                                    }
                                 }
                             ]
                         }
                     ]
                 },
                 {
-                    "objID": 17,
+                    "objID": 73,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 73
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Background"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 17
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -1807,7 +1992,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1853,7 +2038,7 @@
                                             "meta_object_data": {
                                                 "id": {
                                                     "meta_type_name": "int",
-                                                    "meta_object_data": 17
+                                                    "meta_object_data": 73
                                                 }
                                             }
                                         },
@@ -1954,149 +2139,22 @@
                     ]
                 },
                 {
-                    "objID": 18,
+                    "objID": 75,
                     "componentArray": [
-                        {
-                            "meta_type_name": "Camera",
-                            "meta_object_data": {
-                                "zoom": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 19.657886505126954
-                                },
-                                "position": {
-                                    "meta_type_name": "vec2",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 8.373783111572266
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.500001072883606
-                                        }
-                                    }
-                                },
-                                "aspectRatio": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 2.517207384109497
-                                },
-                                "isActiveCam": {
-                                    "meta_type_name": "bool",
-                                    "meta_object_data": false
-                                }
-                            }
-                        },
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
-                                "name": {
-                                    "meta_type_name": "std::string",
-                                    "meta_object_data": "Main Camera"
-                                },
                                 "id": {
                                     "meta_type_name": "int",
-                                    "meta_object_data": 18
+                                    "meta_object_data": 75
                                 },
-                                "destroyed": {
-                                    "meta_type_name": "bool",
-                                    "meta_object_data": false
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
                                 },
-                                "active": {
-                                    "meta_type_name": "bool",
-                                    "meta_object_data": true
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "TransformComponent",
-                            "meta_object_data": {
-                                "position": {
-                                    "meta_type_name": "vec2",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 8.373783111572266
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 1.500001072883606
-                                        }
-                                    }
-                                },
-                                "scale": {
-                                    "meta_type_name": "glm::vec3",
-                                    "meta_object_data": {
-                                        "x": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.15000000596046449
-                                        },
-                                        "y": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.15000000596046449
-                                        },
-                                        "z": {
-                                            "meta_type_name": "float",
-                                            "meta_object_data": 0.15000000596046449
-                                        }
-                                    }
-                                },
-                                "zLayer": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                },
-                                "rotation": {
-                                    "meta_type_name": "float",
-                                    "meta_object_data": 0.0
-                                },
-                                "parent": {
-                                    "meta_type_name": "GameObject",
-                                    "meta_object_data": {
-                                        "id": {
-                                            "meta_type_name": "int",
-                                            "meta_object_data": 0
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "meta_type_name": "ScriptComponent",
-                            "meta_object_data": [
-                                {
-                                    "meta_type_name": "LuaScript",
-                                    "meta_object_data": {
-                                        "thisObject": {
-                                            "meta_type_name": "GameObject",
-                                            "meta_object_data": {
-                                                "id": {
-                                                    "meta_type_name": "int",
-                                                    "meta_object_data": 18
-                                                }
-                                            }
-                                        },
-                                        "resourceID": {
-                                            "meta_type_name": "unsigned long long",
-                                            "meta_object_data": 2738079508
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "objID": 20,
-                    "componentArray": [
-                        {
-                            "meta_type_name": "ObjectInfo",
-                            "meta_object_data": {
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Fire"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 20
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -2125,7 +2183,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2204,7 +2262,7 @@
                                             }
                                         },
                                         "BurstEmission": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -2420,18 +2478,22 @@
                     ]
                 },
                 {
-                    "objID": 21,
+                    "objID": 76,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 76
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Wall"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 21
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -2460,7 +2522,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2510,7 +2572,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -2536,7 +2598,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -2575,18 +2637,22 @@
                     ]
                 },
                 {
-                    "objID": 22,
+                    "objID": 77,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 77
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Tree"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 22
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -2615,7 +2681,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2721,18 +2787,22 @@
                     ]
                 },
                 {
-                    "objID": 23,
+                    "objID": 78,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 78
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Tree"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 23
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -2761,7 +2831,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2867,18 +2937,22 @@
                     ]
                 },
                 {
-                    "objID": 24,
+                    "objID": 79,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 79
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Tree"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 24
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -2907,7 +2981,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3013,18 +3087,22 @@
                     ]
                 },
                 {
-                    "objID": 25,
+                    "objID": 80,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 80
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Tree"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 25
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -3053,7 +3131,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3159,18 +3237,22 @@
                     ]
                 },
                 {
-                    "objID": 26,
+                    "objID": 81,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 81
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 26
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -3199,7 +3281,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3249,7 +3331,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3275,7 +3357,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3382,18 +3464,22 @@
                     ]
                 },
                 {
-                    "objID": 27,
+                    "objID": 82,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 82
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 27
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -3422,7 +3508,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3472,7 +3558,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3498,7 +3584,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3605,18 +3691,22 @@
                     ]
                 },
                 {
-                    "objID": 28,
+                    "objID": 83,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 83
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 28
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -3645,7 +3735,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3695,7 +3785,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3721,7 +3811,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3828,18 +3918,22 @@
                     ]
                 },
                 {
-                    "objID": 29,
+                    "objID": 84,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 84
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Interactive"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 29
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -3868,7 +3962,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -3918,7 +4012,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -3944,7 +4038,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4051,18 +4145,22 @@
                     ]
                 },
                 {
-                    "objID": 30,
+                    "objID": 85,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 85
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 30
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -4091,7 +4189,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -4141,7 +4239,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4167,7 +4265,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4274,18 +4372,22 @@
                     ]
                 },
                 {
-                    "objID": 31,
+                    "objID": 86,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 86
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 31
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -4314,7 +4416,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -4364,7 +4466,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4390,7 +4492,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4497,18 +4599,22 @@
                     ]
                 },
                 {
-                    "objID": 32,
+                    "objID": 87,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 87
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 32
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -4537,7 +4643,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -4643,18 +4749,22 @@
                     ]
                 },
                 {
-                    "objID": 33,
+                    "objID": 88,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 88
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 33
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -4683,7 +4793,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -4733,7 +4843,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4759,7 +4869,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4866,18 +4976,22 @@
                     ]
                 },
                 {
-                    "objID": 34,
+                    "objID": 89,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 89
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 34
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -4906,7 +5020,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -4956,7 +5070,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -4982,7 +5096,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5089,18 +5203,22 @@
                     ]
                 },
                 {
-                    "objID": 35,
+                    "objID": 90,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 90
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 35
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -5129,7 +5247,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -5179,7 +5297,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5205,7 +5323,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5312,18 +5430,22 @@
                     ]
                 },
                 {
-                    "objID": 36,
+                    "objID": 91,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 91
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 36
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -5352,7 +5474,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -5402,7 +5524,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5428,7 +5550,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5535,18 +5657,22 @@
                     ]
                 },
                 {
-                    "objID": 37,
+                    "objID": 92,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 92
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 37
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -5575,7 +5701,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -5625,7 +5751,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5651,7 +5777,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5758,18 +5884,22 @@
                     ]
                 },
                 {
-                    "objID": 38,
+                    "objID": 93,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 93
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 38
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -5798,7 +5928,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -5848,7 +5978,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5874,7 +6004,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -5981,18 +6111,22 @@
                     ]
                 },
                 {
-                    "objID": 39,
+                    "objID": 94,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 94
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 39
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -6021,7 +6155,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -6071,7 +6205,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6097,7 +6231,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6204,18 +6338,22 @@
                     ]
                 },
                 {
-                    "objID": 40,
+                    "objID": 95,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 95
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 40
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -6244,7 +6382,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -6294,7 +6432,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6320,7 +6458,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6427,18 +6565,22 @@
                     ]
                 },
                 {
-                    "objID": 41,
+                    "objID": 96,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 96
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 41
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -6467,7 +6609,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -6517,7 +6659,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6543,7 +6685,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6650,18 +6792,22 @@
                     ]
                 },
                 {
-                    "objID": 42,
+                    "objID": 97,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 97
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 42
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -6690,7 +6836,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -6740,7 +6886,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6766,7 +6912,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -6873,18 +7019,22 @@
                     ]
                 },
                 {
-                    "objID": 43,
+                    "objID": 98,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 98
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Interact Particles"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 43
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -6913,7 +7063,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -6992,7 +7142,7 @@
                                             }
                                         },
                                         "BurstEmission": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7208,18 +7358,22 @@
                     ]
                 },
                 {
-                    "objID": 44,
+                    "objID": 99,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 99
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 44
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -7248,7 +7402,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -7298,7 +7452,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7324,7 +7478,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7431,18 +7585,22 @@
                     ]
                 },
                 {
-                    "objID": 45,
+                    "objID": 100,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 100
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 45
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -7471,7 +7629,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -7521,7 +7679,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7547,7 +7705,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7654,18 +7812,22 @@
                     ]
                 },
                 {
-                    "objID": 46,
+                    "objID": 101,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 101
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 46
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -7694,7 +7856,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -7744,7 +7906,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7770,7 +7932,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7877,18 +8039,22 @@
                     ]
                 },
                 {
-                    "objID": 47,
+                    "objID": 102,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 102
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 47
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -7917,7 +8083,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -7967,7 +8133,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -7993,7 +8159,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8100,18 +8266,22 @@
                     ]
                 },
                 {
-                    "objID": 48,
+                    "objID": 103,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 103
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 48
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -8140,7 +8310,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -8190,7 +8360,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8216,7 +8386,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8323,18 +8493,22 @@
                     ]
                 },
                 {
-                    "objID": 49,
+                    "objID": 104,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 104
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 49
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -8363,7 +8537,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -8413,7 +8587,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8439,7 +8613,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8546,18 +8720,22 @@
                     ]
                 },
                 {
-                    "objID": 50,
+                    "objID": 105,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 105
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 50
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -8586,7 +8764,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -8636,7 +8814,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8662,7 +8840,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8769,18 +8947,22 @@
                     ]
                 },
                 {
-                    "objID": 51,
+                    "objID": 106,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 106
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Coin"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 51
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -8809,7 +8991,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -8859,7 +9041,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8885,7 +9067,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -8992,18 +9174,22 @@
                     ]
                 },
                 {
-                    "objID": 52,
+                    "objID": 107,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 107
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Interactive_Destructible"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 52
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -9032,7 +9218,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -9082,7 +9268,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9108,7 +9294,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9215,18 +9401,22 @@
                     ]
                 },
                 {
-                    "objID": 53,
+                    "objID": 108,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 108
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Interactive_Destructible"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 53
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -9255,7 +9445,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -9305,7 +9495,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9331,7 +9521,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9438,18 +9628,22 @@
                     ]
                 },
                 {
-                    "objID": 54,
+                    "objID": 109,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 109
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 54
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -9478,7 +9672,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -9528,7 +9722,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9554,7 +9748,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9661,18 +9855,22 @@
                     ]
                 },
                 {
-                    "objID": 55,
+                    "objID": 110,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 110
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 55
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -9701,7 +9899,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -9751,7 +9949,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9777,7 +9975,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -9884,18 +10082,22 @@
                     ]
                 },
                 {
-                    "objID": 56,
+                    "objID": 111,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 111
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 56
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -9924,7 +10126,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -9974,7 +10176,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10000,7 +10202,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10107,18 +10309,22 @@
                     ]
                 },
                 {
-                    "objID": 57,
+                    "objID": 112,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 112
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 57
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -10147,7 +10353,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -10197,7 +10403,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10223,7 +10429,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10330,18 +10536,22 @@
                     ]
                 },
                 {
-                    "objID": 58,
+                    "objID": 113,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 113
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 58
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -10370,7 +10580,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -10420,7 +10630,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10446,7 +10656,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10553,18 +10763,22 @@
                     ]
                 },
                 {
-                    "objID": 59,
+                    "objID": 114,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 114
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 59
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -10593,7 +10807,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -10643,7 +10857,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10669,7 +10883,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10776,18 +10990,22 @@
                     ]
                 },
                 {
-                    "objID": 60,
+                    "objID": 115,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 115
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 60
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -10816,7 +11034,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -10866,7 +11084,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10892,7 +11110,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -10999,18 +11217,22 @@
                     ]
                 },
                 {
-                    "objID": 61,
+                    "objID": 116,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 116
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 61
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -11039,7 +11261,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -11089,7 +11311,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11115,7 +11337,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11222,18 +11444,22 @@
                     ]
                 },
                 {
-                    "objID": 62,
+                    "objID": 117,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 117
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 62
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -11262,7 +11488,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -11312,7 +11538,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11338,7 +11564,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11445,18 +11671,22 @@
                     ]
                 },
                 {
-                    "objID": 63,
+                    "objID": 118,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 118
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Ground"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 63
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -11485,7 +11715,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -11535,7 +11765,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11561,7 +11791,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -11668,18 +11898,22 @@
                     ]
                 },
                 {
-                    "objID": 64,
+                    "objID": 119,
                     "componentArray": [
                         {
                             "meta_type_name": "ObjectInfo",
                             "meta_object_data": {
+                                "id": {
+                                    "meta_type_name": "int",
+                                    "meta_object_data": 119
+                                },
+                                "tags": {
+                                    "meta_type_name": "TagMap",
+                                    "meta_object_data": {}
+                                },
                                 "name": {
                                     "meta_type_name": "std::string",
                                     "meta_object_data": "Tree"
-                                },
-                                "id": {
-                                    "meta_type_name": "int",
-                                    "meta_object_data": 64
                                 },
                                 "destroyed": {
                                     "meta_type_name": "bool",
@@ -11708,7 +11942,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
