@@ -68,10 +68,20 @@ void SpriteComponent::SetRenderData(const TransformComponent* transform, std::ve
 
 	glm::vec4 bounds = m_TextureHandler.GetBounds();
 
-	data->push_back(bounds.x);
-	data->push_back(bounds.y);
-	data->push_back(bounds.z);
-	data->push_back(bounds.w);
+	if (m_TextureHandler.IsTiling())
+	{
+		data->push_back(bounds.x + 0.00032f);
+		data->push_back(bounds.y + 0.00032f);
+		data->push_back(bounds.z - 0.00032f);
+		data->push_back(bounds.w - 0.00032f);
+	}
+	else
+	{
+		data->push_back(bounds.x);
+		data->push_back(bounds.y);
+		data->push_back(bounds.z);
+		data->push_back(bounds.w);
+	}
 
 	// Load data into array
 	glm::mat4 matrix = transform->GetMatrix4();
