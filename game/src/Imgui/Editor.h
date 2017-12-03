@@ -204,7 +204,7 @@ class Editor
 	// List of delimited GameObjects
 	std::vector<GameObject_ID> m_objects;
 
-	GameSpace m_deleted_objects;
+	//GameSpace m_deleted_objects;
 
 	// Undo/Redo Actions
 	// --------------
@@ -250,6 +250,8 @@ class Editor
 	// Search Bars for Sprites
 	struct SearchBars
 	{
+		ImGuiTextFilter script;
+
 		ImGuiTextFilter sprite;
 		ImGuiTextFilter particles;
 		ImGuiTextFilter background;
@@ -450,7 +452,7 @@ public:
 	// Default Editor Style
 	static void ResetStyle();
 
-	GameSpace& GetDeletedObjects() { return m_deleted_objects; }
+	//GameSpace& GetDeletedObjects() { return m_deleted_objects; }
 
 	Editor::SearchBars& GetSearchBars() { return m_searches; }
 

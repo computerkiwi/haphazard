@@ -314,6 +314,8 @@ namespace Input
   {
     scrollOffset.x = xOffset;
     scrollOffset.y = yOffset;
+
+	ImGui_ImplGlfwGL3_ScrollCallback(window, xOffset, yOffset);
   }
 
   glm::vec2 GetScroll()

@@ -182,7 +182,7 @@ void Action_General_GameObjectDelete(EditorAction& a)
 
 	if (a.redo)
 	{
-		engine->GetEditor()->GetDeletedObjects().Duplicate(object);
+		//engine->GetEditor()->GetDeletedObjects().Duplicate(object);
 		object.Delete();
 	}
 	else
@@ -693,7 +693,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		SameLine();
 		if (Button("Delete"))
 		{
-			editor->GetDeletedObjects().Duplicate(object);
+			//editor->GetDeletedObjects().Duplicate(object);
 			object.DeleteInternal();
 			End();
 			return;
@@ -1487,7 +1487,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 		ResourceManager& rm = engine->GetResourceManager();
-		std::vector<Resource *> scripts = rm.GetResourcesOfType(ResourceType::SCRIPT);
+		std::vector<Resource *> scripts = rm.GetResourcesOfTypes_Alphabetical(ResourceType::SCRIPT);
 
 		if (Button("Remove##script"))
 		{
@@ -1503,13 +1503,18 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 
 		if (BeginPopup("##script_add_script"))
 		{
+			editor->GetSearchBars().script.Draw("Search", 100);
+
 			for (auto& script : scripts)
 			{
 				if (!ObjectHasScript(script->Id(), script_c->scripts))
 				{
-					if (Selectable(script->FileName().c_str()))
+					if (editor->GetSearchBars().script.PassFilter(script->FileName().c_str()))
 					{
-						script_c->scripts.emplace_back(LuaScript(script, object));
+						if (Selectable(script->FileName().c_str()))
+						{
+							script_c->scripts.emplace_back(LuaScript(script, object));
+						}
 					}
 				}
 			}
