@@ -21,6 +21,7 @@ stackParent = nil -- Player at the bottom of the stack for stacked update
 
 lastPos     = nil -- Last position (for reviving); Vector type?
 moveDir     = 0
+lastDir		= 1
 
 -- Bools
 jumpEnabled  = false
@@ -254,15 +255,18 @@ function GetInputGamepad()
   -- Player moves right
   if (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) > DEADZONE)
   then
-    moveDir = MOVE_RIGHT
+    SetMoveDir(MOVE_RIGHT)
+	lastDir = moveDir
   -- Player moves left
   elseif (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) < -DEADZONE)
   then
-    moveDir = MOVE_LEFT
+    SetMoveDir(MOVE_LEFT)
+	lastDir = moveDir
   -- Player does not move
   else
     moveDir = MOVE_IDLE
   end
+
 
   -- Player jumps
   if (GamepadIsPressed(PLAYER_NUM, JUMP))
@@ -286,14 +290,16 @@ function GetInputKeyboard()
   -- Player moves right
   if (IsPressed(KEY_RIGHT))
   then
-    moveDir = MOVE_RIGHT
+    SetMoveDir(MOVE_RIGHT)
+	lastDir = moveDir
   -- Player moves left
   elseif (IsPressed(KEY_LEFT))
   then
-    moveDir = MOVE_LEFT
+    SetMoveDir(MOVE_LEFT)
+	lastDir = moveDir
   -- Player does not move
   else
-    moveDir = MOVE_IDLE
+    SetMoveDir(MOVE_IDLE)
   end
 
   -- Player jumps
@@ -359,5 +365,16 @@ end -- fn end
 function SetMoveDir(dir)
 
   moveDir = dir
+
+  -- Flip sprite
+  if(moveDir == -1)
+  then
+	  this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	--print(this:GetTransform().scale.x)
+  elseif(moveDir == 1)
+  then
+	  this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	 --print(this:GetTransform().scale.x)
+  end
 
 end -- fn end

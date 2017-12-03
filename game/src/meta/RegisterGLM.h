@@ -33,12 +33,15 @@ namespace meta
 			typedef glm::vec2(vec2::*Vec2AddFunction)(glm::vec2 *vec);
 			luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<glm::vec2>("vec2")
 				.addStaticFunction("Add", AddVec2)
-				.addStaticFunction("Sub", SubVec2);
+				.addStaticFunction("Sub", SubVec2)
+				.addConstructor<void(*)(float, float)>();
 
-			META_DefineType(glm::vec3);
-			META_DefineMember(glm::vec3, x, "x");
-			META_DefineMember(glm::vec3, y, "y");
-			META_DefineMember(glm::vec3, z, "z");
+			META_DefineType(vec3);
+			META_DefineMember(vec3, x, "x");
+			META_DefineMember(vec3, y, "y");
+			META_DefineMember(vec3, z, "z");
+			luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<vec3>("vec3")
+				.addConstructor<void(*)(float, float, float)>();
 
 			META_DefineType(glm::vec4);
 			META_DefineMember(glm::vec4, x, "x");
