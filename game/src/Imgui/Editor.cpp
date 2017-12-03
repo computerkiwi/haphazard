@@ -807,7 +807,7 @@ void Editor::OnClick()
 		{
 			ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 			pos = transform.Get()->GetPosition();
-			scale = transform.Get()->GetScale();
+			scale = abs(transform.Get()->GetScale());
 
 			// Check the selected object first
 			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
@@ -830,7 +830,7 @@ void Editor::OnClick()
 			{
 				// Transform handle
 				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				scale = transform->GetScale();
+				scale = abs(transform->GetScale());
 				pos = transform->GetPosition();
 
 				// Check for non-collision
