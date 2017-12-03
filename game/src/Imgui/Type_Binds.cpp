@@ -1521,13 +1521,14 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 
 			EndPopup();
 		}
-
+		std::string id = "X##script_remove_script";
 		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
 		for (int i = 0; i < script_c->scripts.size(); i++)
 		{
 			LuaScript& script = script_c->scripts[i];
-			
-			if (Button("X##script_remove_script", ImVec2(25, 0)))
+			id += rm.Get(script.GetResourceID())->FileName();
+
+			if (Button(id.c_str(), ImVec2(25, 0)))
 			{
 				script_c->scripts.erase(script_c->scripts.begin() + i);
 				break;
@@ -1535,6 +1536,8 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 			SameLine();
 
 			Text(rm.Get(script.GetResourceID())->FileName().c_str());
+
+			id = "X##script_remove_script";
 		}
 		PopStyleVar();
 	}
