@@ -6,27 +6,35 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 -- Variables
-ParentPos = nil
+spawn = false
+weapon = nil
 
 -- Defines
-WEAPON = "RedGnomeWeapon.json"
+WEAPON_NAME = "hammerWeapon.json"
+
+function Start()
+  weapon = GameObject.FindByName("hammerWeapon")
+  weapon:Deactivate()
+end -- fn end
 
 function Update(dt)
-  if (ParentPos ~= nil)
+  if (IsPressed(89))
   then
-    local weapon = GameObject.LoadPrefab(WEAPON)
-   local weaponTransform = weapon:GetTransform()
-    weaponTransform.position = ParentPos
+    --Attack()
+    --spawn = false
+    weapon:Activate()
+  else
+    weapon:Deactivate()
   end
 end -- fn end
 
-function OnCollisionEnter(other)
-  if (other:HasTag("Enemy"))
-  then
-    this:Deactivate()
-  end
+function Attack()
+  print("Attack!")
+--  local weapon = GameObject.LoadPrefab(WEAPON_NAME)
+  local weaponTransform = weapon:GetTransform()
+  weaponTransform.position = this:GetTransform().position
 end -- fn end
 
-function SetParentPos(pos)
-  ParentPos = pos
+function SpawnWeapon()
+  spawn = true
 end -- fn end
