@@ -51,9 +51,50 @@ TOSS   = 3 -- Y
 
 HORIZONTAL_AXIS = 0
 
+GROUND_CHECK_LENGTH = 0.05
+
+-- Returns (bool - found ground below), (number - y position of the top of the ground)
+function CheckGround(count)
+	local PLAYER_LAYER = 1 << 2
+	local GROUND_LAYER = 1 << 3
+
+	local pos   = this:GetTransform().position
+	local scale = this:GetCollider().dimensions
+	
+	local DOWN = vec2(0, -1)
+	
+	-- Make an array of raycast origins
+	local origins = {}
+	for i = 1, count do
+		local fraction = (i - 1) / (count - 1)
+	
+		origins[i] = vec2(pos.x - scale.x / 2 + fraction * scale.x, pos.y + scale.y / 2)
+	end
+	
+	-- Cast each raycast
+	local casts = {}
+	for i, origin in ipairs(origins) do
+		print(i .. ', ' .. tostring(origin))
+		casts[i] = Raycast.Cast(this:GetSpaceIndex(), origin, DOWN, scale.y + GROUND_CHECK_LENGTH, GROUND_LAYER )
+	end
+	
+	-- Figure out wheter we hit and where the ground is.
+	local hit = false
+	local hitY = -999999999
+	for i, cast in pairs(casts) do
+		if (cast.gameObjectHit:IsValid())
+		then
+			hit = true
+			hitY = math.max(hitY, cast.intersection.y)
+		end
+	end
+	
+	return hit, hitY
+end
+
 function UpdateMovement(dt)
   HandleTimer(dt)
-
+	
   -- Connections
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
@@ -139,8 +180,9 @@ end -- fn end
 -- Updates each frame
 function Update(dt)
   -- Can we add playerID's to the player objects? :<
-
-  -- TEMP move to start function
+	
+	onGround = CheckGround(2)
+	
   -- Determine player once (which is why initial value is -1)
   if (PLAYER_NUM < 0)
   then
@@ -193,18 +235,11 @@ function OnCollisionEnter(other)
   -- Get name (for onGround)
   local otherName = other:GetName()
 
-  -- Player collides with ground
-  if (other:HasTag("Ground"))
-  then
-    onGround = true
-  -- Player collides with other player
-  elseif(onGround == false)
-  then
-    if (other:HasTag("Player") and stackEnabled == false)
-    then
-      StackPlayers(other)
-    end
-  end
+	-- Player collides with other player
+	if (other:HasTag("Player") and stackEnabled == false)
+	then
+		StackPlayers(other)
+	end
 end -- fn end
 
 -- Kieran's stack code

@@ -170,12 +170,16 @@ private:
 		return GetComponent<T>().Get();
 	}
 
+	class Collider2D *GetCollider();
+
 	// Gets a script by name (1 parameter from Lua - string name)
 	int GetScript(lua_State *L);
 
 	META_REGISTER(GameObject)
 	{
 		META_DefineMember(GameObject, m_objID, "id");
+
+		META_DefineFunction(GameObject, GetIndex, "GetSpaceIndex");
 
 		META_DefineFunction(GameObject, IsValid,      "IsValid");
 		META_DefineFunction(GameObject, Usable,       "Usable");
@@ -202,7 +206,7 @@ private:
 		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
 		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
 		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
-		META_DefineFunction(GameObject, DeleteComponent<Camera>,					  "DeleteCamera");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>,                      "DeleteCamera");
 
 
 		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");
@@ -213,6 +217,7 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<SpriteComponent>,            "GetSprite");
 		META_DefineFunction(GameObject, GetComponentPointer<Camera>,                     "GetCamera");
 		META_DefineFunction(GameObject, GetComponentPointer<ScriptComponent>,            "GetScripts");
+		META_DefineFunction(GameObject, GetCollider,                                     "GetCollider");
 
 
 		META_DefineFunction(GameObject, GetName, "GetName");

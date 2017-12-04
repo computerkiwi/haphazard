@@ -12,6 +12,8 @@ Copyright � 2017 DigiPen (USA) Corporation.
 
 #include "Util/Serialization.h"
 
+#include "Engine/Physics/Collider2D.h"
+
 extern Engine *engine;
 
 GameObject::GameObject() : m_id(0), m_space(0)
@@ -343,6 +345,27 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 
 		// Add it to the space.
 		gameObject.AddComponent(anyComponent);
+	}
+}
+
+Collider2D *GameObject::GetCollider()
+{
+	ComponentHandle<DynamicCollider2DComponent> component = GetComponent<DynamicCollider2DComponent>();
+	if (component.IsValid())
+	{
+		return &component->ColliderData();
+	}
+	else
+	{
+		ComponentHandle<StaticCollider2DComponent> staticComponent = GetComponent<StaticCollider2DComponent>();
+		if (staticComponent.IsValid())
+		{
+			return &staticComponent->ColliderData();
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 }
 
