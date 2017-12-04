@@ -486,18 +486,18 @@ void Raycast::Draw(glm::vec4 color, bool drawBoxAtStartPoint, bool drawBoxAtEndP
 	}
 }
 
-Raycast Raycast::Cast(size_t space, glm::vec2 startPoint, float direction, float range, collisionLayers layer)
+Raycast Raycast::RaycastAngle(size_t space, glm::vec2 startPoint, float direction, float range, int layer)
 {
 	ComponentMap<DynamicCollider2DComponent>* dynamicColliders = engine->GetSpace(space)->GetComponentMap<DynamicCollider2DComponent>();
 	ComponentMap<StaticCollider2DComponent>* staticColliders = engine->GetSpace(space)->GetComponentMap<StaticCollider2DComponent>();
 
-	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, layer);
+	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, static_cast<collisionLayers>(layer));
 }
 
-Raycast Raycast::Cast(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer)
+Raycast Raycast::RaycastVector(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, int layer)
 {
 	ComponentMap<DynamicCollider2DComponent>* dynamicColliders = engine->GetSpace(space)->GetComponentMap<DynamicCollider2DComponent>();
 	ComponentMap<StaticCollider2DComponent>* staticColliders = engine->GetSpace(space)->GetComponentMap<StaticCollider2DComponent>();
 
-	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, layer);
+	return Raycast(dynamicColliders, staticColliders, startPoint, direction, range, static_cast<collisionLayers>(layer));
 }
