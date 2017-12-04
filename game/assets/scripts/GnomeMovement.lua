@@ -74,7 +74,6 @@ function CheckGround(count)
 	-- Cast each raycast
 	local casts = {}
 	for i, origin in ipairs(origins) do
-		print(i .. ', ' .. tostring(origin))
 		casts[i] = Raycast.Cast(this:GetSpaceIndex(), origin, DOWN, scale.y + GROUND_CHECK_LENGTH, GROUND_LAYER )
 	end
 	
