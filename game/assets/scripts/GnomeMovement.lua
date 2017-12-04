@@ -85,7 +85,7 @@ function UpdateMovement(dt)
       otherScript.SetMoveDir(moveDir)  -- Set other gnome's move direction
       otherScript.DisableStack()       -- Set other gnome to "Not stacked"
       otherScript.SetTimer()           -- Set other gnome's stack timer
-      otherScript.TossOnce()      -- Toss the other gnome
+      otherScript.TossOnce()           -- Toss the other gnome
     end
 
     tossOther = false
@@ -167,8 +167,12 @@ function Update(dt)
   --if (isTossed)
   --then
   --  TossUpdate(dt)
+
+  if (isTossed)
+  then
+    TossUpdate(dt)
   -- Player is stacked
-  if (stackEnabled)
+  elseif (stackEnabled)
   then
     StackedUpdate(dt)
   -- Update regular player movement
@@ -382,6 +386,8 @@ function TossOnce()
 end -- fn end
 
 function TossUpdate(dt)
+  HandleTimer(dt)
+
   -- Connections
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
@@ -390,7 +396,9 @@ function TossUpdate(dt)
   local acceleration = playerBody.acceleration
 
   -- Calculate x velocity
-  newVelocity.x = moveDir * throwSpeed
+  newVelocity.x = moveDir * moveSpeed
+
+  onGround = false
 
   -- Calculate y valocity
   if (jumpEnabled == true)
