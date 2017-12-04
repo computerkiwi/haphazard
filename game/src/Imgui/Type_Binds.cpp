@@ -62,13 +62,16 @@ void Action_General(EditorAction& a)
 	ComponentHandle<Component> handle(a.handle);
 	meta::Any obj(handle.Get());
 
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		obj.SetPointerMember(a.name, a.current.GetData<T>());
-	}
-	else
-	{
-		obj.SetPointerMember(a.name, a.save.GetData<T>());
+		if (a.redo)
+		{
+			obj.SetPointerMember(a.name, a.current.GetData<T>());
+		}
+		else
+		{
+			obj.SetPointerMember(a.name, a.save.GetData<T>());
+		}
 	}
 }
 
@@ -78,13 +81,16 @@ void Action_General<SpriteComponent, ResourceID>(EditorAction& a)
 {
 	ComponentHandle<SpriteComponent> handle(a.handle);
 
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		handle->SetTextureID(a.current.GetData<ResourceID>());
-	}
-	else
-	{
-		handle->SetTextureID(a.save.GetData<ResourceID>());
+		if (a.redo)
+		{
+			handle->SetTextureID(a.current.GetData<ResourceID>());
+		}
+		else
+		{
+			handle->SetTextureID(a.save.GetData<ResourceID>());
+		}
 	}
 }
 
@@ -95,13 +101,16 @@ void Action_General_Particle(EditorAction& a)
 	ComponentHandle<ParticleSystem> handle(a.handle);
 	meta::Any obj(handle->GetSettings());
 
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		obj.SetPointerMember(a.name, a.current.GetData<T>());
-	}
-	else
-	{
-		obj.SetPointerMember(a.name, a.save.GetData<T>());
+		if (a.redo)
+		{
+			obj.SetPointerMember(a.name, a.current.GetData<T>());
+		}
+		else
+		{
+			obj.SetPointerMember(a.name, a.save.GetData<T>());
+		}
 	}
 }
 
@@ -109,13 +118,17 @@ void Action_General_Particle(EditorAction& a)
 void Action_General_Tags(EditorAction& a)
 {
 	ComponentHandle<ObjectInfo> handle(a.handle);
-	if (a.redo)
+
+	if (handle.GetGameObject().IsValid())
 	{
-		handle->AddTag(a.current.GetData<std::string>().c_str());
-	}
-	else
-	{
-		handle->m_tags.erase(a.save.GetData<std::size_t>());
+		if (a.redo)
+		{
+			handle->AddTag(a.current.GetData<std::string>().c_str());
+		}
+		else
+		{
+			handle->m_tags.erase(a.save.GetData<std::size_t>());
+		}
 	}
 }
 
@@ -127,13 +140,16 @@ void Action_General_Collider(EditorAction& a)
 
 	meta::Any colliderData(&handle->ColliderData());
 
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
-	}
-	else
-	{
-		colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+		if (a.redo)
+		{
+			colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
+		}
+		else
+		{
+			colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+		}
 	}
 }
 
@@ -144,18 +160,20 @@ void Action_General_Collider(EditorAction& a)
 	ComponentHandle<Collider> handle(a.handle);
 	GameObject object = handle.GetGameObject();
 
-
-	meta::Any colliderData(&handle->ColliderData());
-
-	ObjectsMatchScale[object].value = !ObjectsMatchScale[object].value;
-
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
-	}
-	else
-	{
-		colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+		meta::Any colliderData(&handle->ColliderData());
+
+		ObjectsMatchScale[object].value = !ObjectsMatchScale[object].value;
+
+		if (a.redo)
+		{
+			colliderData.SetPointerMember(a.name, a.current.GetData<glm::vec3>());
+		}
+		else
+		{
+			colliderData.SetPointerMember(a.name, a.save.GetData<glm::vec3>());
+		}
 	}
 }
 
@@ -165,13 +183,16 @@ void Action_DeleteComponent(EditorAction& a)
 {
 	ComponentHandle<Component> handle(a.handle);
 
-	if (a.redo)
+	if (handle.GetGameObject().IsValid())
 	{
-		handle.GetGameObject().DeleteComponent<Component>();
-	}
-	else
-	{
-		handle.GetGameObject().AddComponent<Component>(std::move(a.save.GetData<Component>()));
+		if (a.redo)
+		{
+			handle.GetGameObject().DeleteComponent<Component>();
+		}
+		else
+		{
+			handle.GetGameObject().AddComponent<Component>(std::move(a.save.GetData<Component>()));
+		}
 	}
 }
 
@@ -180,15 +201,18 @@ void Action_General_GameObjectDelete(EditorAction& a)
 {
 	GameObject object = a.save.GetData<GameObject>();
 
-	if (a.redo)
+	if (object.IsValid())
 	{
-		//engine->GetEditor()->GetDeletedObjects().Duplicate(object);
-		object.Delete();
-	}
-	else
-	{
-		// Duplicate From Space Function
-		//object.GetSpace().DuplicateFromSpace(object, engine->GetEditor()->GetDeletedObjects());
+		if (a.redo)
+		{
+			//engine->GetEditor()->GetDeletedObjects().Duplicate(object);
+			object.Delete();
+		}
+		else
+		{
+			// Duplicate From Space Function
+			//object.GetSpace().DuplicateFromSpace(object, engine->GetEditor()->GetDeletedObjects());
+		}
 	}
 }
 
