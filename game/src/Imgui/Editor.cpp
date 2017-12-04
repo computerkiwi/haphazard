@@ -1400,6 +1400,12 @@ void Editor::PrintObjects()
 				{
 					m_multiselect.clear();
 					SetGameObject(object);
+
+					if (!object.IsActive())
+					{
+						ImGui::PopStyleColor();
+					}
+
 					break;
 				}
 			}
@@ -2419,6 +2425,28 @@ void Editor::SettingsPanel(float dt)
 	if (ImGui::Button("Reload" SETTINGS_BUTTON_SIZE))
 	{
 
+	}
+
+	if (ImGui::Button("Use Editor Camera"))
+	{
+		Push_Action({ Camera::GetActiveCamera(), m_editor_cam, nullptr, { 0, false },
+			[](EditorAction& a)
+		{
+			Camera *prev = a.save.GetData<Camera *>();
+			Camera *curr = a.current.GetData<Camera *>();
+
+			if (a.redo)
+			{
+				curr->Use();
+			}
+			else
+			{
+				prev->Use();
+			}
+		}
+		});
+
+		m_editor_cam->Use();
 	}
 
 	ImGui::PushItemWidth(110);

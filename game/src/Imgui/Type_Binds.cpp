@@ -1934,6 +1934,35 @@ void ImGui_Camera(Camera *camera, GameObject object, Editor *editor)
 	{
 		EditorComponentHandle handle = { object.Getid(), true };
 
+		if (Button("Remove##camera"))
+		{
+			editor->Push_Action({ *camera, 0, nullptr, handle, Action_DeleteComponent<Camera> });
+			object.DeleteComponent<Camera>();
+			return;
+		}
+
+		SameLine();
+		if (Button("Use##camera"))
+		{
+			editor->Push_Action({ Camera::GetActiveCamera(), camera, nullptr, handle, 
+				[](EditorAction& a)
+			{
+				Camera *prev = a.save.GetData<Camera *>();
+				Camera *curr = a.current.GetData<Camera *>();
+
+				if (a.redo)
+				{
+					curr->Use();
+				}
+				else
+				{
+					prev->Use();
+				}
+			} 
+			});
+			camera->Use();
+		}
+
 		Drag_Float_Speed_MinMax("Zoom##camera", cameraSave.m_Zoom, camera->m_Zoom, SLIDER_STEP, 0, FLT_MAX);
 		DragRelease(Camera, cameraSave.m_Zoom, camera->m_Zoom, "zoom");
 	}
@@ -1957,25 +1986,25 @@ void ImGui_Background(BackgroundComponent *background, GameObject object, Editor
 		int type = static_cast<int>(background->m_Type);
 		if (RadioButton("Background##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ static_cast<int>(background->m_Type), type, "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 		SameLine();
 		if (RadioButton("Parallax (Background)##background_bg", &type, static_cast<int>(BACKGROUND_TYPE::BACKGROUND_PARALLAX)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ static_cast<int>(background->m_Type), type, "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 
 		if (RadioButton("Foreground##background_fg",   &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ static_cast<int>(background->m_Type), type, "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 		SameLine();
 		if (RadioButton("Parallax (Foreground)##background_fg", &type, static_cast<int>(BACKGROUND_TYPE::FOREGROUND_PARALLAX)))
 		{
-			editor->Push_Action({ background->m_Type, static_cast<BACKGROUND_TYPE>(type), "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
+			editor->Push_Action({ static_cast<int>(background->m_Type), type, "backgroundType", handle, Action_General<BackgroundComponent, BACKGROUND_TYPE> });
 			background->m_Type = static_cast<BACKGROUND_TYPE>(type);
 		}
 
