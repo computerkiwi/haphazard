@@ -35,8 +35,8 @@ public:
 	void Draw(glm::vec4 color = glm::vec4(1, 0, 1, 1), bool drawBoxAtStartPoint = 1, bool drawBoxAtEndPoint = 1);
 
 	// static methods(for lua basically)
-	static Raycast Cast(size_t space, glm::vec2 startPoint, float direction, float range, collisionLayers layer = collisionLayers::allCollision);
-	static Raycast Cast(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, collisionLayers layer = collisionLayers::allCollision);
+	static Raycast RaycastAngle(size_t space, glm::vec2 startPoint, float direction, float range, int layer = collisionLayers::allCollision);
+	static Raycast RaycastVector(size_t space, glm::vec2 startPoint, glm::vec2 direction, float range, int layer = collisionLayers::allCollision);
 
 private:
 	float m_length;
@@ -57,6 +57,11 @@ private:
 		META_DefineMember(Raycast, m_layer, "layer");
 
 		META_DefineFunction(Raycast, Draw, "Draw");
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Raycast>("Raycast").addStaticFunction("RaycastAngle", RaycastAngle).endClass();
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Raycast>("Raycast").addStaticFunction("RaycastVector", RaycastVector).endClass();
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Raycast>("Raycast").addStaticFunction("Cast", RaycastVector).endClass();
+
 	}
 };
 
