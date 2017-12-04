@@ -5,6 +5,10 @@ PRIMARY AUTHOR: Lya Vera
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+function Start()
+  this:Activate()
+end -- fn end
+
 function OnCollisionEnter(other)
   -- Player takes coin
   if (other:HasTag("Player"))
