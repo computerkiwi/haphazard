@@ -148,14 +148,19 @@ function Update(dt)
     SetKeyboardControls(name)
   end
 
+  --[[
+  
+  Disabled controllers because they always appear to be on on my computer. -Kieran
+
   -- Retrieve input
   if (GamepadsConnected() > 0)
   then
     print("Using gamepads")
     GetInputGamepad()
   else
-    GetInputKeyboard()
-  end
+  --]]
+  GetInputKeyboard()
+  
 
 --  if (attackEnabled)
 --  then
