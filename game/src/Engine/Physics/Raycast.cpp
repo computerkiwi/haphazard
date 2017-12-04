@@ -133,7 +133,7 @@ class RayCastCalculator
 {
 public:
 
-	RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction, collisionLayers layer);
+	RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, float range, glm::vec2 startPoint, glm::vec2 direction, int layer);
 
 	void Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, const Collider2D& colliderData);
 
@@ -149,7 +149,7 @@ public:
 
 	GameObject m_gameObjectHit;
 
-	collisionLayers m_layer;
+	int m_layer;
 };
 
 void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, ComponentHandle<TransformComponent> transform, const Collider2D& colliderData)
@@ -226,7 +226,7 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 }
 
 RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
-	                                 float range, glm::vec2 startPoint, glm::vec2 direction, collisionLayers layer)
+	                                 float range, glm::vec2 startPoint, glm::vec2 direction, int layer)
 	                               : m_startPoint(startPoint), m_direction(direction), m_range(range), m_length(-1), m_intersection(glm::vec2(0,0)), 
 	                                 m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
@@ -237,7 +237,8 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 	// go through all dynamic colliders
 	for (auto tDynamicColliderHandle : *allDynamicColliders)
 	{
-		if (tDynamicColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
+		// check if the ray is meant to hit the object based on layer
+		if (static_cast<int>(tDynamicColliderHandle->ColliderData().GetCollisionLayer()) & layer || layer & collisionLayers::allCollision)
 		{
 			ComponentHandle<TransformComponent> transform = tDynamicColliderHandle.GetSiblingComponent<TransformComponent>();
 			if (!transform.IsActive())
@@ -252,7 +253,8 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 	// go though all static colliders
 	for (auto tStaticColliderHandle : *allStaticColliders)
 	{
-		if (tStaticColliderHandle->ColliderData().GetCollisionLayer().LayersCollide(layer))
+		// check if the ray is meant to hit the object based on layer
+		if (static_cast<int>(tStaticColliderHandle->ColliderData().GetCollisionLayer()) & layer || layer & collisionLayers::allCollision)
 		{
 			ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
 			if (!transform.IsActive())
