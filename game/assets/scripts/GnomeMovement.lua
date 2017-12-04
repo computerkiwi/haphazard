@@ -72,6 +72,25 @@ function UpdateMovement(dt)
     onGround = false
   end
 
+  -- Toss the other gnome
+  if (tossOther)
+  then
+    local otherScript = otherPlayer:GetScript("GnomeMovement.lua")
+    
+    -- Other gnome is stacked on this gnome
+    if (otherScript.IsStacked())
+    then
+      otherScript.IsTossed()           -- Set other gnome to isTossed
+      print("Enable Toss")
+      otherScript.SetMoveDir(moveDir)  -- Set other gnome's move direction
+      otherScript.DisableStack()       -- Set other gnome to "Not stacked"
+      otherScript.SetTimer()           -- Set other gnome's stack timer
+      otherScript.TossOnce()      -- Toss the other gnome
+    end
+
+    tossOther = false
+  end
+
   -- Update player velocity
   playerBody.velocity = newVelocity
 end -- fn end
@@ -138,12 +157,11 @@ function Update(dt)
     GetInputKeyboard()
   end
 
-  if (attackEnabled)
-  then
-    local script = this:GetScript("RedGnomeAttack.lua")
-    local pos = this:GetTransform().position
-    script.SetParentPos(pos)
-  end
+--  if (attackEnabled)
+--  then
+--    local script = this:GetScript("RedGnomeAttack.lua")
+--    script.SpawnWeapon()
+--  end
 
   -- Player is tossed
   --if (isTossed)
@@ -270,7 +288,6 @@ function GetInputGamepad()
     moveDir = MOVE_IDLE
   end
 
-
   -- Player jumps
   if (GamepadIsPressed(PLAYER_NUM, JUMP))
   then
@@ -294,12 +311,12 @@ function GetInputKeyboard()
   if (IsPressed(KEY_RIGHT))
   then
     SetMoveDir(MOVE_RIGHT)
-	lastDir = moveDir
+	  lastDir = moveDir
   -- Player moves left
   elseif (IsPressed(KEY_LEFT))
   then
     SetMoveDir(MOVE_LEFT)
-	lastDir = moveDir
+	  lastDir = moveDir
   -- Player does not move
   else
     SetMoveDir(MOVE_IDLE)
@@ -325,19 +342,20 @@ function GetInputKeyboard()
   -- Player tosses (and is not stacked on other player)
   if (IsPressed(KEY_TOSS) and stackEnabled == false)
   then
-    tossOther = true
-    local script = otherPlayer:GetScript("GnomeMovement.lua")
+    --tossOther = true
+    --local script = otherPlayer:GetScript("GnomeMovement.lua")
     
-    if (script.IsStacked())
-    then    
-      script.EnableToss()
-      print("Enable Toss")
-      script.SetMoveDir(moveDir)
-      script.DisableStack()
-      script.TossOnce()
-      script.SetTimer()
-      tossEnabled = false
-    end
+    --if (script.IsStacked())
+    --then    
+    --  script.IsTossed()
+    --  print("Enable Toss")
+    --  script.SetMoveDir(moveDir)
+    --  script.DisableStack()
+    --  script.TossOnce()
+    --  script.SetTimer()
+    --  tossEnabled = false
+
+    tossOther = true
   else
     tossOther = false
 --    local script = otherPlayer:GetScript("GnomeMovement.lua")
@@ -357,8 +375,9 @@ function TossOnce()
   newVelocity.x = moveDir * throwSpeed
 
   playerBody.velocity = newVelocity
-
-  isTossed = false
+  
+  isTossed = true
+--  isTossed = false
 
 end -- fn end
 
@@ -385,7 +404,7 @@ function TossUpdate(dt)
   playerBody.velocity = newVelocity
 end -- fn end
 
-function EnableToss()
+function IsTossed()
   isTossed = true
 end -- fn end
 
@@ -415,5 +434,13 @@ function SetMoveDir(dir)
 	  this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
 	 --print(this:GetTransform().scale.x)
   end
+end -- fn end
 
+function GetMoveDir()
+  if (moveDir == 0)
+  then
+    return lastDir
+  else
+    return moveDir
+  end
 end -- fn end
