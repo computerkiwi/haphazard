@@ -43,6 +43,10 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	if (lua_isnil(m_L, -1))
 	{
 		lua_remove(m_L, -1);
+		for (int i = 0; i < args; ++i)
+		{
+			lua_remove(m_L, -1);
+		}
 		return;
 	}
 
