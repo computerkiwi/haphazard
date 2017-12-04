@@ -2347,7 +2347,7 @@
                                 },
                                 "isActiveCam": {
                                     "meta_type_name": "bool",
-                                    "meta_object_data": false
+                                    "meta_object_data": true
                                 }
                             }
                         },

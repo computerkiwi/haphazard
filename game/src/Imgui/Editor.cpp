@@ -657,7 +657,7 @@ void Editor::KeyBindings(float dt)
 
 	if (Input::IsHeldDown(Key::MouseButton_Right) && !ImGui::GetIO().WantCaptureMouse)
 	{
-		glm::vec2 mouse = Input::GetMousePos_World();
+		glm::vec2 mouse = Input::GetMousePos();
 
 		if (!m_editorState.MouseCameraDragClick)
 		{
@@ -666,6 +666,9 @@ void Editor::KeyBindings(float dt)
 		}
 
 		glm::vec2 diff = mouse - m_prevMouse;
+		diff.y *= -1; // Screen space is flipped on y.
+		// Screen space is much larger than world space.
+		diff = (0.0012f * m_editor_cam->GetZoom()) * diff; 
 
 		m_editor_cam->SetPosition(m_editor_cam->GetPosition() - diff /*(diff * dt) * m_editorSettings.cameraSpeed*/);
 
