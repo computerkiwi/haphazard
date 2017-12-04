@@ -10,7 +10,7 @@ otherPlayer = nil
 
 -- Variables
 moveSpeed   = 2
-jumpSpeed   = 4.5
+jumpSpeed   = 5.5
 fallSpeed   = 2
 
 throwSpeed = 6
