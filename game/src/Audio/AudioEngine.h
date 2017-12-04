@@ -25,7 +25,7 @@ namespace Audio
 	{
 	public:
 
-		SoundHandle(FMOD::Channel *fmodChannel);
+		SoundHandle(FMOD::Channel *fmodChannel, const char *fileName);
 
 		bool IsPlaying() const;
 
@@ -38,15 +38,24 @@ namespace Audio
 		float GetPitch();
 
 		SoundHandle() {}; // For meta.
+
+		const char *GetFileName()
+		{
+			return m_fileName.c_str();
+		}
 	private:
 
 		FMOD::Channel *m_fmodChannel;
+
+		std::string m_fileName;
 
 		META_NAMESPACE(Audio);
 		META_REGISTER(SoundHandle)
 		{
 			META_DefineFunction(SoundHandle, IsPlaying, "IsPlaying");
 			META_DefineFunction(SoundHandle, Stop, "Stop");
+
+			META_DefineFunction(SoundHandle, GetFileName, "GetFileName");
 		}
 	};
 

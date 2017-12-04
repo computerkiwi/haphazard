@@ -5,14 +5,8 @@ VOLUME = 0.4
 SONG_NAME = "level_1.wav"
 
 function Start()
-	PlaySound(SONG_NAME, VOLUME, 1, true)
-end
-
-function Update(dt)
-	if (not started)
+	if (_G.currentMusic == nil or _G.currentMusic.GetFileName() ~= SONG_NAME)
 	then
-		started = true
-		Start()
+		_G.currentMusic = PlaySound(SONG_NAME, VOLUME, 1, true)
 	end
-	
 end

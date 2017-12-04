@@ -66,7 +66,8 @@ namespace Audio
 			file = "default.wav";
 		}
 
-		FMOD::Sound *sound = reinterpret_cast<FMOD::Sound *>(ResourceManager::GetManager().Get(file.c_str())->Data());
+		Resource *resource = ResourceManager::GetManager().Get(file.c_str());
+		FMOD::Sound *sound = reinterpret_cast<FMOD::Sound *>(resource->Data());
 
 		FMOD::Channel *channel;
 		fmodSystem->playSound(sound, nullptr, false, &channel);
@@ -82,7 +83,7 @@ namespace Audio
 		channel->setVolume(volume); // TODO: Fix volume not taking effect on music until another sound plays.
 		channel->setPitch(pitch);
 
-		return(SoundHandle(channel));
+		return(SoundHandle(channel, resource->FileName().c_str()));
 	}
 
 	FMOD::System *GetSystem()
@@ -90,7 +91,7 @@ namespace Audio
 		return fmodSystem;
 	}
 
-	SoundHandle::SoundHandle(FMOD::Channel *fmodChannel) : m_fmodChannel(fmodChannel)
+	SoundHandle::SoundHandle(FMOD::Channel *fmodChannel, const char *fileName) : m_fmodChannel(fmodChannel), m_fileName(fileName)
 	{
 	}
 
