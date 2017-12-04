@@ -40,10 +40,22 @@ private: // Variables
 	TextureHandler m_TextureHandler;
 	glm::vec4 m_Color = glm::vec4(1,1,1,1);
 
+	ResourceID GetID() const
+	{
+		return m_TextureHandler.GetResourceID();
+	}
+
+	void SetID(ResourceID id)
+	{
+		m_TextureHandler.SetResourceID(id);
+	}
+
 	META_REGISTER(SpriteComponent)
 	{
 		META_DefineMember(SpriteComponent, m_Color, "color");
 		META_DefineMember(SpriteComponent, m_TextureHandler, "textureHandler");
+
+		META_DefineGetterSetter(SpriteComponent, ResourceID, GetID, SetID, "id");
 	}
 
 };
