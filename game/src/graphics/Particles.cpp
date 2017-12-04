@@ -136,17 +136,17 @@ ParticleSystem::ParticleSystem(const ParticleSystem& ps)
 	glBindTexture(GL_TEXTURE_1D, m_randTexture);
 }
 
-void ParticleSystem::Render(float dt, glm::vec2 pos)
+void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 {
 	glBindVertexArray(m_VAO);
 	//glPointSize(10);
-	UpdateParticles(dt, pos);
-	RenderParticles(pos);
+	UpdateParticles(dt, pos, id);
+	RenderParticles(pos, id);
 
 	std::swap(m_currVB, m_currTFB);
 }
 
-void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
+void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 {
 	m_time += dt;
 
@@ -178,7 +178,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 		pos.x, pos.y,
 		
 		dt, 
-		m_time,
+		m_time + id * 1.2345f, // Some randomness added to time
 
 		static_cast<float>(m_settings.isLooping),
 		m_settings.emissionRate,
@@ -223,7 +223,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos)
 }
 
 
-void ParticleSystem::RenderParticles(glm::vec2 pos)
+void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 {
 	Shaders::particleRenderShader->Use();
 

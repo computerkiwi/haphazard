@@ -128,7 +128,7 @@ class ParticleSystem
 public:
 	ParticleSystem();
 	ParticleSystem(const ParticleSystem& ps);
-	void Render(float dt, glm::vec2 pos);
+	void Render(float dt, glm::vec2 pos, int id);
 
 
 	// Emitter loops or dies after lifetime
@@ -199,8 +199,8 @@ public:
 private:
 	friend void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *editor);
 
-	void UpdateParticles(float dt, glm::vec2 pos);
-	void RenderParticles(glm::vec2 pos);
+	void UpdateParticles(float dt, glm::vec2 pos, int id);
+	void RenderParticles(glm::vec2 pos, int id);
 	void GenRandomTexture();
 
 	int m_isFirst = 0; // Is first time rendering

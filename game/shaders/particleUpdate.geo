@@ -137,7 +137,7 @@ void HandleEmitter()
 			// Incase of low framerate where several particles should be emitted, emit those that would be missed otherwise
 			int extra = int((currAge - PLife[0]) / EmissionRate) - 1;
 
-			for(int i = 0; i < ParticlesPerEmission + extra; i++)
+			for(int i = 0; i < ParticlesPerEmission + extra + 1; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
 				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);

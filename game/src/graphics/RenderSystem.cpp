@@ -216,7 +216,7 @@ void RenderSystem::RenderParticles(float dt)
 			lastLayer = layer;
 		}
 
-		particleHandle->Render(dt, transform->GetPosition());
+		particleHandle->Render(dt, transform->GetPosition(), particleHandle.GetGameObject().Getid());
 	}
 }
 

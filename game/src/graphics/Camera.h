@@ -58,6 +58,7 @@ public:
 	float GetAspectRatio() const { return m_AspectRatio; }
 
 	static Camera* GetActiveCamera() { return m_CurrActiveCamera; }
+	static void ClearActiveCamera() { m_CurrActiveCamera = nullptr; }
 
 	///
 	// Unique Movement
