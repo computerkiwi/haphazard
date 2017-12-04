@@ -19,8 +19,6 @@ stackHeight = 0.5 -- Move to start function (set using gnome size)
 stackTimer  = 0   -- Timer until player can stack again
 stackParent = nil -- Player at the bottom of the stack for stacked update
 
-weapon = nil -- Player weapon
-
 lastPos     = nil -- Last position (for reviving); Vector type?
 moveDir     = 0
 
@@ -139,13 +137,12 @@ function Update(dt)
     GetInputKeyboard()
   end
 
---  if (attackEnabled)
---  then
---    local script = this:GetScript("RedGnomeAttack.lua")
---    weapon:Activate()
---  else
---    weapon:Deactivate()  
---  end
+  if (attackEnabled)
+  then
+    local script = this:GetScript("RedGnomeAttack.lua")
+    local pos = this:GetTransform().position
+    script.SetParentPos(pos)
+  end
 
   -- Player is tossed
   --if (isTossed)
@@ -228,10 +225,7 @@ function SetKeyboardControls(name)
   if (name == "Player1")
   then
     PLAYER_NUM = 0
-
     otherPlayer = GameObject.FindByName("Player2")
-
-    weapon = GameObject.FindByName("RedGnomeSword")
 
     -- TEMPORARY
     KEY_JUMP   = 87 -- W
@@ -300,8 +294,10 @@ function GetInputKeyboard()
   elseif (IsPressed(KEY_LEFT))
   then
     moveDir = MOVE_LEFT
+  -- TODO: Remove isTossed check and have TossUpdate
   -- Player does not move
-  else
+  elseif(isTossed == false)
+  then
     moveDir = MOVE_IDLE
   end
 
@@ -354,7 +350,11 @@ function TossOnce()
   local newVelocity = playerBody.velocity
   newVelocity.y = throwSpeed
 
+  newVelocity.x = moveDir * throwSpeed
+
   playerBody.velocity = newVelocity
+
+  isTossed = false
 
 end -- fn end
 
