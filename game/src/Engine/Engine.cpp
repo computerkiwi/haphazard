@@ -98,100 +98,10 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->Use();
 	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
 
-	/*
-	GameObject SecondCamera = m_spaces[0]->NewGameObject("Second Camera");
-	SecondCamera.AddComponent<TransformComponent>(glm::vec3(5, 0, 0), glm::vec3(0.15f));
-	SecondCamera.AddComponent<Camera>();
-	SecondCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	SecondCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	SecondCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	SecondCamera.GetComponent<Camera>()->SetZoom(3);
-	SecondCamera.GetComponent<Camera>()->Use();
-	*/
-
-	for (int i = 0; i < 3; ++i)
-	{
-		const int WIDTH = 4;
-
-		GameObject ground = m_spaces[0]->NewGameObject("Ground");
-		ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(i * WIDTH, -2, 0), glm::vec3(WIDTH, 1, 1)));
-		ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));
-		ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
-	}
-
-	const int WIDTH = 4;
-
-	GameObject animated = m_spaces[0]->NewGameObject("Animated");
-	animated.AddComponent<TransformComponent>(glm::vec3(0, 0, 2), glm::vec3(1, 1, 0));
-	animated.AddComponent<SpriteComponent>(m_resManager.Get("fontAnim.json"));
-
-	GameObject ground = m_spaces[0]->NewGameObject("Ground");
-	ground.AddComponent<TransformComponent>(TransformComponent(glm::vec3(3 * WIDTH - .1f, -1.66666f, 0), glm::vec3(WIDTH, 1, 1), 10));
-	ground.AddComponent<StaticCollider2DComponent>(StaticCollider2DComponent(glm::vec3(WIDTH, 1, 1), collisionLayers::ground, Collider2D::colliderBox));
-	ground.AddComponent<SpriteComponent>(m_resManager.Get("ground.png"));
-
-	GameObject player1 = m_spaces[0]->NewGameObject("Player1");
-	player1.AddComponent<TransformComponent>(glm::vec3(0, 0, 1), glm::vec3(0.65, 1, 0));
-	player1.AddComponent<RigidBodyComponent>();
-	player1.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderCapsule));
-	player1.AddComponent<SpriteComponent>(m_resManager.Get("GnomeRed.png"));
-	player1.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player1));
-
-
-	GameObject player2 = m_spaces[0]->NewGameObject("Player2");
-	player2.AddComponent<TransformComponent>(glm::vec3(1, 0, 0), glm::vec3(0.65, 1, 0));
-	player2.AddComponent<RigidBodyComponent>();
-	player2.AddComponent<DynamicCollider2DComponent>(DynamicCollider2DComponent(glm::vec3(0.45, 0.71, 0), collisionLayers::player, Collider2D::colliderCapsule));
-	player2.AddComponent<SpriteComponent>(m_resManager.Get("GnomeBlue.png"));
-	player2.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayerController.lua"), player2));
-
-	GameObject background = m_spaces[0]->NewGameObject("Background");
-	background.AddComponent<BackgroundComponent>(m_resManager.Get("sky.png"), BACKGROUND_PARALLAX);
-	background.AddComponent<TransformComponent>(glm::vec3(0, 0, -99));
-	background.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -25), glm::vec2(50, 25), glm::vec2(0.5f, 1.0f), glm::vec2(0, 0));
-	background.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("PlayMusicOnCreate.lua"), background));
-
-	GameObject foreground = m_spaces[0]->NewGameObject("Foreground");
-	foreground.AddComponent<BackgroundComponent>(m_resManager.Get("treeboy.png"), FOREGROUND_PARALLAX);
-	foreground.AddComponent<TransformComponent>(glm::vec3(0, 0, 10));
-	foreground.GetComponent<BackgroundComponent>()->SetParallax(glm::vec2(0, -1), glm::vec2(5.0f, 5), glm::vec2(0.4f, 0.8f), glm::vec2(0, 0));
-
-	GameObject fire = m_spaces[0]->NewGameObject("Fire");
-	fire.AddComponent<TransformComponent>(glm::vec3(10, -1, 1));
-	fire.AddComponent<ParticleSystem>();
-	fire.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 0.6f));
-	fire.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
-	fire.GetComponent<ParticleSystem>()->SetScaleOverLife(glm::vec2(0.1f, 0.1f), glm::vec2(0, 0));
-	fire.GetComponent<ParticleSystem>()->SetColor(glm::vec4(1, 0, 0, 0.75f), glm::vec4(1, 1, 0, 0));
-	fire.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
-	fire.GetComponent<ParticleSystem>()->SetParticleLifetime(1.0f);
-	fire.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
-	fire.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::SHAPE_CIRLCE_EDGE, 0.1f, 0.1f);
-	fire.GetComponent<ParticleSystem>()->SetHasTrail(false);
-	fire.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
-	fire.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
-	fire.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
-	fire.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
-	fire.GetComponent<ParticleSystem>()->SetRotationRate(1);
-
-	player1.AddComponent<ParticleSystem>();
-	player1.GetComponent<ParticleSystem>()->SetAcceleration(glm::vec2(0.5f, 0.6f));
-	player1.GetComponent<ParticleSystem>()->SetVelocity(glm::vec2(0, 1), glm::vec2(0.05f, 0.2f));
-	player1.GetComponent<ParticleSystem>()->SetScaleOverLife(glm::vec2(0.1f, 0.1f), glm::vec2(0, 0));
-	player1.GetComponent<ParticleSystem>()->SetColor(glm::vec4(1, 0, 0, 0.75f), glm::vec4(1, 1, 0, 0));
-	player1.GetComponent<ParticleSystem>()->SetEmissionRate(0.01f);
-	player1.GetComponent<ParticleSystem>()->SetParticleLifetime(1.0f);
-	player1.GetComponent<ParticleSystem>()->SetParticlesPerEmission(2);
-	player1.GetComponent<ParticleSystem>()->SetEmissionShape(EmissionShape::SHAPE_CIRLCE_EDGE, 0.1f, 0.1f);
-	player1.GetComponent<ParticleSystem>()->SetHasTrail(false);
-	player1.GetComponent<ParticleSystem>()->SetTrailLifetime(0.3f);
-	player1.GetComponent<ParticleSystem>()->SetTrailEmissionRate(0.01f);
-	player1.GetComponent<ParticleSystem>()->SetTrailColor(glm::vec4(1, 0, 0, 0.5f), glm::vec4(1, 1, 0, 0));
-	player1.GetComponent<ParticleSystem>()->SetStartRotation(0, 360);
-	player1.GetComponent<ParticleSystem>()->SetRotationRate(1);
-
 	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
 	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
+
+	LoadLevel("defaultLevel.json");
 }
 
 
