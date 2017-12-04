@@ -24,12 +24,13 @@ moveDir     = 0
 lastDir		= 1
 
 -- Bools
-jumpEnabled  = false
-moveEnabled  = true
-stackEnabled = false
-tossOther    = false
-isTossed     = false
-onGround     = true
+attackEnabled = false
+jumpEnabled   = false
+moveEnabled   = true
+stackEnabled  = false
+tossOther     = false
+isTossed      = false
+onGround      = true
 
 -- Enums
 PLAYER_LAYER  =  4
@@ -57,7 +58,7 @@ function UpdateMovement(dt)
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
 
-  local newVelocity = playerBody.velocity
+  local newVelocity  = playerBody.velocity
   local acceleration = playerBody.acceleration
 
   -- Calculate x velocity
@@ -69,6 +70,25 @@ function UpdateMovement(dt)
     newVelocity.y = jumpSpeed
     jumpEnabled = false
     onGround = false
+  end
+
+  -- Toss the other gnome
+  if (tossOther)
+  then
+    local otherScript = otherPlayer:GetScript("GnomeMovement.lua")
+    
+    -- Other gnome is stacked on this gnome
+    if (otherScript.IsStacked())
+    then
+      otherScript.IsTossed()           -- Set other gnome to isTossed
+      print("Enable Toss")
+      otherScript.SetMoveDir(moveDir)  -- Set other gnome's move direction
+      otherScript.DisableStack()       -- Set other gnome to "Not stacked"
+      otherScript.SetTimer()           -- Set other gnome's stack timer
+      otherScript.TossOnce()           -- Toss the other gnome
+    end
+
+    tossOther = false
   end
 
   -- Update player velocity
@@ -137,7 +157,17 @@ function Update(dt)
     GetInputKeyboard()
   end
 
+--  if (attackEnabled)
+--  then
+--    local script = this:GetScript("RedGnomeAttack.lua")
+--    script.SpawnWeapon()
+--  end
+
   -- Player is tossed
+  --if (isTossed)
+  --then
+  --  TossUpdate(dt)
+
   if (isTossed)
   then
     TossUpdate(dt)
@@ -169,14 +199,6 @@ function OnCollisionEnter(other)
     then
       StackPlayers(other)
     end
-  -- Player collides with a coin
-  elseif(other:HasTag("Coin"))
-  then
-    -- TODO: Play a coin pickup effect
-    -- Switch to coin script
-    -- Destroy coin
-    -- GameObject:GetScript(filename of script)
-
   end
 end -- fn end
 
@@ -226,27 +248,30 @@ function SetKeyboardControls(name)
   if (name == "Player1")
   then
     PLAYER_NUM = 0
-
     otherPlayer = GameObject.FindByName("Player2")
 
     -- TEMPORARY
-    KEY_JUMP  = 87 -- W
-    KEY_DOWN  = 83 -- S
-    KEY_LEFT  = 65 -- A
-    KEY_RIGHT = 68 -- D
-    KEY_TOSS  = 84 -- T
+    KEY_JUMP   = 87 -- W
+    KEY_DOWN   = 83 -- S
+    KEY_LEFT   = 65 -- A
+    KEY_RIGHT  = 68 -- D
+    KEY_TOSS   = 84 -- T
+    KEY_ATTACK = 89 -- Y
 
   else
     PLAYER_NUM = 1
     
     otherPlayer = GameObject.FindByName("Player1")
 
+--    weapon = GameObject.FindByName("RedGnomeSword")
+
     -- TEMPORARY
-		KEY_JUMP  = 265 -- Up
-		KEY_DOWN  = 264 -- Down
-		KEY_LEFT  = 263 -- Left
-		KEY_RIGHT = 262 -- Right
-    KEY_TOSS  = 334 -- Numpad_Add
+		KEY_JUMP   = 265 -- Up
+		KEY_DOWN   = 264 -- Down
+		KEY_LEFT   = 263 -- Left
+		KEY_RIGHT  = 262 -- Right
+    KEY_TOSS   = 334 -- Numpad_Add
+    KEY_ATTACK = 336 -- Numpad_Enter
   end
 end -- fn end
 
@@ -266,7 +291,6 @@ function GetInputGamepad()
   else
     moveDir = MOVE_IDLE
   end
-
 
   -- Player jumps
   if (GamepadIsPressed(PLAYER_NUM, JUMP))
@@ -291,12 +315,12 @@ function GetInputKeyboard()
   if (IsPressed(KEY_RIGHT))
   then
     SetMoveDir(MOVE_RIGHT)
-	lastDir = moveDir
+	  lastDir = moveDir
   -- Player moves left
   elseif (IsPressed(KEY_LEFT))
   then
     SetMoveDir(MOVE_LEFT)
-	lastDir = moveDir
+	  lastDir = moveDir
   -- Player does not move
   else
     SetMoveDir(MOVE_IDLE)
@@ -310,14 +334,32 @@ function GetInputKeyboard()
     jumpEnabled = false
   end
 
+  -- Player attacks
+  if (IsPressed(KEY_ATTACK))
+  then
+    attackEnabled = true
+  else
+    attackEnabled = false
+  end
+
+  -- TODO: MOVE TO OWN FUNCTION
   -- Player tosses (and is not stacked on other player)
   if (IsPressed(KEY_TOSS) and stackEnabled == false)
   then
+    --tossOther = true
+    --local script = otherPlayer:GetScript("GnomeMovement.lua")
+    
+    --if (script.IsStacked())
+    --then    
+    --  script.IsTossed()
+    --  print("Enable Toss")
+    --  script.SetMoveDir(moveDir)
+    --  script.DisableStack()
+    --  script.TossOnce()
+    --  script.SetTimer()
+    --  tossEnabled = false
+
     tossOther = true
-    local script = otherPlayer:GetScript("GnomeMovement.lua")
-    script.EnableToss()
-    print("Enable Toss")
-    script.SetMoveDir(moveDir)
   else
     tossOther = false
 --    local script = otherPlayer:GetScript("GnomeMovement.lua")
@@ -325,7 +367,27 @@ function GetInputKeyboard()
   end
 end -- fn end
 
+function IsStacked()
+  return stackEnabled
+end -- fn end
+
+function TossOnce()
+  local playerBody = this:GetRigidBody()
+  local newVelocity = playerBody.velocity
+  newVelocity.y = throwSpeed
+
+  newVelocity.x = moveDir * throwSpeed
+
+  playerBody.velocity = newVelocity
+  
+  isTossed = true
+--  isTossed = false
+
+end -- fn end
+
 function TossUpdate(dt)
+  HandleTimer(dt)
+
   -- Connections
   local playerBody = this:GetRigidBody()
   local playerTransform = this:GetTransform()
@@ -334,8 +396,9 @@ function TossUpdate(dt)
   local acceleration = playerBody.acceleration
 
   -- Calculate x velocity
-  newVelocity.x = moveDir * throwSpeed
-  newVelocity.y = throwSpeed
+  newVelocity.x = moveDir * moveSpeed
+
+  onGround = false
 
   -- Calculate y valocity
   if (jumpEnabled == true)
@@ -349,21 +412,24 @@ function TossUpdate(dt)
   playerBody.velocity = newVelocity
 end -- fn end
 
-function EnableToss()
-
+function IsTossed()
   isTossed = true
-
 end -- fn end
 
+function SetTimer()
+  stackTimer = STACK_TIME
+end -- fn end
 
 function DisableToss()
-
   isTossed = false
-
 end -- fn end
 
-function SetMoveDir(dir)
+function DisableStack()
+  stackEnabled = false
+end -- fn end
 
+
+function SetMoveDir(dir)
   moveDir = dir
 
   -- Flip sprite
@@ -376,5 +442,13 @@ function SetMoveDir(dir)
 	  this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
 	 --print(this:GetTransform().scale.x)
   end
+end -- fn end
 
+function GetMoveDir()
+  if (moveDir == 0)
+  then
+    return lastDir
+  else
+    return moveDir
+  end
 end -- fn end
