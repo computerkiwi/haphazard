@@ -8,7 +8,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -25,7 +25,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -51,7 +51,7 @@
                     "meta_type_name": "RigidBodyComponent",
                     "meta_object_data": {
                         "acceleration": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -68,7 +68,7 @@
                             }
                         },
                         "velocity": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -110,7 +110,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -127,7 +127,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -177,7 +177,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -194,7 +194,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -220,7 +220,7 @@
                     "meta_type_name": "RigidBodyComponent",
                     "meta_object_data": {
                         "acceleration": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -237,7 +237,7 @@
                             }
                         },
                         "velocity": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -279,7 +279,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -296,7 +296,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -322,7 +322,7 @@
                     "meta_type_name": "RigidBodyComponent",
                     "meta_object_data": {
                         "acceleration": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -339,7 +339,7 @@
                             }
                         },
                         "velocity": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -381,7 +381,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -398,7 +398,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -424,7 +424,7 @@
                     "meta_type_name": "RigidBodyComponent",
                     "meta_object_data": {
                         "acceleration": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -441,7 +441,7 @@
                             }
                         },
                         "velocity": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -483,7 +483,7 @@
                     "meta_type_name": "TransformComponent",
                     "meta_object_data": {
                         "position": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",
@@ -500,7 +500,7 @@
                             }
                         },
                         "scale": {
-                            "meta_type_name": "glm::vec3",
+                            "meta_type_name": "vec3",
                             "meta_object_data": {
                                 "x": {
                                     "meta_type_name": "float",

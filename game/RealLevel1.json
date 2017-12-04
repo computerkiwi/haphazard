@@ -45,7 +45,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -84,7 +84,7 @@
                             "meta_type_name": "RigidBodyComponent",
                             "meta_object_data": {
                                 "gravity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -101,7 +101,7 @@
                                     }
                                 },
                                 "acceleration": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -118,7 +118,7 @@
                                     }
                                 },
                                 "velocity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -155,7 +155,7 @@
                                             "meta_object_data": 2
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -181,7 +181,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -351,7 +351,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -568,7 +568,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -669,7 +669,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -719,7 +719,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -745,7 +745,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -892,7 +892,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -942,7 +942,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -968,7 +968,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1115,7 +1115,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1165,7 +1165,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1191,7 +1191,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1338,7 +1338,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1484,7 +1484,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1534,7 +1534,7 @@
                                             "meta_object_data": 3
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1560,7 +1560,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1707,7 +1707,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1746,7 +1746,7 @@
                             "meta_type_name": "RigidBodyComponent",
                             "meta_object_data": {
                                 "gravity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1763,7 +1763,7 @@
                                     }
                                 },
                                 "acceleration": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1780,7 +1780,7 @@
                                     }
                                 },
                                 "velocity": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -1817,7 +1817,7 @@
                                             "meta_object_data": 2
                                         },
                                         "offset": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -1843,7 +1843,7 @@
                                             }
                                         },
                                         "dimensions": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -2035,7 +2035,7 @@
                                             }
                                         },
                                         "BurstEmission": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
@@ -2270,7 +2270,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2434,7 +2434,7 @@
                                     }
                                 },
                                 "scale": {
-                                    "meta_type_name": "glm::vec3",
+                                    "meta_type_name": "vec3",
                                     "meta_object_data": {
                                         "x": {
                                             "meta_type_name": "float",
@@ -2534,7 +2534,7 @@
                                             }
                                         },
                                         "BurstEmission": {
-                                            "meta_type_name": "glm::vec3",
+                                            "meta_type_name": "vec3",
                                             "meta_object_data": {
                                                 "x": {
                                                     "meta_type_name": "float",
