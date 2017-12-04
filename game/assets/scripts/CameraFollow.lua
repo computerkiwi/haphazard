@@ -9,7 +9,7 @@ LERP_SPEED = 0.05
 
 ZOOM_SCALE = 1
 
-MIN_ZOOM = 3.8
+MIN_ZOOM = 5
 
 -- Takes a pair of vec2
 function VectorDistance(a, b)
