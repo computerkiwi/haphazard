@@ -12,6 +12,15 @@ TotalLives = 5
 TotalScore = 0
 CoinValue = 1
 
+function Update(dt)
+  if (TotalScore == 5)
+  then
+--    local platform = GameObject.FindByName("InteractiveWall")
+--    local script = platform:GetScript("PlatformMove.lua")
+--    script.EnablePlatform()
+  end
+end -- fn end
+
 function AddLife()
   TotalLives = TotalLives + 1
 end -- fn end
@@ -22,6 +31,9 @@ end -- fn end
 
 function AddScore()
   TotalScore = TotalScore + CoinValue
+
+  print("Score: ")
+  print(TotalScore)
 end -- fn end
 
 function ResetScore()
