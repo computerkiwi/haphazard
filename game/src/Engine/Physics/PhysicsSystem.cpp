@@ -49,9 +49,28 @@ struct MinMax
 		return min < other.max && max > other.min;
 	}
 
+	// find the overlap between two sets
 	float Overlap(const MinMax& other)
 	{
-		return std::min(max, other.max) - std::max(min, other.min);
+		/*if (max < other.max && min > other.max)
+		{
+			return -(other.max - min);
+		}
+		else if(other.max < max && other.min > max)
+		{
+			return (max - other.min);
+		}*/
+
+		float magnitude =  std::min(max, other.max) - std::max(min, other.min);
+
+		if (max > other.max)
+		{
+			return -magnitude;
+		}
+		else
+		{
+			return magnitude;
+		}
 	}
 };
 
@@ -209,7 +228,7 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 			float overlap = proj1.Overlap(proj2);
 
 			// if this overlap is less than the last recorded one
-			if (overlap < smallestOverlap || smallestOverlap == -1)
+			if (abs(overlap) < abs(smallestOverlap) || smallestOverlap == -1)
 			{
 				smallestOverlap = overlap;
 				smallestAxis = axis;
@@ -220,7 +239,7 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 	// if we get here it is guarunteed that there was a collision and all sides have been tested for the shortest overlap
 	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
 
-	return escapeVector;
+	return -escapeVector;
 }
 
 glm::vec3 Collision_SAT(glm::vec2 position1, float rotation1, Collider2D& collider1, glm::vec2 position2, float rotation2, Collider2D& collider2)
@@ -248,24 +267,46 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 // collision where the circle is the first object
 glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCorners& rectangle)
 {
-	const int num_projections = 2;
+	const int num_projections = 5;
 	float smallestOverlap = -1;
 	glm::vec2 smallestAxis;
 
+	// find the closest vertex on the rectangle to the box
+	float shortestLengthSquared = 1000000;
+	int index = 5;
+
+	for (int i = 0; i < 4; i++)
+	{
+		float Xs = center1.x - rectangle.m_corners[i].x;
+		float Ys = center1.y - rectangle.m_corners[i].y;
+		float lengthSquared = (Xs * Xs) + (Ys * Ys);
+
+		// this vertex is closer
+		if (lengthSquared < shortestLengthSquared)
+		{
+			shortestLengthSquared = lengthSquared;
+			index = i;
+		}
+	}
+	assert(index < 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
+
+	// get the axis
+	glm::vec2 Closestaxis = center1 - rectangle.m_corners[index];
+
 	// the axes onto which shapes will be projected
 	glm::vec2 edgeNormals[num_projections] = { {0,0} };
-	edgeNormals[0] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::topLeft];
-	edgeNormals[1] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::botRight];
-
-	// normalize the axes for accurate resolution vectors
-	for (int i = 0; i < num_projections; ++i)
-	{
-		edgeNormals[i] = glm::normalize(edgeNormals[i]);
-	}
+	edgeNormals[0] = Closestaxis;
+	edgeNormals[1] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::topLeft];
+	edgeNormals[2] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::botRight];
+	edgeNormals[3] = rectangle.m_corners[BoxCorners::botLeft] - rectangle.m_corners[BoxCorners::botRight];
+	edgeNormals[4] = rectangle.m_corners[BoxCorners::botLeft] - rectangle.m_corners[BoxCorners::topLeft];
 
 	// project onto each axis
 	for (int i = 0; i < num_projections; ++i)
 	{
+		// normalize the axis
+		edgeNormals[i] = glm::normalize(edgeNormals[i]);
+
 		// this axis of projection
 		glm::vec2 axis = edgeNormals[i];
 
@@ -291,7 +332,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 			float overlap = circleProj.Overlap(rectangleProj);
 
 			// if this overlap is less than the last recorded one
-			if (overlap < smallestOverlap || smallestOverlap == -1)
+			if (abs(overlap) < abs(smallestOverlap) || smallestOverlap == -1)
 			{
 				smallestOverlap = overlap;
 				smallestAxis = axis;
@@ -300,7 +341,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 	}
 
 	// if 0 hasn't been returned, all axes detected collision
-	glm::vec3 escapeVector(smallestAxis * smallestOverlap, 0);
+	glm::vec3 escapeVector(smallestAxis * -smallestOverlap, 0);
 
 	return escapeVector;
 }
@@ -311,7 +352,7 @@ glm::vec3 Collision_SAT_BoxCircle(const BoxCorners& rectangle, glm::vec2 center2
 	// if the second objects is the circle, the resolution vector will be opposite the first
 	glm::vec3 inverseEscapeVector = Collision_SAT_CircleBox(center2, radius2, rectangle);
 
-	return inverseEscapeVector;
+	return -inverseEscapeVector;
 }
 
 glm::vec3 Collision_CircleCircle(glm::vec2 center1, float radius1, glm::vec2 center2, float radius2)
@@ -386,7 +427,7 @@ glm::vec3 Collision_SAT_BoxCapsule(const BoxCorners& box, glm::vec2 capsuleCente
 {
 	glm::vec3 inverseEscapeVector = Collision_SAT_CapsuleBox(capsuleCenter, capsuleDimensions, rotation, box);
 
-	return inverseEscapeVector;
+	return -inverseEscapeVector;
 }
 
 glm::vec3 Collision_SAT_CapsuleCircle(glm::vec2 capsuleCenter, glm::vec2 capsuleDimensions, float capsuleRotation, glm::vec2 circleCenter, float circleRadius)
@@ -430,7 +471,7 @@ glm::vec3 Collision_SAT_CircleCapsule(glm::vec2 circleCenter, float circleRadius
 {
 	glm::vec3 inverseEscapeVector = Collision_SAT_CapsuleCircle(capsuleCenter, capsuleDimensions, capsuleRotation, circleCenter, circleRadius);
 
-	return inverseEscapeVector;
+	return -inverseEscapeVector;
 }
 
 glm::vec3 Collision_SAT_CapsuleCapsule(glm::vec2 capsule1Center, glm::vec2 capsule1Dimensions, float capsule1Rotation, 
