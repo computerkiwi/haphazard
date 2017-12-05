@@ -117,8 +117,7 @@ private:
 
 	META_REGISTER(Collider2D)
 	{
-		// HACK: Do some safety registration.
-		META_DefineType(collisionType);
+		META_DefineEnum(collisionType);
 
 		META_DefineMember(Collider2D, m_colliderShape, "colliderShape");
 		META_DefineMember(Collider2D, m_offset, "offset");
