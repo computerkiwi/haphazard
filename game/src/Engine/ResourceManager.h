@@ -93,6 +93,12 @@ private:
 	std::string m_fileName;
 	ResourceID m_id;
 	bool m_isLoaded;
+
+	// Don't register it properly because it's abstract aka not real.
+	META_PREREGISTER(Resource)
+	{
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<Resource>("Resource").addStaticFunction("FilenameToID", FilenameToID);
+	}
 };
 
 class ResourceManager

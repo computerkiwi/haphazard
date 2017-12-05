@@ -1,0 +1,9 @@
+{
+  "textureName": "Gnome_Red.png",
+  "frameWidth":  256,
+  "frameHeight": 256,
+  "framesX":     2,
+  "framesY":     1,
+  "fps":         1,
+  "frameCount":  2
+}

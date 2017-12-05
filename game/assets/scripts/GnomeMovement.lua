@@ -53,6 +53,8 @@ HORIZONTAL_AXIS = 0
 
 GROUND_CHECK_LENGTH = 0.05
 
+WALK_FPS = 7
+
 -- Returns (bool - found ground below), (number - y position of the top of the ground)
 function CheckGround(count)
 	local PLAYER_LAYER = 1 << 2
@@ -328,7 +330,7 @@ function GetInputGamepad()
 	lastDir = moveDir
   -- Player does not move
   else
-    moveDir = MOVE_IDLE
+    SetMoveDir(MOVE_IDLE)
   end
 
   -- Player jumps
@@ -474,12 +476,24 @@ function SetMoveDir(dir)
   -- Flip sprite
   if(moveDir == -1)
   then
-	  this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	local tex = this:GetSprite().textureHandler
+	tex.fps = WALK_FPS;
+	this:GetSprite().textureHandler = tex
 	--print(this:GetTransform().scale.x)
   elseif(moveDir == 1)
   then
-	  this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
-	 --print(this:GetTransform().scale.x)
+	this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	local tex = this:GetSprite().textureHandler
+	tex.fps = WALK_FPS;
+	this:GetSprite().textureHandler = tex
+	--print(this:GetTransform().scale.x)
+  elseif(moveDir == 0)
+  then
+	local tex = this:GetSprite().textureHandler
+	tex.fps = 0;
+	tex.currentFrame = 0;
+	this:GetSprite().textureHandler = tex
   end
 end -- fn end
 
