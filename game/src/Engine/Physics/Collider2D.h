@@ -68,6 +68,7 @@ public:
 	float GetSelfElasticity() const;
 	float GetAppliedElasticity() const;
 	collisionType GetCollisionType() const;
+	int METAGetCollisionType() const;
 
 	// setters
 	void SetColliderShape(colliderType colliderType);
@@ -84,6 +85,7 @@ public:
 	void SetAppliedElasticity(float newElasticity);
 	void AmplifyAppliedElasticity(float scalar);
 	void SetCollisionType(collisionType type);
+	void METASetCollisionType(int type);
 
 	// methods
 	// Passed only one parameter, scales both axes by the same thing
@@ -127,6 +129,7 @@ private:
 		META_DefineMember(Collider2D, m_selfElasticity, "selfElasticity");
 		META_DefineMember(Collider2D, m_appliedElasticity, "appliedElasticity");
 		META_DefineMember(Collider2D, m_collisionType, "collisionType");
+		//META_DefineGetterSetter(Collider2D, int, METAGetCollisionType, METASetCollisionType, "collisionType_");
 
 		META_DefineFunction(Collider2D, IsCollidingWithLayerMeta, "IsCollidingWithLayer");
 	}

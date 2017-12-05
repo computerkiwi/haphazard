@@ -13,8 +13,9 @@ weapon = nil
 WEAPON_NAME = "hammerWeapon.json"
 
 function Start()
-  weapon = GameObject.FindByName("hammerWeapon")
+  weapon = GameObject.FindByName("RedGnomeWeapon")
   weapon:Deactivate()
+  weapon:GetTransform().parent = this:GetTransform()
 end -- fn end
 
 function Update(dt)

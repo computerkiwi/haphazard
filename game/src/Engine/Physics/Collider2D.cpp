@@ -49,6 +49,11 @@ Collider2D::collisionType Collider2D::GetCollisionType() const
 	return m_collisionType;
 }
 
+int Collider2D::METAGetCollisionType() const
+{
+	return static_cast<int>(m_collisionType);
+}
+
 // setters
 void Collider2D::SetColliderShape(colliderType colliderType)
 {
@@ -130,6 +135,11 @@ void Collider2D::AmplifyAppliedElasticity(float scalar)
 void Collider2D::SetCollisionType(Collider2D::collisionType type)
 {
 	m_collisionType = type;
+}
+
+void Collider2D::METASetCollisionType(int type)
+{
+	m_collisionType = static_cast<Collider2D::collisionType>(type);
 }
 
 // methods

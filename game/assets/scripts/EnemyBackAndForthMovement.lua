@@ -8,6 +8,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 -- Connections
 otherPlayer = nil
 
+ALLY_PROJECTILE_LAYER = 32 --1 << 5
+
 -- Variables
 direction = 1 -- direction of movement - -1 for left, 1 for right
 speed = 2      -- speed at which boi moves
@@ -45,5 +47,10 @@ end -- fn end
 
 -- Other is a game object
 function OnCollisionEnter(other)
+
+	if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
+	then
+		this:Destroy()
+	end
 
 end -- fn end
