@@ -105,7 +105,7 @@ void Action_AddComponent_DynamicCollider(EditorAction& a)
 	{
 		handle.GetGameObject().AddComponent<DynamicCollider2DComponent>();
 
-		if (a.save.GetData<bool>())
+		if (a.current.GetData<bool>())
 		{
 			handle.GetGameObject().AddComponent<RigidBodyComponent>();
 		}
@@ -114,7 +114,7 @@ void Action_AddComponent_DynamicCollider(EditorAction& a)
 	{
 		handle.GetGameObject().DeleteComponent<DynamicCollider2DComponent>();
 
-		if (a.save.GetData<bool>())
+		if (a.current.GetData<bool>())
 		{
 			handle.GetGameObject().DeleteComponent<RigidBodyComponent>();
 		}
@@ -1427,8 +1427,6 @@ void Editor::PrintObjects()
 						{
 							ImGui::PopStyleColor();
 						}
-
-						break;
 					}
 				}
 			}
