@@ -11,6 +11,7 @@ Player2_Health = 10
 TotalLives = 5
 TotalScore = 0
 CoinValue = 1
+GemsCollected = 0
 
 function AddLife()
   TotalLives = TotalLives + 1
@@ -23,6 +24,14 @@ end -- fn end
 function AddScore()
   TotalScore = TotalScore + CoinValue
 end -- fn end
+
+function AddGem()
+	GemsCollected = GemsCollected + 1
+end
+
+function GetGems()
+	return GemsCollected
+end
 
 function ResetScore()
 
