@@ -292,7 +292,7 @@ void Editor::Update(float dt)
 		ImGui_ImplGlfwGL3_NewFrame();
 
 		// Get all the active gameobjects
-		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
+		m_engine->GetSpaceManager()->CollectAllObjects(m_objects);
 		SortObjectList();
 
 		// Updates all the popups that could be on screen
@@ -484,18 +484,13 @@ void Editor::SortObjectList()
 	std::sort(m_objects.begin(), m_objects.end(),
 		[](GameObject lhs, GameObject rhs)
 	{
-		if (lhs && rhs)
-		{
-			float lhs_z = lhs.GetComponent<TransformComponent>()->GetZLayer();
-			float rhs_z = rhs.GetComponent<TransformComponent>()->GetZLayer();
+		float lhs_z = lhs.GetComponent<TransformComponent>()->GetZLayer();
+		float rhs_z = rhs.GetComponent<TransformComponent>()->GetZLayer();
 
 
-			return lhs_z > rhs_z ||
-				   ((lhs_z == rhs_z) && lhs.GetName() > rhs.GetName()) ||
-				   (lhs.GetName() == rhs.GetName() && lhs.Getid() > rhs.Getid());
-		}
-
-		return false;
+		return lhs_z > rhs_z ||
+			   ((lhs_z == rhs_z)                 && (lhs.GetName() < rhs.GetName())) ||
+			   ((lhs_z == rhs_z) && (lhs.GetName() == rhs.GetName()) && (lhs.Getid()   > rhs.Getid()));
 	});
 }
 

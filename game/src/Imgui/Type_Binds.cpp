@@ -517,12 +517,12 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		if (name.size() > 10)
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-10.10s... - %d : %d : %d", name.c_str(), object.GetIndex(), object.GetComponent<TransformComponent>()->GetZLayer(), object.GetObject_id());
+				"%-10.10s... - %d : %d : %d", name.c_str(), object.GetIndex(), static_cast<int>(object.GetComponent<TransformComponent>()->GetZLayer()), object.GetObject_id());
 		}
 		else
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-13.13s - %d : %d : %d", name.c_str(), object.GetIndex(), object.GetComponent<TransformComponent>()->GetZLayer(), object.GetObject_id());
+				"%-13.13s - %d : %d : %d", name.c_str(), object.GetIndex(), static_cast<int>(object.GetComponent<TransformComponent>()->GetZLayer()), object.GetObject_id());
 		}
 
 		// Draw each object
@@ -751,6 +751,7 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			{
 				if (name_buffer[0] != '\0')
 				{
+					editor->Push_Action({ object.GetComponent<ObjectInfo>()->m_name, std::string(name_buffer), "name", { object, true }, Action_General<ObjectInfo, std::string> });
 					object.GetComponent<ObjectInfo>()->m_name = name_buffer;
 				}
 				CloseCurrentPopup();
@@ -1424,6 +1425,25 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 						editor->Push_Action({ colliderSave.m_offset, collider->m_offset, "offset", handle, Action_General_Collider<DynamicCollider2DComponent> });
 					}
 					widget_click["colliderSave.m_offset"] = false;
+				}
+			}
+
+			Drag("Rotation##collider_offset", colliderSave.m_rotationOffset, collider->m_rotationOffset);
+			if (Input::IsReleased(Drag_Key))
+			{
+				// Check if we need to save the action for static or dynamic
+				if (widget_click["colliderSave.m_rotationOffset"] == true)
+				{
+					// Check if we need to save the action for static or dynamic
+					if (collider->isStatic())
+					{
+						editor->Push_Action({ colliderSave.m_rotationOffset, collider->m_rotationOffset, "rotationOffset", handle, Action_General_Collider<StaticCollider2DComponent> });
+					}
+					else
+					{
+						editor->Push_Action({ colliderSave.m_rotationOffset, collider->m_rotationOffset, "rotationOffset", handle, Action_General_Collider<DynamicCollider2DComponent> });
+					}
+					widget_click["colliderSave.m_rotationOffset"] = false;
 				}
 			}
 
