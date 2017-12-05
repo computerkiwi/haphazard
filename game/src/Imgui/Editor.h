@@ -385,6 +385,8 @@ private:
 	// ObjectsList Panel
 	void ObjectsList();
 
+	void CreateObjectPopUp();
+
 	// File IO
 	void SaveLoad();
 	void OpenLevel();

@@ -1453,37 +1453,7 @@ void Editor::ObjectsList()
 		ImGui::OpenPopup("Create GameObject###CreateGameObject");
 	} 
 
-	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
-	{
-		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
-		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
-		{
-			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
-
-			// Add a transform component
-			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
-
-			m_selected_object = object.Getid();
-
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
-
-		if (ImGui::Button("Create###createObjectListButton"))
-		{
-			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
-
-			// Add a transform component
-			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
-
-			m_selected_object = object.Getid();
-
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
-	}
+	CreateObjectPopUp();
 	
 	SameLine();
 
@@ -1498,6 +1468,42 @@ void Editor::ObjectsList()
 	PrintObjects();
 	ImGui::EndChild();
 	End();
+}
+
+
+void Editor::CreateObjectPopUp()
+{
+	if (ImGui::BeginPopup("Create GameObject###CreateGameObject"))
+	{
+		static char name[128] = { 'N', 'o', ' ', 'N', 'a', 'm', 'e', '\0' };
+		if (ImGui::InputText("Name", name, sizeof(name), ImGuiInputTextFlags_EnterReturnsTrue))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+				// Add a transform component 
+				object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::SliderInt("Space", &m_current_space_index, 0, static_cast<int>(m_engine->GetSpaceManager()->GetSize()) - 1);
+
+		if (ImGui::Button("Create###createObjectListButton"))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component 
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
 }
 
 
@@ -1900,6 +1906,13 @@ void Editor::MenuBar()
 			{
 				LoadPreFab();
 			}
+
+			if (ImGui::MenuItem("Create GameObject##menuBar"))
+			{
+				ImGui::OpenPopup("Create GameObject###CreateGameObject");
+			}
+
+			CreateObjectPopUp();
 
 			// Add Component Buttons
 			if (ImGui::BeginMenu("Components"))
