@@ -32,6 +32,9 @@ public:
 
 	static Mesh* SpriteMesh() { return m_Mesh; }
 
+	TextureHandler& GetTextureHandler() { return m_TextureHandler; }
+	TextureHandler *GetTextureHandlerPointer() { return &m_TextureHandler; }
+
 private:
 	static void SpriteComponent::ConstructUnitMesh();
 	
