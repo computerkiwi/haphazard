@@ -12,7 +12,12 @@ void main()
 {
 	//float y = texCoord.y - int(texCoord.y); // Used for vertical parallaxing
 	
-	vec2 coord = texBounds.xy + ( vec2(texCoord.x - int(texCoord.x), texCoord.y) * (texBounds.zw - texBounds.xy));
+	float x = texCoord.x - int(texCoord.x);
+	if(x < 0)
+		x += 1;
+
+
+	vec2 coord = texBounds.xy + ( vec2(x, texCoord.y) * (texBounds.zw - texBounds.xy));
 
 	vec4 texColor = texture(tex, vec3(coord,texLayer));
 
