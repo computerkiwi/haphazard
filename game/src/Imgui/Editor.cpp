@@ -1427,8 +1427,6 @@ void Editor::PrintObjects()
 						{
 							ImGui::PopStyleColor();
 						}
-
-						break;
 					}
 				}
 			}
