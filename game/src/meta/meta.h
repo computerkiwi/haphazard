@@ -467,6 +467,29 @@ namespace meta
                                      static void Meta__First_Pass_Register__##TYPE() { META_DefineType(TYPE); } \
                                      template <typename Dummy = int> static void Meta__Register__##TYPE()
 
+
+template <typename T>
+rapidjson::Value SerializeEnum(const void *objectPtr, rapidjson::Document::AllocatorType& allocator)
+{
+	rapidjson::Value val;
+	val.SetInt(static_cast<int>(*static_cast<const T *>(objectPtr)));
+
+	return val;
+}
+
+template <typename T>
+void DeserializeEnum(void * objectPtr, rapidjson::Value& jsonObject)
+{
+	T& enumObj = *reinterpret_cast<T *>(objectPtr);
+
+	if (jsonObject.IsInt())
+	{
+		enumObj = static_cast<T>(jsonObject.GetInt());
+	}
+}
+
+#define META_DefineEnum(ENUM_TYPE) META_DefineType(ENUM_TYPE); META_DefineSerializeFunction(ENUM_TYPE, SerializeEnum<ENUM_TYPE>); META_DefineDeserializeAssignFunction(ENUM_TYPE, DeserializeEnum<ENUM_TYPE>)
+
 #include "meta.inl"
 #include "MemberGetSet.inl"
 #include "Any.inl"
