@@ -10,7 +10,9 @@ uniform sampler2DArray tex;
 
 void main()
 {
-	vec2 coord = texBounds.xy + ( vec2(texCoord.x - int(texCoord.x), texCoord.y - int(texCoord.y)) * (texBounds.zw - texBounds.xy));
+	//float y = texCoord.y - int(texCoord.y); // Used for vertical parallaxing
+	
+	vec2 coord = texBounds.xy + ( vec2(texCoord.x - int(texCoord.x), texCoord.y) * (texBounds.zw - texBounds.xy));
 
 	vec4 texColor = texture(tex, vec3(coord,texLayer));
 

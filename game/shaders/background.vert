@@ -16,7 +16,9 @@ void main()
 {
 	gl_Position = vec4(pos.xy, 0.0, 1.0);
 
-	texCoord =  Percent + vec2(XRange.x + texcoord.x * XRange.y, YRange.x + texcoord.y * YRange.y); //TexBox.xy + (texcoord * (TexBox.zw - TexBox.xy));
+	texCoord =  Percent + vec2(XRange.x + texcoord.x * XRange.y, YRange.x + texcoord.y * YRange.y);       //TexBox.xy + (texcoord * (TexBox.zw - TexBox.xy));
+	texCoord.y = texcoord.y; // Disable vertical parallaxing
+
 	texBounds = TexBox;
 	texLayer = TexLayer;
 }

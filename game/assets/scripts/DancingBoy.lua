@@ -13,7 +13,7 @@ standingY = 0
 startY = 0
 delta = 0
 
-inAir = true
+inAir = false
 
 function Start()
 
@@ -29,31 +29,38 @@ end
 function Update(dt)
 	if(dt == 0) then return	end
 	
-	time = time - dt
-	local delta = 0.25 * math.cos(6.28 / DANCE_TIME *(time));
-
-	this:GetTransform().scale = vec3(this:GetTransform().scale.x, startYScale + delta, 1)
-
-	if(this:GetRigidBody().velocity.y != 0) 
-	then 
-		inAir = true 
+	if(this:GetRigidBody() ~= nil and math.abs(this:GetRigidBody().velocity.y) > 1 ) 
+	then
+		inAir = false
 	end
+
 
 	if(inAir)
 	then
-		if(this:GetRigidBody().velocity.y == 0)
+		if(this:GetRigidBody() ~= nil and math.abs(this:GetRigidBody().velocity.y) <= 0.1)
 		then
 			inAir = false;
 			standingY = this:GetTransform().position.y
 		end
 	else
-		this:GetTransform().position = vec2(this:GetTransform().position.x, standingY + delta)
+		time = time - dt
+		local delta = 0.25 * math.cos(6.28 / DANCE_TIME *(time));
+
+		this:GetTransform().scale = vec3(this:GetTransform().scale.x, startYScale + delta, 1)
+
+		if(this:GetRigidBody() == nil)
+		then
+			this:GetTransform().position = vec2(this:GetTransform().position.x, standingY + delta/2)
+		end
+		
+		if(time < 0)
+		then
+			if(this:GetRigidBody() == nil or math.abs(this:GetRigidBody().velocity.x) < 0.1)
+			then
+				this:GetTransform().scale = vec3(-this:GetTransform().scale.x, this:GetTransform().scale.y, 1)
+			end
+			time = DANCE_TIME
+		end
 	end
 
-
-	if(time < -DANCE_TIME)
-	then
-		this:GetTransform().scale = vec3(-this:GetTransform().scale.x, this:GetTransform().scale.y, 1)
-		time = DANCE_TIME
-	end
 end

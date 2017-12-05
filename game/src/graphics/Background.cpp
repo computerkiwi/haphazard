@@ -82,8 +82,8 @@ void BackgroundComponent::Render(glm::vec2 pos)
 
 	//Render
 	Shaders::backgroundShader->Use();
-	Shaders::backgroundShader->SetVariable("XRange", glm::vec2(m_SubTexturePosition.x, m_SubTexturePosition.x + m_SubTextureSize.x));
-	Shaders::backgroundShader->SetVariable("YRange", glm::vec2(m_SubTexturePosition.y, m_SubTexturePosition.y + m_SubTextureSize.y));
+	Shaders::backgroundShader->SetVariable("XRange", glm::vec2(m_SubTexturePosition.x, m_SubTextureSize.x));
+	Shaders::backgroundShader->SetVariable("YRange", glm::vec2(m_SubTexturePosition.y, m_SubTextureSize.y * Camera::GetActiveCamera()->GetAspectRatio()));
 	m_Mesh->Bind();
 	Texture::BindArray();
 
