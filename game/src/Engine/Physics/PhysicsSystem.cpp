@@ -267,7 +267,7 @@ glm::vec3 Collision_SAT(ComponentHandle<TransformComponent>& transform1, Collide
 // collision where the circle is the first object
 glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCorners& rectangle)
 {
-	const int num_projections = 5;
+	const int num_projections = 3;
 	float smallestOverlap = -1;
 	glm::vec2 smallestAxis;
 
@@ -298,8 +298,6 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 	edgeNormals[0] = Closestaxis;
 	edgeNormals[1] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::topLeft];
 	edgeNormals[2] = rectangle.m_corners[BoxCorners::topRight] - rectangle.m_corners[BoxCorners::botRight];
-	edgeNormals[3] = rectangle.m_corners[BoxCorners::botLeft] - rectangle.m_corners[BoxCorners::botRight];
-	edgeNormals[4] = rectangle.m_corners[BoxCorners::botLeft] - rectangle.m_corners[BoxCorners::topLeft];
 
 	// project onto each axis
 	for (int i = 0; i < num_projections; ++i)
@@ -405,19 +403,19 @@ glm::vec3 Collision_SAT_CapsuleBox(glm::vec2 capsuleCenter, glm::vec2 capsuleDim
 	// use all of the escape vectors to estimate the actual collision that needs to be resolved
 	if (escapeVector2.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector2.x);
 	}
 	if (escapeVector2.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector2.y);
 	}
 	if (escapeVector3.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector3.x);
 	}
 	if (escapeVector3.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector3.y);
 	}
 
 	return realEscapeVector;
@@ -449,19 +447,19 @@ glm::vec3 Collision_SAT_CapsuleCircle(glm::vec2 capsuleCenter, glm::vec2 capsule
 	// use all of the escape vectors to estimate the actual collision that needs to be resolved
 	if (escapeVector2.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector2.x);
 	}
 	if (escapeVector2.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector2.y);
 	}
 	if (escapeVector3.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector3.x);
 	}
 	if (escapeVector3.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector3.y);
 	}
 
 	return realEscapeVector;
@@ -493,19 +491,19 @@ glm::vec3 Collision_SAT_CapsuleCapsule(glm::vec2 capsule1Center, glm::vec2 capsu
 	// use all of the escape vectors to estimate the actual collision that needs to be resolved
 	if (escapeVector2.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector2.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector2.x);
 	}
 	if (escapeVector2.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector2.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector2.y);
 	}
 	if (escapeVector3.x)
 	{
-		realEscapeVector.x = std::max(abs(realEscapeVector.x), abs(escapeVector3.x));
+		realEscapeVector.x = maxAbs(realEscapeVector.x, escapeVector3.x);
 	}
 	if (escapeVector3.y)
 	{
-		realEscapeVector.y = std::max(abs(realEscapeVector.y), abs(escapeVector3.y));
+		realEscapeVector.y = maxAbs(realEscapeVector.y, escapeVector3.y);
 	}
 
 	return realEscapeVector;
@@ -751,14 +749,14 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		// calculate elasticity multiplier applied to dynamic object
 		float elasticity = collider1->ColliderData().GetSelfElasticity() * collider2->ColliderData().GetAppliedElasticity();
 
+		transform1->SetPosition(glm::vec2(position + static_cast<glm::vec2>(resolutionVector)));
+
 		if (resolutionVector.x)
 		{
-			transform1->SetPosition(glm::vec2(position.x + resolutionVector.x, position.y));
 			rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x * -elasticity, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
 		}
 		if (resolutionVector.y)
 		{
-			transform1->SetPosition(glm::vec2(position.x, position.y + resolutionVector.y));
 			rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, rigidBody1->Velocity().y * -elasticity, rigidBody1->Velocity().z));
 		}
 	}
