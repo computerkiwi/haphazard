@@ -254,6 +254,15 @@ ClickedList widget_click;
 // DynamicCollider Action
 void Action_AddComponent_DynamicCollider(EditorAction& a);
 
+
+const char * const ColliderTypeNames[] =
+{
+	"Solid",
+	"Passthrough"
+};
+
+
+
 // Button to release the drag sliders
 #define Drag_Key Key::Mouse_1
 
@@ -505,16 +514,15 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 			continue;
 		}
 
-		// Save the buffer based off name size, max name size is 8
-		if (name.size() > 8)
+		if (name.size() > 10)
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-5.5s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-10.10s... - %d : %d : %d", name.c_str(), object.GetIndex(), object.GetComponent<TransformComponent>()->GetZLayer(), object.GetObject_id());
 		}
 		else
 		{
 			snprintf(name_buffer, sizeof(name_buffer),
-				"%-8.8s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+				"%-13.13s - %d : %d : %d", name.c_str(), object.GetIndex(), object.GetComponent<TransformComponent>()->GetZLayer(), object.GetObject_id());
 		}
 
 		// Draw each object
@@ -1434,8 +1442,9 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 
 		Drag_Float_Speed_MinMax("Elasticity##collider", colliderSave.m_selfElasticity, collider->m_selfElasticity, SLIDER_STEP, 0, 1);
 		DragRelease(Collider2D, colliderSave.m_selfElasticity, collider->m_selfElasticity, "selfElasticity");
-
+		
 		// Collision Type
+		Combo("Collision Type##collider", reinterpret_cast<int *>(&collider->m_collisionType), ColliderTypeNames, static_cast<int>(Collider2D::collisionType::collision_types));
 		Combo("Collider Type##collider", &index, collider_types, static_cast<int>(Collider2D::colliderType::collider_max));
 		switch (index)
 		{

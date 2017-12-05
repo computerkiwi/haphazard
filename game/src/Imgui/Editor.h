@@ -251,6 +251,8 @@ class Editor
 	// Search Bars for Sprites
 	struct SearchBars
 	{
+		ImGuiTextFilter objects;
+
 		ImGuiTextFilter script;
 
 		ImGuiTextFilter sprite;
@@ -396,6 +398,7 @@ private:
 
 	// Click Handling
 	void OnClick();
+	void SortObjectList();
 
 	// Keypresses
 	void KeyBindings(float dt);

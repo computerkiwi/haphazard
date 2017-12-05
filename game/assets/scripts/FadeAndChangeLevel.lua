@@ -18,7 +18,7 @@ VISIBLE_MENU         = 1.0 + END_HAPHAZARD
 
 timer = 0
 
-CONTINUE_BUTTON = KEY.Space
+CONTINUE_BUTTONS = {KEY.Space, KEY.Escape}
 
 currentID = DIGIPEN_ID
 
@@ -26,6 +26,21 @@ function Start()
 
 	this:GetSprite().id = currentID
 
+end
+
+function ContinuePressed()
+
+	-- Check each button.
+	for i,key in ipairs(CONTINUE_BUTTONS)
+	do
+		if (IsTriggered(key))
+		then
+			return true
+		end
+	end
+	
+	-- If we got here nothing was pushed.
+	return false
 end
 
 function TrySwitchSprite(id)
@@ -52,9 +67,12 @@ function Update(dt)
 	if (timer < VISIBLE_DIGIPEN)
 	then
 		value = InverseLerp(0, VISIBLE_DIGIPEN, timer)
+		-- Skip to the fade out if we push the button.
+		if (ContinuePressed()) then timer = FADE_START_DIGIPEN + value * (END_DIGIPEN - FADE_START_DIGIPEN) end
 	elseif(timer < FADE_START_DIGIPEN)
 	then
 		value = 1
+		if (ContinuePressed()) then timer = FADE_START_DIGIPEN end
 	elseif(timer < END_DIGIPEN)
 	then
 		value = InverseLerp(END_DIGIPEN, FADE_START_DIGIPEN , timer)
@@ -63,9 +81,12 @@ function Update(dt)
 	then
 		TrySwitchSprite(HAPHAZARD_ID)
 		value = InverseLerp(END_DIGIPEN, VISIBLE_HAPHAZARD, timer)
+		-- Skip to the fade out if we push the button.
+		if (ContinuePressed()) then timer = FADE_START_HAPHAZARD + value * (END_HAPHAZARD - FADE_START_HAPHAZARD) end
 	elseif(timer < FADE_START_HAPHAZARD)
 	then
 		value = 1
+		if (ContinuePressed()) then timer = FADE_START_HAPHAZARD end
 	elseif(timer < END_HAPHAZARD)
 	then
 		value = InverseLerp(END_HAPHAZARD, FADE_START_HAPHAZARD, timer)
@@ -76,7 +97,7 @@ function Update(dt)
 	else  -- Menu is showing
 		value = 1
 		
-		if (IsPressed(CONTINUE_BUTTON))
+		if (ContinuePressed())
 		then
 			Engine.LoadLevel(LEVEL)
 		end

@@ -293,6 +293,7 @@ void Editor::Update(float dt)
 
 		// Get all the active gameobjects
 		m_engine->GetSpaceManager()->CollectAllObjectsDelimited(m_objects);
+		SortObjectList();
 
 		// Updates all the popups that could be on screen
 		UpdatePopUps(1 / 60.0f);
@@ -475,6 +476,27 @@ void Editor::ResetStyle()
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
 
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+}
+
+
+void Editor::SortObjectList()
+{
+	std::sort(m_objects.begin(), m_objects.end(),
+		[](GameObject lhs, GameObject rhs)
+	{
+		if (lhs && rhs)
+		{
+			float lhs_z = lhs.GetComponent<TransformComponent>()->GetZLayer();
+			float rhs_z = rhs.GetComponent<TransformComponent>()->GetZLayer();
+
+
+			return lhs_z > rhs_z ||
+				   ((lhs_z == rhs_z) && lhs.GetName() > rhs.GetName()) ||
+				   (lhs.GetName() == rhs.GetName() && lhs.Getid() > rhs.Getid());
+		}
+
+		return false;
+	});
 }
 
 
@@ -812,22 +834,22 @@ void Editor::OnClick()
 		glm::vec2 scale;
 
 		// Check the current object first, cache basically
-		if (m_selected_object.IsValid())
-		{
-			ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
-			pos = transform.Get()->GetPosition();
-			scale = abs(transform.Get()->GetScale());
-
-			// Check the selected object first
-			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
-				mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
-			{
-			}
-			else
-			{
-				return;
-			}
-		}
+		//if (m_selected_object.IsValid())
+		//{
+		//	ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
+		//	pos = transform.Get()->GetPosition();
+		//	scale = abs(transform.Get()->GetScale());
+		//
+		//	// Check the selected object first
+		//	if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
+		//		mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
+		//	{
+		//	}
+		//	else
+		//	{
+		//		return;
+		//	}
+		//}
 
 		// Check EVERY object
 		for (auto id : m_objects)
@@ -1351,11 +1373,11 @@ void Editor::PrintObjects()
 	for (auto& object_id : m_objects)
 	{
 		// Use invalid gameObject as a delimiter
-		if (object_id == INVALID_GAMEOBJECT_ID)
-		{
-			ImGui::Separator();
-			continue;
-		}
+		//if (object_id == INVALID_GAMEOBJECT_ID)
+		//{
+		//	ImGui::Separator();
+		//	continue;
+		//}
 		
 		// Assign the GameObject to a temp
 		object = object_id;
@@ -1370,12 +1392,12 @@ void Editor::PrintObjects()
 			if (name.size() > 10)
 			{
 				snprintf(name_buffer, sizeof(name_buffer),
-					"%-10.10s... - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+					"%-10.10s... - %d : %d : %d", name.c_str(), object.GetIndex(), static_cast<int>(object.GetComponent<TransformComponent>()->GetZLayer()), object.GetObject_id());
 			}
 			else
 			{
 				snprintf(name_buffer, sizeof(name_buffer),
-					"%-13.13s - %d : %d", name.c_str(), object.GetObject_id(), object.GetIndex());
+					"%-13.13s - %d : %d : %d", name.c_str(), object.GetIndex(), static_cast<int>(object.GetComponent<TransformComponent>()->GetZLayer()), object.GetObject_id());
 			}
 
 			if (!object.IsActive())
@@ -1399,17 +1421,20 @@ void Editor::PrintObjects()
 			}
 			else
 			{
-				if (ImGui::Selectable(name_buffer))
+				if (GetSearchBars().objects.PassFilter(name_buffer))
 				{
-					m_multiselect.clear();
-					SetGameObject(object);
-
-					if (!object.IsActive())
+					if (ImGui::Selectable(name_buffer))
 					{
-						ImGui::PopStyleColor();
-					}
+						m_multiselect.clear();
+						SetGameObject(object);
 
-					break;
+						if (!object.IsActive())
+						{
+							ImGui::PopStyleColor();
+						}
+
+						break;
+					}
 				}
 			}
 
@@ -1474,8 +1499,11 @@ void Editor::ObjectsList()
 		engine->GetSpaceManager()->AddSpace();
 	}
 
-	PrintObjects();
+	GetSearchBars().objects.Draw("Search##objects", 150);
 
+	ImGui::BeginChild("object_list_print");
+	PrintObjects();
+	ImGui::EndChild();
 	End();
 }
 

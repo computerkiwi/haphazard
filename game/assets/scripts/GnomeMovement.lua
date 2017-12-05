@@ -10,7 +10,7 @@ otherPlayer = nil
 
 -- Variables
 moveSpeed   = 2
-jumpSpeed   = 4.5
+jumpSpeed   = 5.5
 fallSpeed   = 2
 
 throwSpeed = 6
@@ -74,7 +74,6 @@ function CheckGround(count)
 	-- Cast each raycast
 	local casts = {}
 	for i, origin in ipairs(origins) do
-		print(i .. ', ' .. tostring(origin))
 		casts[i] = Raycast.Cast(this:GetSpaceIndex(), origin, DOWN, scale.y + GROUND_CHECK_LENGTH, GROUND_LAYER )
 	end
 	

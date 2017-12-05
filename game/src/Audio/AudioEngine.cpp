@@ -62,7 +62,7 @@ namespace Audio
 
 		if (ResourceManager::GetManager().Get(fileName) == nullptr)
 		{
-			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to unloaded audio file ", fileName);
+			Logging::Log(Logging::AUDIO, Logging::HIGH_PRIORITY, "Attempted to play unloaded audio file ", fileName);
 			file = "default.wav";
 		}
 
