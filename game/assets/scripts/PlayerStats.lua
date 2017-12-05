@@ -11,6 +11,7 @@ Player2_Health = 10
 TotalLives = 5
 TotalScore = 0
 CoinValue = 1
+GemsCollected = 0
 
 function Update(dt)
   if (TotalScore == 5)
@@ -35,6 +36,14 @@ function AddScore()
   print("Score: ")
   print(TotalScore)
 end -- fn end
+
+function AddGem()
+	GemsCollected = GemsCollected + 1
+end
+
+function GetGems()
+	return GemsCollected
+end
 
 function ResetScore()
 
