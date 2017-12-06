@@ -8,10 +8,16 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 function OnCollisionEnter(other)
   if (other:HasTag("Player"))
   then
-    local platform = GameObject.FindByName("InteractiveWall")
-    local wallScript = platform:GetScript("PlatformMove.lua")
+    local platform = GameObject.FindByName("InteractiveGround")
+    local groundScript = platform:GetScript("PlatformMove.lua")
     local left = -2
-    wallScript.EnablePlatform(left, 1.9)
+    groundScript.EnablePlatform(left, 1.9)
+    groundScript.SetTimer(0.03)
+
+	local platform = GameObject.FindByName("InteractiveWall")
+    local wallScript = platform:GetScript("PlatformMove.lua")
+    local down = -1
+    wallScript.EnablePlatform(down, 10)
     wallScript.SetTimer(0.03)
 
     local platform = GameObject.FindByName("InteractiveStairs1")
