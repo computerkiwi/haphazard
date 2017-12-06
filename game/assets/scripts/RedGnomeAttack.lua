@@ -15,8 +15,8 @@ WEAPON_NAME = "hammerWeapon.json"
 function Start()
   weapon = GameObject.FindByName("RedGnomeWeapon")
   weapon:Deactivate()
-  weapon:GetTransform().parent = this:GetTransform()
-end -- fn end
+  weapon:GetTransform().parent = this
+end
 
 function Update(dt)
   if (IsPressed(89))

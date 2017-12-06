@@ -13,9 +13,13 @@ DURATION_RESET = 0.1
 xOFFSET = 0.5
 yOFFSET = 0.1
 
+defaultRotation = 0
+
 function Start()
   player = GameObject.FindByName("Player1")
   playerScript = player:GetScript("GnomeMovement.lua")
+  defaultRotation = this:GetTransform().rotation
+  this:GetTransform().rotation = defaultRotation;
 end -- fn end
 
 function Update(dt)
@@ -31,10 +35,12 @@ function Update(dt)
   if (dir == -1)
   then
     posOffset.x = playerPos.x - xOFFSET
+	this:GetTransform().rotation = defaultRotation + 45;
   -- facing right
   elseif (dir == 1)
   then
     posOffset.x = playerPos.x + xOFFSET
+	this:GetTransform().rotation = defaultRotation;
   end
 
   posOffset.y = playerPos.y - yOFFSET
@@ -63,6 +69,7 @@ function FlipDir(dir)
   moveDir = dir
 
   -- Flip sprite
+  --[[
   if(moveDir == -1)
   then
 	  this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
@@ -71,5 +78,5 @@ function FlipDir(dir)
   then
 	  this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
 	 --print(this:GetTransform().scale.x)
-  end
+  end]]
 end -- fn end

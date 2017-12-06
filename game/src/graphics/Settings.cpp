@@ -6,8 +6,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "Settings.h"
 
-static int screenWidth = 800;
-static int screenHeight = 600;
+static int screenWidth = 888;
+static int screenHeight = 500;
 
 int Settings::ScreenWidth() { return screenWidth; }
 int Settings::ScreenHeight() { return screenHeight; }

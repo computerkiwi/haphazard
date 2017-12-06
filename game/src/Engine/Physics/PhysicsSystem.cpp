@@ -272,7 +272,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 	glm::vec2 smallestAxis;
 
 	// find the closest vertex on the rectangle to the box
-	float shortestLengthSquared = 1000000;
+	float shortestLengthSquared = HUGE_VALF;
 	int index = 5;
 
 	for (int i = 0; i < 4; i++)
@@ -288,7 +288,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 			index = i;
 		}
 	}
-	assert(index < 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
+	assert(index != 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
 
 	// get the axis
 	glm::vec2 Closestaxis = center1 - rectangle.m_corners[index];
