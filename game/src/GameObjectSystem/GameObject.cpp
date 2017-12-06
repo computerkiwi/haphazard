@@ -262,6 +262,20 @@ GameObject GameObject::FindByTag(const char * tagStr)
 }
 
 
+void GameObject::Create(const char *name)
+{
+	GameObject object = engine->GetSpace(0)->NewGameObject(name);
+	object.AddComponent<TransformComponent>();
+}
+
+
+void GameObject::CreateToSpace(const char *name, GameSpaceIndex index)
+{
+	GameObject object = engine->GetSpace(index)->NewGameObject(name);
+	object.AddComponent<TransformComponent>();
+}
+
+
 std::vector<GameObject> GameObject::FindAllByTag(const char *tagStr)
 {
 	std::vector<GameObject> objects;
