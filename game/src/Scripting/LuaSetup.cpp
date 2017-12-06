@@ -143,6 +143,9 @@ KEY = {
 
 }
 
+Key = KEY
+key = KEY
+
 )SETUP_DELIMITER";
 
 void SetupLua(lua_State * L)
