@@ -24,6 +24,16 @@ void TransformComponent::SetParent(GameObject parent)
 }
 
 
+void TransformComponent::SetParentLua(GameObject parent)
+{
+	if (parent && parent.GetComponent<HierarchyComponent>().Get() == nullptr)
+	{
+		parent.AddComponent<HierarchyComponent>();
+	}
+	m_parent = parent;
+}
+
+
 GameObject TransformComponent::GetParent() const
 {
 	return m_parent;
