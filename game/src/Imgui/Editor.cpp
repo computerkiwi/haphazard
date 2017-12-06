@@ -1482,6 +1482,18 @@ void Editor::ObjectsList()
 			ImGui::CloseCurrentPopup();
 		}
 
+		if (Input::IsPressed(Key::Enter) || Input::IsPressed(Key::NumpadEnter))
+		{
+			GameObject object = m_engine->GetSpace(m_current_space_index)->NewGameObject(name);
+
+			// Add a transform component
+			object.AddComponent<TransformComponent>(glm::vec3(m_editor_cam->GetPosition(), 0));
+
+			m_selected_object = object.Getid();
+
+			ImGui::CloseCurrentPopup();
+		}
+
 		ImGui::EndPopup();
 	}
 	
