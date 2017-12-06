@@ -12,7 +12,7 @@ SpawnTimer = SpawnTimerMax -- The rate at which spores spawn
 SPORE = "assets/prefabs/dangerShroom_Spore.json"
 
 function SpawnSpore()
-	GameObject.LoadPrefab(SPORE):GetTransform().position = this:GetTransform().position - vec2(0, 0.08f);
+	GameObject.LoadPrefab(SPORE):GetTransform().position = this:GetTransform().position;
 end -- fn end
 
 

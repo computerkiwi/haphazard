@@ -16,11 +16,6 @@ end -- fn end
 
 
 function OnCollisionEnter(object)
-	if object:HasTag("Player")
-	then
-		
-	else
-		this:Destroy();
-	end
+	this:Destroy();
 end -- fn end
 
