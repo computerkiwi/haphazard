@@ -23,7 +23,8 @@ lastPos		 = nil -- Last position (for reviving); Vector type?
 moveDir		 = 0
 lastDir		= 1
 
-AutoMove      = true
+-- AutoMove Data
+AutoMove      = false 
 MaxActionTime = 0.45
 MoveTimer     = 0.0
 
