@@ -13,13 +13,11 @@ DURATION_RESET = 0.1
 xOFFSET = 0.5
 yOFFSET = 0.1
 
-defaultRotation = 0
+defaultRotation = 70
 
 function Start()
   player = GameObject.FindByName("Player1")
   playerScript = player:GetScript("GnomeMovement.lua")
-  defaultRotation = this:GetTransform().rotation
-  this:GetTransform().rotation = defaultRotation
 end -- fn end
 
 function Update(dt)
