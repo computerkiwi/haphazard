@@ -75,13 +75,13 @@ function CheckGround(count)
 	for i = 1, count do
 		local fraction = (i - 1) / (count - 1)
 	
-		origins[i] = vec2(pos.x - scale.x / 2 + fraction * scale.x, pos.y + scale.y / 2)
+		origins[i] = vec2(pos.x - scale.x / 2 + fraction * scale.x, pos.y)
 	end
 	
 	-- Cast each raycast
 	local casts = {}
 	for i, origin in ipairs(origins) do
-		casts[i] = Raycast.Cast(this:GetSpaceIndex(), origin, DOWN, scale.y + GROUND_CHECK_LENGTH, GROUND_LAYER )
+		casts[i] = Raycast.Cast(this:GetSpaceIndex(), origin, DOWN, scale.y/2 + GROUND_CHECK_LENGTH, GROUND_LAYER )
 	end
 	
 	-- Figure out wheter we hit and where the ground is.
@@ -497,7 +497,7 @@ function TossUpdate(dt)
 	newVelocity.x = moveDir * moveSpeed
 
 	onGround = false
-
+	
 	-- Calculate y valocity
 	if (jumpEnabled == true)
 	then

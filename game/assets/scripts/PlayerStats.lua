@@ -39,6 +39,10 @@ end -- fn end
 
 function AddGem()
 	GemsCollected = GemsCollected + 1
+
+	local tex = GameObject.FindByName("GemCounter"):GetSprite().textureHandler
+	tex.currentFrame = GemsCollected
+	GameObject.FindByName("GemCounter"):GetSprite().textureHandler = tex
 end
 
 function GetGems()
