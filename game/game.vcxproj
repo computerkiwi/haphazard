@@ -149,6 +149,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;$(ProjectDir)external\lib</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /d "$(ProjectDir)external\dll\*.dll" "$(OutDir)"</Command>

@@ -161,6 +161,7 @@ void Engine::Update()
 
 	if (timeCounter >= 1'000'000.0f)
 	{		
+		/*
 		m_WindowTitle += "<3 | FrameRate: ";
 		m_WindowTitle += std::to_string(frameCounter);
 		m_WindowTitle += "    Dt: ";
@@ -174,7 +175,7 @@ void Engine::Update()
 
 		m_WindowTitle.clear();
 		m_WindowAppend.clear();
-
+		*/
 		frameCounter = 0;
 		timeCounter -= 1000000;
 	}
@@ -315,7 +316,7 @@ GLFWwindow *WindowInit()
 	// Disable resize
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "<3", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "Shortstack", NULL, NULL);
 
 	Logging::Log_StartUp("Window created", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 

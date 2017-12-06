@@ -13,7 +13,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 Engine *engine;
 
-int main()
+int WinMain()
 {
 	Engine sparrow;
 	sparrow.LoggingInit();
