@@ -5,9 +5,14 @@ PRIMARY AUTHOR: Lya Vera
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+HAS_TRIGGERED = false
+
 function OnCollisionEnter(other)
-  if (other:HasTag("Player"))
+  if (not HAS_TRIGGERED and other:HasTag("Player"))
   then
+	HAS_TRIGGERED = true
+	PlaySound("button_confirm.mp3", 0.5, 1, false)
+
     local platform = GameObject.FindByName("InteractiveGround")
     local groundScript = platform:GetScript("PlatformMove.lua")
     local left = -2

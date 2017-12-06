@@ -15,7 +15,6 @@ function OnCollisionEnter(other)
     local gems = GameObject.FindByName("Stats"):GetScript("PlayerStats.lua").GetGems()
 	if(gems == NUM_GEMS_TO_WIN)
 	then
-		PlaySound("portal.mp3", 0.4, 1, false)
 		Engine.LoadLevel(WIN_LEVEL)
 	end
   end
