@@ -36,3 +36,16 @@ CapsuleInformation::CapsuleInformation(glm::vec2 center, glm::vec2 dimensions, f
 	// get the circle's radius
 	m_circleRadius = dimensions.x / 2;
 }
+
+// returns the float with the bigger absolute magnitude
+float maxAbs(float lhs, float rhs)
+{
+	if (abs(lhs) > abs(rhs))
+	{
+		return lhs;
+	}
+	else
+	{
+		return rhs;
+	}
+}
