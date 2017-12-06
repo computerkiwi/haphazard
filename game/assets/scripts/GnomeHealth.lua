@@ -39,6 +39,7 @@ function OnCollisionEnter(other)
   if(invulTime <= 0 and this:GetDynamicCollider().colliderData:IsCollidingWithLayer(16))
   then
     health = health - 1
+	PlaySound("gnome_injure.mp3", 1.5, 1, false)
 
 	local th = healthBar:GetSprite().textureHandler
 	th.currentFrame = health

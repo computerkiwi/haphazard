@@ -99,6 +99,7 @@ function Update(dt)
 		
 		if (ContinuePressed())
 		then
+			PlaySound("button_confirm.mp3", 1, 1, false)
 			Engine.LoadLevel(LEVEL)
 		end
 		

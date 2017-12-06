@@ -14,6 +14,9 @@ function OnCollisionEnter(other)
   if (other:HasTag("Player"))
   then
 
+  
+	PlaySound("regular_pickup.mp3", 0.2, 1, false)
+
     print("Coin collision")
 
     local score = GameObject.FindByName("Stats")

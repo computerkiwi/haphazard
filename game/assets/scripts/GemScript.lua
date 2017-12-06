@@ -9,6 +9,7 @@ function OnCollisionEnter(other)
   -- Player takes gem
   if (other:HasTag("Player"))
   then
+	PlaySound("important_pickup.mp3", 0.4, 1, false)
     print("Gem collected")
     GameObject.FindByName("Stats"):GetScript("PlayerStats.lua").AddGem()
 	

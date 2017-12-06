@@ -114,6 +114,7 @@ function UpdateMovement(dt)
 	-- Calculate y valocity
 	if (jumpEnabled == true and onGround == true)
 	then
+		PlaySound("jump.mp3", 0.1, 0.8, false)
 		newVelocity.y = jumpSpeed
 		jumpEnabled = false
 		onGround = false
@@ -174,6 +175,8 @@ function StackedUpdate(dt)
 	-- Player jumps off
 	if (jumpEnabled)
 	then
+		PlaySound("jump.mp3", 0.05, 0.8, false)
+		PlaySound("stack_off.mp3", 0.5, 1, false)
 		stackEnabled = false
 		playerVelocity.y = jumpSpeed
 		stackTimer = STACK_TIME -- Set timer
@@ -274,6 +277,7 @@ function StackPlayers(other)
 	then
 		-- Players are stacked
 		stackEnabled = true
+		PlaySound("stack_off.mp3", 0.5, 1, false)
 
 		-- Set bottom player as parent
 		stackParent = other
@@ -426,9 +430,9 @@ function GetInputKeyboard(dt)
 		-- Player jumps
 		if (IsPressed(KEY_JUMP))
 		then
-		jumpEnabled = true
+			jumpEnabled = true
 		else
-		jumpEnabled = false
+			jumpEnabled = false
 		end
 
 		-- Player attacks
