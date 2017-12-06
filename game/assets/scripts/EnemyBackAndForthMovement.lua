@@ -1,5 +1,5 @@
 --[[
-FILE: GnomeMovement.lua
+FILE: EnemyBackAndForthMovement.lua
 PRIMARY AUTHOR: Brett Schiff
 
 Copyright (c) 2017 DigiPen (USA) Corporation.

@@ -61,12 +61,12 @@ std::pair<bool, glm::ivec2> TestPosition(int x, int y, int z, int width, int hei
 		tb.w *= Texture::MAX_HEIGHT;
 
 		if (tb.w < nextY && tb.w > y) // Find the lowest value still greater than  y
-			nextY = tb.w;
+			nextY = static_cast<int>(tb.w);
 
 		if (y < tb.w && y + height > tb.y) // top or bottom is inside Y bounds, it is overlapping.
 		{
 			if (tb.z > rightestX) // Get rightmost in these y bounds
-				rightestX = tb.z;
+				rightestX = static_cast<int>(tb.z);
 			if (x < tb.z && x + width > tb.x) // start and/or end is inside X bounds
 			{
 				canFit = false; // It wont fit, but keep going to find the rightest

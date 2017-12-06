@@ -179,6 +179,7 @@
     <None Include="assets\scripts\RedGnomeAttack.lua" />
     <None Include="assets\scripts\RedGnomeWeapon.lua" />
     <None Include="assets\scripts\Interactive.lua" />
+    <None Include="assets\scripts\GnomeAutoMovement.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
