@@ -19,10 +19,16 @@ function Start()
   player = GameObject.FindByName("Player1")
   playerScript = player:GetScript("GnomeMovement.lua")
   defaultRotation = this:GetTransform().rotation
-  this:GetTransform().rotation = defaultRotation;
+  this:GetTransform().rotation = defaultRotation
 end -- fn end
 
 function Update(dt)
+  if(player == nil)
+  then 
+    player = GameObject.FindByName("Player1")
+	playerScript = player:GetScript("GnomeMovement.lua")
+  end
+
   local playerPos = player:GetTransform().position
   local weaponTransform = this:GetTransform()
   local posOffset = playerPos

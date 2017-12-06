@@ -15,17 +15,19 @@ WEAPON_NAME = "hammerWeapon.json"
 function Start()
   weapon = GameObject.FindByName("RedGnomeWeapon")
   weapon:Deactivate()
-  weapon:GetTransform().parent = this
 end
 
 function Update(dt)
-  if (IsPressed(89))
+  if (IsPressed(KEY.Space))
   then
     --Attack()
     --spawn = false
     weapon:Activate()
   else
-    weapon:Deactivate()
+	if(weapon:IsActive())
+	then
+	  weapon:Deactivate()
+	end
   end
 end -- fn end
 
