@@ -143,6 +143,9 @@ public:
 	static GameObject FindByTag(const char * tagStr);
 	static std::vector<GameObject> FindAllByTag(const char *tagStr);
 
+	static void Create(const char *name);
+	static void CreateToSpace(const char *name, GameSpaceIndex index);
+
 	void SaveToFile(const char *fileName);
 	static GameObject LoadPrefab(const char * fileName);
 
@@ -231,6 +234,9 @@ private:
 		// TODO: Make this use the meta function.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByTag", FindByTag).endClass();
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("Create", Create).endClass();
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("CreateToSpace", CreateToSpace).endClass();
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("LoadPrefab", LoadPrefab).endClass();
 	}
