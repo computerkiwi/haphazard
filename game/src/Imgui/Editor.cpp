@@ -1910,7 +1910,7 @@ void Editor::MenuBar()
 
 			if (ImGui::MenuItem("Load PreFab##menuBar"))
 			{
-				LoadPreFab();
+				LoadPreFab(this);
 			}
 
 			// Add Component Buttons

@@ -548,7 +548,7 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 #ifdef _WIN32
 
 // Windows Code for Opening a Level
-void LoadPreFab()
+void LoadPreFab(Editor *editor)
 {
 	// Save the path to the file
 	char filename[MAX_PATH] = { 0 };
@@ -584,9 +584,9 @@ void LoadPreFab()
 	if (GetOpenFileName(&file))
 	{
 		// Log and load the file in the engine
-		logger << "[EDITOR] Saving File: " << filename << "\n";
+		logger << "[EDITOR] Loading Prefab: " << filename << "\n";
 
-		GameObject::LoadPrefab(filename);
+		editor->SetGameObject(GameObject::LoadPrefab(filename));
 	}
 	else
 	{

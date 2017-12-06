@@ -35,7 +35,7 @@ enum ErrorIndex
 
 #define MAX_SELECT 10
 
-void LoadPreFab();
+void LoadPreFab(Editor *editor);
 void SavePrefab(GameObject object);
 
 void ImGui_GameObject(GameObject object, Editor *editor);
