@@ -1,4 +1,3 @@
-#include "ScriptSystem.h"
 /*
 FILE: ScriptSystem.cpp
 PRIMARY AUTHOR: Kieran

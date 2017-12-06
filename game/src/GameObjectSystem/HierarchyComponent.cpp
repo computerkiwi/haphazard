@@ -1,4 +1,9 @@
+/*
+FILE: HierarchyComponent.cpp
+PRIMARY AUTHOR: Noah Sweet
 
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 
 #include "GameSpace.h"
 #include "Component.h"

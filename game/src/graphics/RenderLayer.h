@@ -1,3 +1,9 @@
+/*
+FILE: RenderLayer.h
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 #include "GL\glew.h"
 #include "glm\glm.hpp"

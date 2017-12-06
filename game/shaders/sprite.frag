@@ -1,3 +1,9 @@
+/*
+FILE: sprite.frag
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 330 core
 
 in vec4 Color;

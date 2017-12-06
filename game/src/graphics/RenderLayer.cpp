@@ -1,3 +1,9 @@
+/*
+FILE: RenderLayer.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "RenderLayer.h"
 #include "graphics\Settings.h"
 #include "Screen.h"

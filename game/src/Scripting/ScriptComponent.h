@@ -1,5 +1,5 @@
 /*
-FILE: LuaScript.h
+FILE: ScriptComponent.h
 PRIMARY AUTHOR: Kieran
 
 Copyright (c) 2017 DigiPen (USA) Corporation.

@@ -1,3 +1,9 @@
+/*
+FILE: particleUpdate.geo
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 330 core
 
 layout (points) in;

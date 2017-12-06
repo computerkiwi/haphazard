@@ -1,3 +1,9 @@
+/*
+FILE: meta.inl
+PRIMARY AUTHOR: Noah Sweet
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include "meta.h"

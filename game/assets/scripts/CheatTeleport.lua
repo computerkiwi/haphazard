@@ -1,5 +1,5 @@
 --[[
-FILE: CheatTeleport1.lua
+FILE: CheatTeleport.lua
 PRIMARY AUTHOR: Brett Schiff
 
 Copyright (c) 2017 DigiPen (USA) Corporation.

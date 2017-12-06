@@ -1,11 +1,10 @@
-#include "ScriptResource.h"
 /*
 FILE: ScriptResource.cpp
 PRIMARY AUTHOR: Kieran
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
-
+#include "ScriptResource.h"
 #include "Universal.h"
 
 #include <fstream>

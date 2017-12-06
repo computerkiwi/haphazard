@@ -1,3 +1,9 @@
+--[[
+FILE: SetStackHeightToFifty.lua
+PRIMARY AUTHOR: Kieran Williams
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]
 -- Simple test for getting scripts from within scripts.
 
 function dumpTable(tab)

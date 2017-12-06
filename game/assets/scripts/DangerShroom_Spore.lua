@@ -1,5 +1,5 @@
 --[[
-FILE: DangerShroom.lua
+FILE: DangerShroom_Spore.lua
 PRIMARY AUTHOR: Noah Sweet
 
 Copyright (c) 2017 DigiPen (USA) Corporation.

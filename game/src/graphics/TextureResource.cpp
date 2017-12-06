@@ -1,10 +1,10 @@
-#include "TextureResource.h"
 /*
 FILE: TextureResource.cpp
 PRIMARY AUTHOR: Kieran
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
+#include "TextureResource.h"
 
 void TextureResource::LoadData(const char *filePath)
 {

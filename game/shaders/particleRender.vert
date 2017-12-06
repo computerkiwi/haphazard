@@ -1,3 +1,9 @@
+/*
+FILE: particleRender.vert
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 430 core
 
 layout (location = 0) in float type;

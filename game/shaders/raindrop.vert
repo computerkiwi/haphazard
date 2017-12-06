@@ -1,3 +1,9 @@
+/*
+FILE: raindrop.vert
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 330 core
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 texcoord;

@@ -1,3 +1,9 @@
+--[[
+FILE: PlayMusicOnCreate.lua
+PRIMARY AUTHOR: Kieran Williams
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]
 started = false
 
 VOLUME = 0.4

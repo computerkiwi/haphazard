@@ -1,3 +1,9 @@
+/*
+FILE: FrameCap.h
+PRIMARY AUTHOR: Brett Schiff
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #include <chrono>

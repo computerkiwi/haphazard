@@ -1,3 +1,9 @@
+/*
+FILE: screenExtractBrights.frag
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 330 core
 layout (location = 0) out vec4 FragColor;
 

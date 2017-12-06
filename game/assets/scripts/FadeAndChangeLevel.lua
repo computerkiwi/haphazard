@@ -1,3 +1,9 @@
+--[[
+FILE: FadeAndChangeLevel.lua
+PRIMARY AUTHOR: Kieran Williams
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]
 
 HAPHAZARD_ID = 2112077054
 DIGIPEN_ID   = 3440128679

@@ -1,3 +1,9 @@
+/*
+FILE: FrameCap.cpp
+PRIMARY AUTHOR: Brett Schiff
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #include "FrameCap.h"
 #include <Windows.h>
 

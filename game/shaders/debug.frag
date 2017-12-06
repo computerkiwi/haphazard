@@ -1,3 +1,9 @@
+/*
+FILE: debug.frag
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #version 330 core
 out vec4 FragColor;
 

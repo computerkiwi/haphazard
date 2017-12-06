@@ -1,5 +1,5 @@
 --[[
-FILE: DangerShroom.lua
+FILE: PortalEmitter.lua
 PRIMARY AUTHOR: Noah Sweet
 
 Copyright (c) 2017 DigiPen (USA) Corporation.

@@ -1,3 +1,9 @@
+/*
+FILE: HierarchyComponent.cpp
+PRIMARY AUTHOR: Noah Sweet
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 #pragma once
 
 #define DEAD_ZONE_MIN -0.05

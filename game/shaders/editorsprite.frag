@@ -1,3 +1,10 @@
+/*
+FILE: editorsprite.frag
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
+
 #version 430 core
 
 in vec3 Texcoord;

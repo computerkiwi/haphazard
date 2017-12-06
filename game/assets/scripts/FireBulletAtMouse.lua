@@ -1,3 +1,9 @@
+--[[
+FILE: FireBulletAtMouse.lua
+PRIMARY AUTHOR: Kieran Williams
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]
 BULLET_NAME = "bullet.json"
 
 BULLET_SPEED = 5

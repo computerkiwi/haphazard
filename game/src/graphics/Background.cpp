@@ -1,3 +1,10 @@
+/*
+FILE: Background.cpp
+PRIMARY AUTHOR: Max Rauffer
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
+
 #include "GL\glew.h"
 #include "Background.h"
 #include "Shaders.h"

@@ -1,4 +1,9 @@
+/*
+FILE: GoodLuaDebugging.cpp
+PRIMARY AUTHOR: Austin Jensen
 
+Copyright (c) 2017 DigiPen (USA) Corporation.
+*/
 
 #include "lua.hpp"
 
