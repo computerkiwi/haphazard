@@ -584,7 +584,7 @@ void LoadPreFab(Editor *editor)
 	if (GetOpenFileName(&file))
 	{
 		// Log and load the file in the engine
-		logger << "[EDITOR] Saving File: " << filename << "\n";
+		logger << "[EDITOR] Loading Prefab: " << filename << "\n";
 
 		editor->SetGameObject(GameObject::LoadPrefab(filename));
 	}
