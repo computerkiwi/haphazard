@@ -291,6 +291,7 @@
     <None Include="assets\scripts\PlatformMove.lua" />
     <None Include="assets\scripts\PlatformOneWay.lua" />
     <None Include="assets\scripts\PlayerStats.lua" />
+    <None Include="assets\scripts\PortalEmitter.lua" />
     <None Include="assets\scripts\RedGnomeAttack.lua" />
     <None Include="assets\scripts\RedGnomeWeapon.lua" />
     <None Include="assets\scripts\TossScript.lua" />

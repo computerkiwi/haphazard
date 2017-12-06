@@ -40,6 +40,7 @@ public:
 	//---------
 
 	void SetParent(GameObject parent);
+	void SetParentLua(GameObject parent);
 	GameObject GetParent() const;
 
 	float GetRotation() const;
@@ -82,6 +83,6 @@ private:
 
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
 
-		META_DefineMember(TransformComponent, m_parent, "parent");
+		META_DefineGetterSetter(TransformComponent, GameObject, GetParent, SetParentLua, "parent");
 	}
 };
