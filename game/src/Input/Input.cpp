@@ -320,8 +320,8 @@ namespace Input
   static void ScrollCallback(GLFWwindow * window, double xOffset, double yOffset)
   {
     // Store scroll data
-    currScroll.x = xOffset;
-    currScroll.y = yOffset;
+    currScroll.x = static_cast<float>(xOffset);
+    currScroll.y = static_cast<float>(yOffset);
 
     // Increment counter until direction changes
     // TODO: Frames might be too fast, fix it?
@@ -409,6 +409,8 @@ namespace Input
     {
       return gamepads[player]->IsPressed(button);
     }
+
+	return false;
   }
 
   // Checks if gamepad button is held down
@@ -418,6 +420,8 @@ namespace Input
     {
       return gamepads[player]->IsHeldDown(button);
     }
+
+	return false;
   }
 
   // Checks if gamepad button is released
@@ -427,6 +431,8 @@ namespace Input
     {
       return gamepads[player]->IsReleased(button);
     }
+
+	return false;
   }
 
   // Returns number of gamepads connected
