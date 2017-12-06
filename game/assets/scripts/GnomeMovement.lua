@@ -31,6 +31,7 @@ stackEnabled  = false
 tossOther     = false
 isTossed      = false
 onGround      = true
+unregulatedJumps = false
 
 -- Enums
 PLAYER_LAYER  =  4
@@ -182,7 +183,7 @@ end -- fn end
 function Update(dt)
   -- Can we add playerID's to the player objects? :<
 	
-	onGround = CheckGround(2)
+	onGround = CheckGround(2) or unregulatedJumps
 	
   -- Determine player once (which is why initial value is -1)
   if (PLAYER_NUM < 0)
@@ -406,6 +407,12 @@ function GetInputKeyboard()
 --    local script = otherPlayer:GetScript("GnomeMovement.lua")
 --    script.DisableToss()
   end
+
+  if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.J))
+  then
+	unregulatedJumps = not unregulatedJumps
+  end
+
 end -- fn end
 
 function IsStacked()
