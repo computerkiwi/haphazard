@@ -56,7 +56,8 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	int result = lua_pcall(m_L, args, returns, 0);
 	if (result != 0)
 	{
-		std::cout << lua_tostring(m_L, -1) << std::endl;
+		logger.SetNextChannel(Logging::Channel::SCRIPTING);
+		logger << engine->GetResourceManager().Get(m_resID)->FileName() <<": " << lua_tostring(m_L, -1) << "\n";
 	}
 }
 
