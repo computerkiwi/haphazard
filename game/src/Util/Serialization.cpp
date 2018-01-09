@@ -105,7 +105,7 @@ void ApplySerializedIdUpdates()
 
 	while (updateVec.size() > 0)
 	{
-		SerializeIdUpdateBase *updater = updateVec.back;
+		SerializeIdUpdateBase *updater = updateVec.back();
 		(*updater)(idUpdateMap);
 		delete updater;
 		updateVec.pop_back();

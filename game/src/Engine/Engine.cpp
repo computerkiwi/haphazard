@@ -287,9 +287,11 @@ bool Engine::IsWindowTitleDirty() const
 void Engine::FileLoadInternal(const char * fileName)
 {
 	logger << "Loading Game -> File: " << fileName;
+	ClearSerializedIdRelationships();
 	rapidjson::Document doc = LoadJsonFile(fileName);
 
 	meta::DeserializeAssign(*this, doc);
+	ApplySerializedIdUpdates();
 }
 
 

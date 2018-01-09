@@ -17,7 +17,7 @@ namespace detail
 	};
 
 	template <typename Functor>
-	class SerializeIdUpdate
+	class SerializeIdUpdate : public SerializeIdUpdateBase
 	{
 		Functor m_functor;
 
@@ -40,9 +40,10 @@ namespace detail
 template<typename Functor>
 inline void RegisterSerializedIdUpdate(const Functor& functor)
 {
+	using namespace detail;
 	// Put the functor in a form we can use.
 	// deleted in ApplySerializedIdUpdates in Serialization.cpp
-	auto *idUpdate = new RegisterSerializedIdUpdate<Functor>(functor);
+	auto *idUpdate = new SerializeIdUpdate<Functor>(functor);
 
 	detail::GetSerializeIdUpdateVector().push_back(idUpdate);
 }

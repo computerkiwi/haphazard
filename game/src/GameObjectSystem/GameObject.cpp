@@ -308,10 +308,12 @@ void GameObject::SaveToFile(const char * fileName)
 
 GameObject GameObject::LoadPrefab(const char * fileName)
 {
+	ClearSerializedIdRelationships();
 	auto jsonObj = LoadJsonFile(fileName);
 
 	GameObject obj = engine->GetSpace(0)->NewGameObject("");
 	obj.DeserializeObject(jsonObj);
+	ApplySerializedIdUpdates();
 
 	return obj;
 }
@@ -338,11 +340,10 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	rapidjson::Value jsonId;
 	jsonId = jsonValue["objID"];
 	assert(jsonId.IsInt64());
-	GameObject_ID id = static_cast<GameObject_ID>(jsonId.GetInt64());
+	GameObject_ID oldId = static_cast<GameObject_ID>(jsonId.GetInt64());
 
-	// Setup the GameObject's id.
-	//gameObject.m_objID = id;
-	//gameObject.m_space = deserializeGameSpace; // From static function. Must be called before this.
+	// Keep track of which old id corresponds to which new id.
+	RegisterSerializedIdRelationship(oldId, gameObject.m_id);
 
 	// Get the array of components.
 	rapidjson::Value componentArray;
@@ -360,6 +361,25 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 		// Add it to the space.
 		gameObject.AddComponent(anyComponent);
 	}
+
+	// Setup a functor to set transform parents later.
+	if (gameObject.GetComponent<TransformComponent>()->GetParent().Getid() != INVALID_GAMEOBJECT_ID)
+	{
+		// Lambda that looks for an old parent id to correspond to a new one.
+		RegisterSerializedIdUpdate([gameObject](std::map<GameObject_ID, GameObject_ID> idMap)
+		{
+			for (const auto& idPair : idMap)
+			{
+				ComponentHandle<TransformComponent> transform = gameObject.GetComponent<TransformComponent>();
+				if (transform->GetParent() == idPair.first)
+				{
+					transform->SetParent(idPair.second);
+					return;
+				}
+			}
+		});
+	}
+
 }
 
 Collider2D *GameObject::GetCollider()
