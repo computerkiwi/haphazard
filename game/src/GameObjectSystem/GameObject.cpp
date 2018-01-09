@@ -373,7 +373,8 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 				ComponentHandle<TransformComponent> transform = gameObject.GetComponent<TransformComponent>();
 				if (transform->GetParent() == idPair.first)
 				{
-					transform->SetParent(idPair.second);
+					// The "Lua" functions adds a needed hierarchy component to the parent if it doesn't exist.
+					transform->SetParentLua(idPair.second);
 					return;
 				}
 			}
