@@ -183,6 +183,7 @@
     <None Include="assets\scripts\DangerShroom.lua" />
     <None Include="assets\scripts\DangerShroom_Spore.lua" />
     <None Include="assets\scripts\PortalEmitter.lua" />
+    <None Include="src\Util\Serialization.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />

@@ -7,6 +7,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 
 #include <fstream>
+#include <map>
+#include <vector>
 
 #include "Serialization.h"
 #include "rapidjson/document.h"
@@ -82,6 +84,32 @@ rapidjson::Document LoadJsonFile(const char *fileName)
 	doc.Parse(jsonString.str().c_str());
 
 	return doc;
+}
+
+static std::map<GameObject_ID, GameObject_ID> idUpdateMap;
+
+void RegisterSerializedIdRelationship(GameObject_ID oldID, GameObject_ID newID)
+{
+	idUpdateMap.insert(std::make_pair(oldID, newID));
+}
+
+void ClearSerializedIdRelationships()
+{
+	idUpdateMap.clear();
+}
+
+void ApplySerializedIdUpdates()
+{
+	using namespace detail;
+	std::vector<SerializeIdUpdateBase *>& updateVec = GetSerializeIdUpdateVector();
+
+	while (updateVec.size() > 0)
+	{
+		SerializeIdUpdateBase *updater = updateVec.back;
+		(*updater)(idUpdateMap);
+		delete updater;
+		updateVec.pop_back();
+	}
 }
 
 

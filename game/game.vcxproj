@@ -307,6 +307,7 @@
     <None Include="src\meta\Any.inl" />
     <None Include="src\meta\MemberGetSet.inl" />
     <None Include="src\meta\meta.inl" />
+    <None Include="src\Util\Serialization.inl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\GameObjectSystem\Component.inl" />
