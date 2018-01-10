@@ -205,6 +205,8 @@ function Update(dt)
 	then
 		print("Using gamepads")
 		GetInputGamepad()
+  else
+    GetInputKeyboard(dt)
 	end
 	-- GetInputKeyboard(dt)
 end
