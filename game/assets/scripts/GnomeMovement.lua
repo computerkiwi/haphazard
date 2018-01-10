@@ -52,7 +52,7 @@ DEADZONE = 0.5 -- Joystick dead zone
 
 -- Gamepad Buttons found under KeyMap.h
 JUMP	 = 0 -- A
-ATTACK = 1 -- B
+ATTACK = 2 -- X
 TOSS	 = 3 -- Y
 
 HORIZONTAL_AXIS = 0
@@ -199,19 +199,14 @@ function Update(dt)
 		local name = this:GetName()
 		SetKeyboardControls(name)
 	end
-
-	--[[
 	
-	Disabled controllers because they always appear to be on on my computer. -Kieran
-
 	-- Retrieve input
 	if (GamepadsConnected() > 0)
 	then
 		print("Using gamepads")
 		GetInputGamepad()
-	else
-	--]]
-	GetInputKeyboard(dt)
+	end
+	-- GetInputKeyboard(dt)
 	
 
 --	if (attackEnabled)
@@ -309,7 +304,8 @@ function SetKeyboardControls(name)
 		KEY_TOSS	 = 84 -- T
 		KEY_ATTACK = 89 -- Y
 
-	else
+	elseif (name == "Player2")
+	then
 		PLAYER_NUM = 1
 		
 		otherPlayer = GameObject.FindByName("Player1")
@@ -323,6 +319,12 @@ function SetKeyboardControls(name)
 		KEY_RIGHT	= 262 -- Right
 		KEY_TOSS	 = 334 -- Numpad_Add
 		KEY_ATTACK = 336 -- Numpad_Enter
+	elseif (name == "Player3")
+	then
+		PLAYER_NUM = 2
+	elseif (name == "Player4")
+	then
+		PLAYER_NUM = 3
 	end
 end -- fn end
 

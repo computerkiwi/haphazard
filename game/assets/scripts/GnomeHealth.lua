@@ -17,12 +17,13 @@ LEVEL = "Level1.json"
 
 function Start()
 
-  healthBar = GameObject.FindByName(this:GetName().."Healthbar")
-
-  local th = healthBar:GetSprite().textureHandler
-  th.currentFrame = health
-  healthBar:GetSprite().textureHandler = th
-
+	healthBar = GameObject.FindByName(this:GetName().."Healthbar")
+	if (healthBar:IsValid())
+	then
+		local th = healthBar:GetSprite().textureHandler
+		th.currentFrame = health
+		healthBar:GetSprite().textureHandler = th
+	end
 end
 
 function Update(dt)
@@ -41,9 +42,13 @@ function OnCollisionEnter(other)
     health = health - 1
 	PlaySound("gnome_injure.mp3", 1.5, 1, false)
 
-	local th = healthBar:GetSprite().textureHandler
-	th.currentFrame = health
-	healthBar:GetSprite().textureHandler = th
+	if (healthBar:IsValid())
+	then
+		local th = healthBar:GetSprite().textureHandler
+		th.currentFrame = health
+		healthBar:GetSprite().textureHandler = th
+	end
+
 
 	invulTime = INVULNERABLE_TIME
 
