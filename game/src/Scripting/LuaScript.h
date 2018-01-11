@@ -14,6 +14,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 class LuaScript
 {
 public:
+	static bool currentlyRunningScript;
+	static std::string currentFileName;
+
 	LuaScript();
 	LuaScript(const LuaScript& other);
 

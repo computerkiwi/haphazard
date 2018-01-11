@@ -15,6 +15,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #define INVALID_ID 0
 
+bool LuaScript::currentlyRunningScript = false;
+std::string LuaScript::currentFileName;
+
 LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 {
 }
@@ -53,7 +56,11 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	// Put the function under the arguments on the stack.
 	lua_insert(m_L, -1 - args);
 
+	// Set a flag that assert can check to see if an error came from a script.
+	currentlyRunningScript = true;
+	currentFileName = engine->GetResourceManager().Get(m_resID)->GetFilename();
 	int result = lua_pcall(m_L, args, returns, 0);
+	currentlyRunningScript = false;
 	if (result != 0)
 	{
 		logger.SetNextChannel(Logging::Channel::SCRIPTING);
