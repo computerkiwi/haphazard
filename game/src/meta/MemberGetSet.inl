@@ -39,7 +39,7 @@ namespace meta
 			return &(baseObj->*m_refGetter)();
 		}
 
-		assert(false); // One of the above conditions should be true.
+		Assert(false); // One of the above conditions should be true.
 		return nullptr;
 	}
 
@@ -65,6 +65,6 @@ namespace meta
 			return;
 		}
 
-		assert(false); // One of the above conditions should be true.
+		Assert(false); // One of the above conditions should be true.
 	}
 }

@@ -245,7 +245,7 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 			{
 				continue;
 			}
-			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
+			Assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
 			Raycast(circleCenter, radius, transform, tDynamicColliderHandle->ColliderData());
 		}
@@ -261,7 +261,7 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 			{
 				continue;
 			}
-			assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
+			Assert(transform.IsValid() && "Transform invalid in debug drawing, see RayCastCalculator in Raycast.cpp");
 
 			Raycast(circleCenter, radius, transform, tStaticColliderHandle->ColliderData());
 		}

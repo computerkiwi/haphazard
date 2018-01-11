@@ -1353,7 +1353,7 @@ void Editor::IncrementPopUpCount(PopUpPosition pos)
 
 void Editor::DecrementPopUpCount(PopUpPosition pos)
 {
-	assert(m_PopUpCount[pos] >= 0);
+	Assert(m_PopUpCount[pos] >= 0);
 
 	--m_PopUpCount[pos];
 }

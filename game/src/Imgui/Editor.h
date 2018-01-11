@@ -315,11 +315,11 @@ public:
 			std::function<void()> func =
 				[this]()
 			{
-				assert(!command && "No Command created");
+				Assert(!command && "No Command created");
 
-				assert(cmd_length && "Length not set");
+				Assert(cmd_length && "Length not set");
 
-				assert(true && "No function given");
+				Assert(true && "No function given");
 			};
 		};
 

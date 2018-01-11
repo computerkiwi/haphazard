@@ -6,9 +6,10 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include <vector>
 #include "Universal.h"
 #include "meta\meta.h"
-#include <vector>
+#include "Util\Assert.h"
 
 #include "LuaScript.h"
 struct ScriptComponent
@@ -83,7 +84,7 @@ struct ScriptComponent
 		scriptComponent.scripts.clear();
 
 		// We should be passed the array of scripts.
-		assert(jsonScripts.IsArray());
+		Assert(jsonScripts.IsArray());
 		for (rapidjson::Value& jsonScript : jsonScripts.GetArray())
 		{
 			meta::Any script(jsonScript);

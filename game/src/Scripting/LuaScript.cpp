@@ -31,7 +31,7 @@ LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaS
 
 void LuaScript::RunFunction(const char *functionName, int args, int returns)
 {
-	assert(m_resID != INVALID_ID);
+	Assert(m_resID != INVALID_ID);
 
 	GetScriptEnvironment();
 
@@ -98,7 +98,7 @@ void LuaScript::SetupEnvironment(const char *scriptString)
 
 	// Get the script environment table and register the environment in it.
 	lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
-	assert(lua_istable(m_L, -1));
+	Assert(lua_istable(m_L, -1));
 	lua_pushvalue(m_L, -3);
 	m_environmentID = luaL_ref(m_L, -2);
 
@@ -124,7 +124,7 @@ void LuaScript::SetupEnvironment(const char *scriptString)
 void LuaScript::SetScriptResource(Resource *resource)
 {
 	// Make sure we're getting a script resource.
-	assert(resource->GetResourceType() == ResourceType::SCRIPT);
+	Assert(resource->GetResourceType() == ResourceType::SCRIPT);
 
 	SetupEnvironment(reinterpret_cast<std::string *>(resource->Data())->c_str());
 }

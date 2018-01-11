@@ -55,7 +55,7 @@ namespace meta
 	// Deserialize constructor
 	Any::Any(rapidjson::Value& jsonValue)
 	{
-		assert(jsonValue.IsObject());
+		Assert(jsonValue.IsObject());
 		m_type = GetTypeByName(jsonValue["meta_type_name"].GetString());
 
 		if (m_type->GetSize() > MAX_SIZE)
@@ -131,7 +131,7 @@ namespace meta
 	// Dereference operator.
 	Any Any::operator*()
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 
 		// Void pointer to the data we're pointing at.
 		void *dataPointer;
@@ -167,34 +167,34 @@ namespace meta
 
 	void Any::SetMember(Member *member, const Any& value)
 	{
-		assert(!m_type->IsPointerType());
-		assert(member->GetType() == value.GetType());
+		Assert(!m_type->IsPointerType());
+		Assert(member->GetType() == value.GetType());
 
 		member->Set(GetDataPointer(), value.GetDataPointer());
 	}
 
 	void Any::SetMember(const char *memberName, const Any& value)
 	{
-		assert(!m_type->IsPointerType());
+		Assert(!m_type->IsPointerType());
 		Member *member = m_type->GetMember(memberName);
 
-		assert(member->GetType() == value.GetType());
+		Assert(member->GetType() == value.GetType());
 
 		member->Set(GetDataPointer(), value.GetDataPointer());
 	}
 
 	Any Any::GetMember(Member *member)
 	{
-		assert(!m_type->IsPointerType());
+		Assert(!m_type->IsPointerType());
 		return Any(member->Get(GetDataPointer()), member->GetType());
 	}
 
 	Any Any::GetMember(const char *memberName)
 	{
-		assert(!m_type->IsPointerType());
+		Assert(!m_type->IsPointerType());
 		Member *member = m_type->GetMember(memberName);
 
-		assert(member != nullptr);
+		Assert(member != nullptr);
 
 		return Any(member->Get(GetDataPointer()), member->GetType());
 	}
@@ -205,34 +205,34 @@ namespace meta
 
 	void Any::SetPointerMember(Member *member, const Any& value)
 	{
-		assert(m_type->IsPointerType());
-		assert(member->GetType() == value.GetType());
+		Assert(m_type->IsPointerType());
+		Assert(member->GetType() == value.GetType());
 
 		member->Set(GetDeepestDataPointer(), value.GetDataPointer());
 	}
 
 	void Any::SetPointerMember(const char *memberName, const Any& value)
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 		Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
 
-		assert(member->GetType() == value.GetType());
+		Assert(member->GetType() == value.GetType());
 
 		member->Set(GetDeepestDataPointer(), value.GetDataPointer());
 	}
 
 	Any Any::GetPointerMember(Member *member)
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 		return Any(member->Get(GetDeepestDataPointer()), member->GetType());
 	}
 
 	Any Any::GetPointerMember(const char *memberName)
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 		Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
 
-		assert(member != nullptr);
+		Assert(member != nullptr);
 
 		return Any(member->Get(GetDeepestDataPointer()), member->GetType());
 	}

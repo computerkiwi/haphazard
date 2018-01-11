@@ -44,7 +44,7 @@ public:
 	template <typename T>
 	ComponentHandle<T> GetComponent() const
 	{
-		assert(IsValid());
+		Assert(IsValid());
 
 		// Make sure the component exists before we hand it off.
 		if (GetSpace()->GetInternalComponent<T>(m_objID) != nullptr)

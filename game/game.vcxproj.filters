@@ -63,6 +63,7 @@
     <ClCompile Include="src\Engine\Physics\PhysicsInternalTools.cpp" />
     <ClCompile Include="src\Input\Event.cpp" />
     <ClCompile Include="src\Scripting\LuaSetup.cpp" />
+    <ClCompile Include="src\Util\Assert.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -196,6 +197,7 @@
     <ClInclude Include="src\graphics\EditorGraphic.h" />
     <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Scripting\LuaSetup.h" />
+    <ClInclude Include="src\Util\Assert.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

@@ -136,7 +136,7 @@ void ResourceManager::Init()
 void ResourceManager::Refresh()
 {
 	// This function is not yet supported!
-	assert(false);
+	Assert(false);
 }
 
 void ResourceManager::LoadAll()

@@ -6,10 +6,10 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
+#include "Universal.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <assert.h>
 
 #include "rapidjson/document.h"
 
@@ -69,7 +69,7 @@ namespace meta
 			m_pointerType(nullptr), m_dereferenceType(dereferenceType)
 		{
 			// If this fails we're trying to access a type before properly registering it.
-			assert(name != nullptr);
+			Assert(name != nullptr);
 		}
 
 		Type(const Type&) = delete;
@@ -96,7 +96,7 @@ namespace meta
 		template <typename BaseType, typename MemberType, typename GetterType, typename SetterType>
 		void RegisterMember(const char *name, GetterType getter, SetterType setter)
 		{
-			assert(m_members.find(name) == m_members.end());
+			Assert(m_members.find(name) == m_members.end());
 
 			m_members.emplace(name, new MemberGetSet<BaseType, MemberType>(name, getter, setter));
 		}
@@ -381,7 +381,7 @@ namespace meta
 				{
 					firstCall = false;
 
-					assert(typeName != nullptr);
+					Assert(typeName != nullptr);
 					typeMap.insert(std::make_pair<std::string, Type *>(typeName, &type));
 				}
 

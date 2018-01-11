@@ -103,7 +103,7 @@ glm::ivec3 FindLocationForSprite(int width, int height)
 			y = result.second.y + 2;
 		}
 	}
-	//assert(!"I cant load this image!");
+	//Assert(!"I cant load this image!");
 	return glm::ivec3(-1,-1,-1);
 }
 
