@@ -24,7 +24,17 @@ function Start()
 		offset = vec2(0,2)
 	end
 
-	startScale = this:GetTransform().scale
+  --[[ Changed to specific scale to avoid UI getting larger whenever
+       I zoom out, edit a level, save, and load. -- Lya ]]
+  if(this:GetName() == "GemCounter")
+  then
+    startScale.x = 1.5
+    startScale.y = 0.5
+  else
+    startScale.x = 1
+    startScale.y = 1
+  end
+
 	--offset = this:GetTransform().position
 
 end
