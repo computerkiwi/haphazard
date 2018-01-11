@@ -26,6 +26,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "RenderLayer.h"
 #include "Input\Input.h"
 #include "EditorGraphic.h"
+#include "VertexObjects.h"
 
 static bool resizeCameras = false;
 static int width;
@@ -102,7 +103,7 @@ void RenderSystem::RenderSprites(float dt)
 	int numMeshes = 0;
 
 	// All sprites will be the same mesh, so numVerts only has to be set once
-	static const int numVerts = SpriteComponent::SpriteMesh()->NumVerts();
+	static const int numVerts = SpriteComponent::SpriteMesh()->GetNumVerts();
 
 	std::set<int> layers;
 	for (auto& spriteHandle : *sprites)
@@ -158,14 +159,11 @@ void RenderSystem::RenderSprites(float dt)
 		Shaders::spriteShader->Use();
 
 		// Bind buffers and set instance data of all sprites
-		Mesh::BindTextureVBO();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(int) * tex.size(), tex.data(), GL_STATIC_DRAW);
+		SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), tex.size(), tex.data());
+		SpriteComponent::SpriteMesh()->InstanceBuffer().SetData(sizeof(float), data.size(), data.data());
 
-		Mesh::BindInstanceVBO();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-
-		// Bind first sprite VAO, all sprite have the same vertex attributes
-		SpriteComponent::SpriteMesh()->BindVAO();
+		// Bind sprite attribute bindings (all sprites have the same bindings)
+		SpriteComponent::SpriteMesh()->UseAttributeBindings();
 
 		// Draw all sprites in this layer
 		glDrawArraysInstanced(GL_TRIANGLES, 0, numVerts, numMeshes);

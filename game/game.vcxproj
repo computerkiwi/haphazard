@@ -258,6 +258,7 @@
     <ClInclude Include="src\graphics\Text.h" />
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
+    <ClInclude Include="src\graphics\VertexObjects.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Input\Gamepad.h" />

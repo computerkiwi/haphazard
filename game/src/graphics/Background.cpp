@@ -14,7 +14,6 @@ GLuint BackgroundComponent::m_UniTexBox = 0;
 GLuint BackgroundComponent::m_UniTexLayer = 0;
 Screen::Mesh* BackgroundComponent::m_Mesh;
 
-static GLuint VAO, VBO;
 static bool firstBackground = true;
 
 BackgroundComponent::BackgroundComponent(Resource *res, BACKGROUND_TYPE type)
@@ -29,7 +28,7 @@ BackgroundComponent::BackgroundComponent(Resource *res, BACKGROUND_TYPE type)
 		Shaders::backgroundShader->Use();
 		m_UniTexBox = glGetUniformLocation(Shaders::backgroundShader->GetProgramID(), "TexBox");
 		m_UniTexLayer =glGetUniformLocation(Shaders::backgroundShader->GetProgramID(), "TexLayer");
-		Texture::BindArray();
+		//Texture::BindArray();
 		// Make screen mesh "upside down" so sprites are rendered in correct orientation
 		m_Mesh = new Screen::Mesh(1,0,0,1);
 	}

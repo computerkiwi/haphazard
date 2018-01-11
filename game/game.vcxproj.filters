@@ -198,6 +198,7 @@
     <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Scripting\LuaSetup.h" />
     <ClInclude Include="src\Util\Assert.h" />
+    <ClInclude Include="src\graphics\VertexObjects.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

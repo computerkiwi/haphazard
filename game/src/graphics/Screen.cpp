@@ -158,27 +158,13 @@ Screen::Mesh::Mesh(float bottom, float top, float left, float right)
 		left, bottom, 0, 0,
 	};
 
-//	Shaders::ScreenShader::Default->Use();
-	glGenVertexArrays(1, &mVAO);
-	glGenBuffers(1, &mVBO);
-	glBindVertexArray(mVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), &quadVerts, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-}
-
-Screen::Mesh::~Mesh()
-{
-	glDeleteBuffers(1, &mVAO);
-	glDeleteVertexArrays(1, &mVBO);
+	m_VertexBuffer.SetData(1, sizeof(quadVerts), quadVerts);
+	m_AttribBindings.BindAttributesToBuffer(Shaders::ScreenShader::Default, m_VertexBuffer);
 }
 
 void Screen::Mesh::Bind() 
 { 
-	glBindVertexArray(mVAO); 
+	m_AttribBindings.Use();
 }
 
 void Screen::Mesh::DrawTris() 

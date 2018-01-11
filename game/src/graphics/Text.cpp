@@ -33,11 +33,12 @@ Font::Font(const char* path, int charWidth, int charHeight, int numCharsX, int n
 ///
 // Text
 ///
-GLuint TextComponent::m_VertexVBO = 0;
+BufferObject* TextComponent::m_VertexBuffer = nullptr;
 
 void TextComponent::SetVertexBuffer()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
+
 	float data[] =
 	{
 		/*Position*/       /*Tex coords*/
@@ -49,12 +50,23 @@ void TextComponent::SetVertexBuffer()
 		0.5f,   0.5f, 0,  1, 1, // Top Right
 		-0.5f,  0.5f, 0,  0, 1  // Top Left
 	};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+	m_VertexBuffer->SetData(1, sizeof(data), data);
 }
 
 TextComponent::TextComponent(std::string string, Font* font, glm::vec4 color)
 	: m_Font { font }, m_Color{ color }
 {	
+	if (m_VertexBuffer == nullptr)
+	{
+		m_VertexBuffer = new BufferObject();
+		SetVertexBuffer();
+	}
+
+	m_AttribBindings.BindAttributesToBuffer(Shaders::textShader, *m_VertexBuffer, 0, 2);
+	m_AttribBindings.BindAttributesToBuffer(Shaders::textShader, m_CharBuffer, 2, 5);
+
+	/*
 	if (!m_VertexVBO)
 		glGenBuffers(1, &m_VertexVBO);
 
@@ -67,16 +79,9 @@ TextComponent::TextComponent(std::string string, Font* font, glm::vec4 color)
 	glGenBuffers(1, &m_CharVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_CharVBO);
 	Shaders::textShader->ApplyAttributes(2, 5);
-
-	SetVertexBuffer();
+	*/
 
 	CompileText(string);
-}
-
-TextComponent::~TextComponent()
-{
-	glDeleteVertexArrays(1, &m_VAO);
-	glDeleteBuffers(1, &m_CharVBO);
 }
 
 void TextComponent::SetText(std::string string, Font* font, glm::vec4* color)
@@ -122,14 +127,16 @@ void TextComponent::CompileText(std::string string)
 void TextComponent::Draw(glm::mat4& matrix)
 {
 	Shaders::textShader->Use();
-	glBindVertexArray(m_VAO);
+	//glBindVertexArray(m_VAO);
+	m_AttribBindings.Use();
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_CharVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_CharVBO);
 	
 	Shaders::textShader->SetVariable("model", matrix);
 	Shaders::textShader->SetVariable("font", m_Font->GetTextureLayer());
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_CharData.size(), m_CharData.data(), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_CharData.size(), m_CharData.data(), GL_STATIC_DRAW);
+	m_CharBuffer.SetData(sizeof(float), m_CharData.size(), m_CharData.data());
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, (GLsizei)(m_CharData.size()/10) ); // 10 = num of attrib floats
 }

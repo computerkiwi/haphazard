@@ -9,6 +9,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Texture.h"
 #include <string>
 #include <vector>
+#include "VertexObjects.h"
 
 typedef unsigned int GLuint;
 
@@ -53,7 +54,6 @@ class TextComponent
 {
 public:
 	TextComponent(std::string string = std::string(""), Font* font = Fonts::arial, glm::vec4 color = glm::vec4(1,1,1,1));
-	~TextComponent();
 	void SetText(std::string string, Font* font = nullptr, glm::vec4* color = nullptr);
 	void Draw(glm::mat4& matrix);
 
@@ -67,9 +67,13 @@ private:
 	glm::vec4 m_Color;
 
 	// Buffers
-	static GLuint m_VertexVBO;
-	GLuint m_VAO;
-	GLuint m_CharVBO = 0;
+	//static GLuint m_VertexVBO;
+	//GLuint m_VAO;
+	//GLuint m_CharVBO = 0;
+	static BufferObject* m_VertexBuffer;
+
+	VertexAttributeBindings m_AttribBindings;
+	BufferObject m_CharBuffer;
 
 	META_REGISTER(TextComponent)
 	{

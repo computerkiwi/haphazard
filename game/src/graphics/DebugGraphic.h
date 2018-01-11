@@ -9,24 +9,16 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "glm\glm.hpp"
 #include <vector>
 
-class DebugGraphic
+namespace DebugGraphic
 {
-public:
 	// Draws shape for one update. Positition and scale are both relative to world space
-	static void DrawSquare(glm::vec2 pos, glm::vec2 scale = glm::vec2(1, 1), float rotationRadians = 0, glm::vec4 color = glm::vec4(1, 0, 0, 1));
+	void DrawSquare(glm::vec2 pos, glm::vec2 scale = glm::vec2(1, 1), float rotationRadians = 0, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 
-	static void DrawCircle(glm::vec2 pos, float radius = 1, glm::vec4 color = glm::vec4(1, 0, 0, 1));
+	void DrawCircle(glm::vec2 pos, float radius = 1, glm::vec4 color = glm::vec4(1, 0, 0, 1));
 
 	// Draw all debug shapes and CLEARS ALL CURRENT DEBUG SHAPES
-	static void DrawAll();
+	void DrawAll();
 
 	// Sets thiccness of all debug shapes
-	static void SetLineWidth(float size);
-private:
-	DebugGraphic() = delete;
-
-	// Vertex instancing data
-	static std::vector<float> m_ShapeData;
-	static unsigned int m_VAO;
-	static unsigned int m_VBO;
+	void SetLineWidth(float size);
 };

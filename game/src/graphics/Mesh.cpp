@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "Mesh.h"
 #include "Texture.h"
+#include "VertexObjects.h"
 
 #include "glm\glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
@@ -15,42 +16,12 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ///
 // Mesh
 ///
-
-// Statics 
-GLuint Mesh::instanceVBO = 0;
-GLuint Mesh::textureVBO = 0;
-static Texture* defaultTexture;
-
-Mesh::Mesh()
-{
-	// Generate Vertex Attribute Object (VAO)
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(vaoID);
-
-	// Instance VBOs are static, make them if they dont exist
-	if (!instanceVBO)
-	{
-		// Generate buffers to hold vertex and texture data
-		glGenBuffers(1, &instanceVBO);
-		glGenBuffers(1, &textureVBO);
-	}
-	
+Mesh::Mesh(ShaderProgram* program)
+{	
 	// Setup VBOs for this VAO
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	Shaders::spriteShader->ApplyAttributes(3, 10); // Apply instance attributes
-
-	glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
-	Shaders::spriteShader->ApplyAttributes(10, 11); // Apply texture instance attribute
-
-	// VBO for non chaning vertex data
-	glGenBuffers(1, &vboID);
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	Shaders::spriteShader->ApplyAttributes(0,3); // Apply non-instance attributes for vao to remember
-}
-
-Mesh::~Mesh()
-{
-	//glDeleteBuffers(1, &vboID);
+	m_VAO.BindAttributesToBuffer(program, m_VertexData, 0, 3);
+	m_VAO.BindAttributesToBuffer(program, m_InstanceBuffer, 3, 10);
+	m_VAO.BindAttributesToBuffer(program, m_InstanceTextureBuffer, 10, 11);
 }
 
 void Mesh::AddVertex(float x, float y, float z, float r, float g, float b, float a, float s, float t)
@@ -76,9 +47,6 @@ std::vector<Mesh::Vertice>* Mesh::GetVertices()
 
 void Mesh::CompileMesh()
 {
-	glBindVertexArray(vaoID); // Enable vao to ensure correct mesh is compiled
-	glBindBuffer(GL_ARRAY_BUFFER, vboID); // Enable vbo
-	
 	int s = (int)vertices.size() * Vertice::vertDataVars;
 	float* verts = new float[s];
 	
@@ -87,7 +55,7 @@ void Mesh::CompileMesh()
 		for (int j = 0; j < sizeof(vert) / sizeof(float); ++j, ++i)
 			verts[i] = vert.data[j];
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * s, verts, GL_STATIC_DRAW); //Give vbo verts
+	m_VertexData.SetData(sizeof(float), s, verts);
 	delete [] verts;
 }
 

@@ -7,21 +7,21 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "EditorGraphic.h"
 #include "Shaders.h"
 #include "Texture.h"
+#include "VertexObjects.h"
 
-static GLuint VAO, VBO;
+//static GLuint VAO, VBO;
+static BufferObject* dataBuffer = nullptr;
+static VertexAttributeBindings* attribBindings = nullptr;
 static bool generated = false;
 
 void GenerateEditorSpriteBuffers()
 {
 	Shaders::editorSpriteShader->Use();
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	dataBuffer = new BufferObject();
+	attribBindings = new VertexAttributeBindings();
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	Shaders::editorSpriteShader->ApplyAttributes();
+	attribBindings->BindAttributesToBuffer(Shaders::editorSpriteShader, *dataBuffer);
 
 	float data[] = 
 	{
@@ -33,7 +33,7 @@ void GenerateEditorSpriteBuffers()
 		 0.5f,  0.5f,  1, 0,
 		-0.5f,  0.5f,  0, 0
 	};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+	dataBuffer->SetData(1, sizeof(data), data);
 
 	generated = true;
 }
@@ -43,8 +43,7 @@ void DrawEditorSprite(Resource* res, glm::vec2 pos, glm::vec2 scale, float rotat
 	if (!generated)
 		GenerateEditorSpriteBuffers();
 
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	attribBindings->Use();
 
 	Shaders::editorSpriteShader->Use();
 	Shaders::editorSpriteShader->SetVariable("Position",pos);

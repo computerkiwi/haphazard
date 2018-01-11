@@ -5,7 +5,6 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #pragma once
-
 #include "Texture.h"
 #include "Shaders.h"
 
@@ -13,6 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <glm/glm.hpp>
 #include <vector>
 
+#include "VertexObjects.h"
 
 
 class Mesh
@@ -35,8 +35,7 @@ public:
 	// Mesh constructor/deconstructor
 	///
 
-	Mesh();
-	~Mesh();
+	Mesh(ShaderProgram* shader = Shaders::spriteShader);
 
 	///
 	// Mesh construction functions
@@ -54,23 +53,18 @@ public:
 	// Render functions
 	///
 
-	void BindVAO() { glBindVertexArray(vaoID); }
-	void BindVBO() { glBindBuffer(GL_ARRAY_BUFFER, vboID); }
-	int NumVerts() { return (int)vertices.size(); }
+	void UseAttributeBindings() { m_VAO.Use(); }
+	int GetNumVerts() { return (int)vertices.size(); }
 
-	///
-	// Static functions
-	///
-
-	static void BindInstanceVBO() { glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); }
-	static void BindTextureVBO() { glBindBuffer(GL_ARRAY_BUFFER, textureVBO); }
-
+	BufferObject& InstanceBuffer() { return m_InstanceBuffer; }
+	BufferObject& TextureBuffer() { return m_InstanceTextureBuffer; }
+	
 private:
-	// Static buffers
-	static GLuint instanceVBO, textureVBO;
-
 	// Per mesh buffers
-	GLuint vaoID, vboID;
+	VertexAttributeBindings m_VAO;
+	BufferObject m_VertexData;						// Holds vertex data (set once)
+	BufferObject m_InstanceBuffer;				// Holds all instance data rendered per frame
+	BufferObject m_InstanceTextureBuffer; // Holds instance texture data rendered per frame
 
 	// Vertex data
 	std::vector<Vertice> vertices;
