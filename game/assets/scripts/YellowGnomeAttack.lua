@@ -1,6 +1,6 @@
 --[[
-FILE: RedGnomeAttack.lua
-PRIMARY AUTHOR: Lya Vera
+FILE: YellowGnomeAttack.lua
+PRIMARY AUTHOR: Ash Duong
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
@@ -13,7 +13,7 @@ weapon = nil
 WEAPON_NAME = "hammerWeapon.json"
 
 function Start()
-  weapon = GameObject.FindByName("RedGnomeWeapon")
+  weapon = GameObject.FindByName("YellowGnomeWeapon")
   weapon:Deactivate()
 end
 
@@ -31,9 +31,9 @@ function Update(dt)
   end
 
   	-- Player attacks
-	if (GamepadIsPressed(0, 2))
+	if (GamepadIsPressed(2, 2))
 	then
-	--Attack()
+		--Attack()
 		--spawn = false
 		weapon:Activate()
 	else

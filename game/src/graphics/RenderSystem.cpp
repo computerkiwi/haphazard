@@ -122,6 +122,7 @@ void RenderSystem::RenderSprites(float dt)
 		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
 		Screen::GetLayerFrameBuffer(layer)->Use();
 
+		numMeshes = 0;
 		data.clear();
 		tex.clear();
 
@@ -167,7 +168,7 @@ void RenderSystem::RenderSprites(float dt)
 		SpriteComponent::SpriteMesh()->BindVAO();
 
 		// Draw all sprites in this layer
-		glDrawArraysInstanced(GL_TRIANGLES, 0, numMeshes * numVerts, numMeshes);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, numVerts, numMeshes);
 	}
 }
 

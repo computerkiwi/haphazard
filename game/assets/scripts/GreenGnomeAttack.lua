@@ -1,6 +1,6 @@
 --[[
-FILE: BlueGnomeAttack.lua
-PRIMARY AUTHOR: Max
+FILE: GreenGnomeAttack.lua
+PRIMARY AUTHOR: Ash Duong
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
@@ -16,7 +16,7 @@ function Update(dt)
 	end
 
 	-- Player attacks
-	if (GamepadIsPressed(1, 2))
+	if (GamepadIsPressed(3, 2))
 	then
 		local water = GameObject.LoadPrefab(WATER_PROJECTILE_NAME)
 		water:GetTransform().position = this:GetTransform().position
