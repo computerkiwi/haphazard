@@ -57,7 +57,7 @@ namespace meta
 
 	Type *Type::GetDereferenceType()
 	{
-		assert(IsPointerType());
+		Assert(IsPointerType());
 
 		return m_dereferenceType;
 	}
@@ -81,7 +81,7 @@ namespace meta
 
 	void Type::RegisterMember(const char *name, Type *type, size_t offset)
 	{
-		assert(m_members.find(name) == m_members.end());
+		Assert(m_members.find(name) == m_members.end());
 
 		m_members.emplace(name, new MemberOffset(name, type, offset));
 	}
@@ -179,7 +179,7 @@ namespace meta
 	void Type::DeserializeAssign(void *object, rapidjson::Value& jsonObject)
 	{
 		// Make sure we have the right type.
-		assert(GetName() == jsonObject["meta_type_name"].GetString());
+		Assert(GetName() == jsonObject["meta_type_name"].GetString());
 
 		// Get the members from the object.
 		rapidjson::Value jsonData;
@@ -191,7 +191,7 @@ namespace meta
 			return m_deserializeAssignFunction(object, jsonData);
 		}
 
-		assert(jsonData.IsObject());
+		Assert(jsonData.IsObject());
 		// Go through the members and deserialize each of them.
 		auto members = GetMembers();
 		for (const auto& member : members)
@@ -202,7 +202,7 @@ namespace meta
 			{
 
 				Any deserializedMember(jsonData[memberName.c_str()]);
-				assert(deserializedMember.GetType() == member->GetType());
+				Assert(deserializedMember.GetType() == member->GetType());
 				member->Set(object, deserializedMember.GetDataPointer());
 			}
 			else

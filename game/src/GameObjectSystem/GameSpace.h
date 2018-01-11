@@ -327,7 +327,7 @@ private:
 		GameSpace& gameSpace = *reinterpret_cast<GameSpace *>(spacePtr);
 
 		// The json space should be an array of GameObjects
-		assert(jsonSpace.IsArray());
+		Assert(jsonSpace.IsArray());
 
 		// Deserialize each GameObject.
 		for (auto& jsonGameObject : jsonSpace.GetArray())

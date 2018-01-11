@@ -288,7 +288,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 			index = i;
 		}
 	}
-	assert(index != 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
+	Assert(index != 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
 
 	// get the axis
 	glm::vec2 Closestaxis = center1 - rectangle.m_corners[index];
@@ -667,7 +667,7 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 		ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
 		// make sure rigidbodies were successfully retrieved
-		assert(rigidBody1.IsValid() && rigidBody2.IsValid() && "Rigidbody(s) invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+		Assert(rigidBody1.IsValid() && rigidBody2.IsValid() && "Rigidbody(s) invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
 
 		glm::vec3 resolutionVector = *collisionData;
 		glm::vec3 dividingVector((*collisionData).y, -(*collisionData).x, 0);
@@ -737,10 +737,10 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 	{
 		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 		// make sure rigidbodies were successfully retrieved
-		assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
+		Assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
 
 		ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
-		assert(rigidBody1.IsValid() && "Transform is invalid. See REsolveDynStcCollision in PhysicsSystem.cpp\n");
+		Assert(rigidBody1.IsValid() && "Transform is invalid. See REsolveDynStcCollision in PhysicsSystem.cpp\n");
 
 		glm::vec2 position = transform1->GetPosition();
 
@@ -775,7 +775,7 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 	{
 		// get the transform and assert its validity
 		ComponentHandle<TransformComponent> transform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
+		Assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
 		// get some values about the collider
 		float rotation = transform->GetRotation() + tDynamiColliderHandle->ColliderData().GetRotationOffset();
@@ -808,7 +808,7 @@ void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicCo
 	{
 		// get and assert the validity of the transform
 		ComponentHandle<TransformComponent> transform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
+		Assert(transform.IsValid() && "Transform invalid in debug drawing, see DebugDrawAllHitboxes in PhysicsSystem.cpp");
 
 		float rotation = transform->GetRotation() + tStaticColliderHandle->ColliderData().GetRotationOffset();
 		glm::vec2 position = transform->GetPosition() + tStaticColliderHandle->ColliderData().GetOffset();
@@ -858,7 +858,7 @@ void MoveAllDynamicObjects(float dt, ComponentMap<RigidBodyComponent>& rigidBodi
 		{
 			continue;
 		}
-		assert(transform.IsValid() && "Invalid Transform from Rigidbody in MoveAllDynamicObjects in PhysicsSystem.cpp");
+		Assert(transform.IsValid() && "Invalid Transform from Rigidbody in MoveAllDynamicObjects in PhysicsSystem.cpp");
 
 		// update position, velocity, and acceleration using stored values
 		UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
@@ -891,7 +891,7 @@ void BrettsFunMagicalTestLoop(ComponentMap<DynamicCollider2DComponent> *allDynam
 			{
 				continue;
 			}
-			assert(rigidBody.IsValid() && "Invalid Transform from Rigidbody in ApplyGravityToAllDynamicObjects in PhysicsSystem.cpp");
+			Assert(rigidBody.IsValid() && "Invalid Transform from Rigidbody in ApplyGravityToAllDynamicObjects in PhysicsSystem.cpp");
 
 			rigidBody->AddVelocity(glm::vec3(-.1, .2, 0));
 		}
@@ -966,7 +966,7 @@ void PhysicsSystem::Update(float dt)
 				}
 
 				ComponentHandle<TransformComponent> otherTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
-				assert(otherTransform.IsValid() && "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
+				Assert(otherTransform.IsValid() && "Some static object's returned an invalid transform in PhysicsSysterm::Update in PhysicsSystem.cpp");
 
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();
@@ -1158,7 +1158,7 @@ void PhysicsSystem::Update(float dt)
 				}
 
 				ComponentHandle<TransformComponent> otherTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
-				assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
+				Assert(otherTransform.IsValid() && "Invalid transform on collider, see PhysicsSystem::Update in PhysicsSystem.cpp");
 
 				float object1Rotation = transform->GetRotation() + collider1.GetRotationOffset();
 				float object2Rotation = otherTransform->GetRotation() + collider2.GetRotationOffset();

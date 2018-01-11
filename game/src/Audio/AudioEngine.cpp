@@ -48,7 +48,7 @@ namespace Audio
 
 	void Update()
 	{
-		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
+		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
 		fmodSystem->update();
 	}
@@ -56,7 +56,7 @@ namespace Audio
 	// Plays a given sound once.
 	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
 	{
-		assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
+		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
 		std::string file = fileName;
 

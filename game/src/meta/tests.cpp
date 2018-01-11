@@ -117,7 +117,7 @@ namespace meta
 		Any xA(x);
 		const int val = xA.Get<int>();
 
-		assert(x == val);
+		Assert(x == val);
 	}
 
 	void TestPropertyInfo()
@@ -170,11 +170,11 @@ namespace meta
 		Any anyPointer = Any(&integer);
 
 		anyVal.Set(VALUE_A);
-		assert(anyVal.Get<int>() == VALUE_A);
+		Assert(anyVal.Get<int>() == VALUE_A);
 
 		anyPointer.Set(VALUE_B);
-		assert(anyPointer.Get<int>() == VALUE_B);
-		assert(integer == VALUE_B);
+		Assert(anyPointer.Get<int>() == VALUE_B);
+		Assert(integer == VALUE_B);
 	}
 
 	void TestInheritedTypeLookup()
@@ -187,8 +187,8 @@ namespace meta
 		PrintType(*objs[0]);
 		PrintType(*objs[1]);
 
-		assert(GetTypeInfo(*objs[0]) == GetTypeInfo<ExampleA>());
-		assert(GetTypeInfo(*objs[1]) == GetTypeInfo<ExampleB>());
+		Assert(GetTypeInfo(*objs[0]) == GetTypeInfo<ExampleA>());
+		Assert(GetTypeInfo(*objs[1]) == GetTypeInfo<ExampleB>());
 	}
 
 	void TestAll()

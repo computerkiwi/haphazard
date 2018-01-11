@@ -86,7 +86,7 @@ ResourceID Resource::GetDefaultResourceID(ResourceType type)
 		return FilenameToID(DEFAULT_TEXTURE_NAME);
 
 	case ResourceType::INVALID:
-		assert(nullptr);
+		Assert(nullptr);
 		break;
 
 	default:
@@ -109,7 +109,7 @@ Resource *Resource::GetDefaultResource(ResourceType type)
 		return engine->GetResourceManager().Get((DEFAULT_TEXTURE_NAME));
 
 	case ResourceType::INVALID:
-		assert(nullptr);
+		Assert(nullptr);
 		break;
 	default:
 		logger.SetNextPriority(Logging::Priority::HIGH_PRIORITY);

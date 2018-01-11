@@ -55,7 +55,7 @@ void RigidBodyComponent::SetGravity(glm::vec3 newGravity)
 // adjusters
 void RigidBodyComponent::AddForce(glm::vec3 addForce)
 {
-	assert(m_inverseMass != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
+	Assert(m_inverseMass != 0 && "\nA force was added to an object with mass = 0 \n See the AddForce function in RigidBody.cpp\n");
 	m_acceleration += (addForce * m_inverseMass);
 }
 

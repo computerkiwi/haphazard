@@ -125,7 +125,7 @@ private:
 		engine.m_spaces.ClearSpaces();
 
 		// We should be passed the array of spaces.
-		assert(jsonEngine.IsArray());
+		Assert(jsonEngine.IsArray());
 		for (rapidjson::Value& jsonSpace : jsonEngine.GetArray())
 		{
 			GameSpaceIndex index = engine.m_spaces.AddSpace();

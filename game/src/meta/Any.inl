@@ -29,7 +29,7 @@ namespace meta
 	template <typename T>
 	T& Any::GetData()
 	{
-		assert(GetTypePointer<T>() == m_type);
+		Assert(GetTypePointer<T>() == m_type);
 
 		if (m_usesPointer)
 		{
@@ -44,7 +44,7 @@ namespace meta
 	template <typename T>
 	void Any::SetData(const T& data)
 	{
-		assert(GetTypePointer<T>() == m_type);
+		Assert(GetTypePointer<T>() == m_type);
 
 		if (m_usesPointer)
 		{
@@ -63,8 +63,8 @@ namespace meta
 	template <typename T>
 	void Any::SetMember(Member *member, const T& value)
 	{
-		assert(!m_type->IsPointerType());
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(!m_type->IsPointerType());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		member->Set(GetDataPointer(), &value);
 	}
@@ -72,10 +72,10 @@ namespace meta
 	template <typename T>
 	void Any::SetMember(const char *memberName, const T& value)
 	{
-		assert(!m_type->IsPointerType());
+		Assert(!m_type->IsPointerType());
 		Member *member = m_type->GetMember(memberName);
 
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		member->Set(GetDataPointer(), &value);
 	}
@@ -83,8 +83,8 @@ namespace meta
 	template <typename T>
 	T Any::GetMember(Member *member) const
 	{
-		assert(!m_type->IsPointerType());
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(!m_type->IsPointerType());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		return *reinterpret_cast<T *>(member->Get(GetDataPointer()));
 	}
@@ -92,10 +92,10 @@ namespace meta
 	template <typename T>
 	T Any::GetMember(const char *memberName) const
 	{
-		assert(!m_type->IsPointerType());
+		Assert(!m_type->IsPointerType());
 		Member *member = m_type->GetMember(memberName);
 
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		return *reinterpret_cast<const T *>(member->Get(GetDataPointer()));
 	}
@@ -107,8 +107,8 @@ namespace meta
 	template <typename T>
 	void Any::SetPointerMember(Member *member, const T& value)
 	{
-		assert(m_type->IsPointerType());
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(m_type->IsPointerType());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		member->Set(GetDeepestDataPointer(), &value);
 	}
@@ -116,10 +116,10 @@ namespace meta
 	template <typename T>
 	void Any::SetPointerMember(const char *memberName, const T& value)
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 		Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
 
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		member->Set(GetDeepestDataPointer(), &value);
 	}
@@ -127,8 +127,8 @@ namespace meta
 	template <typename T>
 	T Any::GetPointerMember(Member *member) const
 	{
-		assert(m_type->IsPointerType());
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(m_type->IsPointerType());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		return *reinterpret_cast<T *>(member->Get(GetDeepestDataPointer()));
 	}
@@ -136,10 +136,10 @@ namespace meta
 	template <typename T>
 	T Any::GetPointerMember(const char *memberName) const
 	{
-		assert(m_type->IsPointerType());
+		Assert(m_type->IsPointerType());
 		Member *member = m_type->GetDeepestDereference()->GetMember(memberName);
 
-		assert(member->GetType() == GetTypePointer<T>());
+		Assert(member->GetType() == GetTypePointer<T>());
 
 		return *reinterpret_cast<T *>(member->Get(GetDeepestDataPointer()));
 	}

@@ -105,7 +105,7 @@ namespace
 	{
 		std::string& string = *reinterpret_cast<std::string *>(objectPtr);
 
-		assert(jsonObject.IsString());
+		Assert(jsonObject.IsString());
 		string = jsonObject.GetString();
 	}
 
@@ -122,7 +122,7 @@ namespace
 	{
 		bool& boolData = *reinterpret_cast<bool *>(objectPtr);
 
-		assert(jsonObject.IsBool());
+		Assert(jsonObject.IsBool());
 		boolData = jsonObject.GetBool();
 	}
 }

@@ -58,7 +58,7 @@ GameSpace *GameObject::GetSpace() const
 
 GameSpaceIndex GameObject::GetIndex() const
 {
-	assert(IsValid());
+	Assert(IsValid());
 	return m_space; // m_objID & 0xFF00000000000000;
 }
 
@@ -185,7 +185,7 @@ void GameObject::SetDestroy(bool state) const
 rapidjson::Value GameObject::GameObjectSerialize(const void *gameObjectPtr, rapidjson::Document::AllocatorType& allocator)
 {
 	const GameObject& gameObject = *reinterpret_cast<const GameObject *>(gameObjectPtr);
-	assert(gameObject.IsValid());
+	Assert(gameObject.IsValid());
 
 	// Make the json object.
 	rapidjson::Value jsonObject;
@@ -329,17 +329,17 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	GameObject& gameObject = *reinterpret_cast<GameObject *>(gameObjectPtr);
 
 	// We should be assigning to a valid GameObject.
-	assert(gameObject.IsValid());
+	Assert(gameObject.IsValid());
 
 	// Assertions saying we have the right type of value.
-	assert(jsonValue.IsObject());
-	assert(jsonValue.HasMember("objID"));
-	assert(jsonValue.HasMember("componentArray"));
+	Assert(jsonValue.IsObject());
+	Assert(jsonValue.HasMember("objID"));
+	Assert(jsonValue.HasMember("componentArray"));
 
 	// Get the id from the json.
 	rapidjson::Value jsonId;
 	jsonId = jsonValue["objID"];
-	assert(jsonId.IsInt64());
+	Assert(jsonId.IsInt64());
 	GameObject_ID oldId = static_cast<GameObject_ID>(jsonId.GetInt64());
 
 	// Keep track of which old id corresponds to which new id.
@@ -348,7 +348,7 @@ void GameObject::GameObjectDeserializeAssign(void *gameObjectPtr, rapidjson::Val
 	// Get the array of components.
 	rapidjson::Value componentArray;
 	componentArray = jsonValue["componentArray"];
-	assert(componentArray.IsArray());
+	Assert(componentArray.IsArray());
 
 	// Load each component.
 	for (auto& jsonComponent : componentArray.GetArray())
@@ -409,7 +409,7 @@ int GameObject::GetScript(lua_State * L)
 {
 	// Expecting two parameters. This gameobject and filename string.
 	int temp = lua_gettop(L);
-	assert(temp == 2);
+	Assert(temp == 2);
 
 	// Pull out the filename string.
 	const char *fileName = luaL_checkstring(L, 2);

@@ -217,6 +217,7 @@
     <ClCompile Include="src\Scripting\ScriptingUtil.cpp" />
     <ClCompile Include="src\Scripting\ScriptResource.cpp" />
     <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
+    <ClCompile Include="src\Util\Assert.cpp" />
     <ClCompile Include="src\Util\FrameCap.cpp" />
     <ClCompile Include="src\Util\Logging.cpp" />
     <ClCompile Include="src\Util\Serialization.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="src\Scripting\ScriptResource.h" />
     <ClInclude Include="src\Scripting\ScriptSystem.h" />
     <ClInclude Include="src\Universal.h" />
+    <ClInclude Include="src\Util\Assert.h" />
     <ClInclude Include="src\Util\FrameCap.h" />
     <ClInclude Include="src\Util\Logging.h" />
     <ClInclude Include="src\Util\DataStructures\Array\Array.h" />

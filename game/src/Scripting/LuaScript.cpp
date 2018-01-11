@@ -15,6 +15,9 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #define INVALID_ID 0
 
+bool LuaScript::currentlyRunningScript = false;
+std::string LuaScript::currentFileName;
+
 LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 {
 }
@@ -31,7 +34,7 @@ LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaS
 
 void LuaScript::RunFunction(const char *functionName, int args, int returns)
 {
-	assert(m_resID != INVALID_ID);
+	Assert(m_resID != INVALID_ID);
 
 	GetScriptEnvironment();
 
@@ -53,7 +56,11 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	// Put the function under the arguments on the stack.
 	lua_insert(m_L, -1 - args);
 
+	// Set a flag that assert can check to see if an error came from a script.
+	currentlyRunningScript = true;
+	currentFileName = engine->GetResourceManager().Get(m_resID)->GetFilename();
 	int result = lua_pcall(m_L, args, returns, 0);
+	currentlyRunningScript = false;
 	if (result != 0)
 	{
 		logger.SetNextChannel(Logging::Channel::SCRIPTING);
@@ -98,7 +105,7 @@ void LuaScript::SetupEnvironment(const char *scriptString)
 
 	// Get the script environment table and register the environment in it.
 	lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
-	assert(lua_istable(m_L, -1));
+	Assert(lua_istable(m_L, -1));
 	lua_pushvalue(m_L, -3);
 	m_environmentID = luaL_ref(m_L, -2);
 
@@ -124,7 +131,7 @@ void LuaScript::SetupEnvironment(const char *scriptString)
 void LuaScript::SetScriptResource(Resource *resource)
 {
 	// Make sure we're getting a script resource.
-	assert(resource->GetResourceType() == ResourceType::SCRIPT);
+	Assert(resource->GetResourceType() == ResourceType::SCRIPT);
 
 	SetupEnvironment(reinterpret_cast<std::string *>(resource->Data())->c_str());
 }

@@ -28,7 +28,7 @@ glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynam
 
 		// get the object's transform
 		ComponentHandle<TransformComponent> objectTransform = tDynamiColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(objectTransform.IsValid() && "Invalid transform from a dynamic collider in CollidePointOnLayer in PhysicsUtils.cpp\n");
+		Assert(objectTransform.IsValid() && "Invalid transform from a dynamic collider in CollidePointOnLayer in PhysicsUtils.cpp\n");
 		// get the object's position and rotation
 		glm::vec2 objectPosition = objectTransform->GetPosition();
 		float objectRotation = objectTransform->GetRotation();
@@ -73,7 +73,7 @@ glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynam
 
 		// get the object's transform
 		ComponentHandle<TransformComponent> objectTransform = tStaticColliderHandle.GetSiblingComponent<TransformComponent>();
-		assert(objectTransform.IsValid() && "Invalid transform from a dynamic collider in CollidePointOnLayer in PhysicsUtils.cpp\n");
+		Assert(objectTransform.IsValid() && "Invalid transform from a dynamic collider in CollidePointOnLayer in PhysicsUtils.cpp\n");
 		// get the object's position and rotation
 		glm::vec2 objectPosition = objectTransform->GetPosition();
 		float objectRotation = objectTransform->GetRotation();

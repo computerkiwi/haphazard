@@ -27,7 +27,7 @@ void AudioResource::LoadData(const char * filePath)
 {
 	FMOD::System *fmodSystem = Audio::GetSystem();
 
-	assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
+	Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
 	CheckErrorFMOD(fmodSystem->createSound(filePath, FMOD_DEFAULT, nullptr, &m_sound));
 }
