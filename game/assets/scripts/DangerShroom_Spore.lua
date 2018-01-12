@@ -5,7 +5,7 @@ PRIMARY AUTHOR: Noah Sweet
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-Lifetime = 3 -- How long they last 'coz damn they last long
+Lifetime = 15 -- How long they last 'coz damn they last long
 
 function Start()
 end -- fn end
