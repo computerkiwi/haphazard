@@ -172,6 +172,10 @@ class Editor
 	// --------------
 	Engine *m_engine;
 
+	// UI Scale
+	// --------------
+	static float globalScale;
+	void UpdateGlobalScale();
 
 	// Settings
 	// --------------
@@ -464,5 +468,9 @@ public:
 	EditorState& GetEditorState() { return m_editorState; }
 
 	void Reload() { m_editorState.reload = true; m_editorState.exiting = true; }
+
+	// Sets/gets the global UI scale.
+	static float GetUiScale();
+	static void SetUiScale(float scale);
 
 };

@@ -703,7 +703,10 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 		name += "###GAMEOBJECT_ID";
 
 
-		SetNextWindowSize(GAMEOBJECT_WINDOW_SIZE);
+		ImVec2 windowSize = GAMEOBJECT_WINDOW_SIZE;
+		windowSize.x *= Editor::GetUiScale();
+		windowSize.y *= Editor::GetUiScale();
+		SetNextWindowSize(windowSize);
 		SetNextWindowPos(GAMEOBJECT_WINDOW_POS, ImGuiCond_Once);
 		Begin(name.c_str(), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 
@@ -968,9 +971,13 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 	else
 	{
 		// No Object was selected so display a default
+
 		const char *name = "GameObject - No Object Selected###GAMEOBJECT_ID";
 
-		SetNextWindowSize(GAMEOBJECT_WINDOW_SIZE);
+		ImVec2 windowSize = GAMEOBJECT_WINDOW_SIZE;
+		windowSize.x *= Editor::GetUiScale();
+		windowSize.y *= Editor::GetUiScale();
+		SetNextWindowSize(windowSize);
 		SetNextWindowPos(GAMEOBJECT_WINDOW_POS, ImGuiCond_Once);
 		Begin(name, nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
 		End();

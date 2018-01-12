@@ -62,6 +62,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Since actual dt isn't that important
 #define FAKE_DT (1 / 60.0f)
 
+// Set the initial global scale
+float Editor::globalScale = 1.0f;
 
 // Gizmo Transform Save Location
 TransformComponent objectSave;
@@ -253,6 +255,8 @@ void Editor::Update(float dt)
 {
 	if (m_editorState.show)
 	{
+		UpdateGlobalScale();
+
 		debugSetDisplayHitboxes(true);
 		debugSetDisplayRaycasts(true);
 
@@ -478,6 +482,45 @@ void Editor::ResetStyle()
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
+float Editor::GetUiScale()
+{
+	return globalScale;
+}
+
+void Editor::SetUiScale(float scale)
+{
+	const float MIN_SCALE = 0.001f;
+
+	if (scale < MIN_SCALE)
+	{
+		scale = MIN_SCALE;
+	}
+
+	float scaleChange = scale / globalScale;
+
+	ImGui::GetIO().FontGlobalScale = scale;
+
+	ImGui::GetStyle().WindowMinSize.x *= scaleChange;
+	ImGui::GetStyle().WindowMinSize.y *= scaleChange;
+
+	ImGui::GetStyle().ScrollbarSize *= scaleChange;
+
+	ImGui::GetStyle().GrabMinSize *= scaleChange;
+
+	globalScale = scale;
+}
+
+void Editor::UpdateGlobalScale()
+{
+	if (Input::IsPressed(Key::BracketRight))
+	{
+		SetUiScale(globalScale * 2);
+	}
+	else if (Input::IsPressed(Key::BracketLeft))
+	{
+		SetUiScale(globalScale * 0.5f);
+	}
+}
 
 void Editor::SortObjectList()
 {
@@ -1312,7 +1355,7 @@ void Editor::UpdatePopUps(float dt)
 			// Setup next window, including a special alpha value
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 			ImGui::SetNextWindowPos(pos);
-			ImGui::SetNextWindowSize(size);
+			ImGui::SetNextWindowSize(ImVec2(globalScale * size.x, globalScale * size.y));
 
 			ImGui::Begin(popup.message, nullptr, flags);
 			ImGui::PushAllowKeyboardFocus(false);
@@ -1444,7 +1487,7 @@ void Editor::ObjectsList()
 {
 	using namespace ImGui;
 
-	SetNextWindowSize(ImVec2(260, 400));
+	SetNextWindowSize(ImVec2(globalScale * 260, globalScale * 400));
 	SetNextWindowPos(ImVec2(0, 30), ImGuiCond_Once);
 	Begin("Objects", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
@@ -2378,7 +2421,7 @@ void Editor::SettingsPanel(float dt)
 	static float timer = 0.0f;
 
 	// Setup the size and Position of this window
-	SetNextWindowSize(ImVec2(250, 400), ImGuiCond_Once);
+	SetNextWindowSize(ImVec2(globalScale * 250, globalScale * 400), ImGuiCond_Once);
 	SetNextWindowPos(ImVec2(0, 432), ImGuiCond_Once);
 
 	// Start the Settings panel
@@ -2538,7 +2581,7 @@ bool Editor::Console::PopUp(ImVec2& pos, ImVec2& size)
 
 	// Popup begin
 	ImGui::SetNextWindowPos(pos);
-	ImGui::SetNextWindowSize(size);
+	ImGui::SetNextWindowSize(ImVec2(globalScale * size.x, globalScale * size.y));
 
 	// Dummy Window, used to add things to
 	ImGui::Begin("console_popup##console_dummy_window", nullptr, flags);
@@ -2631,7 +2674,7 @@ void Editor::Console::Draw()
 	}
 
 	// Set the size once
-	ImGui::SetNextWindowSize(ImVec2(800, 550), ImGuiSetCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(globalScale * 800, globalScale * 550), ImGuiSetCond_FirstUseEver);
 
 	// Push the window
 	ImGui::Begin("Console", nullptr, winflags);
@@ -2831,7 +2874,7 @@ static std::vector<char*> moveDownButtonNames;
 void Editor::PPFX()
 {
 	using namespace ImGui;
-	SetNextWindowSize(ImVec2(310, 400));
+	SetNextWindowSize(ImVec2(globalScale * 310, globalScale * 400));
 	SetNextWindowPos(ImVec2(280, 30), ImGuiCond_Once);
 	Begin("Post Processing", nullptr, ImGuiWindowFlags_NoResize);
 
