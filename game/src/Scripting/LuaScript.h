@@ -39,6 +39,10 @@ public:
 
 	void SetResourceID(ResourceID id);
 
+	// Gets a variable. First in the pair is whether a variable was succesfully retrieved. 
+	std::pair<bool, meta::Any> GetVar(const char *varName);
+	void SetVar(const char *varName, meta::Any& value);
+
 	ResourceID GetResourceID() const
 	{
 		return m_resID;

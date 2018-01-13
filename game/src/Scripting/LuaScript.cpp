@@ -142,6 +142,93 @@ void LuaScript::SetResourceID(ResourceID id)
 	SetScriptResource(engine->GetResourceManager().Get(id));
 }
 
+std::pair<bool, meta::Any> LuaScript::GetVar(const char * varName)
+{
+	// Pull the requested var out of the environment table.
+	GetScriptEnvironment();
+	lua_getfield(m_L, -1, varName);
+
+	// Simple struct to clean up the stack via destructor after return.
+	struct StackCleaner
+	{
+		lua_State *L;
+		StackCleaner(lua_State *_L) : L(_L) {}
+
+		~StackCleaner()
+		{
+			// Pop the field we retrieved and the environment table.
+			lua_pop(L, 2);
+		}
+	} cleaner(m_L);
+
+	// Check if we got anything at all.
+	if (lua_isnoneornil(m_L, -1))
+	{
+		return std::make_pair(false, meta::Any(0));
+	}
+
+	// Check each Lua type.
+	if (lua_isboolean(m_L, -1))
+	{
+		return std::make_pair(true, meta::Any(lua_toboolean(m_L, -1)));
+	}
+	if (lua_isnumber(m_L, -1))
+	{
+		return std::make_pair(true, meta::Any(lua_tonumber(m_L, -1)));
+	}
+	if (lua_isstring(m_L, -1))
+	{
+		return std::make_pair(true, meta::Any(std::string(lua_tostring(m_L, -1))));
+	}
+
+	// If we got here, we don't currently support the type.
+	Logging::Log(Logging::SCRIPTING, Logging::HIGH_PRIORITY, "Attempted to get variable \"", varName, "\" with unsupported type ", lua_typename(m_L, -1), " from a script.");
+	return std::make_pair(false, meta::Any(0));
+}
+
+void LuaScript::SetVar(const char * varName, meta::Any & value)
+{
+	GetScriptEnvironment();
+	
+	// Define so we don't write each number type individually.
+	#define IF_NUMBER_TYPE(TYPE)                                          \
+	if (value.GetType() == meta::GetTypePointer<TYPE>())                  \
+	{																																			\
+		lua_pushnumber(m_L, static_cast<lua_Number>(value.GetData<TYPE>()));\
+	}
+
+	IF_NUMBER_TYPE(float)
+	else IF_NUMBER_TYPE(double)
+	else IF_NUMBER_TYPE(int)
+	else IF_NUMBER_TYPE(unsigned int)
+	else IF_NUMBER_TYPE(long)
+	else IF_NUMBER_TYPE(unsigned long)
+	else IF_NUMBER_TYPE(long long)
+	else IF_NUMBER_TYPE(unsigned long long)
+	else IF_NUMBER_TYPE(short)
+	else IF_NUMBER_TYPE(unsigned short)
+	else IF_NUMBER_TYPE(char)
+	else IF_NUMBER_TYPE(unsigned char)
+	else IF_NUMBER_TYPE(signed char)
+	else if (value.GetType() == meta::GetTypePointer<std::string>())
+	{
+		lua_pushstring(m_L, value.GetData<std::string>().c_str());
+	}
+	else if (value.GetType() == meta::GetTypePointer<bool>())
+	{
+		lua_pushboolean(m_L, value.GetData<bool>());
+	}
+	else
+	{
+		// Only pop the environment table if we couldn't push a value.
+		Logging::Log(Logging::SCRIPTING, Logging::HIGH_PRIORITY, "Attempted to set variable \"", varName, "\" with unsupported type ", value.GetType()->GetName(), " on a script.");
+		lua_pop(m_L, 1);
+		return;
+	}
+
+	lua_setfield(m_L, -2, varName);
+}
+
 void LuaScript::UpdateThisObject()
 {
 	if (!m_thisObj.IsValid())
