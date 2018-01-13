@@ -17,16 +17,37 @@ static const size_t STRING_BUFFER_SIZE = 2048;
 
 static void HandleStringVar(LuaScript &script, const char *name, const std::string& value)
 {
-	Assert(value.size() <= STRING_BUFFER_SIZE);
+	Assert(value.size() < STRING_BUFFER_SIZE);
 
 	// Setup a buffer and copy our string into it.
 	char string_buffer[STRING_BUFFER_SIZE];
-	std::copy(value.begin(), value.end(), string_buffer);
+	char *stringEnd = std::copy(value.begin(), value.end(), string_buffer);
+	*(stringEnd) = 0;
 
 	// If the user edits the string, update it in the script.
 	if (InputText(name, string_buffer, STRING_BUFFER_SIZE, ImGuiInputTextFlags_EnterReturnsTrue))
 	{
 		script.SetVar(name, meta::Any(std::string(string_buffer)));
+	}
+}
+
+static void HandleNumberVar(LuaScript &script, const char *name, lua_Number value)
+{
+	float valueBuffer = value;
+
+	if (InputFloat(name, &valueBuffer))
+	{
+		script.SetVar(name, meta::Any(static_cast<lua_Number>(valueBuffer)));
+	}
+}
+
+static void HandleBoolVar(LuaScript &script, const char *name, bool value)
+{
+	bool valueBuffer = value;
+
+	if (Checkbox(name, &valueBuffer))
+	{
+		script.SetVar(name, meta::Any(valueBuffer));
 	}
 }
 
@@ -37,6 +58,14 @@ static void HandleVar(LuaScript &script, std::pair<std::string, meta::Any>& var)
 	if (type == meta::GetTypePointer<std::string>())
 	{
 		HandleStringVar(script, var.first.c_str(), var.second.GetData<std::string>());
+	}
+	else if (type == meta::GetTypePointer<lua_Number>())
+	{
+		HandleNumberVar(script, var.first.c_str(), var.second.GetData<lua_Number>());
+	}
+	else if (type == meta::GetTypePointer<bool>())
+	{
+		HandleBoolVar(script, var.first.c_str(), var.second.GetData<bool>());
 	}
 }
 

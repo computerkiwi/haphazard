@@ -155,7 +155,7 @@ static std::pair<bool, meta::Any> LuaValToAny(lua_State *L, int index)
 	// Check each Lua type.
 	if (lua_isboolean(L, index))
 	{
-		return std::make_pair(true, meta::Any(lua_toboolean(L, index)));
+		return std::make_pair(true, meta::Any(static_cast<bool>(lua_toboolean(L, index))));
 	}
 	if (lua_type(L, index) == LUA_TSTRING)
 	{
