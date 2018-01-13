@@ -58,6 +58,21 @@ struct ScriptComponent
 		return nullptr;
 	}
 
+	// Removes a given script. Does nothing if the script isn't on it.
+	void RemoveScript(LuaScript& script)
+	{
+		// Go through the scripts until we find the one with the proper filename.
+		for (size_t i = 0; i < scripts.size(); ++i)
+		{
+			LuaScript& targetScript = scripts[i];
+			if (&targetScript == &script)
+			{
+				scripts.erase(scripts.begin() + i);
+				return;
+			}
+		}
+	}
+
 	static rapidjson::Value ScriptComponentSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator)
 	{
 		// Const cast away is fine because we're not really changing anything.

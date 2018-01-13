@@ -1720,14 +1720,61 @@ bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
 	return false;
 }
 
+static void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameObject object, Editor *editor)
+{
+	ResourceManager& rm = engine->GetResourceManager();
+
+	std::string	id = "X##script_remove_script";
+	id += rm.Get(script.GetResourceID())->FileName();
+
+	if (Button(id.c_str(), ImVec2(25, 0)))
+	{
+		editor->Push_Action({ 0, script, nullptr,{ object, true },
+			[](EditorAction& a)
+		{
+			ComponentHandle<ScriptComponent> handle(a.handle);
+
+			if (handle.GetGameObject().IsValid())
+			{
+				if (a.redo)
+				{
+					ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
+					std::vector<LuaScript>& scripts = handle->scripts;
+
+					for (size_t i = 0; i < scripts.size(); i++)
+					{
+						LuaScript& script = scripts[i];
+
+						if (script.GetResourceID() == id)
+						{
+							scripts.erase(handle->scripts.begin() + i);
+						}
+					}
+				}
+				else
+				{
+					handle->scripts.emplace_back(a.current.GetData<LuaScript>());
+				}
+			}
+		}
+		});
+
+		script_c->RemoveScript(script);
+		return;
+	}
+
+	SameLine();
+	Text(rm.Get(script.GetResourceID())->FileName().c_str());
+}
 
 // Binds the imgui function calls to the Script Component
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	if (CollapsingHeader("Script"))
 	{
-		EditorComponentHandle handle = { object.Getid(), true };
 		ResourceManager& rm = engine->GetResourceManager();
+
+		EditorComponentHandle handle = { object.Getid(), true };
 		std::vector<Resource *> scripts = rm.GetResourcesOfTypes_Alphabetical(ResourceType::SCRIPT);
 
 		if (Button("Remove##script"))
@@ -1742,6 +1789,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 			OpenPopup("##script_add_script");
 		}
 
+		// Popup for adding new scripts.
 		if (BeginPopup("##script_add_script"))
 		{
 			editor->GetSearchBars().script.Draw("Search", 100);
@@ -1791,49 +1839,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
 		for (int i = 0; i < script_c->scripts.size(); i++)
 		{
-			LuaScript& script = script_c->scripts[i];
-			id += rm.Get(script.GetResourceID())->FileName();
-
-			if (Button(id.c_str(), ImVec2(25, 0)))
-			{
-				editor->Push_Action({ 0, script, nullptr,{ object, true },
-					[](EditorAction& a)
-				{
-					ComponentHandle<ScriptComponent> handle(a.handle);
-
-					if (handle.GetGameObject().IsValid())
-					{
-						if (a.redo)
-						{
-							ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
-							std::vector<LuaScript>& scripts = handle->scripts;
-
-							for (size_t i = 0; i < scripts.size(); i++)
-							{
-								LuaScript& script = scripts[i];
-
-								if (script.GetResourceID() == id)
-								{
-									scripts.erase(handle->scripts.begin() + i);
-								}
-							}
-						}
-						else
-						{
-							handle->scripts.emplace_back(a.current.GetData<LuaScript>());
-						}
-					}
-				} 
-				});
-
-				script_c->scripts.erase(script_c->scripts.begin() + i);
-				break;
-			}
-			SameLine();
-
-			Text(rm.Get(script.GetResourceID())->FileName().c_str());
-
-			id = "X##script_remove_script";
+			ImGui_IndividualScript(script_c->scripts[i], script_c, object, editor);
 		}
 		PopStyleVar();
 	}
