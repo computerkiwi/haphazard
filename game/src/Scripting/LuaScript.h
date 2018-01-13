@@ -41,6 +41,9 @@ public:
 
 	// Gets a variable. First in the pair is whether a variable was succesfully retrieved. 
 	std::pair<bool, meta::Any> GetVar(const char *varName);
+	// Returns a vector with key-value pairs of all the vars in an environment table.
+	std::vector<std::pair<std::string, meta::Any>> GetAllVars();
+	// Sets a var in the environment table.
 	void SetVar(const char *varName, meta::Any& value);
 
 	ResourceID GetResourceID() const

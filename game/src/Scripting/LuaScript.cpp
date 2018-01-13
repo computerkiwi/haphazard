@@ -142,48 +142,78 @@ void LuaScript::SetResourceID(ResourceID id)
 	SetScriptResource(engine->GetResourceManager().Get(id));
 }
 
+// First result is success, second is the value if first is true.
+// [-0, +0, -]
+static std::pair<bool, meta::Any> LuaValToAny(lua_State *L, int index)
+{	
+	// Check if there's anything at all.
+	if (lua_isnoneornil(L, index))
+	{
+		return std::make_pair(false, meta::Any(0));
+	}
+
+	// Check each Lua type.
+	if (lua_isboolean(L, index))
+	{
+		return std::make_pair(true, meta::Any(lua_toboolean(L, index)));
+	}
+	if (lua_isnumber(L, index))
+	{
+		return std::make_pair(true, meta::Any(lua_tonumber(L, index)));
+	}
+	if (lua_isstring(L, index))
+	{
+		return std::make_pair(true, meta::Any(std::string(lua_tostring(L, index))));
+	}
+
+	// If we got here, we don't currently support the type.
+	Logging::Log(Logging::SCRIPTING, Logging::MEDIUM_PRIORITY, "Attempted to get variable with unsupported type ", lua_typename(L, index), " from a script.");
+	return std::make_pair(false, meta::Any(0));
+}
+
 std::pair<bool, meta::Any> LuaScript::GetVar(const char * varName)
 {
 	// Pull the requested var out of the environment table.
 	GetScriptEnvironment();
 	lua_getfield(m_L, -1, varName);
 
-	// Simple struct to clean up the stack via destructor after return.
-	struct StackCleaner
-	{
-		lua_State *L;
-		StackCleaner(lua_State *_L) : L(_L) {}
+	// Convert it.
+	std::pair<bool, meta::Any> result = LuaValToAny(m_L, -1);
 
-		~StackCleaner()
+	// Clean up the stack and return.
+	lua_pop(m_L, 2);
+	return result;
+}
+
+std::vector<std::pair<std::string, meta::Any>> LuaScript::GetAllVars()
+{
+	std::vector<std::pair<std::string, meta::Any>> outVec;
+
+	GetScriptEnvironment();
+	int envIndex = lua_absindex(m_L, -1);
+
+	// First key.
+	lua_pushnil(m_L);
+	while (lua_next(m_L, envIndex) != 0)
+	{
+		// Key should be at -2.
+		assert(lua_isstring(m_L, -2));
+
+		// Get the value.
+		std::pair<bool, meta::Any> valPair = LuaValToAny(m_L, -1);
+		// Only add the value if it's valid/usable.
+		if (valPair.first)
 		{
-			// Pop the field we retrieved and the environment table.
-			lua_pop(L, 2);
+			outVec.push_back(std::make_pair(std::string(lua_tostring(m_L, -2)), valPair.second));
 		}
-	} cleaner(m_L);
-
-	// Check if we got anything at all.
-	if (lua_isnoneornil(m_L, -1))
-	{
-		return std::make_pair(false, meta::Any(0));
+		
+		// Clear the value so the index is at the top ready for lua_next.
+		lua_pop(m_L, 1);
 	}
 
-	// Check each Lua type.
-	if (lua_isboolean(m_L, -1))
-	{
-		return std::make_pair(true, meta::Any(lua_toboolean(m_L, -1)));
-	}
-	if (lua_isnumber(m_L, -1))
-	{
-		return std::make_pair(true, meta::Any(lua_tonumber(m_L, -1)));
-	}
-	if (lua_isstring(m_L, -1))
-	{
-		return std::make_pair(true, meta::Any(std::string(lua_tostring(m_L, -1))));
-	}
-
-	// If we got here, we don't currently support the type.
-	Logging::Log(Logging::SCRIPTING, Logging::HIGH_PRIORITY, "Attempted to get variable \"", varName, "\" with unsupported type ", lua_typename(m_L, -1), " from a script.");
-	return std::make_pair(false, meta::Any(0));
+	// Clean up the stack.
+	lua_settop(m_L, envIndex - 1);
+	return outVec;
 }
 
 void LuaScript::SetVar(const char * varName, meta::Any & value)
