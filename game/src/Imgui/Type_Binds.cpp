@@ -2,7 +2,7 @@
 FILE: Type_Binds.cpp
 PRIMARY AUTHOR: Sweet
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (C) 2017 DigiPen (USA) Corporation.
 */
 
 // Main Includes
@@ -18,6 +18,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Scripting/ScriptComponent.h"
 #include "graphics/Camera.h"
 #include "graphics/Background.h"
+
+// Scripts
+#include "EditorScript.h"
 
 // GameObject, Spaces
 #include "GameObjectSystem/GameObject.h"
@@ -1720,59 +1723,6 @@ bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
 	return false;
 }
 
-static void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameObject object, Editor *editor)
-{
-	ResourceManager& rm = engine->GetResourceManager();
-	std::string fileName = rm.Get(script.GetResourceID())->FileName();
-
-	// Copy the fileName into the header without '.lua'
-	std::string headerName(fileName.size(), 0);
-	std::copy(fileName.begin(), fileName.end() - 4, headerName.begin());
-	headerName += "##script_";
-	headerName += fileName;
-
-	if (CollapsingHeader(headerName.c_str()))
-	{
-		// Button to remove the script.
-		std::string	removeButtonName = "Remove##script_remove_";
-		removeButtonName += fileName;
-		if (Button(removeButtonName.c_str()))
-		{
-			editor->Push_Action({ 0, script, nullptr,{ object, true },
-				[](EditorAction& a)
-			{
-				ComponentHandle<ScriptComponent> handle(a.handle);
-
-				if (handle.GetGameObject().IsValid())
-				{
-					if (a.redo)
-					{
-						ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
-						std::vector<LuaScript>& scripts = handle->scripts;
-
-						for (size_t i = 0; i < scripts.size(); i++)
-						{
-							LuaScript& script = scripts[i];
-
-							if (script.GetResourceID() == id)
-							{
-								scripts.erase(handle->scripts.begin() + i);
-							}
-						}
-					}
-					else
-					{
-						handle->scripts.emplace_back(a.current.GetData<LuaScript>());
-					}
-				}
-			}
-			});
-
-			script_c->RemoveScript(script);
-			return;
-		}
-	}
-}
 
 // Binds the imgui function calls to the Script Component
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
