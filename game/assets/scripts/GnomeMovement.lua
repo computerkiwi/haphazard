@@ -209,86 +209,12 @@ function Update(dt)
     GetInputKeyboard(dt)
 	end
 	-- GetInputKeyboard(dt)
-	
+end
 
---	if (attackEnabled)
---	then
---		local script = this:GetScript("RedGnomeAttack.lua")
---		script.SpawnWeapon()
---	end
-
-	-- Player is tossed
-	--if (isTossed)
-	--then
-	--	TossUpdate(dt)
-
-	if (isTossed)
-	then
-		TossUpdate(dt)
-	-- Player is stacked
-	elseif (stackEnabled)
-	then
-		StackedUpdate(dt)
-	-- Update regular player movement
-	else
-		UpdateMovement(dt)
-	end
-end -- fn end
-
--- Other is a game object
 function OnCollisionEnter(other)
 	-- TODO: Change checks from name to tags
-
 	-- Get name (for onGround)
 	local otherName = other:GetName()
-
-	-- Player collides with other player
-	if (other:HasTag("Player") and stackEnabled == false)
-	then
-		StackPlayers(other)
-	end
-end -- fn end
-
--- Kieran's stack code
-function StackPlayers(other)
-	-- Get transforms
-	local playerTransform = this:GetTransform()
-	local otherTransform = other:GetTransform()
-		
-	-- Get positions
-	local playerPos = playerTransform.position
-	local otherPos = otherTransform.position
-
-	local snapDistance = 1 -- horizontal distance from other gnome
-	local xDistance = playerPos.x -- x-axis distance between players
-
-	-- How do I get the absolute value? Hmmmm
-	if (playerPos.x > otherPos.x)
-	then
-		xDistance = playerPos.x - otherPos.x
-	else
-		xDistance = otherPos.x - playerPos.x
-	end
-
-	-- TODO: Change to use raycast downwards to check for gnome collision
-	if (playerPos.y > otherPos.y)
-	then
-		-- Players are stacked
-		stackEnabled = true
-		PlaySound("stack_off.mp3", 0.5, 1, false)
-
-		-- Set bottom player as parent
-		stackParent = other
-
-		-- Don't detect collision between these layers
-		SetLayersNotColliding(PLAYER_LAYER, PLAYER_LAYER)
-
-		-- TEMP SOLUTION: make sure gnome is drawn in front
-		--if (playerTransform.zLayer < otherTransform.zLayer)
-		--then
-		--	playerTransform.zLayer = otherTransform.zLayer - 1
-		--end
-	end
 end -- fn end
 
 -- TEMP
@@ -311,8 +237,6 @@ function SetKeyboardControls(name)
 		PLAYER_NUM = 1
 		
 		otherPlayer = GameObject.FindByName("Player1")
-
---		weapon = GameObject.FindByName("RedGnomeSword")
 
 		-- TEMPORARY
 		KEY_JUMP	 = 265 -- Up
