@@ -15,3 +15,11 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynamicColliders, ComponentMap<StaticCollider2DComponent>* allStaticColliders,
 						 const glm::vec2& position, collisionLayers layer = collisionLayers::allCollision);
+
+void debugSetDisplayRaycasts(bool raycastsShown);
+
+bool debugAreRaycastsDisplayed();
+
+void debugSetDisplayHitboxes(bool hitboxesShown);
+
+bool debugAreHitBoxesDisplayed();

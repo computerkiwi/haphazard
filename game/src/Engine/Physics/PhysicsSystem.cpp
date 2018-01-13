@@ -38,42 +38,6 @@ bool debugAreHitBoxesDisplayed()
 	return debugShowHitboxes;
 }
 
-struct MinMax
-{
-	float min;
-	float max;
-
-	// see if two sets of min/max intersect
-	bool Intersects(const MinMax& other)
-	{
-		return min < other.max && max > other.min;
-	}
-
-	// find the overlap between two sets
-	float Overlap(const MinMax& other)
-	{
-		/*if (max < other.max && min > other.max)
-		{
-			return -(other.max - min);
-		}
-		else if(other.max < max && other.min > max)
-		{
-			return (max - other.min);
-		}*/
-
-		float magnitude =  std::min(max, other.max) - std::max(min, other.min);
-
-		if (max > other.max)
-		{
-			return -magnitude;
-		}
-		else
-		{
-			return magnitude;
-		}
-	}
-};
-
 struct AABBAroundRotatedRectangle
 {
 	AABBAroundRotatedRectangle(const BoxCorners& object) : 
@@ -117,63 +81,14 @@ struct AABBAroundRotatedRectangle
 	float maxY;
 };
 
-std::ostream& operator<<(std::ostream& ostream, const BoxCollider& colliderBox)
+std::ostream& operator<<(std::ostream& ostream, const BoxCorners& colliderBox)
 {
-	ostream << "Top Right Corner: (" << colliderBox.m_topRight.x << ", " << colliderBox.m_topRight.y << ")" << std::endl;
-	ostream << "Bot Left  Corner: (" << colliderBox.m_botLeft.x << ", " << colliderBox.m_botLeft.y << ")" << std::endl;
+	ostream << "Top Right Corner: (" << colliderBox.m_corners[BoxCorners::topRight].x << ", " << colliderBox.m_corners[BoxCorners::topRight].y << ")" << std::endl;
+	ostream << "Bot Left  Corner: (" << colliderBox.m_corners[BoxCorners::botLeft].x << ", " << colliderBox.m_corners[BoxCorners::botLeft].y << ")" << std::endl;
 
 
 	return ostream;
 }
-
-BoxCollider::BoxCollider(const glm::vec2& center, const glm::vec3& dimensions, float rotation)
-{
-	glm::vec3 boxCenter = glm::vec3(center, 0);
-
-	// if the box is axis-aligned, the calculation can be done ignoring angles
-	if (rotation == 0)
-	{
-		m_topRight = boxCenter + (.5f * dimensions);
-		m_botLeft = boxCenter - (.5f * dimensions);
-		m_rotation = 0;
-	}
-	else
-	{
-		m_rotation = rotation;
-
-		// calculate the top right corner
-		m_topRight.x = boxCenter.x + (dimensions.x * 0.5f * cos(m_rotation)) - (dimensions.y * 0.5f * sin(m_rotation));
-		m_topRight.y = boxCenter.y + (dimensions.x * 0.5f * sin(m_rotation)) + (dimensions.y * 0.5f * cos(m_rotation));
-
-		// calculate the bottom left corner
-		m_botLeft.x = boxCenter.x - (dimensions.x * 0.5f * cos(m_rotation)) + (dimensions.y * 0.5f * sin(m_rotation));
-		m_botLeft.y = boxCenter.y - (dimensions.x * 0.5f * sin(m_rotation)) - (dimensions.y * 0.5f * cos(m_rotation));
-	}
-}
-
-MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis) const
-{
-	float firstDot = glm::dot(axis, m_corners[0]);
-	// we only care about the min and max values
-	MinMax minMax = {firstDot, firstDot};
-
-	// project each of the four points onto the axis and record the extrema
-	for (int i = 1; i < 4; ++i)
-	{
-		float dotP = glm::dot(axis, m_corners[i]);
-		if (dotP < minMax.min)
-		{
-			minMax.min = dotP;
-		}
-		else if (dotP > minMax.max)
-		{
-			minMax.max = dotP;
-		}
-	}
-
-	return minMax;
-}
-
 
 glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 {
@@ -509,47 +424,47 @@ glm::vec3 Collision_SAT_CapsuleCapsule(glm::vec2 capsule1Center, glm::vec2 capsu
 	return realEscapeVector;
 }
 
-glm::vec3 Collision_AABBToAABB(const BoxCollider& Box1, const BoxCollider& Box2)
+glm::vec3 Collision_AABBToAABB(const BoxCorners& Box1, const BoxCorners& Box2)
 {
 	glm::vec3 penetrationVector(0);
 	glm::vec3 minValue(0);
 
-	if (Box1.m_topRight.x <= Box2.m_botLeft.x)
+	if (Box1.m_corners[BoxCorners::topRight].x <= Box2.m_corners[BoxCorners::botLeft].x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.x = Box1.m_topRight.x - Box2.m_botLeft.x;
+		minValue.x = Box1.m_corners[BoxCorners::topRight].x - Box2.m_corners[BoxCorners::botLeft].x;
 	}
-	if (Box1.m_topRight.y <= Box2.m_botLeft.y)
+	if (Box1.m_corners[BoxCorners::topRight].y <= Box2.m_corners[BoxCorners::botLeft].y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		minValue.y = Box1.m_topRight.y - Box2.m_botLeft.y;
+		minValue.y = Box1.m_corners[BoxCorners::topRight].y - Box2.m_corners[BoxCorners::botLeft].y;
 	}
-	if (Box1.m_botLeft.x >= Box2.m_topRight.x)
+	if (Box1.m_corners[BoxCorners::botLeft].x >= Box2.m_corners[BoxCorners::topRight].x)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_botLeft.x - Box2.m_topRight.x) < abs(minValue.x))
+		if (abs(Box1.m_corners[BoxCorners::botLeft].x - Box2.m_corners[BoxCorners::topRight].x) < abs(minValue.x))
 		{
-			minValue.x = Box1.m_botLeft.x - Box2.m_topRight.x;
+			minValue.x = Box1.m_corners[BoxCorners::botLeft].x - Box2.m_corners[BoxCorners::topRight].x;
 		}
 	}
-	if (Box1.m_botLeft.y >= Box2.m_topRight.y)
+	if (Box1.m_corners[BoxCorners::botLeft].y >= Box2.m_corners[BoxCorners::topRight].y)
 	{
 		return glm::vec3(0);
 	}
 	else
 	{
-		if (abs(Box1.m_botLeft.y - Box2.m_topRight.y) < abs(minValue.y))
+		if (abs(Box1.m_corners[BoxCorners::botLeft].y - Box2.m_corners[BoxCorners::topRight].y) < abs(minValue.y))
 		{
-			minValue.y = Box1.m_botLeft.y - Box2.m_topRight.y;
+			minValue.y = Box1.m_corners[BoxCorners::botLeft].y - Box2.m_corners[BoxCorners::topRight].y;
 		}
 	}
 
@@ -568,8 +483,8 @@ glm::vec3 Collision_AABBToAABB(const BoxCollider& Box1, const BoxCollider& Box2)
 
 glm::vec3 Collision_AABBToAABB(ComponentHandle<TransformComponent>& AABB1Transform, Collider2D& AABB1Collider, ComponentHandle<TransformComponent>& AABB2Transform, Collider2D& AABB2Collider)
 {
-	BoxCollider Box1(AABB1Transform->GetPosition() + AABB1Collider.GetOffset(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
-	BoxCollider Box2(AABB2Transform->GetPosition() + AABB2Collider.GetOffset(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
+	BoxCorners Box1(AABB1Transform->GetPosition() + AABB1Collider.GetOffset(), AABB1Collider.GetDimensions(), AABB1Transform->GetRotation() + AABB1Collider.GetRotationOffset());
+	BoxCorners Box2(AABB2Transform->GetPosition() + AABB2Collider.GetOffset(), AABB2Collider.GetDimensions(), AABB2Transform->GetRotation() + AABB2Collider.GetRotationOffset());
 
 	return Collision_AABBToAABB(Box1, Box2);
 }

@@ -12,10 +12,6 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\GameObject.h"
 #include "CollisionLayer.h"
 
-// forward declaration
-struct MinMax;
-class BoxCorners;
-
 class Raycast
 {
 public:
@@ -64,29 +60,6 @@ private:
 
 	}
 };
-
-class BoxCorners
-{
-public:
-
-	enum corner
-	{
-		topRight = 0,
-		topLeft = 1,
-		botLeft = 2,
-		botRight = 3
-	};
-
-	BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, float rotation);
-
-	// methods
-	MinMax ProjectOntoAxis(glm::vec2 axis) const;
-
-	// the corners of the box in this order: topRight, topLeft, botLeft, botRight
-	glm::vec2 m_corners[4];
-};
-
-float DegreesToRadians(float angleInDegrees);
 
 void debugSetDisplayRaycasts(bool raycastsShown);
 

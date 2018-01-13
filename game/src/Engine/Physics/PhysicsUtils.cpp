@@ -41,9 +41,9 @@ glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynam
 		if (colliderRotation == 0)
 		{
 			// the corners of the collider
-			BoxCollider objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+			BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
 
-			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCollider(position, glm::vec3(0, 0, 0), 0), objectCorners));
+			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCorners(position, glm::vec3(0, 0, 0), 0), objectCorners));
 		}
 		else
 		{
@@ -86,9 +86,9 @@ glm::vec2 CollidePointOnLayer(ComponentMap<DynamicCollider2DComponent>* allDynam
 		if (colliderRotation == 0)
 		{
 			// the corners of the collider
-			BoxCollider objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
+			BoxCorners objectCorners(colliderCenter, objectCollider.GetDimensions(), colliderRotation);
 
-			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCollider(position, glm::vec3(0, 0, 0), 0), objectCorners));
+			result = static_cast<glm::vec2>(Collision_AABBToAABB(BoxCorners(position, glm::vec3(0, 0, 0), 0), objectCorners));
 		}
 		else
 		{

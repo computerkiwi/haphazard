@@ -19,9 +19,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #include "GameObjectSystem\TransformComponent.h"
 #include "Engine\Engine.h"
 
-#define DEGREES_PER_RADIAN 57.2957795131f
-
-bool debugShowRaycasts = false;
+static bool debugShowRaycasts = false;
 
 void debugSetDisplayRaycasts(bool raycastsShown)
 {
@@ -33,18 +31,8 @@ bool debugAreRaycastsDisplayed()
 	return debugShowRaycasts;
 }
 
-void DrawSmallBoxAtPosition(glm::vec2 position)
-{
-	DebugGraphic::DrawSquare(position, glm::vec2(.1f, .1f), 0, glm::vec4(1, 0, 1, 1));
-}
-
-void DrawSmallCircleAtPosition(glm::vec2 position)
-{
-	DebugGraphic::DrawCircle(position, 0.05f, glm::vec4(1, 0, 1, 1));
-}
-
 // draws a ray, assumes direction to be already normalized
-void DrawRayNormalized(glm::vec2 position, glm::vec2 direction, float length)
+void DrawNormalizedRay(glm::vec2 position, glm::vec2 direction, float length)
 {
 	DebugGraphic::DrawSquare(position + (direction * length * .5f), glm::vec2(length, .03f), atan2(direction.y, direction.x), glm::vec4(0, 1, 1, 1));
 }
@@ -53,79 +41,6 @@ void DrawRayNormalized(glm::vec2 position, glm::vec2 direction, float length)
 void DrawRay(glm::vec2 position, glm::vec2 direction)
 {
 	DebugGraphic::DrawSquare(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
-}
-
-float DegreesToRadians(float angleInDegrees)
-{
-	return angleInDegrees / DEGREES_PER_RADIAN;
-}
-
-float RadiansToDegrees(float angleInRadians)
-{
-	return angleInRadians * DEGREES_PER_RADIAN;
-}
-
-float vectorToDirection(glm::vec2& dirVector)
-{
-	return atan2(dirVector.y, dirVector.x);
-}
-
-BoxCorners::BoxCorners(const glm::vec2& center, const glm::vec2& dimensions, float rotation)
-{
-	glm::vec2 boxCenter = center;
-
-	// if the box is axis-aligned, the calculation can be done ignoring angles
-	if (rotation == 0)
-	{
-		float xOffset = (.5f * dimensions.x);
-		float yOffset = (.5f * dimensions.y);
-
-		m_corners[0] = boxCenter + (.5f * dimensions);
-
-		m_corners[1].x = boxCenter.x - xOffset;
-		m_corners[1].y = boxCenter.y + yOffset;
-
-		m_corners[2] = boxCenter - (.5f * dimensions);
-
-
-		m_corners[3].x = boxCenter.x + xOffset;
-		m_corners[3].y = boxCenter.y - yOffset;
-	}
-	else
-	{
-		float cosRotation = cos(DegreesToRadians(rotation));
-		float sinRotation = sin(DegreesToRadians(rotation));
-
-		float xOffsetFromHorizontal = (dimensions.x * 0.5f * cosRotation);
-		float xOffsetFromVertical = (dimensions.y * 0.5f * sinRotation);
-
-		float yOffsetFromHorizontal = (dimensions.x * 0.5f * sinRotation);
-		float yOffsetFromVertical = (dimensions.y * 0.5f * cosRotation);
-
-		// calculate the top right corner
-		m_corners[0].x = boxCenter.x + xOffsetFromHorizontal - xOffsetFromVertical;
-		m_corners[0].y = boxCenter.y + yOffsetFromHorizontal + yOffsetFromVertical;
-
-		// calculate the top left corner
-		m_corners[1].x = boxCenter.x - xOffsetFromHorizontal - xOffsetFromVertical;
-		m_corners[1].y = boxCenter.y - yOffsetFromHorizontal + yOffsetFromVertical;
-
-		// calculate the bottom left corner
-		m_corners[2].x = boxCenter.x - xOffsetFromHorizontal + xOffsetFromVertical;
-		m_corners[2].y = boxCenter.y - yOffsetFromHorizontal - yOffsetFromVertical;
-
-		// calculate the bottom right corner
-		m_corners[3].x = boxCenter.x + xOffsetFromHorizontal + xOffsetFromVertical;
-		m_corners[3].y = boxCenter.y + yOffsetFromHorizontal - yOffsetFromVertical;
-	}
-}
-
-bool CirclesCollide(glm::vec2 center1, float radius1, glm::vec2 center2, float radius2)
-{
-	glm::vec2 distanceVec = center1 - center2;
-	float distanceSquared = (distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y);
-	
-	return distanceSquared < ((radius1 + radius2) * (radius1 + radius2));
 }
 
 // class to do the work of raycasting
@@ -266,11 +181,6 @@ RayCastCalculator::RayCastCalculator(ComponentMap<DynamicCollider2DComponent> *a
 			Raycast(circleCenter, radius, transform, tStaticColliderHandle->ColliderData());
 		}
 	}
-}
-
-float CrossP(glm::vec2 vec1, glm::vec2 vec2)
-{
-	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
 }
 
 void RayCastCalculator::CalculateCast_Box(BoxCorners& box, const GameObject& gameObject)
