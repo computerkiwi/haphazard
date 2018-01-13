@@ -157,13 +157,13 @@ static std::pair<bool, meta::Any> LuaValToAny(lua_State *L, int index)
 	{
 		return std::make_pair(true, meta::Any(lua_toboolean(L, index)));
 	}
+	if (lua_type(L, index) == LUA_TSTRING)
+	{
+		return std::make_pair(true, meta::Any(std::string(lua_tostring(L, index))));
+	}
 	if (lua_isnumber(L, index))
 	{
 		return std::make_pair(true, meta::Any(lua_tonumber(L, index)));
-	}
-	if (lua_isstring(L, index))
-	{
-		return std::make_pair(true, meta::Any(std::string(lua_tostring(L, index))));
 	}
 
 	// If we got here, we don't currently support the type.

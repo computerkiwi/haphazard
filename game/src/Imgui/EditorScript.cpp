@@ -17,7 +17,7 @@ static const size_t STRING_BUFFER_SIZE = 2048;
 
 static void HandleStringVar(LuaScript &script, const char *name, const std::string& value)
 {
-	Assert(value.size() >= STRING_BUFFER_SIZE);
+	Assert(value.size() <= STRING_BUFFER_SIZE);
 
 	// Setup a buffer and copy our string into it.
 	char string_buffer[STRING_BUFFER_SIZE];
