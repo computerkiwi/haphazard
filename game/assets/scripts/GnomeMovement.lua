@@ -25,6 +25,7 @@ Gnome Movement (Movement and jumping)
 Gnome Stacking (Stacking and throwing)
 Gnome Health   (Gnome health and dead flag)
 Gnome Ghost Movement
+Gnome Status   (Where status is stored and how gnomes communicate their status)
 
 ]]
 
@@ -47,14 +48,11 @@ MOVE_RIGHT =	1 -- Player moving right
 
 --[[ VARIABLES ]]--
 
+-- Movement
 moveSpeed	 = 2
-
--- Move Direction
-lastMoveDir  = 0
 moveDir		 = 0
 
 -- Jumping
-jumpPressed   = false
 onGround      = false
 jumpSpeed	 = 5.5
 fallSpeed	 = 2
@@ -76,7 +74,7 @@ function Update(dt)
 	UpdateMovement(dt)
 
 	-- Jump
-	if (jumpEnabled == true and onGround == true)
+	if (onGround == true and this:GetScript("InputHandler.lua").jumpPressed)
 	then
 		Jump()
 	end
@@ -104,19 +102,19 @@ function Jump()
 
 function UpdateDir()
 	
-	-- Call input get horizontal axis
-	-- moveDir = INPUT THING
+	-- Call input to get horizontal axis
+	moveDir = this:GetScript("InputHandler.lua").horizontalAxis
 
 	if(moveDir == 0)
 	then
-		SetIdleAnimFPS();
-		return;
+		SetIdleAnimFPS()
+		return
 	end
 
-	SetWalkAnimFPS();
+	SetWalkAnimFPS()
 
 	-- Flip sprite
-	if(moveDir == 1)
+	if(moveDir > 0)
 	then
 		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
 	else
@@ -128,15 +126,15 @@ end -- fn end
 function SetWalkAnimFPS()
 {
 	local tex = this:GetSprite().textureHandler
-	tex.fps = WALK_FPS;
+	tex.fps = WALK_FPS
 	this:GetSprite().textureHandler = tex
 }
 
 function SetIdleAnimFPS()
 {
 	local tex = this:GetSprite().textureHandler
-	tex.fps = 0;
-	tex.currentFrame = 0;
+	tex.fps = 0
+	tex.currentFrame = 0
 	this:GetSprite().textureHandler = tex
 }
 
