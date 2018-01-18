@@ -270,6 +270,7 @@
     <ClInclude Include="src\meta\RegisterGLM.h" />
     <ClInclude Include="src\Imgui\Editor.h" />
     <ClInclude Include="src\Imgui\imgui-setup.h" />
+    <ClInclude Include="src\meta\SerializationKeys.h" />
     <ClInclude Include="src\Scripting\LuaEngine.h" />
     <ClInclude Include="src\Scripting\LuaRegistration.h" />
     <ClInclude Include="src\Scripting\LuaScript.h" />

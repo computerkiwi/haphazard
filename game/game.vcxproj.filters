@@ -201,6 +201,7 @@
     <ClInclude Include="src\Util\Assert.h" />
     <ClInclude Include="src\graphics\VertexObjects.h" />
     <ClInclude Include="src\Imgui\EditorScript.h" />
+    <ClInclude Include="src\meta\SerializationKeys.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />
