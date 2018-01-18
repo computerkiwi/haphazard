@@ -28,22 +28,25 @@ function StackPlayers(other)
 	local playerPos = playerTransform.position
 	local otherPos = otherTransform.position
 
+	-- Get status
+	local thisStatus = this:GetScript("GnomeStatus.lua")
+	local otherStatus = other:GetScript("GnomeStatus.lua")
+
 	if(otherPos.y > playerPos.y)
 	then
-		return -- Let top handle stacking for both
+		return -- Let bottom handle stacking for both
 	end
 	
 	local newPos = playerPos
-	newPos.x = 0;
 	newPos.y = newPos.y + gnomeStackDistance
 
 	otherTransform.position = newPos
 
 	otherTransform.parent = this
 
-	SetLayersNotColliding(PLAYER_LAYER, PLAYER_LAYER)
+	--SetLayersNotColliding(thisStatus.PLAYER_PHYS_LAYER , otherStatus.PLAYER_PHYS_LAYER)
 
-	this:GetScript("GnomeStatus.lua").stacked = true;
-	other:GetScript("GnomeStatus.lua").stacked = true;
+	thisStatus.stacked = true;
+	otherStatus.stacked = true;
 
 end -- fn end
