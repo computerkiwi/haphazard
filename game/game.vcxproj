@@ -197,6 +197,7 @@
     <ClCompile Include="src\graphics\Texture.cpp" />
     <ClCompile Include="src\graphics\TextureResource.cpp" />
     <ClCompile Include="src\Imgui\Editor.cpp" />
+    <ClCompile Include="src\Imgui\EditorScript.cpp" />
     <ClCompile Include="src\Imgui\imgui-setup.cpp" />
     <ClCompile Include="src\Imgui\Type_Binds.cpp" />
     <ClCompile Include="src\Input\Event.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="src\graphics\Texture.h" />
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\graphics\VertexObjects.h" />
+    <ClInclude Include="src\Imgui\EditorScript.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Input\Gamepad.h" />

@@ -19,6 +19,9 @@ public:
 
 	LuaScript();
 	LuaScript(const LuaScript& other);
+	LuaScript(LuaScript&& other);
+	LuaScript& operator=(const LuaScript& other);
+	LuaScript& operator=(LuaScript&& other);
 
 	LuaScript(Resource *resource, GameObject thisObj);
 
@@ -38,6 +41,13 @@ public:
 	void SetScriptResource(Resource *resource);
 
 	void SetResourceID(ResourceID id);
+
+	// Gets a variable. First in the pair is whether a variable was succesfully retrieved. 
+	std::pair<bool, meta::Any> GetVar(const char *varName);
+	// Returns a vector with key-value pairs of all the vars in an environment table.
+	std::vector<std::pair<std::string, meta::Any>> GetAllVars();
+	// Sets a var in the environment table.
+	void SetVar(const char *varName, meta::Any& value);
 
 	ResourceID GetResourceID() const
 	{
@@ -97,12 +107,19 @@ private:
 		script.SetThisObject(id);
 	}
 
+	static rapidjson::Value LuaScriptSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator);
+
+	static void LuaScriptDeserializeAssign(void *scriptPtr, rapidjson::Value& jsonScript);
+
 	META_REGISTER(LuaScript)
 	{
 		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
 		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
 
 		META_DefineSetGameObjectIDFunction(LuaScript, &MetaSetObject);
+
+		META_DefineSerializeFunction(LuaScript, LuaScriptSerializeFunction);
+		META_DefineDeserializeAssignFunction(LuaScript, LuaScriptDeserializeAssign);
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<LuaScript>("LuaScript").addCFunction("GetScriptEnvironment", &GetScriptEnvironmentLua).endClass();
 	}
