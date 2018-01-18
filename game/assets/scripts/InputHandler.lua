@@ -30,7 +30,9 @@ verticalAxis   = 0
 
 function Update()
 
-	GetInputGamepad()
+	horizontalAxis = 1
+	--GetKeyboardInput()
+	--GetInputGamepad()
 
 end
 

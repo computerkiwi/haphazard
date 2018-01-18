@@ -93,12 +93,11 @@ function UpdateMovement(dt)
 end -- fn end
 
 function Jump()
-{
 	PlaySound("jump.mp3", 0.1, 0.8, false)
 	newVelocity.y = jumpSpeed
 	jumpEnabled = false
 	onGround = false
-}
+end
 
 function UpdateDir()
 	
@@ -124,19 +123,17 @@ function UpdateDir()
 end -- fn end
 
 function SetWalkAnimFPS()
-{
 	local tex = this:GetSprite().textureHandler
 	tex.fps = WALK_FPS
 	this:GetSprite().textureHandler = tex
-}
+end
 
 function SetIdleAnimFPS()
-{
 	local tex = this:GetSprite().textureHandler
 	tex.fps = 0
 	tex.currentFrame = 0
 	this:GetSprite().textureHandler = tex
-}
+end
 
 
 -- Returns (bool: found ground below), (number: y position of the top of the ground)
