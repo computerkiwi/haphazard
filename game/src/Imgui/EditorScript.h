@@ -13,4 +13,5 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 #include "Scripting/ScriptComponent.h"
 #include "Editor.h"
 
-void ImGui_IndividualScript(LuaScript & script, ScriptComponent * script_c, GameObject object, Editor * editor);
+// Returns false if the script is removed.
+bool ImGui_IndividualScript(LuaScript & script, ScriptComponent * script_c, GameObject object, Editor * editor);

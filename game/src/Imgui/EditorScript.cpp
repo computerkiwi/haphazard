@@ -69,7 +69,8 @@ static void HandleVar(LuaScript &script, std::pair<std::string, meta::Any>& var)
 	}
 }
 
-void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameObject object, Editor *editor)
+// Returns false if the script is removed.
+bool ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameObject object, Editor *editor)
 {
 	ResourceManager& rm = engine->GetResourceManager();
 	std::string fileName = rm.Get(script.GetResourceID())->FileName();
@@ -117,8 +118,9 @@ void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameOb
 			}
 			});
 
+			// Remove the script and return that information.
 			script_c->RemoveScript(script);
-			return;
+			return false;
 		}
 
 		// Get manipulators for all the variables.
@@ -130,4 +132,7 @@ void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameOb
 			HandleVar(script, var);
 		}
 	}
+
+	// We didn't remove this script.
+	return true;
 }
