@@ -123,6 +123,8 @@ void ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameOb
 
 		// Get manipulators for all the variables.
 		std::vector<std::pair<std::string, meta::Any>> vars = script.GetAllVars();
+		typedef std::pair<std::string, meta::Any> VarPair;
+		std::sort(vars.begin(), vars.end(), [](const VarPair& a, const VarPair& b) {return a.first < b.first; });
 		for (auto& var : vars)
 		{
 			HandleVar(script, var);
