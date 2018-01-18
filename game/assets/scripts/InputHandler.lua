@@ -16,6 +16,7 @@ HORIZONTAL_AXIS = 0 -- LeftAnalog_X
 VERTICAL_AXIS   = 0 -- LeftAnalog_Y
 
 KEY_JUMP   = 87 -- W
+KEY_UP     = 87 -- W
 KEY_LEFT   = 65 -- A
 KEY_DOWN   = 83 -- S
 KEY_RIGHT  = 68 -- D
@@ -30,9 +31,8 @@ verticalAxis   = 0
 
 function Update()
 
-	horizontalAxis = 1
-	--GetKeyboardInput()
 	--GetInputGamepad()
+	GetKeyboardInput()
 
 end
 
@@ -119,7 +119,7 @@ function GetKeyboardInput()
 	end
 
 	-- Toss
-	if (IsPressed(KEY_TOSS) 
+	if (IsPressed(KEY_TOSS))
 	then
 		tossPressed = true
 	else

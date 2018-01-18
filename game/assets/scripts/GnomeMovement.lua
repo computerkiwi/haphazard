@@ -20,8 +20,8 @@ Attack				- Handled per gnome, custom scripts
 Auto Control 
 
 Scripts on every gnome:
-Input Handler
-Gnome Movement (Movement and jumping)
+!Input Handler
+!Gnome Movement (Movement and jumping)
 Gnome Stacking (Stacking and throwing)
 Gnome Health   (Gnome health and dead flag)
 Gnome Ghost Movement
@@ -94,8 +94,11 @@ end -- fn end
 
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)
+
+	local newVelocity = this:GetRigidBody().velocity
 	newVelocity.y = jumpSpeed
-	jumpEnabled = false
+	this:GetRigidBody().velocity = newVelocity
+
 	onGround = false
 end
 
