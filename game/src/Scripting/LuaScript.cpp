@@ -25,6 +25,45 @@ LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(other.m_L)
 {
 	SetResourceID(other.m_resID);
+
+
+	// Copy all the serializable variables in the script environment.
+	// TODO[Kieran]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
+	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kieran
+	for (auto& var : vars)
+	{
+		this->SetVar(var.first.c_str(), var.second);
+	}
+}
+
+LuaScript::LuaScript(LuaScript && other) : m_thisObj(other.m_thisObj), m_resID(other.m_resID), m_environmentID(other.m_environmentID), m_L(other.m_L)
+{
+}
+
+LuaScript & LuaScript::operator=(const LuaScript & other)
+{
+	SetResourceID(other.m_resID);
+
+
+	// Copy all the serializable variables in the script environment.
+	// TODO[Kieran]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
+	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kieran
+	for (auto& var : vars)
+	{
+		this->SetVar(var.first.c_str(), var.second);
+	}
+
+	return *this;
+}
+
+LuaScript & LuaScript::operator=(LuaScript && other)
+{
+	m_thisObj = other.m_thisObj;
+	m_resID = other.m_resID;
+	m_environmentID = other.m_environmentID;
+	m_L = other.m_L;
+
+	return *this;
 }
 
 LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaState()), m_thisObj(thisObj), m_resID(resource->Id())
@@ -218,6 +257,9 @@ std::vector<std::pair<std::string, meta::Any>> LuaScript::GetAllVars()
 
 void LuaScript::SetVar(const char * varName, meta::Any & value)
 {
+	// Save the original stack size.
+	int originalStack = lua_gettop(m_L);
+
 	GetScriptEnvironment();
 	
 	// Define so we don't write each number type individually.
@@ -257,6 +299,9 @@ void LuaScript::SetVar(const char * varName, meta::Any & value)
 	}
 
 	lua_setfield(m_L, -2, varName);
+
+	// Clean the stack.
+	lua_settop(m_L, originalStack);
 }
 
 void LuaScript::UpdateThisObject()
@@ -278,4 +323,56 @@ void LuaScript::UpdateThisObject()
 
 	// Remove the environment table.
 	lua_pop(m_L, 1);
+}
+
+rapidjson::Value LuaScript::LuaScriptSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator)
+{
+	// Const cast away is fine because we're not really changing anything.
+	LuaScript& script = *reinterpret_cast<LuaScript *>(const_cast<void *>(scriptPtr));
+
+	// Setup the object to store the vars in.
+	rapidjson::Value valueObject;
+	valueObject.SetObject();
+
+	// Get the vars and serialize each of them.
+	std::vector <std::pair<std::string, meta::Any>> values = script.GetAllVars();
+	for (std::pair<std::string, meta::Any>& value : values)
+	{
+		valueObject.AddMember(rapidjson::Value(value.first.c_str(), static_cast<rapidjson::SizeType>(value.first.size()), allocator), value.second.Serialize(allocator), allocator);
+	}
+
+	// Set up the actual json object we're serializing.
+	rapidjson::Value serializeObject;
+	serializeObject.SetObject();
+	serializeObject.AddMember("thisObject", meta::Serialize(script.m_thisObj, allocator), allocator);
+	serializeObject.AddMember("resourceID", meta::Serialize(script.m_resID, allocator), allocator);
+	serializeObject.AddMember("vars", valueObject, allocator);
+
+
+	return serializeObject;
+}
+
+void LuaScript::LuaScriptDeserializeAssign(void *scriptPtr, rapidjson::Value& jsonScript)
+{
+	// Get the engine.
+	LuaScript& script = *reinterpret_cast<LuaScript *>(scriptPtr);
+
+	// Pull everything out of the object.
+	script.SetThisObject(meta::Any(jsonScript["thisObject"]).GetData<decltype(script.m_thisObj)>());
+	script.SetResourceID(meta::Any(jsonScript["resourceID"]).GetData<decltype(script.m_resID)>());
+
+	// Vars might not have been saved in older versions.
+	if (jsonScript.HasMember("vars"))
+	{
+		auto jsonVars = jsonScript["vars"].GetObject();
+
+		// We should be passed the object of vars.
+		for (auto& var : jsonVars)
+		{
+			const char *varName = var.name.GetString();
+			meta::Any varVal(var.value);
+
+			script.SetVar(varName, varVal);
+		}
+	}
 }

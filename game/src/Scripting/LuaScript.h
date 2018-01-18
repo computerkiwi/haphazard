@@ -19,6 +19,9 @@ public:
 
 	LuaScript();
 	LuaScript(const LuaScript& other);
+	LuaScript(LuaScript&& other);
+	LuaScript& operator=(const LuaScript& other);
+	LuaScript& operator=(LuaScript&& other);
 
 	LuaScript(Resource *resource, GameObject thisObj);
 
@@ -104,12 +107,19 @@ private:
 		script.SetThisObject(id);
 	}
 
+	static rapidjson::Value LuaScriptSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator);
+
+	static void LuaScriptDeserializeAssign(void *scriptPtr, rapidjson::Value& jsonScript);
+
 	META_REGISTER(LuaScript)
 	{
 		META_DefineGetterSetter(LuaScript, GameObject, GetThisObject, SetThisObject, "thisObject");
 		META_DefineGetterSetter(LuaScript, ResourceID, GetResourceID, SetResourceID, "resourceID");
 
 		META_DefineSetGameObjectIDFunction(LuaScript, &MetaSetObject);
+
+		META_DefineSerializeFunction(LuaScript, LuaScriptSerializeFunction);
+		META_DefineDeserializeAssignFunction(LuaScript, LuaScriptDeserializeAssign);
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<LuaScript>("LuaScript").addCFunction("GetScriptEnvironment", &GetScriptEnvironmentLua).endClass();
 	}
