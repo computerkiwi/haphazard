@@ -522,10 +522,10 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
-			glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
+			/*glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
 			glm::vec2 diff = transform->GetPosition() - parentPos;
 
-			transform->SetPosition(diff);
+			transform->SetPosition(diff);*/
 
 			// It was clicked, Set the parent
 			transform->SetParent(object);

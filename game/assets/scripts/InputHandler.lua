@@ -9,6 +9,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 PLAYER_NUM = 0 -- Player number
 
+UseKeyboard = true
+
 JUMP	 = 0 -- A
 ATTACK   = 2 -- X
 TOSS	 = 3 -- Y
@@ -30,9 +32,13 @@ horizontalAxis = 0
 verticalAxis   = 0
 
 function Update()
-
-	--GetInputGamepad()
-	GetKeyboardInput()
+	
+	if(UseKeyboard)
+	then
+		GetKeyboardInput()
+	else
+		GetInputGamepad()
+	end
 
 end
 

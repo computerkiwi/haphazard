@@ -22,10 +22,10 @@ Auto Control
 Scripts on every gnome:
 !Input Handler
 !Gnome Movement (Movement and jumping)
-Gnome Stacking (Stacking and throwing)
+!Gnome Stacking (Stacking and throwing)
 Gnome Health   (Gnome health and dead flag)
 Gnome Ghost Movement
-Gnome Status   (Where status is stored and how gnomes communicate their status)
+~Gnome Status   (Where status is stored and how gnomes communicate their status)
 
 ]]
 
@@ -64,18 +64,30 @@ blockJump = false
 
 -- Updates each frame
 function Update(dt)		
+
+	local status = this:GetScript("GnomeStatus.lua")
+
 	-- Update if they are on the ground
 	onGround = CheckGround(2)
 
 	-- Get Direction
 	UpdateDir()
 
-	-- Update Movement
-	UpdateMovement(dt)
+	-- Update Movement (Not if stacked on top)
+	if(status.stacked == false or status.stackedParent == nil)
+	then
+		UpdateMovement(dt)
+	end
 
 	-- Jump
 	if (onGround == true and this:GetScript("InputHandler.lua").jumpPressed)
 	then
+		Jump()
+	end
+	
+	if(status.stacked and this:GetScript("InputHandler.lua").jumpPressed)
+	then
+		this:GetScript("GnomeStack.lua"):Unstack()
 		Jump()
 	end
 

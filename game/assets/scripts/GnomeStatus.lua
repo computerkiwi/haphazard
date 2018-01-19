@@ -9,4 +9,5 @@ PLAYER_NUM = 0
 PLAYER_PHYS_LAYER = 1 << 2
 
 stacked = false
-
+isParent = false
+stackedParent = nil
