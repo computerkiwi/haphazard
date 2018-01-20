@@ -21,8 +21,12 @@ enum collisionLayers
 	enemy = 1 << 4,
 	allyProjectile = 1 << 5,  // doesn't collide with other players
 	decor = 1 << 6,
+	player1 = 1 << 7,
+	player2 = 1 << 8,
+	player3 = 1 << 9,
+	player4 = 1 << 10,
 
-	numLayers = 7
+	numLayers = 11
 };
 
 // set two layers to collide with each other

@@ -26,13 +26,17 @@ numLayers = 7
 
 int CollisionMasks[collisionLayers::numLayers] =
 { // In order: decor allyProjectile enemy ground player allCollision noCollision
-	0b0000010,	// noCollision
-	0b1111111,	// allCollision
-	0b0011110,	// player     
-	0b1111110,	// ground     
-	0b0111110,	// enemy
-	0b0011010,	// allyProjectile
-	0b0001010	// decor
+	0b00000000010,	// noCollision
+	0b11111111111,	// allCollision
+	0b11110011110,	// player     
+	0b11111111110,	// ground     
+	0b11110111110,	// enemy
+	0b00000011010,	// allyProjectile
+	0b00000001010,	// decor
+	0b11100011110,	// player1
+	0b11010011110,	// player2
+	0b10110011110,	// player3
+	0b01110011110,	// player4
 };
 
 // set two layers to collide with each other

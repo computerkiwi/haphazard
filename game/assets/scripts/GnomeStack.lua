@@ -40,7 +40,7 @@ end
 function OnCollisionEnter(other)
 
 	-- Player collides with other player
-	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stacked == false)
+	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stacked == false and other:GetScript("GnomeStatus.lua").isParent == false)
 	then
 		StackPlayers(other)
 	end
@@ -66,7 +66,12 @@ function StackPlayers(other)
 		return -- Let bottom (this) handle stacking for both
 	end
 	
-	SetLayersNotColliding(thisStatus.PLAYER_PHYS_LAYER , otherStatus.PLAYER_PHYS_LAYER)
+	SetLayersNotColliding(thisStatus.PLAYER_PHYS_LAYER, otherStatus.PLAYER_PHYS_LAYER)
+
+	if(otherStatus.isParent)
+	then
+		SetLayersNotColliding(thisStatus.PLAYER_PHYS_LAYER, otherStatus.PLAYER_PHYS_LAYER)
+	end
 
 	thisStatus.stacked = true
 	otherStatus.stacked = true
