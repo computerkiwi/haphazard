@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 --[[ CONTROLS (REMAP PER PLAYER IN EDITOR) ]]--
 
-PLAYER_NUM = 0 -- Player number
+PLAYER_INPUT_NUM = 0 -- Player number
 
 UseKeyboard = true
 
