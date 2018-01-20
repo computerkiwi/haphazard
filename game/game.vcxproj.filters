@@ -64,6 +64,7 @@
     <ClCompile Include="src\Input\Event.cpp" />
     <ClCompile Include="src\Scripting\LuaSetup.cpp" />
     <ClCompile Include="src\Util\Assert.cpp" />
+    <ClCompile Include="src\Imgui\EditorScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -199,6 +200,8 @@
     <ClInclude Include="src\Scripting\LuaSetup.h" />
     <ClInclude Include="src\Util\Assert.h" />
     <ClInclude Include="src\graphics\VertexObjects.h" />
+    <ClInclude Include="src\Imgui\EditorScript.h" />
+    <ClInclude Include="src\meta\SerializationKeys.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />

@@ -20,6 +20,14 @@ TransformComponent::TransformComponent(const glm::vec3& position, const glm::vec
 
 void TransformComponent::SetParent(GameObject parent)
 {
+	if (parent && parent.GetComponent<TransformComponent>().IsValid())
+	{
+		glm::vec2 parentPos = parent.GetComponent<TransformComponent>()->GetPosition();
+		glm::vec2 diff = GetPosition() - parentPos;
+		m_position.x = diff.x;
+		m_position.y = diff.y;
+	}
+
 	m_parent = parent;
 }
 
@@ -30,6 +38,15 @@ void TransformComponent::SetParentLua(GameObject parent)
 	{
 		parent.AddComponent<HierarchyComponent>();
 	}
+
+	if (parent && parent.GetComponent<TransformComponent>().IsValid())
+	{
+		glm::vec2 parentPos = parent.GetComponent<TransformComponent>()->GetPosition();
+		glm::vec2 diff = GetPosition() - parentPos;
+		m_position.x = diff.x;
+		m_position.y = diff.y;
+	}
+
 	m_parent = parent;
 }
 

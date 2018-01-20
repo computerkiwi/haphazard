@@ -2,7 +2,7 @@
 FILE: Type_Binds.cpp
 PRIMARY AUTHOR: Sweet
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright (C) 2017 DigiPen (USA) Corporation.
 */
 
 // Main Includes
@@ -18,6 +18,9 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include "Scripting/ScriptComponent.h"
 #include "graphics/Camera.h"
 #include "graphics/Background.h"
+
+// Scripts
+#include "EditorScript.h"
 
 // GameObject, Spaces
 #include "GameObjectSystem/GameObject.h"
@@ -522,10 +525,10 @@ bool Choose_Parent_ObjectList(Editor *editor, TransformComponent *transform, Gam
 		// Draw each object
 		if (ImGui::Selectable(name_buffer))
 		{
-			glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
+			/*glm::vec2 parentPos = object.GetComponent<TransformComponent>()->GetPosition();
 			glm::vec2 diff = transform->GetPosition() - parentPos;
 
-			transform->SetPosition(diff);
+			transform->SetPosition(diff);*/
 
 			// It was clicked, Set the parent
 			transform->SetParent(object);
@@ -691,6 +694,17 @@ void SavePrefab(GameObject object)
 
 #endif
 
+static bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
+{
+	for (auto& script : scripts)
+	{
+		if (script.GetResourceID() == resource)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 void ImGui_GameObject(GameObject object, Editor *editor)
 {
@@ -836,15 +850,72 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			Separator();
 			if (Button("Script", COMPONENT_BUTTON_SIZE))
 			{
-				if (object.GetComponent<ScriptComponent>().IsValid())
+				OpenPopup("##add_script");
+			}
+			if (BeginPopup("##add_script"))
+			{
+				ResourceManager& rm = Engine::GetEngine()->GetResourceManager();
+				std::vector<Resource *> scripts = rm.GetResourcesOfTypes_Alphabetical(ResourceType::SCRIPT);
+
+				editor->GetSearchBars().script.Draw("Search", 100);
+
+				// script_c will be nullptr if the object doesn't have one.
+				ScriptComponent *script_c = nullptr;
+				ComponentHandle<ScriptComponent> scriptHandle = object.GetComponent<ScriptComponent>();
+				if (scriptHandle.IsValid())
 				{
-					HAS_COMPONENT;
+					script_c = scriptHandle.Get();
 				}
-				else
+
+				for (auto& script : scripts)
 				{
-					object.AddComponent<ScriptComponent>();
-					Push_AddComponent(ScriptComponent);
+					if (script_c == nullptr || !ObjectHasScript(script->Id(), script_c->scripts))
+					{
+						if (editor->GetSearchBars().script.PassFilter(script->FileName().c_str()))
+						{
+							if (Selectable(script->FileName().c_str()))
+							{
+								// Add the script if we need to.
+								// TODO: Make this and adding the script one action.
+								if (script_c == nullptr)
+								{
+									object.AddComponent<ScriptComponent>();
+									Push_AddComponent(ScriptComponent);
+									script_c = object.GetComponent<ScriptComponent>().Get();
+								}
+
+								// Add the script tself.
+								script_c->scripts.emplace_back(LuaScript(script, object));
+								editor->Push_Action({ 0, LuaScript(script, object), nullptr,{ object, true },
+									[](EditorAction& a)
+								{
+									ComponentHandle<ScriptComponent> handle(a.handle);
+
+									if (a.redo)
+									{
+										handle->scripts.emplace_back(a.current.GetData<LuaScript>());
+									}
+									else
+									{
+										ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
+										std::vector<LuaScript>& scripts = handle->scripts;
+
+										for (size_t i = 0; i < scripts.size(); i++)
+										{
+											LuaScript& script = scripts[i];
+
+											if (script.GetResourceID() == id)
+											{
+												scripts.erase(handle->scripts.begin() + i);
+											}
+										}
+									}
+								} });
+							}
+						}
+					}
 				}
+				EndPopup();
 			}
 			Separator();
 			if (Button("Sprite", COMPONENT_BUTTON_SIZE))
@@ -898,7 +969,6 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 
 			EndPopup();
 		}
-
 
 		if (Button("Add Component##object"))
 		{
@@ -1708,134 +1778,31 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 }
 
 
-bool ObjectHasScript(ResourceID resource, std::vector<LuaScript>& scripts)
-{
-	for (auto& script : scripts)
-	{
-		if (script.GetResourceID() == resource)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
 // Binds the imgui function calls to the Script Component
 void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
-	if (CollapsingHeader("Script"))
+	// The script component is a hidden container for individual scripts. Don't show it.
+
+	int scriptCount = script_c->scripts.size();
+	for (int i = 0; i < scriptCount; i++)
 	{
-		EditorComponentHandle handle = { object.Getid(), true };
-		ResourceManager& rm = engine->GetResourceManager();
-		std::vector<Resource *> scripts = rm.GetResourcesOfTypes_Alphabetical(ResourceType::SCRIPT);
+		bool scriptDeleted = !ImGui_IndividualScript(script_c->scripts[i], script_c, object, editor);
 
-		if (Button("Remove##script"))
+		if (scriptDeleted)
 		{
-			editor->Push_Action({ *script_c, 0, nullptr, handle, Action_DeleteComponent<ScriptComponent> });
-			object.DeleteComponent<ScriptComponent>();
-			return;
-		}
-		Separator();
-		if (Button("Add##script"))
-		{
-			OpenPopup("##script_add_script");
-		}
-
-		if (BeginPopup("##script_add_script"))
-		{
-			editor->GetSearchBars().script.Draw("Search", 100);
-
-			for (auto& script : scripts)
+			// If we remove the last script, remove the script component.
+			if (scriptCount == 1)
 			{
-				if (!ObjectHasScript(script->Id(), script_c->scripts))
-				{
-					if (editor->GetSearchBars().script.PassFilter(script->FileName().c_str()))
-					{
-						if (Selectable(script->FileName().c_str()))
-						{
-							script_c->scripts.emplace_back(LuaScript(script, object));
-							editor->Push_Action({ 0, LuaScript(script, object), nullptr, { object, true },
-							[](EditorAction& a)
-							{
-								ComponentHandle<ScriptComponent> handle(a.handle);
-
-								if (a.redo)
-								{
-									handle->scripts.emplace_back(a.current.GetData<LuaScript>());
-								}
-								else
-								{
-									ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
-									std::vector<LuaScript>& scripts = handle->scripts;
-
-									for (size_t i = 0; i < scripts.size(); i++)
-									{
-										LuaScript& script = scripts[i];
-
-										if (script.GetResourceID() == id)
-										{
-											scripts.erase(handle->scripts.begin() + i);
-										}
-									}
-								}
-							}});
-						}
-					}
-				}
+				EditorComponentHandle handle = { object.Getid(), true };
+				editor->Push_Action({ *script_c, 0, nullptr, handle, Action_DeleteComponent<ScriptComponent> });
+				object.DeleteComponent<ScriptComponent>();
+				return;
 			}
 
-			EndPopup();
+			// Update counts and position so we loop properly.
+			--scriptCount;
+			--i;
 		}
-		std::string id = "X##script_remove_script";
-		PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.44f, 0));
-		for (int i = 0; i < script_c->scripts.size(); i++)
-		{
-			LuaScript& script = script_c->scripts[i];
-			id += rm.Get(script.GetResourceID())->FileName();
-
-			if (Button(id.c_str(), ImVec2(25, 0)))
-			{
-				editor->Push_Action({ 0, script, nullptr,{ object, true },
-					[](EditorAction& a)
-				{
-					ComponentHandle<ScriptComponent> handle(a.handle);
-
-					if (handle.GetGameObject().IsValid())
-					{
-						if (a.redo)
-						{
-							ResourceID id = a.current.GetData<LuaScript>().GetResourceID();
-							std::vector<LuaScript>& scripts = handle->scripts;
-
-							for (size_t i = 0; i < scripts.size(); i++)
-							{
-								LuaScript& script = scripts[i];
-
-								if (script.GetResourceID() == id)
-								{
-									scripts.erase(handle->scripts.begin() + i);
-								}
-							}
-						}
-						else
-						{
-							handle->scripts.emplace_back(a.current.GetData<LuaScript>());
-						}
-					}
-				} 
-				});
-
-				script_c->scripts.erase(script_c->scripts.begin() + i);
-				break;
-			}
-			SameLine();
-
-			Text(rm.Get(script.GetResourceID())->FileName().c_str());
-
-			id = "X##script_remove_script";
-		}
-		PopStyleVar();
 	}
 }
 

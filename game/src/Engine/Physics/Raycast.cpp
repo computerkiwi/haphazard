@@ -72,35 +72,15 @@ void RayCastCalculator::Raycast(glm::vec2 raycastCenter, float raycastRadius, Co
 	// if the collider is a box
 	if (colliderData.ColliderIsShape(Collider2D::colliderType::colliderBox))
 	{
-		glm::vec2 boxCenter = transform->GetPosition();
-		glm::vec2 colliderOffset = colliderData.GetOffset();
+		glm::vec2 boxCenter = transform->GetPosition() + colliderData.GetOffset();
 		float rotation = transform->GetRotation() + colliderData.GetRotationOffset();
 		glm::vec2 boxDimenions = colliderData.GetDimensions();
 
 		BoxCorners corners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
 
-		// if the collider has an offset from the object, take it into account
-		if (colliderOffset.x || colliderOffset.y)
-		{
-			if (rotation == 0)
-			{
-				// add the offset to the center
-				boxCenter = static_cast<glm::vec2>(transform->GetPosition()) + colliderOffset;
-			}
-			else
-			{
-				// calculate the center using the rotated offset
-				glm::vec2 botLeftCorner = corners.m_corners[BoxCorners::corner::botLeft];
-				glm::vec2 topRightCorner = corners.m_corners[BoxCorners::corner::topRight];
-
-				boxCenter = botLeftCorner + (.5f * (topRightCorner - botLeftCorner));
-			}
-
-			corners = BoxCorners(boxCenter, boxDimenions, transform->GetRotation() + colliderData.GetRotationOffset());
-		}
-
 		// if circle collision to quickly eliminate far away objects
-		if (CirclesCollide(raycastCenter, raycastRadius, boxCenter, std::max(boxDimenions.x, boxDimenions.y)))
+		float boxRadius = std::max(boxDimenions.x, boxDimenions.y);
+		if (CirclesCollide(raycastCenter, raycastRadius, boxCenter, boxRadius))
 		{
 			// calculate the actual raycast
 			CalculateCast_Box(corners, transform.GetGameObject());
@@ -202,27 +182,33 @@ void RayCastCalculator::CalculateCast_Box(BoxCorners& box, const GameObject& gam
 
 		// scalar into the ray at which it intersects the edge
 		float u = CrossP(vecBetweenPoints, r) / rayCrossP;
-		// scalar into the edge at which the ray intersects it
-		float t = CrossP(vecBetweenPoints, s) / rayCrossP;
 
-		// if there was an intersection
-		if (u > 0 && u < 1 && t > 0 && t < 1)
+		// if the intersection on the edge line was within bounds
+		if (u > 0 && u < 1)
 		{
-			// calculate the intersection point
-			glm::vec2 intersection = c + (u * s);
+			// scalar into the edge at which the ray intersects it
+			float t = CrossP(vecBetweenPoints, s) / rayCrossP;
 
-			glm::vec2 length = intersection - c;
-
-			float intersectLengthSquared = (length.x * length.x) + (length.y * length.y);
-
-			// if that intersection was shorter than the currently stored one
-			if ((intersectLengthSquared < (m_length * m_length)) || m_length == -1)
+			// if the intersection on the ray line was within bounds
+			if(t > 0 && t < 1)
 			{
-				// set the new intersection
-				m_intersection = intersection;
-				m_length = sqrt(intersectLengthSquared);
-				m_gameObjectHit = gameObject;
+				// calculate the intersection point
+				glm::vec2 intersection = c + (u * s);
+
+				glm::vec2 length = intersection - c;
+
+				float intersectLengthSquared = (length.x * length.x) + (length.y * length.y);
+
+				// if that intersection was shorter than the currently stored one
+				if ((intersectLengthSquared < (m_length * m_length)) || m_length == -1)
+				{
+					// set the new intersection
+					m_intersection = intersection;
+					m_length = sqrt(intersectLengthSquared);
+					m_gameObjectHit = gameObject;
+				}
 			}
+
 		}
 	}
 }

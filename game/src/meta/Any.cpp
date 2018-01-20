@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "meta.h"
 #include "rapidjson/document.h"
 #include "GameObjectSystem/GameObject.h"
+#include "SerializationKeys.h"
 
 namespace meta
 {
@@ -56,7 +57,7 @@ namespace meta
 	Any::Any(rapidjson::Value& jsonValue)
 	{
 		Assert(jsonValue.IsObject());
-		m_type = GetTypeByName(jsonValue["meta_type_name"].GetString());
+		m_type = GetTypeByName(GetMemberBackwardsCompatible(jsonValue, META_TYPE_NAME).GetString());
 
 		if (m_type->GetSize() > MAX_SIZE)
 		{
@@ -119,8 +120,12 @@ namespace meta
 	{
 		if (m_usesPointer)
 		{
-			m_type->destructor(m_dataPointer);
-			delete[] m_dataPointer;
+			// Could be nullptr due to being moved out of.
+			if (m_dataPointer != nullptr)
+			{
+				m_type->destructor(m_dataPointer);
+				delete[] m_dataPointer;
+			}
 		}
 		else
 		{

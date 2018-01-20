@@ -15,6 +15,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "GameObjectSystem/GameObject.h"
 
+#include "SerializationKeys.h"
+
 namespace meta
 {
 
@@ -138,7 +140,7 @@ namespace meta
 		jsonMetaObject.SetObject();
 
 		// Store the type of the object we're serializing.
-		jsonMetaObject.AddMember(rapidjson::StringRef("meta_type_name"), rapidjson::Value().SetString(this->GetName().c_str(), allocator), allocator);
+		jsonMetaObject.AddMember(rapidjson::StringRef(META_TYPE_NAME[0]), rapidjson::Value().SetString(this->GetName().c_str(), allocator), allocator);
 
 		// Serialize the actual data of the object.
 		rapidjson::Value jsonData;
@@ -165,7 +167,7 @@ namespace meta
 		}
 
 		// Put our object data into the meta object.
-		jsonMetaObject.AddMember(rapidjson::StringRef("meta_object_data"), jsonData, allocator);
+		jsonMetaObject.AddMember(rapidjson::StringRef(META_OBJECT_DATA[0]), jsonData, allocator);
 
 		return jsonMetaObject;
 	}
@@ -178,12 +180,11 @@ namespace meta
 
 	void Type::DeserializeAssign(void *object, rapidjson::Value& jsonObject)
 	{
-		// Make sure we have the right type.
-		Assert(GetName() == jsonObject["meta_type_name"].GetString());
+		Assert(GetName() == GetMemberBackwardsCompatible(jsonObject, META_TYPE_NAME).GetString());
 
 		// Get the members from the object.
 		rapidjson::Value jsonData;
-		jsonData = jsonObject["meta_object_data"];
+		jsonData = GetMemberBackwardsCompatible(jsonObject, META_OBJECT_DATA);
 
 		// Do custom deserialization if we have it.
 		if (m_deserializeAssignFunction != nullptr)
