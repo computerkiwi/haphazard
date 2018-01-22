@@ -74,9 +74,11 @@ function Update(dt)
 	UpdateDir()
 
 	-- Update Movement (Not if stacked on top)
-	if(status.stacked == false or status.stackedParent == nil)
+	if(status.stacked == false or status.stackedBelow == nil)
 	then
 		UpdateMovement(dt)
+
+		UpdateParenting()
 	end
 
 	-- Jump
@@ -103,6 +105,20 @@ function UpdateMovement(dt)
 	newVelocity.x = moveDir * moveSpeed		-- Calculate x velocity
 	playerBody.velocity = newVelocity		-- Update player velocity
 end -- fn end
+
+function UpdateParenting()
+	local thisStatus = this:GetScript("GnomeStatus.lua")
+	
+	local newPos = this:GetTransform().position
+	
+	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
+	do
+		newPos.y = newPos.y + gnomeStackDistance
+		thisStatus.stackedAbove:GetTransform().position = newPos
+
+		thisStatus = thisStatus.stackedAbove
+	end
+end
 
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)
