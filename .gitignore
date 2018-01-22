@@ -8,3 +8,7 @@ graphics/x64/
 
 
 game/imgui\.ini
+
+game/external/x64/Release/Lua\.log
+
+game/external/lua/lib/lua53\.lib
