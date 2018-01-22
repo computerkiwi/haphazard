@@ -605,7 +605,7 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		float yCompare = rigidBody1->Velocity().y / rigidBody2->Velocity().y;
 
 		//!?!? quick cheap solution - replace with a real one later
-		if (collider1->ColliderData().GetRotationOffset() + collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() + transform2->GetRotation() == 0)
+		//if (collider1->ColliderData().GetRotationOffset() + collider2->ColliderData().GetRotationOffset() + transform1->GetRotation() + transform2->GetRotation() == 0)
 		{
 			glm::vec2 pos1 = transform1->GetPosition();
 			glm::vec2 pos2 = transform2->GetPosition();
