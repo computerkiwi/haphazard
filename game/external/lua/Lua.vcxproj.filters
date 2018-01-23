@@ -120,6 +120,9 @@
     <ClCompile Include="lzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HaphazardAdditions\ConsoleWrite.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lapi.h">
@@ -199,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="lzio.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HaphazardAdditions\ConsoleWrite.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

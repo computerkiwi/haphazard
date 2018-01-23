@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HaphazardAdditions\ConsoleWrite.c" />
     <ClCompile Include="lapi.c" />
     <ClCompile Include="lauxlib.c" />
     <ClCompile Include="lbaselib.c" />
@@ -167,6 +168,7 @@
     <ClCompile Include="lzio.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HaphazardAdditions\ConsoleWrite.h" />
     <ClInclude Include="lapi.h" />
     <ClInclude Include="lauxlib.h" />
     <ClInclude Include="lcode.h" />

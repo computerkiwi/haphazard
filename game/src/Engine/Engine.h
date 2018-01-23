@@ -8,12 +8,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
-extern "C"
-{
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-}
+#include "Universal.h"
 
 #include <LuaBridge.h>
 #include "GameObjectSystem/GameSpace.h"

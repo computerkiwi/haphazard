@@ -14,6 +14,7 @@
 
 #include "lua.h"
 
+#include "HaphazardAdditions\ConsoleWrite.h"
 
 
 /* extra error code for 'luaL_loadfilex' */
@@ -220,12 +221,12 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 
 /* print a string */
 #if !defined(lua_writestring)
-#define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+#define lua_writestring(s,l)  ConsoleLuaWrite(s, l)
 #endif
 
 /* print a newline and flush the output */
 #if !defined(lua_writeline)
-#define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
+#define lua_writeline()        ConsoleLuaWriteLine()
 #endif
 
 /* print an error message */
