@@ -13,12 +13,12 @@ delayCollisionLayer = 0
 function Update(dt)
 
 	-- Why cant i do this?
-	this:GetCollider().collisionLayer.layer = this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER
+	this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
 	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
 	then
 		this:GetCollider().collisionLayer = this:GetScript("GnomeStatus.lua").stackedBelow:GetCollider().collisionLayer
 	else
-		this:GetCollider().collisionLayer = this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER
+		this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
 	end
 
 	--[[

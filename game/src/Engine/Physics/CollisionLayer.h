@@ -59,5 +59,8 @@ private:
 	META_REGISTER(CollisionLayer)
 	{
 		META_DefineMember(CollisionLayer, m_layer, "layer");
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<CollisionLayer>("CollisionLayer")
+			.addConstructor<void(*)(int)>();
 	}
 };
