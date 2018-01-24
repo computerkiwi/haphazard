@@ -61,7 +61,6 @@ fallSpeed	 = 2
 blockMovement = false
 blockJump = false
 
-
 -- Updates each frame
 function Update(dt)		
 
@@ -77,8 +76,6 @@ function Update(dt)
 	if(status.stacked == false or status.stackedBelow == nil)
 	then
 		UpdateMovement(dt)
-
-		UpdateParenting()
 	end
 
 	-- Jump
@@ -87,10 +84,16 @@ function Update(dt)
 		Jump()
 	end
 	
-	if(status.stacked and this:GetScript("InputHandler.lua").jumpPressed)
+	-- Is stacked (not bottom gnome) and jumps off
+	if(status.stacked and this:GetScript("InputHandler.lua").jumpPressed and status.stackedBelow ~= nil)
 	then
 		this:GetScript("GnomeStack.lua"):Unstack()
 		Jump()
+	end
+
+	if(status.stacked == true and status.stackedBelow == nil)
+	then
+		this:GetScript("GnomeStack.lua").UpdateParenting()
 	end
 
 end -- fn end
@@ -106,19 +109,7 @@ function UpdateMovement(dt)
 	playerBody.velocity = newVelocity		-- Update player velocity
 end -- fn end
 
-function UpdateParenting()
-	local thisStatus = this:GetScript("GnomeStatus.lua")
-	
-	local newPos = this:GetTransform().position
-	
-	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
-	do
-		newPos.y = newPos.y + gnomeStackDistance
-		thisStatus.stackedAbove:GetTransform().position = newPos
 
-		thisStatus = thisStatus.stackedAbove
-	end
-end
 
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)

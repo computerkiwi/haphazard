@@ -7,40 +7,123 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 
 gnomeStackDistance = 0.6
 
+delayCollisionCounter = 0
+delayCollisionLayer = 0
+
 function Update(dt)
-	
-	-- Get status
+
+	-- Why cant i do this?
+	this:GetCollider().collisionLayer.layer = this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER
+	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
+	then
+		this:GetCollider().collisionLayer = this:GetScript("GnomeStatus.lua").stackedBelow:GetCollider().collisionLayer
+	else
+		this:GetCollider().collisionLayer = this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER
+	end
+
+	--[[
+	if(delayCollisionLayer ~= 0)
+	then
+		delayCollisionCounter = delayCollisionCounter - dt
+		if(delayCollisionCounter < 0)
+		then
+			local thisStatus = this:GetScript("GnomeStatus.lua")
+			--SetLayersColliding(thisStatus.PLAYER_PHYS_LAYER, delayCollisionLayer)
+			delayCollisionLayer = 0
+			delayCollisionCounter = 0
+		end
+	end
+	]]
+end
+
+function GetBottomGnome()
+	local status = this:GetScript("GnomeStatus.lua")
+
+	if (status.stackedBelow == nil)
+	then
+		return this
+	else
+		return status.stackedBelow:GetScript("GnomeStack.lua").GetBottomGnome()
+	end
+end
+
+function UpdateParenting()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 
-	if(thisStatus.stacked and thisStatus.stackedBelow ~= nil) -- Is on top
-	then
-		local parent = thisStatus.stackedBelow
-
-		local parentStatus = parent:GetScript("GnomeStatus.lua")
-
-		-- Get transforms
-		local playerTransform = this:GetTransform()
-		local parentTransform = parent:GetTransform()
-
-		-- Get positions
-		local playerPos = playerTransform.position
-		local parentPos = parentTransform.position
+	local newPos = this:GetTransform().position
 	
-		local newPos = parentPos
+	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
+	do
 		newPos.y = newPos.y + gnomeStackDistance
-		
-		playerTransform.position = newPos
+		thisStatus.stackedAbove:GetTransform().position = newPos
 
-		this:GetRigidBody().velocity = vec3(0,0,0)
+		thisStatus.stackedAbove:GetRigidBody().velocity = vec3(0,0,0)
+
+		thisStatus = thisStatus.stackedAbove:GetScript("GnomeStatus.lua")
+	end
+end
+
+function DetachGnomes(top, bot)
+	-- Get status
+	local topStack = top:GetScript("GnomeStack.lua")
+	local topStatus = top:GetScript("GnomeStatus.lua")
+	local botStatus = bot:GetScript("GnomeStatus.lua")
+	
+	-- Make sure the gnomes are already attached in the way they should be
+	--[[
+	if (topStatus.stackedBelow ~= bot or botStatus.stackedAbove ~= top)
+	then
+		return nil
+	end
+	]]
+
+	topStack.delayCollisionLayer = botStatus.PLAYER_PHYS_LAYER
+	topStack.delayCollisionCounter = 1
+	
+	topStatus.stackedBelow = nil
+	botStatus.stackedAbove = nil
+	
+	-- Update the stacked variables.
+	if (topStatus.stackedAbove ~= nil)
+	then
+		topStatus.stacked = true
+	else
+		topStatus.stacked = false
+	end
+	if (botStatus.stackedBelow ~= nil)
+	then
+		botStatus.stacked = true
+	else
+		botStatus.stacked = false
 	end
 
 end
 
-function StackPlayers(other)
-
+function AttachGnomes(top, bot)
 	-- Get status
-	local thisStatus = this:GetScript("GnomeStatus.lua")
-	local otherStatus = other:GetScript("GnomeStatus.lua")
+	local topStatus = top:GetScript("GnomeStatus.lua")
+	local botStatus = bot:GetScript("GnomeStatus.lua")
+	
+
+	-- Disconnect gnomes if need be.
+	if (topStatus.stackedBelow ~= nil)
+	then
+		DetachGnomes(top, topStatus.stackedBelow)
+	end
+	if (botStatus.stackedAbove ~= nil)
+	then
+		DetachGnomes(botStatus.stackedAbove, bot)
+	end
+
+	topStatus.stackedBelow = bot
+	botStatus.stackedAbove = top
+	
+	--SetLayersNotColliding(topStatus.PLAYER_PHYS_LAYER, botStatus.PLAYER_PHYS_LAYER)
+	topStatus.stacked = true
+	botStatus.stacked = true
+end
+
+function StackPlayers(other)
 
 	-- Get positions
 	local thisPos = this:GetTransform().position
@@ -48,14 +131,7 @@ function StackPlayers(other)
 	
 	if(thisPos.y < otherPos.y) --Bottom gnome handles stacking
 	then
-		SetLayersNotColliding(thisStatus.PLAYER_PHYS_LAYER, otherStatus.PLAYER_PHYS_LAYER)
-
-		thisStatus.stacked = true
-		otherStatus.stacked = true
-
-		-- This = bottom, other = top
-		thisStatus.stackedAbove = other
-		otherStatus.stackedBelow = this
+		AttachGnomes(other, this)
 	end
 
 end -- fn end
@@ -69,40 +145,16 @@ function OnCollisionEnter(other)
 	end
 end
 
-
+-- Disconnects from the gnome below.
 function Disconnect()
+
 	local thisStatus = this:GetScript("GnomeStatus.lua")
-	local parentStatus = thisStatus.stackedBelow:GetScript("GnomeStatus.lua")
 
-	SetLayersColliding(thisStatus.PLAYER_PHYS_LAYER , parentStatus.PLAYER_PHYS_LAYER)
-
-	-- Cut connection to gnome below 
-	if(parentStatus.stackedBelow == nil) -- If gnome is not stacked on another (is bottom of stack)
-	then
-		parentStatus.stacked = false
-	end
-
-	parentStatus.stackedAbove = nil
-	thisStatus.stackedBelow = nil
+	DetachGnomes(this, thisStatus.stackedBelow)
 end
 
 
 function Unstack()
-	-- Get status
-	local thisStatus = this:GetScript("GnomeStatus.lua")
-
-	if(thisStatus.stacked)
-	then
-		if(thisStatus.stackedBelow ~= nil) -- If is middle of stack. Cut connection to bottom
-		then
-			Disconnect()
-		end
-
-		if(stackedAbove == nil) -- If is top
-		then
-			-- Not connected to anything anymore
-			thisStatus.stacked = false
-		end
-	end
+	Disconnect()
 
 end
