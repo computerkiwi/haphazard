@@ -7,33 +7,56 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 
 gnomeStackDistance = 0.6
 
+currCollisionLayer = 0
 delayCollisionCounter = 0
 delayCollisionLayer = 0
 
+function Start()
+	
+	currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
+
+end
+
 function Update(dt)
 
-	-- Why cant i do this?
-	this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
 	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
 	then
-		this:GetCollider().collisionLayer = this:GetScript("GnomeStatus.lua").stackedBelow:GetCollider().collisionLayer
-	else
-		this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
+		currCollisionLayer = this:GetScript("GnomeStatus.lua").stackedBelow:GetCollider().collisionLayer
+	elseif(delayCollisionLayer == 0)
+	then
+		currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
+		--this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
 	end
+	this:GetCollider().collisionLayer = currCollisionLayer
 
-	--[[
 	if(delayCollisionLayer ~= 0)
 	then
 		delayCollisionCounter = delayCollisionCounter - dt
+		
 		if(delayCollisionCounter < 0)
 		then
-			local thisStatus = this:GetScript("GnomeStatus.lua")
+			--local thisStatus = this:GetScript("GnomeStatus.lua")
 			--SetLayersColliding(thisStatus.PLAYER_PHYS_LAYER, delayCollisionLayer)
+
+			currCollisionLayer = CollisionLayer(delayCollisionLayer)
+			this:GetCollider().collisionLayer = currCollisionLayer
+
+			-- Avoid 1 update "snap" if a gnome is on top
+			if(this:GetScript("GnomeStatus.lua").stackedAbove ~= nil)
+			then
+				this:GetScript("GnomeStatus.lua").stackedAbove:GetCollider().collisionLayer = currCollisionLayer
+
+				if(this:GetScript("GnomeStatus.lua").stackedAbove:GetScript("GnomeStatus.lua").stackedAbove ~= nil)
+				then
+					this:GetScript("GnomeStatus.lua").stackedAbove:GetScript("GnomeStatus.lua").stackedAbove:GetCollider().collisionLayer = currCollisionLayer
+				end
+			end
+
 			delayCollisionLayer = 0
 			delayCollisionCounter = 0
 		end
 	end
-	]]
+
 end
 
 function GetBottomGnome()
