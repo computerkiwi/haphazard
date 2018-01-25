@@ -71,10 +71,18 @@ MinMax BoxCorners::ProjectOntoAxis(glm::vec2 axis) const
 	// we only care about the min and max values
 	MinMax minMax = { firstDot, firstDot };
 
+	glm::vec2 startpos = m_corners[0];
+	glm::vec2 direction = glm::normalize(axis);
+
+	DrawNormalizedRay(startpos, direction, 1);
+
 	// project each of the four points onto the axis and record the extrema
 	for (int i = 1; i < 4; ++i)
 	{
 		float dotP = glm::dot(axis, m_corners[i]);
+
+		DrawSmallCircleAtPosition(startpos + (dotP * direction));
+
 		if (dotP < minMax.min)
 		{
 			minMax.min = dotP;
@@ -186,4 +194,16 @@ void DrawSmallCircleAtPosition(glm::vec2 position)
 float CrossP(glm::vec2 vec1, glm::vec2 vec2)
 {
 	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
+}
+
+// draws a ray, assumes direction to be already normalized
+void DrawNormalizedRay(glm::vec2 position, glm::vec2 direction, float length)
+{
+	DebugGraphic::DrawSquare(position + (direction * length * .5f), glm::vec2(length, .03f), atan2(direction.y, direction.x), glm::vec4(0, 1, 1, 1));
+}
+
+// draws a ray
+void DrawRay(glm::vec2 position, glm::vec2 direction)
+{
+	DebugGraphic::DrawSquare(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
 }

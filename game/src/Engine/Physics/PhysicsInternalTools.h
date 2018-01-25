@@ -91,3 +91,9 @@ void DrawSmallBoxAtPosition(glm::vec2 position);
 void DrawSmallCircleAtPosition(glm::vec2 position);
 
 float CrossP(glm::vec2 vec1, glm::vec2 vec2);
+
+// draws a ray, assumes direction to be already normalized
+void DrawNormalizedRay(glm::vec2 position, glm::vec2 direction, float length);
+
+// draws a ray
+void DrawRay(glm::vec2 position, glm::vec2 direction);

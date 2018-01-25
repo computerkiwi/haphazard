@@ -31,18 +31,6 @@ bool debugAreRaycastsDisplayed()
 	return debugShowRaycasts;
 }
 
-// draws a ray, assumes direction to be already normalized
-void DrawNormalizedRay(glm::vec2 position, glm::vec2 direction, float length)
-{
-	DebugGraphic::DrawSquare(position + (direction * length * .5f), glm::vec2(length, .03f), atan2(direction.y, direction.x), glm::vec4(0, 1, 1, 1));
-}
-
-// draws a ray
-void DrawRay(glm::vec2 position, glm::vec2 direction)
-{
-	DebugGraphic::DrawSquare(position + (direction * .5f), glm::vec2(glm::length(direction), .05f), atan2(direction.y, direction.x), glm::vec4(1, 1, 0, 1));
-}
-
 // class to do the work of raycasting
 class RayCastCalculator
 {
