@@ -22,10 +22,11 @@ function Update(dt)
 	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
 	then
 		currCollisionLayer = this:GetScript("GnomeStatus.lua").stackedBelow:GetCollider().collisionLayer
+		delayCollisionCounter = 0
+		delayCollisionLayer = 0
 	elseif(delayCollisionLayer == 0)
 	then
 		currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
-		--this:GetCollider().collisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
 	end
 	this:GetCollider().collisionLayer = currCollisionLayer
 
@@ -35,20 +36,21 @@ function Update(dt)
 		
 		if(delayCollisionCounter < 0)
 		then
-			--local thisStatus = this:GetScript("GnomeStatus.lua")
-			--SetLayersColliding(thisStatus.PLAYER_PHYS_LAYER, delayCollisionLayer)
-
 			currCollisionLayer = CollisionLayer(delayCollisionLayer)
 			this:GetCollider().collisionLayer = currCollisionLayer
 
 			-- Avoid 1 update "snap" if a gnome is on top
-			if(this:GetScript("GnomeStatus.lua").stackedAbove ~= nil)
+			local above = this:GetScript("GnomeStatus.lua").stackedAbove
+			if(above ~= nil)
 			then
-				this:GetScript("GnomeStatus.lua").stackedAbove:GetCollider().collisionLayer = currCollisionLayer
+				above:GetScript("GnomeStack.lua").currCollisionLayer = currCollisionLayer
+				above:GetCollider().collisionLayer = currCollisionLayer
 
-				if(this:GetScript("GnomeStatus.lua").stackedAbove:GetScript("GnomeStatus.lua").stackedAbove ~= nil)
+				local aboveAbove = above:GetScript("GnomeStatus.lua").stackedAbove
+				if(aboveAbove ~= nil)
 				then
-					this:GetScript("GnomeStatus.lua").stackedAbove:GetScript("GnomeStatus.lua").stackedAbove:GetCollider().collisionLayer = currCollisionLayer
+					aboveAbove:GetScript("GnomeStack.lua").currCollisionLayer = currCollisionLayer
+					aboveAbove:GetCollider().collisionLayer = currCollisionLayer
 				end
 			end
 
@@ -100,7 +102,7 @@ function DetachGnomes(top, bot)
 	end
 	]]
 
-	topStack.delayCollisionLayer = botStatus.PLAYER_PHYS_LAYER
+	topStack.delayCollisionLayer = topStatus.PLAYER_PHYS_LAYER --botStatus.PLAYER_PHYS_LAYER
 	topStack.delayCollisionCounter = 1
 	
 	topStatus.stackedBelow = nil
@@ -113,6 +115,7 @@ function DetachGnomes(top, bot)
 	else
 		topStatus.stacked = false
 	end
+
 	if (botStatus.stackedBelow ~= nil)
 	then
 		botStatus.stacked = true
@@ -131,11 +134,13 @@ function AttachGnomes(top, bot)
 	-- Disconnect gnomes if need be.
 	if (topStatus.stackedBelow ~= nil)
 	then
-		DetachGnomes(top, topStatus.stackedBelow)
+		return
+		--DetachGnomes(top, topStatus.stackedBelow)
 	end
 	if (botStatus.stackedAbove ~= nil)
 	then
-		DetachGnomes(botStatus.stackedAbove, bot)
+		return
+		--DetachGnomes(botStatus.stackedAbove, bot)
 	end
 
 	topStatus.stackedBelow = bot
