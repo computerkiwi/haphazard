@@ -845,11 +845,16 @@ void PhysicsSystem::Update(float dt)
 	// update the position and velocity of all objects according to their velocity and acceleration
 	MoveAllDynamicObjects(dt, *rigidBodies);
 
-	for (auto& tRigidBodyHandle : *rigidBodies)
+	
+
+
+	for (auto iDynamicCollider = allDynamicColliders->begin(); iDynamicCollider != allDynamicColliders->end(); ++iDynamicCollider)
 	{
+		ComponentHandle<DynamicCollider2DComponent> dynamicCollider = *iDynamicCollider;
+
 		// get the transform from the same gameobject, and leave the loop if it isn't valid
-		ComponentHandle<TransformComponent> transform = tRigidBodyHandle.GetSiblingComponent<TransformComponent>();
-		ComponentHandle<DynamicCollider2DComponent> dynamicCollider = tRigidBodyHandle.GetSiblingComponent<DynamicCollider2DComponent>();
+		ComponentHandle<RigidBodyComponent> tRigidBodyHandle = dynamicCollider.GetSiblingComponent<RigidBodyComponent>();
+		ComponentHandle<TransformComponent> transform = dynamicCollider.GetSiblingComponent<TransformComponent>();
 
 		if (!transform.IsActive())
 		{
@@ -1050,9 +1055,13 @@ void PhysicsSystem::Update(float dt)
 					}
 				}
 			}
-			// loop through all dynamic colliders
-			for (auto tDynamiColliderHandle : *allDynamicColliders)
+
+			// loop through all dynamic colliders after the first one
+			auto iDynamiColliderHandle = iDynamicCollider;
+			for (++iDynamiColliderHandle; iDynamiColliderHandle != allDynamicColliders->end(); ++iDynamiColliderHandle)
 			{
+				ComponentHandle<DynamicCollider2DComponent> tDynamiColliderHandle = *iDynamiColliderHandle;
+
 				if (!tDynamiColliderHandle.IsActive())
 				{
 					continue;
@@ -1242,12 +1251,6 @@ void PhysicsSystem::Update(float dt)
 					}
 				}
 			}
-		}
-		// if transform is valid and dynamic collider isnt, only update movement
-		else if (transform.IsValid() && !dynamicCollider.IsValid())
-		{
-			// update position, velocity, and acceleration using stored values
-			UpdateMovementData(dt, transform, tRigidBodyHandle, tRigidBodyHandle->Velocity(), tRigidBodyHandle->Acceleration());
 		}
 	}
 

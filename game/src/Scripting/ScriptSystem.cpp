@@ -35,6 +35,19 @@ void ScriptSystem::Update(float dt)
 		}
 	}
 
+	// Call EarlyUpdate on everything that needs it.
+	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
+	{
+		if (scriptComp.IsActive())
+		{
+			for (LuaScript& script : scriptComp->scripts)
+			{
+				luabridge::push(script.GetLuaState(), dt);
+				script.RunFunction("EarlyUpdate", 1, 0);
+			}
+		}
+	}
+
 	// Call update on everything that needs it.
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
@@ -44,6 +57,19 @@ void ScriptSystem::Update(float dt)
 			{
 				luabridge::push(script.GetLuaState(), dt);
 				script.RunFunction("Update", 1, 0);
+			}
+		}
+	}
+
+	// Call LateUpdate on everything that needs it.
+	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
+	{
+		if (scriptComp.IsActive())
+		{
+			for (LuaScript& script : scriptComp->scripts)
+			{
+				luabridge::push(script.GetLuaState(), dt);
+				script.RunFunction("LateUpdate", 1, 0);
 			}
 		}
 	}

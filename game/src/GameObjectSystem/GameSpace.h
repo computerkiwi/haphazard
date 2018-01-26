@@ -137,7 +137,7 @@ public:
 	class iterator
 	{
 	public:
-		iterator(typename std::unordered_map<GameObject_ID, T>::iterator iterator, GameSpace *space);
+		iterator(typename std::map<GameObject_ID, T>::iterator iterator, GameSpace *space);
 
 		iterator& operator++();
 
@@ -152,7 +152,7 @@ public:
 		ComponentHandle<T> operator->();
 
 	private:
-		typename std::unordered_map<GameObject_ID, T>::iterator m_iterator;
+		typename std::map<GameObject_ID, T>::iterator m_iterator;
 		GameSpace *m_space;
 	};
 
@@ -173,7 +173,7 @@ public:
 	}
 
 private:
-	std::unordered_map<GameObject_ID, T> m_components;
+	std::map<GameObject_ID, T> m_components;
 	GameSpace *m_space;
 
 	virtual ComponentMapBase *NewDuplicateMap() override
