@@ -50,19 +50,16 @@ void *Resource::Data()
 	return GetData();
 }
 
+void Resource::Reload()
+{
+	Logging::Log(Logging::CORE, Logging::MEDIUM_PRIORITY, "Reloading resource: ", m_folderPath, m_fileName);
+
+	ReloadData((m_folderPath + '\\' + m_fileName).c_str());
+}
+
 ResourceID Resource::FilenameToID(const char *fileName)
 {
 	return hash(fileName);
-	// Really shitty hash.
-	// TODO: Make the hash less shitty.
-	/*size_t hash = 0;
-	size_t len = strlen(fileName);
-	for (size_t i = 0; i < len; ++i)
-	{
-	hash += fileName[i] * fileName[i];
-	}
-
-	return hash;*/
 }
 
 ResourceManager::~ResourceManager()
