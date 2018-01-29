@@ -293,6 +293,7 @@
     <None Include="assets\scripts\DangerShroom.lua" />
     <None Include="assets\scripts\DangerShroom_Spore.lua" />
     <None Include="assets\scripts\GnomeAutoMovement.lua" />
+    <None Include="assets\scripts\GnomeSpawner.lua" />
     <None Include="assets\scripts\Interactive.lua" />
     <None Include="assets\scripts\LevelProgress.lua" />
     <None Include="assets\scripts\PlatformMove.lua" />

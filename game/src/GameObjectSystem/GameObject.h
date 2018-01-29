@@ -222,7 +222,6 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<ScriptComponent>,            "GetScripts");
 		META_DefineFunction(GameObject, GetCollider,                                     "GetCollider");
 
-
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
 
