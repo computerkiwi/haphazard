@@ -86,8 +86,8 @@ function Update(dt)
 			Jump()
 		end
 	
-		-- Is stacked (not bottom gnome) and jumps off
-		if(status.stacked and this:GetScript("InputHandler.lua").jumpPressed and status.stackedBelow ~= nil)
+		-- Is stacked (not bottom gnome) and jumps off (on jump press, not hold)
+		if(status.stacked and this:GetScript("InputHandler.lua").onJumpPress and status.stackedBelow ~= nil)
 		then
 			this:GetScript("GnomeStack.lua"):Unstack()
 			Jump()

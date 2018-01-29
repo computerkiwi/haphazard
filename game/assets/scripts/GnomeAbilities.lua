@@ -29,11 +29,28 @@ GnomeSpawner sprite
 ]]
 
 function Start()
-	SetType(3)
+	SetType(this:GetScript("GnomeStatus.lua").GnomeType)
 end
 
-function Jump()
+function AirAbility()
 	
+	this:GetScript("GnomeStatus.lua").GnomeType = type
+
+	-- Set sprite
+	if(type == 1)	-- Red
+	then
+		this:GetScript("GnomeMovement.lua").Jump()
+	elseif(type == 2)	-- Green
+	then
+		this:GetSprite().id = Resource.FilenameToID(Sprite_GreenGnome)
+	elseif(type == 3)	-- Blue
+	then
+		this:GetSprite().id = Resource.FilenameToID(Sprite_BlueGnome)
+	elseif(type == 4)	-- Yellow
+	then
+		this:GetSprite().id = Resource.FilenameToID(Sprite_YellowGnome)
+	end
+
 end
 
 function Stack()

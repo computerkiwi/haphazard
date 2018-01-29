@@ -26,12 +26,13 @@ KEY_TOSS   = 84 -- T
 KEY_ATTACK = 89 -- Y
 
 jumpPressed    = false
+onJumpPress	   = false
 attackPressed  = false
 tossPressed    = false
 horizontalAxis = 0
 verticalAxis   = 0
 
-function Update()
+function EarlyUpdate()
 	
 	if(UseKeyboard)
 	then
@@ -68,6 +69,13 @@ function GetInputGamepad()
 	-- Jump
 	if (GamepadIsPressed(PLAYER_NUM, JUMP))
 	then
+		if(jumpPressed == false)
+		then
+			onJumpPress = true
+		else
+			onJumpPress = false
+		end
+
 		jumpPressed = true
 	else
 		jumpPressed = false
@@ -111,6 +119,13 @@ function GetKeyboardInput()
 	-- Jumps
 	if (IsPressed(KEY_JUMP))
 	then
+		if(jumpPressed == false)
+		then
+			onJumpPress = true
+		else
+			onJumpPress = false
+		end
+
 		jumpPressed = true
 	else
 		jumpPressed = false
