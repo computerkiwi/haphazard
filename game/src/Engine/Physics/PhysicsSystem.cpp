@@ -109,6 +109,12 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 	//	return glm::vec3(0, 0, 0);
 	//}
 
+	//!?!? if bounding boxes are not colliding, objects are not colliding
+	//if (!AABBsAreColliding)
+	//{
+	//	return glm::vec3(0, 0, 0);
+	//}
+
 	// the vectors onto which each shape will be projected
 	glm::vec2 edgeNormals[num_projections] = { { 0,0 } };
 
