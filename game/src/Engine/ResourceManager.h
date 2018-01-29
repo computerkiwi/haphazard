@@ -51,6 +51,8 @@ public:
 
 	void *Data();
 
+	void Reload();
+
 	bool IsLoaded() { return m_isLoaded; }
 	std::string FileName() { return m_fileName; }
 	const std::string& GetFilename() const { return m_fileName; }
@@ -88,6 +90,7 @@ private:
 	virtual void UnloadData() = 0;
 	virtual void *GetData() = 0;
 	virtual ResourceType GetType() = 0;
+	virtual void ReloadData(const char *filePath) {/* Do nothing by default for backwards compatability reasons */ }
 
 	std::string m_folderPath; // File path excluding the file name.
 	std::string m_fileName;

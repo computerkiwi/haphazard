@@ -123,6 +123,22 @@ bool ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameOb
 			return false;
 		}
 
+		SameLine();
+		std::string reloadButtonName = "Reload##script_reload_";
+		reloadButtonName += fileName;
+		if (Button(reloadButtonName.c_str()))
+		{
+			script.Reload();
+		}
+
+		SameLine();
+		std::string resetButtonName = "Reset##script_reset_";
+		resetButtonName += fileName;
+		if (Button(resetButtonName.c_str()))
+		{
+			script.Reset();
+		}
+
 		// Get manipulators for all the variables.
 		std::vector<std::pair<std::string, meta::Any>> vars = script.GetAllVars();
 		typedef std::pair<std::string, meta::Any> VarPair;
