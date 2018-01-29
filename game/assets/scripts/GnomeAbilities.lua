@@ -30,6 +30,12 @@ GnomeSpawner sprite
 
 function Start()
 	SetType(this:GetScript("GnomeStatus.lua").GnomeType)
+
+	this:GetScript("GnomeMovement.lua").Knockback(vec2(1,1), 10)
+end
+
+function LateUpdate()
+	-- Resets abilities that happen once per update (movement boost / gravity changes)
 end
 
 function AirAbility()
@@ -42,13 +48,13 @@ function AirAbility()
 		this:GetScript("GnomeMovement.lua").Jump()
 	elseif(type == 2)	-- Green
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_GreenGnome)
+		--Todo: make only able to use once per jump
+
 	elseif(type == 3)	-- Blue
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_BlueGnome)
 	elseif(type == 4)	-- Yellow
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_YellowGnome)
+		
 	end
 
 end

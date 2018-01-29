@@ -31,6 +31,7 @@ stackedBelow = nil
 -- Movement info
 
 canMove = true
+knockedBack = false
 
 specialMove = false
 specialMoveScale = 0.5

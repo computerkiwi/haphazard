@@ -66,10 +66,19 @@ function Update(dt)
 
 	local status = this:GetScript("GnomeStatus.lua")
 
+	-- Knockback is checked before ground update so it doesnt cancel on first update
+	if(status.knockedBack == true)
+	then
+		if(onGround)
+		then
+			status.knockedBack = false
+		end
+	end
+
 	-- Update if they are on the ground
 	onGround = CheckGround(2)
 
-	if(status.canMove == true)
+	if(status.canMove == true and status.knockedBack == false)
 	then
 		-- Get Direction
 		UpdateDir()
@@ -93,10 +102,11 @@ function Update(dt)
 			Jump()
 		end
 
-		if(status.stacked == true and status.stackedBelow == nil)
-		then
-			this:GetScript("GnomeStack.lua").UpdateParenting()
-		end
+	end
+	
+	if(status.stacked == true and status.stackedBelow == nil)
+	then
+		this:GetScript("GnomeStack.lua").UpdateParenting()
 	end
 
 end -- fn end
@@ -120,8 +130,6 @@ function UpdateMovement(dt)
 	playerBody.velocity = newVelocity	-- Update player velocity
 end -- fn end
 
-
-
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)
 
@@ -136,6 +144,14 @@ function Jump()
 	this:GetRigidBody().velocity = newVelocity
 
 	onGround = false
+end
+
+function Knockback(dir, force)
+
+	this:GetScript("GnomeStatus.lua").knockedBack = true
+	this:GetRigidBody().velocity = vec3(dir.x * force, dir.y * force, 0)
+	onGround = false
+
 end
 
 function UpdateDir()
