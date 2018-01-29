@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 startPos = 0
 endPos = 0
-percent = 0.10
+percent = 0.01
 distance = -10 -- Distance to move
 steps = 1 -- How fast it moves
 moveEnabled = false
@@ -38,12 +38,13 @@ function Update(dt)
 
     local transform = this:GetTransform()
     local currPos = transform.position
+    local newPos = transform.position
 
-    currPos.y = currPos.y + (steps * moveDir)
+    newPos.y = currPos.y + (percent * (endPos.y - currPos.y))
 
-    transform.position = currPos
+    transform.position = newPos
     
-    if (currPos.y == endPos.y or currPos.y < endPos.y)
+    if (newPos.y == newPos.y or newPos.y < endPos.y)
     then
       moveEnabled = false
     end
