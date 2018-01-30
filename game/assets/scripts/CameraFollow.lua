@@ -9,7 +9,9 @@ LERP_SPEED = 0.05
 
 ZOOM_SCALE = 1
 
-MIN_ZOOM = 5
+MIN_ZOOM = 10
+
+OFFSET_Y = 0.05
 
 -- Takes a pair of vec2
 function VectorDistance(a, b)
@@ -43,7 +45,7 @@ function Update(dt)
 	local currPos = transform.position
 	
 	currPos.x = ((1 - LERP_SPEED) * currPos.x + LERP_SPEED * position.x)
-	currPos.y = ((1 - LERP_SPEED) * currPos.y + LERP_SPEED * position.y)
+	currPos.y = ((1 - LERP_SPEED) * currPos.y + LERP_SPEED * position.y) + OFFSET_Y
 	
 	transform.position = currPos
 	

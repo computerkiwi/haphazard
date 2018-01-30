@@ -7,7 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 startPos = 0
 endPos = 0
-percent = 0.01
+percent = 0.5
 distance = -10 -- Distance to move
 steps = 1 -- How fast it moves
 moveEnabled = false
@@ -93,4 +93,7 @@ function Reset()
   local transform = this:GetTransform()
   transform.position = startPos
   moveEnabled = false
+  -- Remove when 
+  endPos = startPos
+  endPos.y = endPos.y + distance
 end --fn end
