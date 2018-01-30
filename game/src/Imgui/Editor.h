@@ -187,8 +187,13 @@ class Editor
 		float cameraArrowSpeed = 3.8f;
 		float cameraZoom  = 3.0f;
 
+		bool snap = false;
+		bool absoluteSnap = false;
+		float snapInterval = 1.0f;
+
 	} m_editorSettings;
 
+	glm::vec2 m_relativeSnapOffset;
 
 	// Save/Load
 	// --------------
@@ -240,6 +245,9 @@ class Editor
 	} m_scaleDir = Both, m_transformDir = Both;
 
 	Gizmo m_gizmo = none;
+
+	// Offset of the mouse from the selected when it was last clicked.
+	glm::vec2 m_selectedObjectMouseOffset;
 
 
 	// PopUps
