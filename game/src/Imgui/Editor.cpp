@@ -911,6 +911,10 @@ void Editor::OnClick()
 
 				// Save the GameObject data
 				m_selected_object = transform.GetGameObject().Getid();
+
+				// Save info we need to snap properly.
+				m_selectedObjectMouseOffset = mouse - pos;
+				m_relativeSnapOffset = glm::vec2(fmod(pos.x, m_editorSettings.snapInterval), fmod(pos.y, m_editorSettings.snapInterval));
 				return;
 			}
 		}
@@ -949,13 +953,19 @@ void Editor::Tools()
 		}
 		else
 		{
-			pos = transform->GetRelativePosition();
+			pos = transform->GetPosition();
 		}
 
 		switch (m_gizmo)
 		{
 		case Gizmo::Translation:
 		{
+			bool snap = m_editorSettings.snap;
+			if (Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl))
+			{
+				snap = !snap;
+			}
+
 			// delta Mouse Pos
 			glm::vec2 mouse = Input::GetMousePos_World();
 
@@ -972,25 +982,26 @@ void Editor::Tools()
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				GameObject object = m_selected_object;
+				glm::vec2 targetPos = transform->GetPosition();
 
 				// delta Mouse Pos
-				glm::vec2 mouseChange = mouse - m_prevMouse;
+				glm::vec2 mouseDiff = mouse - pos;
 
 				// Check if there are multiple objects selected
 				if (m_multiselect.m_size)
 				{
-					// foreach object add the mouseChange to its position
+					// foreach object add the mouseDiff to its position
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
 					{
 						GameObject gameObject = m_multiselect[i];
 
-						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseDiff);
 					}
 				}
 				else
 				{
 					// Check if we need to save the old value
-					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
+					if (!m_editorState.MouseDragClick)
 					{
 						bool freeze_axis = false;
 
@@ -1032,14 +1043,14 @@ void Editor::Tools()
 					{
 						// Freeze the y-axis and allow movement in the x-axis
 					case EditorGizmoDirection::Dir_X:
-						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						targetPos = glm::vec2(pos.x + mouseDiff.x - m_selectedObjectMouseOffset.x, pos.y);
 						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 
 						break;
 
 						// Freeze the x-axis and allow movement in the y-axis
 					case EditorGizmoDirection::Dir_Y:
-						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+						targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - m_selectedObjectMouseOffset.y);
 
 						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 						break;
@@ -1047,9 +1058,8 @@ void Editor::Tools()
 						// Move by both
 					case EditorGizmoDirection::Both:
 
-						// Add the mouseChange to the position
-						//    This method prevents the center of the object from snapping to the mouse position
-						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+						// Add the mouseDiff to the position
+						targetPos = pos + mouseDiff - m_selectedObjectMouseOffset;
 
 					default:
 						break;
@@ -1057,6 +1067,20 @@ void Editor::Tools()
 				}
 
 				m_prevMouse = Input::GetMousePos_World();
+
+				// Calculate the nearest snap point.
+				if (snap)
+				{
+					targetPos.x -= fmod(targetPos.x, m_editorSettings.snapInterval);
+					targetPos.y -= fmod(targetPos.y, m_editorSettings.snapInterval);
+
+					if (!m_editorSettings.absoluteSnap)
+					{
+						targetPos += m_relativeSnapOffset;
+					}
+				}
+
+				transform->SetPosition(targetPos);
 				return;
 			}
 
@@ -2534,8 +2558,15 @@ void Editor::SettingsPanel(float dt)
 	ImGui::DragFloat("Camera Zoom",  &m_editorSettings.cameraZoom,  (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
 	ImGui::PopItemWidth();
 
+	// Snapping settings.
 	ImGui::Separator();
+	ImGui::PushItemWidth(110);
+	ImGui::Checkbox("Snap Enabled", &m_editorSettings.snap);
+	ImGui::Checkbox("Absolute Snap", &m_editorSettings.absoluteSnap);
+	ImGui::InputFloat("Snap Interval", &m_editorSettings.snapInterval, 0.25f, 1.0f);
+	ImGui::PopItemWidth();
 
+	ImGui::Separator();
 	// Pulls up the Editor Keybinds
 	if (ImGui::Button("Keybinds" SETTINGS_BUTTON_SIZE))
 	{
