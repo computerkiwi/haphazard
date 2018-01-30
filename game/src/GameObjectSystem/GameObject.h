@@ -12,8 +12,6 @@ class GameSpace;
 
 extern GameSpace *defaultGameSpacePtr;
 
-#define implicit
-
 template <typename T>
 class ComponentHandle;
 
@@ -31,12 +29,18 @@ public:
 
 	GameObject(GameObject_ID id, GameSpaceIndex gameSpace);
 
-	implicit GameObject(GameObject_ID id);
+	GameObject(GameObject_ID id);
 
 	template <typename T, typename... Args>
 	void AddComponent(Args&&... args)
 	{
 		GetSpace()->EmplaceComponent<T>(m_objID, std::forward<Args>(args)...);
+	}
+
+	template <typename T>
+	void AddDefaultComponent()
+	{
+		GetSpace()->EmplaceComponent<T>(m_objID);
 	}
 
 	void AddComponent(meta::Any& component) const;
@@ -205,11 +209,17 @@ private:
 		META_DefineFunction(GameObject, Off,          "Off");
 
 
-		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>,          "DeleteRigidBody");
-		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>,   "DeleteStaticCollider");
-		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>,  "DeleteDynamicCollider");
-		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>,             "DeleteSprite");
-		META_DefineFunction(GameObject, DeleteComponent<Camera>,                      "DeleteCamera");
+		META_DefineFunction(GameObject, DeleteComponent<RigidBodyComponent>, "DeleteRigidBody");
+		META_DefineFunction(GameObject, DeleteComponent<StaticCollider2DComponent>, "DeleteStaticCollider");
+		META_DefineFunction(GameObject, DeleteComponent<DynamicCollider2DComponent>, "DeleteDynamicCollider");
+		META_DefineFunction(GameObject, DeleteComponent<SpriteComponent>, "DeleteSprite");
+		META_DefineFunction(GameObject, DeleteComponent<Camera>, "DeleteCamera");
+
+		META_DefineFunction(GameObject, AddDefaultComponent<RigidBodyComponent>, "AddRigidBody");
+		META_DefineFunction(GameObject, AddDefaultComponent<StaticCollider2DComponent>, "AddStaticCollider");
+		META_DefineFunction(GameObject, AddDefaultComponent<DynamicCollider2DComponent>, "AddDynamicCollider");
+		META_DefineFunction(GameObject, AddDefaultComponent<SpriteComponent>, "AddSprite");
+		META_DefineFunction(GameObject, AddDefaultComponent<Camera>, "AddCamera");
 
 
 		META_DefineFunction(GameObject, GetComponentPointer<ObjectInfo>,                 "GetObjectInfo");
@@ -231,6 +241,9 @@ private:
 		// Takes 1 parameter: string fileName
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addCFunction("GetScript", &GetScript);
 
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("GetInvalid", FindByName).endClass();
+
 		// TODO: Make this use the meta function.
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByName", FindByName).endClass();
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("FindByTag", FindByTag).endClass();
@@ -239,5 +252,7 @@ private:
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("CreateToSpace", CreateToSpace).endClass();
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("LoadPrefab", LoadPrefab).endClass();
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addConstructor<void(*)(int)>().endClass();
 	}
 };

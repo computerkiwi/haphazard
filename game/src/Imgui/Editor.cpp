@@ -1022,7 +1022,7 @@ void Editor::Tools()
 							m_transformDir = EditorGizmoDirection::Both;
 						}
 
-						objectSave.SetPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
+						objectSave.SetLocalPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
 						m_editorState.MouseDragClick = true;
 					}
 
@@ -1032,14 +1032,14 @@ void Editor::Tools()
 					{
 						// Freeze the y-axis and allow movement in the x-axis
 					case EditorGizmoDirection::Dir_X:
-						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						object.GetComponent<TransformComponent>()->SetLocalPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
 						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 
 						break;
 
 						// Freeze the x-axis and allow movement in the y-axis
 					case EditorGizmoDirection::Dir_Y:
-						object.GetComponent<TransformComponent>()->SetPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+						object.GetComponent<TransformComponent>()->SetLocalPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
 
 						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 						break;
@@ -1049,7 +1049,7 @@ void Editor::Tools()
 
 						// Add the mouseChange to the position
 						//    This method prevents the center of the object from snapping to the mouse position
-						object.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+						object.GetComponent<TransformComponent>()->SetLocalPosition(pos + mouseChange);
 
 					default:
 						break;
