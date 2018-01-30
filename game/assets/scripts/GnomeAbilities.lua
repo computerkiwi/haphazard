@@ -24,7 +24,7 @@ TODO::
 Projectile Info
 Gnome Abilities (this script)
 Projectile Spawner features
-GnomeSpawner sprite
+GnomeSpawner finishing?
 
 ]]
 
@@ -34,11 +34,35 @@ function Start()
 	this:GetScript("GnomeMovement.lua").Knockback(vec2(1,1), 10)
 end
 
+function Update()
+	local status = this:GetScript("GnomeStatus.lua")
+
+	-- Attacks
+	if(this:GetScript("InputHandler.lua").attackPressed)
+	then
+		if(status.stacked)
+		then
+			if(status.stackedBelow == nil)
+			then
+				FootAbility()
+			else
+				local type = status.GnomeType
+				local belowType = status.stackedBelow:GetScript("GnomeStatus.lua").type
+
+				StackedAttack(type, belowType)
+			end
+		else
+			Attack()
+		end
+	end
+
+end
+
 function LateUpdate()
 	-- Resets abilities that happen once per update (movement boost / gravity changes)
 end
 
-function AirAbility()
+function FootAbility()
 	
 	this:GetScript("GnomeStatus.lua").GnomeType = type
 
@@ -88,4 +112,10 @@ function SetType(type)
 	then
 		this:GetSprite().id = Resource.FilenameToID(Sprite_YellowGnome)
 	end
+end
+
+function StackedAttack(type, belowType)
+	
+	
+
 end

@@ -5,9 +5,6 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
--- Prefab settings
-PrefabName = "Projectile.json"
-
 -- Spawning settings
 relativeFireDirection = true
 aimDirection = vec2(1,0)
@@ -27,7 +24,7 @@ function SetDir(dir)
 	direction = dir
 end
 
-function Fire()
+function Fire(PrefabName)
 	local proj = GameObject.LoadPrefab(PrefabName)
 	
 	-- Set offset
