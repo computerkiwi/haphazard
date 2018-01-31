@@ -23,7 +23,7 @@ function Start()
 		local th = healthBar:GetSprite().textureHandler
 		th.currentFrame = health
 		healthBar:GetSprite().textureHandler = th
-	end]]
+	end
 end
 
 function Update(dt)
