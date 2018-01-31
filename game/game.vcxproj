@@ -295,6 +295,7 @@
     <None Include="assets\scripts\GemInteractive.lua" />
     <None Include="assets\scripts\GemScript.lua" />
     <None Include="assets\scripts\GnomeAutoMovement.lua" />
+    <None Include="assets\scripts\GnomeSpawner.lua" />
     <None Include="assets\scripts\Interactive.lua" />
     <None Include="assets\scripts\LevelProgress.lua" />
     <None Include="assets\scripts\PlatformMove.lua" />
