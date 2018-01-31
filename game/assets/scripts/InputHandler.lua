@@ -9,6 +9,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 PLAYER_INPUT_NUM = 0 -- Player number
 
+DEADZONE = 0.5
+
 UseKeyboard = true
 
 JUMP	 = 0 -- A

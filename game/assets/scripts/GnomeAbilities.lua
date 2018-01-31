@@ -43,6 +43,8 @@ function Start()
 end
 
 function Update()
+	this:GetScript("GnomeStatus.lua").specialMove = false
+
 	local status = this:GetScript("GnomeStatus.lua")
 
 	-- Attacks
@@ -64,12 +66,6 @@ function Update()
 		end
 	end
 
-end
-
-function LateUpdate()
-	-- Resets abilities that happen once per update (movement boost / gravity changes)
-
-	this:GetScript("GnomeStatus.lua").specialMove = false
 end
 
 function Jump()
@@ -122,7 +118,7 @@ function StackedAttack(type, belowType)
 
 	--PrefabName = "Projectile_" .. TypeName(type) .."_on" TypeName(belowType)
 	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+	this:GetScript("ProjectileSpawner.lua").Fire("otherProjectile.json")
 
 end
 

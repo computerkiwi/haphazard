@@ -5,6 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+--[[
 ENEMY_LAYER = 16;
 
 health = 6
@@ -16,7 +17,6 @@ INVULNERABLE_TIME = 2
 LEVEL = "Level1.json"
 
 function Start()
-
 	healthBar = GameObject.FindByName(this:GetName().."Healthbar")
 	if (healthBar:IsValid())
 	then
@@ -67,3 +67,4 @@ function OnCollisionEnter(other)
   end
 
 end
+]]
