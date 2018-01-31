@@ -11,9 +11,9 @@ life = 1;
 
 function Start()
 
-	local dir = GameObject.FindByName("Player2"):GetScript("GnomeMovement.lua").lastDir
+	--local dir = GameObject.FindByName("Player2"):GetScript("GnomeMovement.lua").lastDir
 
-	this:GetRigidBody().velocity = vec3( this:GetRigidBody().velocity.x * dir, this:GetRigidBody().velocity.y, this:GetRigidBody().velocity.z )
+	--this:GetRigidBody().velocity = vec3( this:GetRigidBody().velocity.x * dir, this:GetRigidBody().velocity.y, this:GetRigidBody().velocity.z )
 
 end
 
@@ -22,7 +22,7 @@ function Update(dt)
 	life = life - dt
 	if(life < 0)
 	then
-		this:Destroy()
+		--this:Destroy()
 	end
 
 end
