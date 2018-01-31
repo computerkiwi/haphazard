@@ -5,7 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
---[[
+
 ENEMY_LAYER = 16;
 
 health = 6
@@ -23,7 +23,7 @@ function Start()
 		local th = healthBar:GetSprite().textureHandler
 		th.currentFrame = health
 		healthBar:GetSprite().textureHandler = th
-	end
+	end]]
 end
 
 function Update(dt)
@@ -67,4 +67,3 @@ function OnCollisionEnter(other)
   end
 
 end
-]]
