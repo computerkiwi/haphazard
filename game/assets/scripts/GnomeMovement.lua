@@ -62,14 +62,14 @@ blockMovement = false
 blockJump = false
 
 -- Updates each frame
-function Update(dt)		
+function Update(dt)
 
 	local status = this:GetScript("GnomeStatus.lua")
 
 	-- Knockback is checked before ground update so it doesnt cancel on first update
 	if(status.knockedBack == true)
 	then
-		if(onGround)
+		if(onGround or status.stackedBelow ~= nil)
 		then
 			status.knockedBack = false
 		end
@@ -144,6 +144,8 @@ function Jump()
 	this:GetRigidBody().velocity = newVelocity
 
 	onGround = false
+
+	this:GetScript("GnomeAbilities.lua").Jump()
 end
 
 function Knockback(dir, force)
@@ -156,8 +158,10 @@ end
 
 function UpdateDir()
 	
+	local input = this:GetScript("InputHandler.lua")
+
 	-- Call input to get horizontal axis
-	moveDir = this:GetScript("InputHandler.lua").horizontalAxis
+	moveDir = input.horizontalAxis
 
 	if(moveDir == 0)
 	then
@@ -165,7 +169,20 @@ function UpdateDir()
 		return
 	end
 
-	this:GetScript("ProjectileSpawner.lua"):SetDir(moveDir)
+	local dir = vec2(1,0)
+	if(moveDir == -1)
+	then
+		dir = vec2(-1,0)
+	end
+
+	this:GetScript("ProjectileSpawner.lua").SetDir(dir)
+
+	if(this:GetScript("GnomeStatus.lua").stacked)
+	then
+		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
+	else
+		this:GetScript("ProjectileSpawner.lua").SetAim(dir)
+	end
 
 	SetWalkAnimFPS()
 

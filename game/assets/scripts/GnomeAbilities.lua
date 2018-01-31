@@ -12,11 +12,18 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Sprites
 
+local defaultGravity
+
 Sprite_RedGnome    = "redGnomeWalk.json"
 Sprite_GreenGnome  = "greenGnomeWalk.json"
 Sprite_BlueGnome   = "blueGnomeWalk.json"
 Sprite_YellowGnome = "yellowGnomeWalk.json"
 
+Blue_Foot_GravityScale = 0.5
+Yellow_Foot_SpeedBoost = 2
+Green_Foot_PushSpeed = 10
+
+local usedFootAbilityThisJump = false
 
 --[[
 
@@ -31,7 +38,8 @@ GnomeSpawner finishing?
 function Start()
 	SetType(this:GetScript("GnomeStatus.lua").GnomeType)
 
-	this:GetScript("GnomeMovement.lua").Knockback(vec2(1,1), 10)
+	defaultGravity = this:GetRigidBody().gravity
+	--this:GetScript("GnomeMovement.lua").Knockback(vec2(1,1), 10)
 end
 
 function Update()
@@ -60,38 +68,61 @@ end
 
 function LateUpdate()
 	-- Resets abilities that happen once per update (movement boost / gravity changes)
+
+	this:GetScript("GnomeStatus.lua").specialMove = false
+end
+
+function Jump()
+	usedFootAbilityThisJump = false
 end
 
 function FootAbility()
 	
-	this:GetScript("GnomeStatus.lua").GnomeType = type
+	local type = this:GetScript("GnomeStatus.lua").GnomeType
 
 	-- Set sprite
 	if(type == 1)	-- Red
 	then
-		this:GetScript("GnomeMovement.lua").Jump()
+		if(usedFootAbilityThisJump == false)
+		then
+			this:GetScript("GnomeMovement.lua").Jump()
+			usedFootAbilityThisJump = true
+		end
 	elseif(type == 2)	-- Green
 	then
-		--Todo: make only able to use once per jump
-
+		if(usedFootAbilityThisJump == false)
+		then
+		this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
+		--[[
+			local v = this:GetRigidBody().velocity
+			this:GetRigidBody().velocity = vec3(v.x + Green_Foot_PushSpeed, v.y, 0)
+			usedFootAbilityThisJump = true]]
+		end
 	elseif(type == 3)	-- Blue
 	then
+		-- Lowers fall speed
+		this:GetRigidBody().gravity = defaultGravity * Blue_Foot_GravityScale
 	elseif(type == 4)	-- Yellow
 	then
-		
+		this:GetScript("GnomeStatus.lua").specialMove = true
+		this:GetScript("GnomeStatus.lua").specialMoveScale = Yellow_Foot_SpeedBoost
 	end
 
 end
 
-function Stack()
-
-end
-
-function Unstack()
-
-end
-
 function Attack()
+
+	--PrefabName = "Projectile_" .. TypeName(type) .."_Standard.json"
+	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
+	this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+
+end
+
+function StackedAttack(type, belowType)
+
+	--PrefabName = "Projectile_" .. TypeName(type) .."_on" TypeName(belowType)
+	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
+	this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
 
 end
 
@@ -114,8 +145,18 @@ function SetType(type)
 	end
 end
 
-function StackedAttack(type, belowType)
-	
-	
-
+function TypeName(type)
+	if(type == 1)
+	then
+		return "Red"
+	elseif(type == 2)
+	then
+		return "Green"
+	elseif(type == 3)
+	then
+		return "Blue"
+	elseif(type == 4)
+	then
+		return "Yellow"
+	end
 end

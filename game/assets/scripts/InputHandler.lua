@@ -46,28 +46,28 @@ end
 -- Gamepad input
 function GetInputGamepad()
 	-- Movement
-	if (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) > DEADZONE)
+	if (GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS) > DEADZONE)
 	then
-		horizontalAxis = GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS)
-	elseif (GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS) < -DEADZONE)
+		horizontalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
+	elseif (GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS) < -DEADZONE)
 	then
-		horizontalAxis = GamepadGetAxis(PLAYER_NUM, HORIZONTAL_AXIS)
+		horizontalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
 	else
 		horizontalAxis = 0
 	end
 
-	if (GamepadGetAxis(PLAYER_NUM, VERTICAL_AXIS) > DEADZONE)
+	if (GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS) > DEADZONE)
 	then
-		verticalAxis = GamepadGetAxis(PLAYER_NUM, VERTICAL_AXIS)
-	elseif (GamepadGetAxis(PLAYER_NUM, VERTICAL_AXIS) < -DEADZONE)
+		verticalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
+	elseif (GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS) < -DEADZONE)
 	then
-		verticalAxis = GamepadGetAxis(PLAYER_NUM, VERTICAL_AXIS)
+		verticalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
 	else
 		verticalAxis = 0
 	end
 
 	-- Jump
-	if (GamepadIsPressed(PLAYER_NUM, JUMP))
+	if (GamepadIsPressed(PLAYER_INPUT_NUM, JUMP))
 	then
 		if(jumpPressed == false)
 		then
@@ -82,7 +82,7 @@ function GetInputGamepad()
 	end
 
 	-- Toss
-	if (GamepadIsPressed(PLAYER_NUM, TOSS))
+	if (GamepadIsPressed(PLAYER_INPUT_NUM, TOSS))
 	then
 		attackPressed = true
 	else
