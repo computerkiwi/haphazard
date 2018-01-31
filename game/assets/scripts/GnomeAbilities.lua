@@ -122,7 +122,7 @@ function StackedAttack(type, belowType)
 
 	--PrefabName = "Projectile_" .. TypeName(type) .."_on" TypeName(belowType)
 	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+	this:GetScript("ProjectileSpawner.lua").Fire("otherProjectile.json")
 
 end
 
