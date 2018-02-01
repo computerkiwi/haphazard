@@ -942,10 +942,23 @@ static glm::vec2 Average_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
 
 void Editor::Tools()
 {
+	// Static variables to keep track of editing state.
+	static bool editingObject = false;
+	static float initialObjRotation;
+	static glm::vec2 initialMousePos;
+
 	if (m_selected_object)
 	{
 		ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 
+		// Activate snap if the player is holding control.
+		bool snap = m_editorSettings.snap;
+		if (Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl))
+		{
+			snap = !snap;
+		}
+
+		// Get the position of the object.
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
 		{
@@ -958,14 +971,9 @@ void Editor::Tools()
 
 		switch (m_gizmo)
 		{
+
 		case Gizmo::Translation:
 		{
-			bool snap = m_editorSettings.snap;
-			if (Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl))
-			{
-				snap = !snap;
-			}
-
 			// delta Mouse Pos
 			glm::vec2 mouse = Input::GetMousePos_World();
 
@@ -1223,26 +1231,35 @@ void Editor::Tools()
 		case Gizmo::Rotation:
 		{
 			GameObject object = m_selected_object;
+			ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
 
 			// Decided to just default to the largest scale value
-			float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
-			circle /= 3.0f;
+			float circleRadius = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
+			circleRadius /= 3.0f;
 
 			// Gizmo circle
-			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xFFFF00), 1));
-			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawCircle(pos, circleRadius, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawCircle(pos, circleRadius - 0.01f, glm::vec4(HexVec(0xFFFF00), 1));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				// Mouse Position
 				glm::vec2 mouse = Input::GetMousePos_World();
 
+				//Initialize if we just started rotating
+				if (!editingObject)
+				{
+					editingObject = true;
+					initialObjRotation = transform->GetRotation();
+					initialMousePos = mouse;
+				}
+
 				// Distance between mouse and object
-				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);
-				float dy = (mouse.y - pos.y) * (mouse.y - pos.y);
+				glm::vec2 mouseOffset = mouse - pos;
+				float squareOffsetLength = glm::dot(mouseOffset, mouseOffset);
 
 				// Rotation Gizmo Actions
-				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
+				if (squareOffsetLength < circleRadius * circleRadius /*&& dx + dy > (circle * circle - 0.5f)*/)
 				{
 					// Check if we need to save the current value
 					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
@@ -1252,22 +1269,33 @@ void Editor::Tools()
 					}
 				}
 
-				// Rotation we are going to the object to, so lets start at the object's rotation in case we do nothing
-				//     Get the rotation between the mouse and the object
-				float rotation = atan2f(mouse.y - pos.y, mouse.x - pos.x);
+				// Get the change in rotation of the mouse since we first started rotating.
+				float mouseRotation = atan2(mouseOffset.y, mouseOffset.x);
+				glm::vec2 initialMouseOffset = initialMousePos - pos;
+				float initialMouseRotation = atan2(initialMouseOffset.y, initialMouseOffset.x);
+				float rotationDiff = mouseRotation - initialMouseRotation;
+				rotationDiff *= (180.0f / PI);
 
-				// Get the rotation of the previous mouse location
-				//     This is used to get the delta in the angle
-				float prev = atan2f(m_prevMouse.y - pos.y, m_prevMouse.x - pos.x);
+				// Figure out the target rotation and convert to degrees.
+				float finalRotation = fmod(initialObjRotation + rotationDiff + 360, 360);
 
-				// Get the change in the rotation
-				rotation -= prev;
+				if (snap)
+				{
+					float rotSnap = m_editorSettings.rotationSnapInterval;
+					finalRotation = finalRotation + rotSnap / 2 - fmod(finalRotation + rotSnap / 2, rotSnap);
 
-				// Convert it to degrees
-				rotation *= (180.0f / PI);
+					if (!m_editorSettings.absoluteSnap)
+					{
+						finalRotation += fmod(initialObjRotation, rotSnap);
+					}
+				}
 
-				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
+				object.GetComponent<TransformComponent>()->SetRotation(finalRotation);
 				m_prevMouse = mouse;
+			}
+			else
+			{
+				editingObject = false;
 			}
 
 			// Check if the user is done with the click and push the action
@@ -2564,6 +2592,7 @@ void Editor::SettingsPanel(float dt)
 	ImGui::Checkbox("Snap Enabled", &m_editorSettings.snap);
 	ImGui::Checkbox("Absolute Snap", &m_editorSettings.absoluteSnap);
 	ImGui::InputFloat("Snap Interval", &m_editorSettings.snapInterval, 0.25f, 1.0f);
+	ImGui::InputFloat("Rotation Interval", &m_editorSettings.rotationSnapInterval, 15, 30);
 	ImGui::PopItemWidth();
 
 	ImGui::Separator();
