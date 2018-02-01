@@ -2294,7 +2294,7 @@ void Editor::OpenLevel()
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	// Function Call to open the dialag box
 	if (GetOpenFileName(&file))

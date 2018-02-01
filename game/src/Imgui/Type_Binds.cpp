@@ -581,7 +581,7 @@ void LoadPreFab(Editor *editor)
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT;
+	file.Flags = OFN_DONTADDTORECENT | OFN_NOCHANGEDIR;
 
 	// Function Call to open the dialag box
 	if (GetOpenFileName(&file))

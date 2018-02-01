@@ -35,6 +35,12 @@ function Update(dt)
 	local player1 = GameObject.FindByName("Player1")
 	local player2 = GameObject.FindByName("Player2")
 	
+	-- Check if we actually got the players.
+	if (not player1:IsValid() or not player2:IsValid())
+	then
+		return
+	end
+
 	local position = player1:GetTransform().position
 	local otherPos = player2:GetTransform().position
 	
