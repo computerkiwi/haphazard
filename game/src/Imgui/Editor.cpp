@@ -845,10 +845,45 @@ void Editor::SetGameObject(GameObject new_object)
 	m_selected_object = new_object.Getid();
 }
 
+void Editor::TrySelect(const glm::vec2& mouse)
+{
+	// Position and Scale of the Current Object
+	glm::vec2 pos;
+	glm::vec2 scale;
+
+	// Check EVERY object
+	for (auto id : m_objects)
+	{
+		// Get the GameObject id
+		GameObject object = id;
+
+		if (object.IsValid())
+		{
+			// Transform handle
+			ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+			scale = abs(transform->GetScale());
+			pos = transform->GetPosition();
+
+			// Check for non-collision
+			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
+				mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
+			{
+				continue;
+			}
+
+			// Save the GameObject data
+			m_selected_object = transform.GetGameObject().Getid();
+
+			return;
+		}
+	}
+
+	// Deselect the object if nothing was found
+	m_selected_object = 0;
+}
 
 void Editor::OnClick()
-{
-	// Check for mouse 1 click
+{// Check for mouse 1 click
 	if (Input::IsPressed(Key::Mouse_1))
 	{
 		// Get the Mouse Position, save it as a previous position as well
@@ -867,60 +902,11 @@ void Editor::OnClick()
 			m_editorState.imguiWantMouse = false;
 		}
 
-		// Position and Scale of the Current Object
-		glm::vec2 pos;
-		glm::vec2 scale;
-
-		// Check the current object first, cache basically
-		//if (m_selected_object.IsValid())
-		//{
-		//	ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
-		//	pos = transform.Get()->GetPosition();
-		//	scale = abs(transform.Get()->GetScale());
-		//
-		//	// Check the selected object first
-		//	if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
-		//		mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
-		//	{
-		//	}
-		//	else
-		//	{
-		//		return;
-		//	}
-		//}
-
-		// Check EVERY object
-		for (auto id : m_objects)
+		// Only try to select something if we're not worried about the tool or we're not transforming.
+		if (m_editorSettings.selectWithTransformTools || m_gizmo == Gizmo::none)
 		{
-			// Get the GameObject id
-			GameObject object = id;
-
-			if (object.IsValid())
-			{
-				// Transform handle
-				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				scale = abs(transform->GetScale());
-				pos = transform->GetPosition();
-
-				// Check for non-collision
-				if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
-					mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
-				{
-					continue;
-				}
-
-				// Save the GameObject data
-				m_selected_object = transform.GetGameObject().Getid();
-
-				// Save info we need to snap properly.
-				m_selectedObjectMouseOffset = mouse - pos;
-				m_relativeSnapOffset = glm::vec2(fmod(pos.x, m_editorSettings.snapInterval), fmod(pos.y, m_editorSettings.snapInterval));
-				return;
-			}
+			TrySelect(mouse);
 		}
-
-		// Deselect the object if nothing was found
-		m_selected_object = 0;
 	}
 }
 
@@ -946,6 +932,7 @@ void Editor::Tools()
 	static bool editingObject = false;
 	static float initialObjRotation;
 	static glm::vec2 initialMousePos;
+	static glm::vec2 initialObjPos;
 
 	if (m_selected_object)
 	{
@@ -992,8 +979,17 @@ void Editor::Tools()
 				GameObject object = m_selected_object;
 				glm::vec2 targetPos = transform->GetPosition();
 
+				// If we're just clicking the object set up the initial state.
+				if (!editingObject)
+				{
+					editingObject = true;
+					initialObjPos = targetPos;
+					initialMousePos = mouse;
+				}
+
 				// delta Mouse Pos
 				glm::vec2 mouseDiff = mouse - pos;
+				glm::vec2 initialMouseDiff = initialMousePos - initialObjPos;
 
 				// Check if there are multiple objects selected
 				if (m_multiselect.m_size)
@@ -1051,14 +1047,14 @@ void Editor::Tools()
 					{
 						// Freeze the y-axis and allow movement in the x-axis
 					case EditorGizmoDirection::Dir_X:
-						targetPos = glm::vec2(pos.x + mouseDiff.x - m_selectedObjectMouseOffset.x, pos.y);
+						targetPos = glm::vec2(pos.x + mouseDiff.x - initialMouseDiff.x, pos.y);
 						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 
 						break;
 
 						// Freeze the x-axis and allow movement in the y-axis
 					case EditorGizmoDirection::Dir_Y:
-						targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - m_selectedObjectMouseOffset.y);
+						targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - initialMouseDiff.y);
 
 						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 						break;
@@ -1067,7 +1063,7 @@ void Editor::Tools()
 					case EditorGizmoDirection::Both:
 
 						// Add the mouseDiff to the position
-						targetPos = pos + mouseDiff - m_selectedObjectMouseOffset;
+						targetPos = pos + mouseDiff - initialMouseDiff;
 
 					default:
 						break;
@@ -1084,12 +1080,16 @@ void Editor::Tools()
 
 					if (!m_editorSettings.absoluteSnap)
 					{
-						targetPos += m_relativeSnapOffset;
+						targetPos += glm::vec2(fmod(initialObjPos.x, m_editorSettings.snapInterval), fmod(initialObjPos.y, m_editorSettings.snapInterval));
 					}
 				}
 
 				transform->SetPosition(targetPos);
 				return;
+			}
+			else
+			{
+				editingObject = false;
 			}
 
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
@@ -2594,6 +2594,11 @@ void Editor::SettingsPanel(float dt)
 	ImGui::InputFloat("Snap Interval", &m_editorSettings.snapInterval, 0.25f, 1.0f);
 	ImGui::InputFloat("Rotation Interval", &m_editorSettings.rotationSnapInterval, 15, 30);
 	ImGui::PopItemWidth();
+
+	// Misc settings.
+	ImGui::Separator();
+	ImGui::PushItemWidth(110);
+	ImGui::Checkbox("Transform Tools Select", &m_editorSettings.selectWithTransformTools);
 
 	ImGui::Separator();
 	// Pulls up the Editor Keybinds

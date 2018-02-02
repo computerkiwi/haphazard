@@ -10,20 +10,11 @@ cam = nil
 offset = vec2(0,0)
 startScale = vec3(0,0,0)
 
+XOffset = 0
+YOffset = 0
+
 function Start()
 	cam = GameObject.FindByName("Main Camera");
-
-	if(this:GetName() == "Player1Healthbar")
-	then
-		offset = vec2(-2,2)
-	elseif(this:GetName() == "Player2Healthbar")
-	then
-		offset = vec2(2,2)
-	elseif(this:GetName() == "GemCounter")
-	then
-		offset = vec2(0,2)
-	end
-
   --[[ Changed to specific scale to avoid UI getting larger whenever
        I zoom out, edit a level, save, and load. -- Lya ]]
   if(this:GetName() == "GemCounter")
@@ -40,7 +31,8 @@ function Start()
 end
 
 function Update(dt)
+
 	local zoomScale = cam:GetCamera().zoom / 5
-	this:GetTransform().position = vec2(cam:GetTransform().position.x + offset.x * zoomScale, cam:GetTransform().position.y + offset.y * zoomScale)
+	this:GetTransform().position = vec2(cam:GetTransform().position.x + XOffset * zoomScale, cam:GetTransform().position.y + YOffset * zoomScale)
 	this:GetTransform().scale = vec3(startScale.x * zoomScale, startScale.y * zoomScale, 1)
 end
