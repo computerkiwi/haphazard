@@ -160,22 +160,27 @@ void Engine::Update()
 	timeCounter += frameCap.timePassed();
 
 	if (timeCounter >= 1'000'000.0f)
-	{		
-		/*
-		m_WindowTitle += "<3 | FrameRate: ";
-		m_WindowTitle += std::to_string(frameCounter);
-		m_WindowTitle += "    Dt: ";
-		m_WindowTitle += std::to_string(Dt());
+	{	
+		if (m_editor.GetSettings().infoOnTitleBar)
+		{
+			m_WindowTitle += "Shortstack | FrameRate: ";
+			m_WindowTitle += std::to_string(frameCounter);
+			m_WindowTitle += "    Dt: ";
+			m_WindowTitle += std::to_string(Dt());
 
-		m_WindowTitle += ' ';
-		m_WindowTitle += m_WindowAppend;
-		m_WindowTitle += m_editor.GetSaveTitle();
-
+			m_WindowTitle += ' ';
+			m_WindowTitle += m_WindowAppend;
+			m_WindowTitle += m_editor.GetSaveTitle();
+		}
+		else
+		{
+			m_WindowTitle += "Shortstack";
+		}
 		glfwSetWindowTitle(m_window, m_WindowTitle.c_str());
 
 		m_WindowTitle.clear();
 		m_WindowAppend.clear();
-		*/
+
 		frameCounter = 0;
 		timeCounter -= 1000000;
 	}
