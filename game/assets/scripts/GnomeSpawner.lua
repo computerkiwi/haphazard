@@ -5,7 +5,10 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-GnomePrefab = "GnomePlayer1.json"
+Player1Prefab = "Player1Gnome.json"
+Player2Prefab = "Player2Gnome.json"
+Player3Prefab = "Player3Gnome.json"
+Player4Prefab = "Player4Gnome.json"
 
 GnomeObject = nil
 
@@ -29,14 +32,14 @@ function Start()
 	end
 end
 
+function Update()
+	if(SpawnMe and GnomeObject == nil)
+	then
+		Join()
+	end
+end
+
 function Join()
 	SpawnMe = true
-
 	GnomeObject = GameObject.LoadPrefab(GnomePrefab)
-
-	if(GnomeType == 1)
-	then
-		
-	end
-
 end
