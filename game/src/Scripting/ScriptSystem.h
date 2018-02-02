@@ -20,4 +20,8 @@ public:
 
 	// Inherited via SystemBase
 	virtual SystemBase * NewDuplicate() override;
+
+	static void ReloadAll();
+private:
+	static bool shouldReloadAllScripts;
 };

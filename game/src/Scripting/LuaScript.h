@@ -85,10 +85,10 @@ public:
 		}
 	}
 
-	// Reloads the from the file, saving current variables.
+	// Reloads the script from the file, saving current variables.
 	void Reload();
 
-	// Resets to default variables from current file (calls reload).
+	// Reloads the script from the file, resetting variables.
 	void Reset();
 
 private:
