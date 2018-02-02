@@ -183,19 +183,20 @@ class Editor
 	{
 		bool default_collider_match_scale = true;
 
+		// Camera settings.
 		float cameraSpeed = 50.0f;
 		float cameraArrowSpeed = 3.8f;
 		float cameraZoom  = 3.0f;
 
+		// Snap settings.
 		bool snap = false;
 		bool absoluteSnap = false;
 		float snapInterval = 1.0f;
 		float rotationSnapInterval = 15.0f;
 
-	} m_editorSettings;
+		bool selectWithTransformTools = false;
 
-	glm::vec2 m_relativeSnapOffset;
-	float m_initialObjRotation; // The rotation of an object when it was clicked.
+	} m_editorSettings;
 
 	// Save/Load
 	// --------------
@@ -247,9 +248,6 @@ class Editor
 	} m_scaleDir = Both, m_transformDir = Both;
 
 	Gizmo m_gizmo = none;
-
-	// Offset of the mouse from the selected when it was last clicked.
-	glm::vec2 m_selectedObjectMouseOffset;
 
 
 	// PopUps
@@ -411,6 +409,7 @@ private:
 	void PPFX();
 
 	// Click Handling
+	void TrySelect(const glm::vec2& mouse);
 	void OnClick();
 	void SortObjectList();
 
