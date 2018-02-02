@@ -98,7 +98,7 @@ struct PopUpWindow
 	}
 
 	// Message to display on screen
-	const char *message;
+	std::string message;
 
 	// Current Life of the window
 	float timer;
@@ -196,6 +196,8 @@ class Editor
 
 		bool selectWithTransformTools = false;
 
+		bool infoOnTitleBar = true;
+
 	} m_editorSettings;
 
 	// Save/Load
@@ -273,6 +275,11 @@ class Editor
 	} m_searches;
 
 public:
+	const EditorSettings& GetSettings()
+	{
+		return m_editorSettings;
+	}
+
 	// Console
 	// --------------
 	struct Console

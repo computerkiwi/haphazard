@@ -1359,7 +1359,7 @@ void Editor::UpdatePopUps(float dt)
 		glm::vec2 padding(65, 65);
 		
 		ImVec2 pos;
-		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, static_cast<float>(42 * GetPopUpCount(popup.pos)));
+		ImVec2 size(ImGui::CalcTextSize(popup.message.c_str()).x * 1.49f, static_cast<float>(42 * GetPopUpCount(popup.pos)));
 		float text_padding = size.x;  //strlen(popup.message) * 5.75f;
 
 		// Find where to draw the popup
@@ -1409,10 +1409,10 @@ void Editor::UpdatePopUps(float dt)
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(ImVec2(globalScale * size.x, globalScale * size.y));
 
-			ImGui::Begin(popup.message, nullptr, flags);
+			ImGui::Begin(popup.message.c_str(), nullptr, flags);
 			ImGui::PushAllowKeyboardFocus(false);
 
-			ImGui::Text(popup.message);
+			ImGui::Text(popup.message.c_str());
 
 			// Save the alpha for next frame
 			popup.alpha = alpha;
@@ -2213,6 +2213,11 @@ void Editor::SaveLoad()
 		if (m_editorState.fileOpened)
 		{
 			m_engine->FileSave(m_filename.c_str());
+
+			// Tell the user we auto saved
+			std::string saveMessage = "Saved file ";
+			saveMessage += m_filename;
+			AddPopUp(PopUpWindow(saveMessage.c_str(), 2.2f, PopUpPosition::BottomRight));
 		}
 		else
 		{
@@ -2599,6 +2604,7 @@ void Editor::SettingsPanel(float dt)
 	ImGui::Separator();
 	ImGui::PushItemWidth(110);
 	ImGui::Checkbox("Transform Tools Select", &m_editorSettings.selectWithTransformTools);
+	ImGui::Checkbox("Info on Window", &m_editorSettings.infoOnTitleBar);
 
 	ImGui::Separator();
 	// Pulls up the Editor Keybinds
