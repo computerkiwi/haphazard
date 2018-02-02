@@ -42,6 +42,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Debug Graphics for Shapes
 #include "graphics/DebugGraphic.h"
 
+// Access point for reloading all the scripts.
+#include "Scripting/ScriptSystem.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -2193,6 +2195,16 @@ void Editor::MenuBar()
 			{
 				m_editorState.ppfx = !m_editorState.ppfx;
 			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Scripting##menuBar"))
+		{
+			if (ImGui::MenuItem("Reload All Scripts"))
+			{
+				ScriptSystem::ReloadAll();
+			}
+
 			ImGui::EndMenu();
 		}
 

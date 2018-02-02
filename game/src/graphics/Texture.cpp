@@ -109,24 +109,23 @@ glm::ivec3 FindLocationForSprite(int width, int height)
 
 Texture::Texture(const char* file)
 {
-	int width, height;
-	unsigned char* image = SOIL_load_image(file, &width, &height, 0, SOIL_LOAD_RGBA);
+	unsigned char* image = SOIL_load_image(file, &m_pixelWidth, &m_pixelHeight, 0, SOIL_LOAD_RGBA);
 
 	if (!m_TextureArray)
 		GenerateTextureArray();
 
-	glm::ivec3 offset = FindLocationForSprite(width, height);
+	glm::ivec3 offset = FindLocationForSprite(m_pixelWidth, m_pixelHeight);
 
 	m_layer = offset.z;
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, m_TextureArray);
-	LoadTexture(image, offset.x, offset.y, width, height, m_layer, GL_UNSIGNED_BYTE);
+	LoadTexture(image, offset.x, offset.y, m_pixelWidth, m_pixelHeight, m_layer, GL_UNSIGNED_BYTE);
 	SOIL_free_image_data(image); // Data given to opengl, dont need it here anymore
 
 	m_bounds.x = offset.x / (float)MAX_WIDTH;
 	m_bounds.y = offset.y / (float)MAX_HEIGHT;
-	m_bounds.z = m_bounds.x + width / (float)MAX_WIDTH;
-	m_bounds.w = m_bounds.y + height / (float)MAX_HEIGHT;
+	m_bounds.z = m_bounds.x + m_pixelWidth / (float)MAX_WIDTH;
+	m_bounds.w = m_bounds.y + m_pixelHeight / (float)MAX_HEIGHT;
 	
 	textures.push_back(this);
 }
@@ -147,6 +146,15 @@ glm::vec4 Texture::GetBounds()
 	return m_bounds;
 }
 
+int Texture::PixelWidth()
+{
+	return m_pixelWidth;
+}
+
+int Texture::PixelHeight()
+{
+	return m_pixelHeight;
+}
 ///
 // Animated Textures
 ///
@@ -161,6 +169,9 @@ AnimatedTexture::AnimatedTexture(const char* file, int spriteWidth, int spriteHe
 {
 	m_spriteWidth = spriteWidth / (float)MAX_WIDTH;
 	m_spriteHeight = spriteHeight / (float)MAX_HEIGHT;
+
+	m_pixelWidth /= m_spritesX;
+	m_pixelHeight /= m_spritesY;
 }
 
 glm::vec4 AnimatedTexture::GetBounds(int frame)
