@@ -190,10 +190,12 @@ class Editor
 		bool snap = false;
 		bool absoluteSnap = false;
 		float snapInterval = 1.0f;
+		float rotationSnapInterval = 15.0f;
 
 	} m_editorSettings;
 
 	glm::vec2 m_relativeSnapOffset;
+	float m_initialObjRotation; // The rotation of an object when it was clicked.
 
 	// Save/Load
 	// --------------
