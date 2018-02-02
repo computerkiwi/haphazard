@@ -1,0 +1,9 @@
+{
+  "textureName": "Ability Sprites/Ability_Red_onYellow.png",
+  "frameWidth":  768,
+  "frameHeight": 256,
+  "framesX":     1,
+  "framesY":     2,
+  "fps":         1,
+  "frameCount":  2
+}
