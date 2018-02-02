@@ -10,6 +10,8 @@ LERP_SPEED = 0.05
 ZOOM_SCALE = 1
 
 MIN_ZOOM = 10
+MaxZoom = 20
+dist = 1
 
 OFFSET_Y = 0.05
 
@@ -34,7 +36,8 @@ end
 function Update(dt)
 	local player1 = GameObject.FindByName("Player1")
 	local player2 = GameObject.FindByName("Player2")
-	
+	local camera = this:GetCamera()
+
 	-- Check if we actually got the players.
 	if (not player1:IsValid() or not player2:IsValid())
 	then
@@ -55,10 +58,21 @@ function Update(dt)
 	
 	transform.position = currPos
 	
-	local dist = VectorDistance(player1:GetTransform().position, player2:GetTransform().position)
-	local camera = this:GetCamera()
-	camera.zoom = max(MIN_ZOOM, ((1 - LERP_SPEED) * camera.zoom + LERP_SPEED * dist * ZOOM_SCALE))
-	
-	
-	
+	dist = VectorDistance(player1:GetTransform().position, player2:GetTransform().position)
+	camera.zoom = ClampedZoom()
+end
+
+function ClampedZoom()
+
+	local value = dist
+
+	if value < MIN_ZOOM
+	then
+		value = MIN_ZOOM
+	elseif value > MaxZoom
+	then
+		value = MaxZoom
+	end
+
+	return value
 end
