@@ -1,6 +1,6 @@
 --[[
 FILE: BlueGnomeAttack.lua
-PRIMARY AUTHOR: Max
+PRIMARY AUTHOR: Max Rauffer
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]

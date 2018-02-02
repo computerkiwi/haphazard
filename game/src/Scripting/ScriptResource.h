@@ -17,6 +17,7 @@ class ScriptResource : public Resource
 	virtual void UnloadData() override;
 	virtual void *GetData() override; // Returns a std::string ptr.
 	virtual ResourceType GetType() override;
+	virtual void ReloadData(const char *filePath) override;
 
 public:
 	ScriptResource(const char *folderPath, const char *fileName);

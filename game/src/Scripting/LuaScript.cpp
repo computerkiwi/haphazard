@@ -22,6 +22,10 @@ LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 {
 }
 
+LuaScript::~LuaScript()
+{
+}
+
 LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(other.m_L)
 {
 	SetResourceID(other.m_resID);
@@ -107,6 +111,31 @@ void LuaScript::RunFunction(const char *functionName, int args, int returns)
 	}
 }
 
+void LuaScript::Reload()
+{
+	auto vars = GetAllVars();
+
+	Reset();
+
+	for (auto& var : vars)
+	{
+		SetVar(var.first.c_str(), var.second);
+	}
+}
+
+void LuaScript::Reset()
+{
+	ResourceID tempID = m_resID;
+	UnloadScript();
+
+	Resource *resource = Engine::GetEngine()->GetResourceManager().Get(tempID);
+	resource->Reload();
+
+	m_needsStartCall = true;
+
+	SetScriptResource(resource);
+}
+
 void LuaScript::GetScriptEnvironment()
 {
 	lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
@@ -172,6 +201,8 @@ void LuaScript::SetScriptResource(Resource *resource)
 	// Make sure we're getting a script resource.
 	Assert(resource->GetResourceType() == ResourceType::SCRIPT);
 
+	m_resID = resource->Id();
+
 	SetupEnvironment(reinterpret_cast<std::string *>(resource->Data())->c_str());
 }
 
@@ -206,7 +237,6 @@ static std::pair<bool, meta::Any> LuaValToAny(lua_State *L, int index)
 	}
 
 	// If we got here, we don't currently support the type.
-	Logging::Log(Logging::SCRIPTING, Logging::LOW_PRIORITY, "Attempted to get variable with unsupported type ", lua_typename(L, index), " from a script.");
 	return std::make_pair(false, meta::Any(0));
 }
 
@@ -323,6 +353,11 @@ void LuaScript::UpdateThisObject()
 
 	// Remove the environment table.
 	lua_pop(m_L, 1);
+}
+
+void LuaScript::UnloadScript()
+{
+	m_resID = INVALID_ID;
 }
 
 rapidjson::Value LuaScript::LuaScriptSerializeFunction(const void *scriptPtr, rapidjson::Document::AllocatorType& allocator)

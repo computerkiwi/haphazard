@@ -21,7 +21,7 @@ Font* Fonts::arial;
 
 void Font::InitFonts()
 {
-	Fonts::arial = new Font("font.png", 24, 32, 16, 6);
+	Fonts::arial = new Font("assets/textures/font.png", 24, 32, 16, 6);
 }
 
 Font::Font(const char* path, int charWidth, int charHeight, int numCharsX, int numCharsY)

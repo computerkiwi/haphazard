@@ -53,3 +53,9 @@ ResourceType ScriptResource::GetType()
 ScriptResource::ScriptResource(const char * folderPath, const char * fileName) : Resource(folderPath, fileName)
 {
 }
+
+void ScriptResource::ReloadData(const char *filePath)
+{
+	// Reloading is the same as loading.
+	LoadData(filePath);
+}

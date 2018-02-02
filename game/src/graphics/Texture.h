@@ -27,6 +27,9 @@ public:
 	GLuint GetLayer() const { return m_layer; }
 	virtual glm::vec4 GetBounds();
 
+	int PixelWidth();
+	int PixelHeight();
+
 	static void BindArray();
 	
 	const static int MAX_WIDTH = 1920;
@@ -37,6 +40,9 @@ protected: // Static variables
 	static void GenerateTextureArray();
 	static GLuint m_TextureArray;
 	static GLuint m_layers;
+
+	int m_pixelWidth;
+	int m_pixelHeight;
 
  // Variables
 	GLuint m_layer;

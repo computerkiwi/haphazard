@@ -18,6 +18,7 @@ public:
 	static std::string currentFileName;
 
 	LuaScript();
+	~LuaScript();
 	LuaScript(const LuaScript& other);
 	LuaScript(LuaScript&& other);
 	LuaScript& operator=(const LuaScript& other);
@@ -84,6 +85,12 @@ public:
 		}
 	}
 
+	// Reloads the script from the file, saving current variables.
+	void Reload();
+
+	// Reloads the script from the file, resetting variables.
+	void Reset();
+
 private:
 	// Puts the environment table for this script on the Lua stack.
 	void GetScriptEnvironment();
@@ -98,6 +105,9 @@ private:
 	ResourceID m_resID;
 	int m_environmentID;
 	lua_State *m_L;
+
+	// Deletes the environment table, etc.
+	void UnloadScript();
 
 	// For meta. (Mostly deserialization)
 	static void MetaSetObject(void *scriptPtr, GameObject_ID id)

@@ -9,7 +9,7 @@ HAPHAZARD_ID = 2112077054
 DIGIPEN_ID   = 3440128679
 MENU_ID      = 3140605471
 
-LEVEL = "Level1.json" -- What level to switch to?
+LEVEL = "MainMenu.json" -- What level to switch to?
 
 -- Starts faded to black.
 VISIBLE_DIGIPEN      = 1.0 + 0
