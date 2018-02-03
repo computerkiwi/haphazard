@@ -681,7 +681,7 @@ void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform,
 {
 	rigidBody->AddVelocity(rigidBody->Gravity() * dt);
 	rigidBody->AddVelocity(acceleration * dt);
-	transform->SetPosition(transform->GetRelativePosition() + velocity * dt);
+	transform->SetPosition(transform->GetPosition() + static_cast<glm::vec2>(velocity) * dt);
 }
 
 void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders)
