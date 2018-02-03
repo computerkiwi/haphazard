@@ -76,7 +76,7 @@ bool ImGui_IndividualScript(LuaScript &script, ScriptComponent *script_c, GameOb
 	std::string fileName = rm.Get(script.GetResourceID())->FileName();
 
 	// Copy the fileName into the header without '.lua'
-	std::string headerName(fileName.size(), 0);
+	std::string headerName(fileName.size() - 4, 0);
 	std::copy(fileName.begin(), fileName.end() - 4, headerName.begin());
 	headerName += "##script_";
 	headerName += fileName;
