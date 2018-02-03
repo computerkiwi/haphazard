@@ -44,8 +44,6 @@ MOVE_LEFT	= -1 -- Player moving left
 MOVE_IDLE	=	0 -- Player idle
 MOVE_RIGHT =	1 -- Player moving right
 
-
-
 --[[ VARIABLES ]]--
 
 -- Movement
@@ -60,6 +58,9 @@ fallSpeed	 = 2
 -- Flags
 blockMovement = false
 blockJump = false
+
+-- Size info
+gnomeColliderYSize = 1
 
 -- Updates each frame
 function Update(dt)
@@ -104,10 +105,7 @@ function Update(dt)
 
 	end
 	
-	if(status.stacked == true and status.stackedBelow == nil)
-	then
-		this:GetScript("GnomeStack.lua").UpdateParenting()
-	end
+	this:GetScript("GnomeStack.lua").UpdateParenting()
 
 end -- fn end
 
@@ -217,7 +215,8 @@ function CheckGround(count)
 
 	local pos	 = this:GetTransform().position
 	local scale = this:GetCollider().dimensions
-	
+	scale.y = gnomeColliderYSize
+
 	local DOWN = vec2(0, -1)
 	
 	-- Make an array of raycast origins

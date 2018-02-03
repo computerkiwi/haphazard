@@ -11,6 +11,13 @@ currCollisionLayer = 0
 delayCollisionCounter = 0
 delayCollisionLayer = 0
 
+--gnomeColliderYSize = 1
+--gnomeColliderXSize = 0.6
+maxStackedDistanceX = 0.3
+minStackedDistanceY = 0.3
+
+local ATinyNumber = 0.1
+
 function Start()
 	
 	currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
@@ -59,6 +66,11 @@ function Update(dt)
 		end
 	end
 
+	--ResizeColliders()
+end
+
+function EarlyUpdate()
+	CheckForUnstack()
 end
 
 function GetBottomGnome()
@@ -76,7 +88,7 @@ function UpdateParenting()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 
 	local newPos = this:GetTransform().position
-	
+
 	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
 	do
 		newPos.y = newPos.y + gnomeStackDistance
@@ -86,6 +98,59 @@ function UpdateParenting()
 
 		thisStatus = thisStatus.stackedAbove:GetScript("GnomeStatus.lua")
 	end
+end
+
+--[[
+Saving this for later, incase we dont like the other method of unstacking if too far
+
+function ResizeColliders()
+	local thisStatus = this:GetScript("GnomeStatus.lua")
+
+	local numStacked = 1 -- Count this gnome
+
+	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
+	do
+		numStacked = numStacked + 1
+		thisStatus = thisStatus.stackedAbove:GetScript("GnomeStatus.lua")
+	end
+
+	if(numStacked > 1 and this:GetScript("GnomeStatus.lua").stackedBelow == nil)
+	then
+		numStacked = numStacked + 1 -- Last gnome not accounted for in loop
+
+		local size = gnomeColliderYSize * numStacked - gnomeStackDistance * numStacked - ATinyNumber
+
+		this:GetCollider().dimensions = vec3(gnomeColliderXSize - ATinyNumber, size, this:GetCollider().dimensions.z)
+		this:GetCollider().offset = vec3(this:GetCollider().offset.x, size / 2 - gnomeColliderYSize / 2, this:GetCollider().offset.z)
+	else
+		this:GetCollider().dimensions = vec3(gnomeColliderXSize, gnomeColliderYSize, this:GetCollider().dimensions.z)
+		this:GetCollider().offset = vec3(this:GetCollider().offset.x, 0, this:GetCollider().offset.z)
+	end
+end
+]]
+
+function CheckForUnstack()
+	-- Check if should unstack from bottom gnome
+
+	local thisStatus = this:GetScript("GnomeStatus.lua")
+
+	if(thisStatus.stackedBelow ~= nil)
+	then
+		local pos = this:GetTransform().position
+		local belowPos = thisStatus.stackedBelow:GetTransform().position
+
+		local distX = math.abs(pos.x - belowPos.x)
+		local distY = math.abs(pos.y - belowPos.y)
+
+		print(distX .."  ... Y: " .. distY)
+
+		if(distX > maxStackedDistanceX or distY < minStackedDistanceY)
+		then
+			Unstack()
+		end
+		
+	end
+
 end
 
 function DetachGnomes(top, bot)
@@ -104,7 +169,9 @@ function DetachGnomes(top, bot)
 
 	topStack.delayCollisionLayer = topStatus.PLAYER_PHYS_LAYER --botStatus.PLAYER_PHYS_LAYER
 	topStack.delayCollisionCounter = 1
-	
+
+	--topStack.ResizeColliders()
+
 	topStatus.stackedBelow = nil
 	botStatus.stackedAbove = nil
 	

@@ -41,5 +41,19 @@ end
 
 function Join()
 	SpawnMe = true
-	GnomeObject = GameObject.LoadPrefab(GnomePrefab)
+
+	if(GnomeType == 1)
+	then
+		GnomeObject = GameObject.LoadPrefab(Player1Prefab)
+	elseif(GnomeType == 2)
+	then
+		GnomeObject = GameObject.LoadPrefab(Player2Prefab)
+	elseif(GnomeType == 3)
+	then
+		GnomeObject = GameObject.LoadPrefab(Player3Prefab)
+	elseif(GnomeType == 4)
+	then
+		GnomeObject = GameObject.LoadPrefab(Player4Prefab)
+	end
+
 end
