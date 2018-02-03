@@ -8,7 +8,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 SpawnTimerMax = 3.2
 SpawnTimer = SpawnTimerMax -- The rate at which spores spawn
-SpawnDir = 1 -- Default spawn direction (upwards)
+YVelocity = 0 -- 1 is up, 0 is nothing, -1 is down
+XVelocity = 0 -- 1 is right, 0 is nothing, -1 is left
 
 SPORE = "assets/prefabs/dangerShroom_Spore.json"
 
@@ -20,25 +21,10 @@ function SpawnSpore()
 
 	spore:GetTransform().position = this:GetTransform().position;
   
-  velocity.x = velocity.x * SpawnDir
-  velocity.y = velocity.y * SpawnDir
+  velocity.x = XVelocity
+  velocity.y = YVelocity
 
   sporeBody.velocity = velocity
-  
-end -- fn end
-
-
-function Start()
-
-  local rotation = this:GetTransform().rotation
-
-  if (rotation > 0)
-  then
-   SpawnDir = -1
-  end
-
-  print(SpawnDir)
-
 end -- fn end
 
 function Update(dt)

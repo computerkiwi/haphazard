@@ -131,6 +131,8 @@ void LuaScript::Reset()
 	Resource *resource = Engine::GetEngine()->GetResourceManager().Get(tempID);
 	resource->Reload();
 
+	m_needsStartCall = true;
+
 	SetScriptResource(resource);
 }
 
@@ -235,7 +237,6 @@ static std::pair<bool, meta::Any> LuaValToAny(lua_State *L, int index)
 	}
 
 	// If we got here, we don't currently support the type.
-	Logging::Log(Logging::SCRIPTING, Logging::LOW_PRIORITY, "Attempted to get variable with unsupported type ", lua_typename(L, index), " from a script.");
 	return std::make_pair(false, meta::Any(0));
 }
 

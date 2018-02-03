@@ -42,6 +42,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Debug Graphics for Shapes
 #include "graphics/DebugGraphic.h"
 
+// Access point for reloading all the scripts.
+#include "Scripting/ScriptSystem.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -845,10 +847,45 @@ void Editor::SetGameObject(GameObject new_object)
 	m_selected_object = new_object.Getid();
 }
 
+void Editor::TrySelect(const glm::vec2& mouse)
+{
+	// Position and Scale of the Current Object
+	glm::vec2 pos;
+	glm::vec2 scale;
+
+	// Check EVERY object
+	for (auto id : m_objects)
+	{
+		// Get the GameObject id
+		GameObject object = id;
+
+		if (object.IsValid())
+		{
+			// Transform handle
+			ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+			scale = abs(transform->GetScale());
+			pos = transform->GetPosition();
+
+			// Check for non-collision
+			if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
+				mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
+			{
+				continue;
+			}
+
+			// Save the GameObject data
+			m_selected_object = transform.GetGameObject().Getid();
+
+			return;
+		}
+	}
+
+	// Deselect the object if nothing was found
+	m_selected_object = 0;
+}
 
 void Editor::OnClick()
-{
-	// Check for mouse 1 click
+{// Check for mouse 1 click
 	if (Input::IsPressed(Key::Mouse_1))
 	{
 		// Get the Mouse Position, save it as a previous position as well
@@ -867,56 +904,11 @@ void Editor::OnClick()
 			m_editorState.imguiWantMouse = false;
 		}
 
-		// Position and Scale of the Current Object
-		glm::vec2 pos;
-		glm::vec2 scale;
-
-		// Check the current object first, cache basically
-		//if (m_selected_object.IsValid())
-		//{
-		//	ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
-		//	pos = transform.Get()->GetPosition();
-		//	scale = abs(transform.Get()->GetScale());
-		//
-		//	// Check the selected object first
-		//	if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
-		//		mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
-		//	{
-		//	}
-		//	else
-		//	{
-		//		return;
-		//	}
-		//}
-
-		// Check EVERY object
-		for (auto id : m_objects)
+		// Only try to select something if we're not worried about the tool or we're not transforming.
+		if (m_editorSettings.selectWithTransformTools || m_gizmo == Gizmo::none)
 		{
-			// Get the GameObject id
-			GameObject object = id;
-
-			if (object.IsValid())
-			{
-				// Transform handle
-				ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
-				scale = abs(transform->GetScale());
-				pos = transform->GetPosition();
-
-				// Check for non-collision
-				if (mouse.x > pos.x + (scale.x / 2) || mouse.x < pos.x - (scale.x / 2) ||
-					mouse.y > pos.y + (scale.y / 2) || mouse.y < pos.y - (scale.y / 2))
-				{
-					continue;
-				}
-
-				// Save the GameObject data
-				m_selected_object = transform.GetGameObject().Getid();
-				return;
-			}
+			TrySelect(mouse);
 		}
-
-		// Deselect the object if nothing was found
-		m_selected_object = 0;
 	}
 }
 
@@ -938,10 +930,24 @@ static glm::vec2 Average_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
 
 void Editor::Tools()
 {
+	// Static variables to keep track of editing state.
+	static bool editingObject = false;
+	static float initialObjRotation;
+	static glm::vec2 initialMousePos;
+	static glm::vec2 initialObjPos;
+
 	if (m_selected_object)
 	{
 		ComponentHandle<TransformComponent> transform = m_selected_object.GetComponent<TransformComponent>();
 
+		// Activate snap if the player is holding control.
+		bool snap = m_editorSettings.snap;
+		if (Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl))
+		{
+			snap = !snap;
+		}
+
+		// Get the position of the object.
 		glm::vec2 pos;
 		if (m_multiselect.m_size)
 		{
@@ -949,20 +955,21 @@ void Editor::Tools()
 		}
 		else
 		{
-			pos = transform->GetRelativePosition();
+			pos = transform->GetPosition();
 		}
 
 		switch (m_gizmo)
 		{
+
 		case Gizmo::Translation:
 		{
 			// delta Mouse Pos
 			glm::vec2 mouse = Input::GetMousePos_World();
 
-			const glm::vec2 pos_x_dir = transform->GetParent() ? transform->GetParent().GetComponent<TransformComponent>()->GetPosition() + glm::vec2(pos.x + 0.125f, pos.y) : glm::vec2(pos.x + 0.125f, pos.y);
+			const glm::vec2 pos_x_dir = glm::vec2(pos.x + 0.125f, pos.y);
 			const glm::vec2 scale_x_dir(0.25f, 0.1f);
 
-			const glm::vec2 pos_y_dir = transform->GetParent() ? transform->GetParent().GetComponent<TransformComponent>()->GetPosition() + glm::vec2(pos.x, pos.y + 0.125f) : glm::vec2(pos.x, pos.y + +0.125f);
+			const glm::vec2 pos_y_dir = glm::vec2(pos.x, pos.y + +0.125f);
 			const glm::vec2 scale_y_dir(0.1f, 0.25f);
 
 			DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir);
@@ -972,25 +979,35 @@ void Editor::Tools()
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				GameObject object = m_selected_object;
+				glm::vec2 targetPos = transform->GetPosition();
+
+				// If we're just clicking the object set up the initial state.
+				if (!editingObject)
+				{
+					editingObject = true;
+					initialObjPos = targetPos;
+					initialMousePos = mouse;
+				}
 
 				// delta Mouse Pos
-				glm::vec2 mouseChange = mouse - m_prevMouse;
+				glm::vec2 mouseDiff = mouse - pos;
+				glm::vec2 initialMouseDiff = initialMousePos - initialObjPos;
 
 				// Check if there are multiple objects selected
 				if (m_multiselect.m_size)
 				{
-					// foreach object add the mouseChange to its position
+					// foreach object add the mouseDiff to its position
 					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
 					{
 						GameObject gameObject = m_multiselect[i];
 
-						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseChange);
+						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseDiff);
 					}
 				}
 				else
 				{
 					// Check if we need to save the old value
-					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
+					if (!m_editorState.MouseDragClick)
 					{
 						bool freeze_axis = false;
 
@@ -1032,14 +1049,14 @@ void Editor::Tools()
 					{
 						// Freeze the y-axis and allow movement in the x-axis
 					case EditorGizmoDirection::Dir_X:
-						object.GetComponent<TransformComponent>()->SetLocalPosition(glm::vec2(pos.x + mouseChange.x, pos.y));
+						targetPos = glm::vec2(pos.x + mouseDiff.x - initialMouseDiff.x, pos.y);
 						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 
 						break;
 
 						// Freeze the x-axis and allow movement in the y-axis
 					case EditorGizmoDirection::Dir_Y:
-						object.GetComponent<TransformComponent>()->SetLocalPosition(glm::vec2(pos.x, pos.y + mouseChange.y));
+						targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - initialMouseDiff.y);
 
 						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 						break;
@@ -1047,9 +1064,8 @@ void Editor::Tools()
 						// Move by both
 					case EditorGizmoDirection::Both:
 
-						// Add the mouseChange to the position
-						//    This method prevents the center of the object from snapping to the mouse position
-						object.GetComponent<TransformComponent>()->SetLocalPosition(pos + mouseChange);
+						// Add the mouseDiff to the position
+						targetPos = pos + mouseDiff - initialMouseDiff;
 
 					default:
 						break;
@@ -1057,7 +1073,25 @@ void Editor::Tools()
 				}
 
 				m_prevMouse = Input::GetMousePos_World();
+
+				// Calculate the nearest snap point.
+				if (snap)
+				{
+					targetPos.x -= fmod(targetPos.x, m_editorSettings.snapInterval);
+					targetPos.y -= fmod(targetPos.y, m_editorSettings.snapInterval);
+
+					if (!m_editorSettings.absoluteSnap)
+					{
+						targetPos += glm::vec2(fmod(initialObjPos.x, m_editorSettings.snapInterval), fmod(initialObjPos.y, m_editorSettings.snapInterval));
+					}
+				}
+
+				transform->SetPosition(targetPos);
 				return;
+			}
+			else
+			{
+				editingObject = false;
 			}
 
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
@@ -1199,26 +1233,35 @@ void Editor::Tools()
 		case Gizmo::Rotation:
 		{
 			GameObject object = m_selected_object;
+			ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
 
 			// Decided to just default to the largest scale value
-			float circle = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
-			circle /= 3.0f;
+			float circleRadius = max(object.GetComponent<TransformComponent>()->GetScale().x, object.GetComponent<TransformComponent>()->GetScale().y);
+			circleRadius /= 3.0f;
 
 			// Gizmo circle
-			DebugGraphic::DrawCircle(pos, circle, glm::vec4(HexVec(0xFFFF00), 1));
-			DebugGraphic::DrawCircle(pos, circle - 0.01f, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawCircle(pos, circleRadius, glm::vec4(HexVec(0xFFFF00), 1));
+			DebugGraphic::DrawCircle(pos, circleRadius - 0.01f, glm::vec4(HexVec(0xFFFF00), 1));
 
 			if (Input::IsHeldDown(Key::Mouse_1) && !m_editorState.imguiWantMouse)
 			{
 				// Mouse Position
 				glm::vec2 mouse = Input::GetMousePos_World();
 
+				//Initialize if we just started rotating
+				if (!editingObject)
+				{
+					editingObject = true;
+					initialObjRotation = transform->GetRotation();
+					initialMousePos = mouse;
+				}
+
 				// Distance between mouse and object
-				float dx = (mouse.x - pos.x) * (mouse.x - pos.x);
-				float dy = (mouse.y - pos.y) * (mouse.y - pos.y);
+				glm::vec2 mouseOffset = mouse - pos;
+				float squareOffsetLength = glm::dot(mouseOffset, mouseOffset);
 
 				// Rotation Gizmo Actions
-				if (dx + dy < circle * circle /*&& dx + dy > (circle * circle - 0.5f)*/)
+				if (squareOffsetLength < circleRadius * circleRadius /*&& dx + dy > (circle * circle - 0.5f)*/)
 				{
 					// Check if we need to save the current value
 					if (!m_editorState.MouseDragClick && m_prevMouse != mouse)
@@ -1228,22 +1271,33 @@ void Editor::Tools()
 					}
 				}
 
-				// Rotation we are going to the object to, so lets start at the object's rotation in case we do nothing
-				//     Get the rotation between the mouse and the object
-				float rotation = atan2f(mouse.y - pos.y, mouse.x - pos.x);
+				// Get the change in rotation of the mouse since we first started rotating.
+				float mouseRotation = atan2(mouseOffset.y, mouseOffset.x);
+				glm::vec2 initialMouseOffset = initialMousePos - pos;
+				float initialMouseRotation = atan2(initialMouseOffset.y, initialMouseOffset.x);
+				float rotationDiff = mouseRotation - initialMouseRotation;
+				rotationDiff *= (180.0f / PI);
 
-				// Get the rotation of the previous mouse location
-				//     This is used to get the delta in the angle
-				float prev = atan2f(m_prevMouse.y - pos.y, m_prevMouse.x - pos.x);
+				// Figure out the target rotation and convert to degrees.
+				float finalRotation = fmod(initialObjRotation + rotationDiff + 360, 360);
 
-				// Get the change in the rotation
-				rotation -= prev;
+				if (snap)
+				{
+					float rotSnap = m_editorSettings.rotationSnapInterval;
+					finalRotation = finalRotation + rotSnap / 2 - fmod(finalRotation + rotSnap / 2, rotSnap);
 
-				// Convert it to degrees
-				rotation *= (180.0f / PI);
+					if (!m_editorSettings.absoluteSnap)
+					{
+						finalRotation += fmod(initialObjRotation, rotSnap);
+					}
+				}
 
-				object.GetComponent<TransformComponent>()->SetRotation(object.GetComponent<TransformComponent>()->GetRotation() + rotation);
+				object.GetComponent<TransformComponent>()->SetRotation(finalRotation);
 				m_prevMouse = mouse;
+			}
+			else
+			{
+				editingObject = false;
 			}
 
 			// Check if the user is done with the click and push the action
@@ -1307,7 +1361,7 @@ void Editor::UpdatePopUps(float dt)
 		glm::vec2 padding(65, 65);
 		
 		ImVec2 pos;
-		ImVec2 size(ImGui::CalcTextSize(popup.message).x * 1.49f, static_cast<float>(42 * GetPopUpCount(popup.pos)));
+		ImVec2 size(ImGui::CalcTextSize(popup.message.c_str()).x * 1.49f, static_cast<float>(42 * GetPopUpCount(popup.pos)));
 		float text_padding = size.x;  //strlen(popup.message) * 5.75f;
 
 		// Find where to draw the popup
@@ -1357,10 +1411,10 @@ void Editor::UpdatePopUps(float dt)
 			ImGui::SetNextWindowPos(pos);
 			ImGui::SetNextWindowSize(ImVec2(globalScale * size.x, globalScale * size.y));
 
-			ImGui::Begin(popup.message, nullptr, flags);
+			ImGui::Begin(popup.message.c_str(), nullptr, flags);
 			ImGui::PushAllowKeyboardFocus(false);
 
-			ImGui::Text(popup.message);
+			ImGui::Text(popup.message.c_str());
 
 			// Save the alpha for next frame
 			popup.alpha = alpha;
@@ -2144,6 +2198,16 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Scripting##menuBar"))
+		{
+			if (ImGui::MenuItem("Reload All Scripts"))
+			{
+				ScriptSystem::ReloadAll();
+			}
+
+			ImGui::EndMenu();
+		}
+
 		// Run the Save/Load update
 		SaveLoad();
 
@@ -2161,6 +2225,11 @@ void Editor::SaveLoad()
 		if (m_editorState.fileOpened)
 		{
 			m_engine->FileSave(m_filename.c_str());
+
+			// Tell the user we auto saved
+			std::string saveMessage = "Saved file ";
+			saveMessage += m_filename;
+			AddPopUp(PopUpWindow(saveMessage.c_str(), 2.2f, PopUpPosition::BottomRight));
 		}
 		else
 		{
@@ -2270,7 +2339,7 @@ void Editor::OpenLevel()
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+	file.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	// Function Call to open the dialag box
 	if (GetOpenFileName(&file))
@@ -2534,8 +2603,22 @@ void Editor::SettingsPanel(float dt)
 	ImGui::DragFloat("Camera Zoom",  &m_editorSettings.cameraZoom,  (1 / 16.0f), 0.0f, FLT_MAX, "%.1f");
 	ImGui::PopItemWidth();
 
+	// Snapping settings.
 	ImGui::Separator();
+	ImGui::PushItemWidth(110);
+	ImGui::Checkbox("Snap Enabled", &m_editorSettings.snap);
+	ImGui::Checkbox("Absolute Snap", &m_editorSettings.absoluteSnap);
+	ImGui::InputFloat("Snap Interval", &m_editorSettings.snapInterval, 0.25f, 1.0f);
+	ImGui::InputFloat("Rotation Interval", &m_editorSettings.rotationSnapInterval, 15, 30);
+	ImGui::PopItemWidth();
 
+	// Misc settings.
+	ImGui::Separator();
+	ImGui::PushItemWidth(110);
+	ImGui::Checkbox("Transform Tools Select", &m_editorSettings.selectWithTransformTools);
+	ImGui::Checkbox("Info on Window", &m_editorSettings.infoOnTitleBar);
+
+	ImGui::Separator();
 	// Pulls up the Editor Keybinds
 	if (ImGui::Button("Keybinds" SETTINGS_BUTTON_SIZE))
 	{

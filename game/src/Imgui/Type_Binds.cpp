@@ -581,7 +581,7 @@ void LoadPreFab(Editor *editor)
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT;
+	file.Flags = OFN_DONTADDTORECENT | OFN_NOCHANGEDIR;
 
 	// Function Call to open the dialag box
 	if (GetOpenFileName(&file))
@@ -651,7 +651,7 @@ void SavePrefab(GameObject object)
 	file.lpstrFileTitle = "Load a level";
 
 	// Flags to prevent openning non-existant files
-	file.Flags = OFN_DONTADDTORECENT;
+	file.Flags = OFN_DONTADDTORECENT | OFN_NOCHANGEDIR;
 
 	// Function Call to open the dialag box
 	if (GetSaveFileName(&file))
@@ -1260,54 +1260,81 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		}
 	}
 
-	if (TreeNode("Position"))
+	Separator();
+	ImGui::Text("Position");
+	if (transform->GetParent())
 	{
-		if (transform->GetParent())
-		{
-			Text("X: %f", transform->GetPosition().x);
-			Text("Y: %f", transform->GetPosition().y);
+		Text("X: %f", transform->GetPosition().x);
+		Text("Y: %f", transform->GetPosition().y);
 
-			// Position Widgets
-			Drag_Vec("X Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
-			Drag_Vec("Y Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
+		// Position Widgets
+		Drag_Vec("X Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
+		Drag_Vec("Y Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
 
-			DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
-		}
-		else
-		{
-			Drag_Vec("X##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
-			Drag_Vec("Y##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
-
-			DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
-		}
-
-		TreePop();
-		Separator();
+		DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
 	}
-	if (TreeNode("Scale"))
+	else
 	{
+		Drag_Vec("X##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
+		Drag_Vec("Y##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
 
-		Drag_Vec("X##scale", transformSave.m_scale, transform->m_scale.x, transform->m_scale);
-		Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
+		DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
+	}
 
-		DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
+	Separator();
+	ImGui::Text("Scale");
+
+	ComponentHandle<SpriteComponent> sprite = object.GetComponent<SpriteComponent>();
+	if (sprite.IsValid())
+	{
+		// Match the gnome by default.
+		static const float DEFAULT_PIXELS_PER_UNIT = 256;
+		static float pixelsPerUnit = DEFAULT_PIXELS_PER_UNIT;
+		if (ImGui::Button("Scale to Sprite"))
+		{
+			pixelsPerUnit = DEFAULT_PIXELS_PER_UNIT;
+			ImGui::OpenPopup("##scaleToSpritePopup");
+		}
+		if (ImGui::BeginPopup("##scaleToSpritePopup"))
+		{
+			ImGui::InputFloat("Pixels per Unit", &pixelsPerUnit);
+			ImGui::SameLine();
+			if (ImGui::Button("SCALE##pixelScaleConfirm"))
+			{
+				Resource *spriteResource = engine->GetResourceManager().Get(sprite->GetResourceID());
+				Texture *text = reinterpret_cast<Texture *>(spriteResource->Data());
+
+				glm::vec3 newScale(text->PixelWidth() / pixelsPerUnit, text->PixelHeight() / pixelsPerUnit, 1);
+				transformSave.m_scale = transform->m_scale;
+				editor->Push_Action({transform->m_scale, newScale,  "scale", handle, Action_General<TransformComponent, glm::vec3> });
+				transform->m_scale = newScale;
+
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	Drag_Vec("X##scale", transformSave.m_scale, transform->m_scale.x, transform->m_scale);
+	Drag_Vec("Y##scale", transformSave.m_scale, transform->m_scale.y, transform->m_scale);
+
+	DragRelease(TransformComponent, transformSave.m_scale, transform->m_scale, "scale");
 		
-		if (ObjectsMatchScale[object] == true)
+	if (ObjectsMatchScale[object] == true)
+	{
+		if (object.GetComponent<StaticCollider2DComponent>().Get())
 		{
-			if (object.GetComponent<StaticCollider2DComponent>().Get())
-			{
-				object.GetComponent<StaticCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
-			}
-			else if (object.GetComponent<DynamicCollider2DComponent>().Get())
-			{
-				object.GetComponent<DynamicCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
-			}
+			object.GetComponent<StaticCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
 		}
-
-		TreePop();
+		else if (object.GetComponent<DynamicCollider2DComponent>().Get())
+		{
+			object.GetComponent<DynamicCollider2DComponent>()->ColliderData().SetDimensions(transform->m_scale);
+		}
 		Separator();
 	}
 
+	Separator();
 	int z_layer = static_cast<int>(transform->GetZLayer());
 	if (InputInt("Z-Layer##transform", &z_layer, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
 	{

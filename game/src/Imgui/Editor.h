@@ -98,7 +98,7 @@ struct PopUpWindow
 	}
 
 	// Message to display on screen
-	const char *message;
+	std::string message;
 
 	// Current Life of the window
 	float timer;
@@ -183,12 +183,22 @@ class Editor
 	{
 		bool default_collider_match_scale = true;
 
+		// Camera settings.
 		float cameraSpeed = 50.0f;
 		float cameraArrowSpeed = 3.8f;
 		float cameraZoom  = 3.0f;
 
-	} m_editorSettings;
+		// Snap settings.
+		bool snap = false;
+		bool absoluteSnap = false;
+		float snapInterval = 1.0f;
+		float rotationSnapInterval = 15.0f;
 
+		bool selectWithTransformTools = false;
+
+		bool infoOnTitleBar = true;
+
+	} m_editorSettings;
 
 	// Save/Load
 	// --------------
@@ -265,6 +275,11 @@ class Editor
 	} m_searches;
 
 public:
+	const EditorSettings& GetSettings()
+	{
+		return m_editorSettings;
+	}
+
 	// Console
 	// --------------
 	struct Console
@@ -401,6 +416,7 @@ private:
 	void PPFX();
 
 	// Click Handling
+	void TrySelect(const glm::vec2& mouse);
 	void OnClick();
 	void SortObjectList();
 

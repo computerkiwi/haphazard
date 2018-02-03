@@ -62,41 +62,56 @@ blockMovement = false
 blockJump = false
 
 -- Updates each frame
-function Update(dt)		
+function Update(dt)
 
 	local status = this:GetScript("GnomeStatus.lua")
+
+	-- Knockback is checked before ground update so it doesnt cancel on first update
+	if(status.knockedBack == true)
+	then
+		if(onGround or status.stackedBelow ~= nil)
+		then
+			status.knockedBack = false
+		end
+	end
 
 	-- Update if they are on the ground
 	onGround = CheckGround(2)
 
-	-- Get Direction
-	UpdateDir()
-
-	-- Update Movement (Not if stacked on top)
-	if(status.stacked == false or status.stackedBelow == nil)
+	if(status.canMove == true and status.knockedBack == false)
 	then
-		UpdateMovement(dt)
-	end
+		-- Get Direction
+		UpdateDir()
 
-	-- Jump
-	if (onGround == true and this:GetScript("InputHandler.lua").jumpPressed)
-	then
-		Jump()
+		-- Update Movement  (Not if stacked on top)
+		if(status.stacked == false or status.stackedBelow == nil)
+		then
+			UpdateMovement(dt)
+		end
+
+		-- Jump
+		if (onGround == true and this:GetScript("InputHandler.lua").jumpPressed)
+		then
+			Jump()
+		end
+	
+		-- Is stacked (not bottom gnome) and jumps off (on jump press, not hold)
+		if(status.stacked and this:GetScript("InputHandler.lua").onJumpPress and status.stackedBelow ~= nil)
+		then
+			this:GetScript("GnomeStack.lua"):Unstack()
+			Jump()
+		end
+
 	end
 	
-	-- Is stacked (not bottom gnome) and jumps off
-	if(status.stacked and this:GetScript("InputHandler.lua").jumpPressed and status.stackedBelow ~= nil)
-	then
-		this:GetScript("GnomeStack.lua"):Unstack()
-		Jump()
-	end
-
 	if(status.stacked == true and status.stackedBelow == nil)
 	then
 		this:GetScript("GnomeStack.lua").UpdateParenting()
 	end
 
 end -- fn end
+
+
 
 function UpdateMovement(dt)
 	-- Connections
@@ -105,31 +120,68 @@ function UpdateMovement(dt)
 
 	local newVelocity	= playerBody.velocity
 
-	newVelocity.x = moveDir * moveSpeed		-- Calculate x velocity
-	playerBody.velocity = newVelocity		-- Update player velocity
+	local speed = moveSpeed
+	if(this:GetScript("GnomeStatus.lua").specialMove)
+	then 
+		speed = speed * this:GetScript("GnomeStatus.lua").specialMoveScale
+	end
+
+	newVelocity.x = moveDir * speed		-- Calculate x velocity
+	playerBody.velocity = newVelocity	-- Update player velocity
 end -- fn end
-
-
 
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)
 
+	local speed = jumpSpeed
+	if(this:GetScript("GnomeStatus.lua").specialJump)
+	then
+		speed = speed * this:GetScript("GnomeStatus.lua").specialJumpScale
+	end
+
 	local newVelocity = this:GetRigidBody().velocity
-	newVelocity.y = jumpSpeed
+	newVelocity.y = speed
 	this:GetRigidBody().velocity = newVelocity
 
 	onGround = false
+
+	this:GetScript("GnomeAbilities.lua").Jump()
+end
+
+function Knockback(dir, force)
+
+	this:GetScript("GnomeStatus.lua").knockedBack = true
+	this:GetRigidBody().velocity = vec3(dir.x * force, dir.y * force, 0)
+	onGround = false
+
 end
 
 function UpdateDir()
 	
+	local input = this:GetScript("InputHandler.lua")
+
 	-- Call input to get horizontal axis
-	moveDir = this:GetScript("InputHandler.lua").horizontalAxis
+	moveDir = input.horizontalAxis
 
 	if(moveDir == 0)
 	then
 		SetIdleAnimFPS()
 		return
+	end
+
+	local dir = vec2(1,0)
+	if(moveDir == -1)
+	then
+		dir = vec2(-1,0)
+	end
+
+	this:GetScript("ProjectileSpawner.lua").SetDir(dir)
+
+	if(this:GetScript("GnomeStatus.lua").stacked)
+	then
+		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
+	else
+		this:GetScript("ProjectileSpawner.lua").SetAim(dir)
 	end
 
 	SetWalkAnimFPS()

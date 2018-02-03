@@ -1,0 +1,9 @@
+{
+  "textureName": "HUDFrame.png",
+  "frameWidth":  288,
+  "frameHeight": 288,
+  "framesX":     3,
+  "framesY":     3,
+  "fps":         0,
+  "frameCount":  9
+}
