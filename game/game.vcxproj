@@ -298,6 +298,7 @@
     <None Include="assets\scripts\GnomeSpawner.lua" />
     <None Include="assets\scripts\Interactive.lua" />
     <None Include="assets\scripts\LevelProgress.lua" />
+    <None Include="assets\scripts\ParentObject.lua" />
     <None Include="assets\scripts\PlatformMove.lua" />
     <None Include="assets\scripts\PlatformOneWay.lua" />
     <None Include="assets\scripts\PlayerStats.lua" />

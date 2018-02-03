@@ -34,7 +34,7 @@ Gnome Ghost Movement
 WALK_FPS = 7
 DEADZONE = 0.5 -- Joystick dead zone
 GROUND_CHECK_LENGTH = 0.05
-
+DUST_PARTICLE_OFFSET = -0.5
 -- Layers
 PLAYER_LAYER = 1 << 2
 GROUND_LAYER = 1 << 3
@@ -59,8 +59,53 @@ fallSpeed	 = 2
 blockMovement = false
 blockJump = false
 
--- Size info
-gnomeColliderYSize = 1
+-- Particle Objects
+dustParticleObject = nil
+dustParticlesEnabled = nil -- Initialized in start.
+
+function SetDustEnabled(shouldBeEnabled)
+	-- Don't bother changing if our status is already in the state we want it in.
+	if (dustParticlesEnabled == shouldBeEnabled)
+	then
+		return
+	end
+	
+	-- Update the status.
+	dustParticlesEnabled = shouldBeEnabled
+	
+	local pSystem = dustParticleObject:GetParticleSystem()
+	local settings = pSystem.settings
+	settings.isLooping = shouldBeEnabled
+	pSystem.settings = settings
+	
+end
+
+function InitDustParticles()
+	local particleObjectName = "__" .. this:GetName() .. "_GNOME_DUST_PARTICLES"
+	
+	-- Delete the particle object if it already exists.
+	local existingParticleObject = GameObject.FindByName(particleObjectName)
+	if (existingParticleObject:IsValid())
+	then
+		existingParticleObject:Delete()
+	end
+	
+
+	-- Create the dust particle object.
+	dustParticleObject = GameObject.LoadPrefab("assets/prefabs/DustParticles.json")
+	dustParticleObject:SetName(particleObjectName)
+	local transform = dustParticleObject:GetTransform()
+	
+	-- Attach it to the gnome.
+	transform.parent = this
+	transform.localPosition = vec2(0, DUST_PARTICLE_OFFSET)
+	SetDustEnabled(false)
+end
+
+function Start()
+	
+	InitDustParticles()
+end
 
 -- Updates each frame
 function Update(dt)
@@ -126,6 +171,10 @@ function UpdateMovement(dt)
 
 	newVelocity.x = moveDir * speed		-- Calculate x velocity
 	playerBody.velocity = newVelocity	-- Update player velocity
+	
+	-- Update dust particles
+	SetDustEnabled(moveDir ~= 0 and onGround)
+	
 end -- fn end
 
 function Jump()

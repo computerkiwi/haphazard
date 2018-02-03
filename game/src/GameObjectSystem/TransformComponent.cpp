@@ -10,22 +10,26 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "TransformComponent.h"
 
 TransformComponent::TransformComponent(const glm::vec3& position, const glm::vec3& scale, float rotation)
-	: m_position(position), m_scale(scale), m_rotation(rotation), m_parent(0)
+	: m_localPosition(position), m_scale(scale), m_rotation(rotation), m_parent(0)
 {
 }
 
 //---------
 // Getters
 //---------
-
 void TransformComponent::SetParent(GameObject parent)
 {
+	if (m_parent)
+	{
+		Unparent();
+	}
+
 	if (parent && parent.GetComponent<TransformComponent>().IsValid())
 	{
 		glm::vec2 parentPos = parent.GetComponent<TransformComponent>()->GetPosition();
 		glm::vec2 diff = GetPosition() - parentPos;
-		m_position.x = diff.x;
-		m_position.y = diff.y;
+		m_localPosition.x = diff.x;
+		m_localPosition.y = diff.y;
 	}
 
 	m_parent = parent;
@@ -39,15 +43,7 @@ void TransformComponent::SetParentLua(GameObject parent)
 		parent.AddComponent<HierarchyComponent>();
 	}
 
-	if (parent && parent.GetComponent<TransformComponent>().IsValid())
-	{
-		glm::vec2 parentPos = parent.GetComponent<TransformComponent>()->GetPosition();
-		glm::vec2 diff = GetPosition() - parentPos;
-		m_position.x = diff.x;
-		m_position.y = diff.y;
-	}
-
-	m_parent = parent;
+	SetParent(parent);
 }
 
 
@@ -71,37 +67,45 @@ void TransformComponent::SetRotation(const float& rotation)
 
 glm::vec3& TransformComponent::GetRelativePosition()
 {
-	return m_position;
+	return m_localPosition;
 }
 
 
 glm::vec2 TransformComponent::GetPosition() const
 {
-	if (m_parent)
-	{
-		return static_cast<glm::vec2>(m_position) + m_parent.GetComponent<TransformComponent>()->GetPosition();
-	}
+	return static_cast<glm::vec2>(m_localPosition) + GetParentPosition();
+}
 
-	return m_position;
+glm::vec2 TransformComponent::GetLocalPosition() const
+{
+	return m_localPosition;
 }
 
 
 void TransformComponent::SetPosition(const glm::vec2& position)
 {
-	m_position.x = position.x;
-	m_position.y = position.y;
+	glm::vec2 parentPos = GetParentPosition();
+
+	m_localPosition.x = position.x - parentPos.x;
+	m_localPosition.y = position.y - parentPos.y;
+}
+
+void TransformComponent::SetLocalPosition(const glm::vec2 &position)
+{
+	m_localPosition.x = position.x;
+	m_localPosition.y = position.y;
 }
 
 
 float TransformComponent::GetZLayer() const
 {
-	return m_position.z;
+	return m_localPosition.z;
 }
 
 
 void TransformComponent::SetZLayer(float layer)
 {
-	m_position.z = layer;
+	m_localPosition.z = layer;
 }
 
 
@@ -126,5 +130,29 @@ glm::vec2 TransformComponent::Scale2D() const
 glm::mat4 TransformComponent::GetMatrix4() const
 {
 	return glm::translate(glm::mat4(), glm::vec3(GetPosition(), 1)) * glm::rotate(glm::mat4(), DegToRad(m_rotation), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
+}
+
+void TransformComponent::Unparent()
+{
+	if (m_parent)
+	{
+		glm::vec2 pos = GetPosition();
+		m_localPosition.x = pos.x;
+		m_localPosition.y = pos.y;
+
+		m_parent = 0;
+	}
+}
+
+glm::vec2 TransformComponent::GetParentPosition() const
+{
+	if (m_parent.IsValid())
+	{
+		return m_parent.GetComponent<TransformComponent>()->GetPosition();
+	}
+	else
+	{
+		return glm::vec2(0, 0);
+	}
 }
 

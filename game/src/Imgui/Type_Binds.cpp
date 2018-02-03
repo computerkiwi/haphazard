@@ -235,7 +235,7 @@ const char * ErrorList[] =
 struct EditorBoolWrapper
 {
 	bool value = false;
-	implicit operator bool() const { return value; }
+	operator bool() const { return value; }
 	EditorBoolWrapper& operator=(bool val) { value = val; return *this; }
 };
 
@@ -1268,17 +1268,17 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 		Text("Y: %f", transform->GetPosition().y);
 
 		// Position Widgets
-		Drag_Vec("X Offset##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
-		Drag_Vec("Y Offset##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
+		Drag_Vec("X Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
+		Drag_Vec("Y Offset##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
 
-		DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
+		DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
 	}
 	else
 	{
-		Drag_Vec("X##transform_position", transformSave.m_position, transform->m_position.x, transform->m_position);
-		Drag_Vec("Y##transform_position", transformSave.m_position, transform->m_position.y, transform->m_position);
+		Drag_Vec("X##transform_position", transformSave.m_localPosition, transform->m_localPosition.x, transform->m_localPosition);
+		Drag_Vec("Y##transform_position", transformSave.m_localPosition, transform->m_localPosition.y, transform->m_localPosition);
 
-		DragRelease_Type_CastAll(TransformComponent, transformSave.m_position, transform->m_position, "position", glm::vec2);
+		DragRelease_Type_CastAll(TransformComponent, transformSave.m_localPosition, transform->m_localPosition, "position", glm::vec2);
 	}
 
 	Separator();
@@ -1338,7 +1338,7 @@ void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *e
 	int z_layer = static_cast<int>(transform->GetZLayer());
 	if (InputInt("Z-Layer##transform", &z_layer, 1, 100, ImGuiInputTextFlags_EnterReturnsTrue))
 	{
-		editor->Push_Action({ transform->m_position.z, static_cast<float>(z_layer), "zLayer", handle, Action_General<TransformComponent, float> });
+		editor->Push_Action({ transform->m_localPosition.z, static_cast<float>(z_layer), "zLayer", handle, Action_General<TransformComponent, float> });
 		transform->SetZLayer(static_cast<float>(z_layer));
 	}
 

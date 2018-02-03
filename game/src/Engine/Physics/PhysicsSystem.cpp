@@ -103,11 +103,11 @@ glm::vec3 Collision_SAT(const BoxCorners& Box1, const BoxCorners& Box2)
 	bool AABBsAreColliding = Collision_AABBToAABBbool(glm::vec2(AABB1.minX, AABB1.minY), glm::vec2(AABB1.maxX, AABB1.maxY),
 		                                              glm::vec2(AABB2.minX, AABB2.minY), glm::vec2(AABB2.maxX, AABB2.maxY));
 
-		// if bounding boxes are not colliding, objects are not colliding
-	if (!AABBsAreColliding)
+	//!?!? fix this if bounding boxes are not colliding, objects are not colliding
+	/*if (!AABBsAreColliding)
 	{
 		return glm::vec3(0, 0, 0);
-	}
+	}*/
 
 	// the vectors onto which each shape will be projected
 	glm::vec2 edgeNormals[num_projections] = { { 0,0 } };
@@ -681,7 +681,7 @@ void UpdateMovementData(float dt, ComponentHandle<TransformComponent> transform,
 {
 	rigidBody->AddVelocity(rigidBody->Gravity() * dt);
 	rigidBody->AddVelocity(acceleration * dt);
-	transform->SetPosition(transform->GetRelativePosition() + velocity * dt);
+	transform->SetPosition(transform->GetPosition() + static_cast<glm::vec2>(velocity) * dt);
 }
 
 void DebugDrawAllHitboxes(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders)

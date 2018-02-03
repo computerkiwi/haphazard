@@ -142,10 +142,10 @@ function CheckForUnstack()
 		local distX = math.abs(pos.x - belowPos.x)
 		local distY = math.abs(pos.y - belowPos.y)
 
-		print(distX .."  ... Y: " .. distY)
-
 		if(distX > maxStackedDistanceX or distY < minStackedDistanceY)
 		then
+			print("Unstacked because " .. distX .."  " ..distY ..".    I am " ..this:GetName() ..",  was on " ..thisStatus.stackedBelow:GetName())
+			print("Top was at: " ..pos.y ..", bot was at: " ..belowPos.y)
 			Unstack()
 		end
 		
@@ -194,6 +194,7 @@ end
 
 function AttachGnomes(top, bot)
 	-- Get status
+	local topStack = top:GetScript("GnomeStack.lua")
 	local topStatus = top:GetScript("GnomeStatus.lua")
 	local botStatus = bot:GetScript("GnomeStatus.lua")
 	
@@ -216,6 +217,25 @@ function AttachGnomes(top, bot)
 	--SetLayersNotColliding(topStatus.PLAYER_PHYS_LAYER, botStatus.PLAYER_PHYS_LAYER)
 	topStatus.stacked = true
 	botStatus.stacked = true
+
+
+	local newPos = bot:GetTransform().position
+	while(topStatus ~= nil and topStatus.stacked)
+	do
+		newPos.y = newPos.y + gnomeStackDistance
+		print(top:GetName() .." is now on " ..topStatus.stackedBelow:GetName())
+		top:GetTransform().position = newPos
+
+		if(topStatus.stackedAbove ~= nil)
+		then
+			top = topStatus.stackedAbove
+			topStatus = topStatus.stackedAbove:GetScript("GnomeStatus.lua")
+			print("Not breaking")
+		else
+			break
+		end
+	end
+	-- Warning: top and topStatus are not the same topStatus after this loop
 end
 
 function StackPlayers(other)
