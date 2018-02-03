@@ -13,6 +13,9 @@ function OnCollisionEnter(other)
     print("Gem collected")
     GameObject.FindByName("Stats"):GetScript("PlayerStats.lua").AddGem()
 	
+    -- Set gnome to have gem
+    other:GetScript("GnomeStatus.lua").hasGem = true
+
     -- Deactivate the object
     this:Deactivate()
   end
