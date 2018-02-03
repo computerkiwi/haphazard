@@ -203,7 +203,7 @@ glm::vec3 Collision_SAT_CircleBox(glm::vec2 center1, float radius1, const BoxCor
 			index = i;
 		}
 	}
-	Assert(index != 5 && "if this happens, increase shortestLengthSquared(the variable up 8 lines from here");
+	Assert(index != 5 && "if this happens, invalid data has been provided, often NAN");
 
 	// get the axis
 	glm::vec2 Closestaxis = center1 - rectangle.m_corners[index];

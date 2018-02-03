@@ -295,7 +295,7 @@ Raycast::Raycast() : m_length(0),
 // constructor with direction in degrees
 Raycast::Raycast(ComponentMap<DynamicCollider2DComponent> *allDynamicColliders, ComponentMap<StaticCollider2DComponent> *allStaticColliders, 
 	             glm::vec2 startPoint, float direction, float range, collisionLayers layer)
-	           : m_startPosition(startPoint), m_normalizedDirection((float)(cos(direction)), (float)(sin(direction))),
+	           : m_startPosition(startPoint), m_normalizedDirection((float)(cos(DegreesToRadians(direction))), (float)(sin(DegreesToRadians(direction)))),
 	             m_gameObjectHit(INVALID_GAMEOBJECT_ID), m_layer(layer)
 {
 	// calculate the raycast

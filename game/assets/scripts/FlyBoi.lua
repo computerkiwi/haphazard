@@ -5,48 +5,78 @@ PRIMARY AUTHOR: Brett Schiff
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
--- Variables
-speed = 1
+-- 
+PLAYER1LAYER = 1 << 7
+PLAYER2LAYER = 1 << 8
+PLAYER3LAYER = 1 << 9
+PLAYER4LAYER = 1 << 10
+
+-- editing tools
+editMode = true;
+
+-- speeds
+speed = 3
+diveSpeed = 8
 
 -- will trace back and forth radius in each direction if not in a circle
-circleArea = false
-radius = 2
+circleArea = true
+radius = 4
 
 -- infomation about the cone of detection
-detectionConeWidth = 3.14 / 3
+detectionConeWidthDegrees = 45
 detectionConeLength = 3
+numberOfDetectionRays = 3
 
 -- delay before attacking in seconds
 delayBeforeAttacking = .5
-currentDelay = 0
+delayAfterDiving = .5
 
--- editing tools
-adjustCenter = true;
+-- information about attack
+overshootDistance = 1
 
 -- internal stuff
+currentDelay = 0
 targetDirection = vec2(0, 0)
 targetLocation = vec2(5, 5)
 circleCenter = vec2(0, 0)
 currMod = 1
+isDiving = false
+isOnPatrol = true
 
-function ChooseTarget()
+function DegreesToRadians(degrees)
 
-    --[[ find a target direction
-	local randomDirection = vec2(math.random(-1,1), math.random(-1,1))
-	local length = math.sqrt((randomDirection.x * randomDirection.x) + (randomDirection.y * randomDirection.y))
-	randomDirection = vec2(randomDirection.x / length, randomDirection.y / length)
+	local radiansPerDegree = 0.0174533
 
-	local randomDistance = math.random(1, radius)
+	return degrees * radiansPerDegree
 
-	-- distance from the center to the target
-	local dFromCToT = vec2(randomDirection.x * randomDistance, randomDirection.y * randomDistance)
+end
 
-	-- the location to which the bird will fly
-	targetLocation = vec2(circleCenter.x + dFromCToT.x, circleCenter.y + dFromCToT.y)
+function SetTargetDirection()
 
+	-- get and normalize the target Direction
 	targetDirection = vec2(targetLocation.x - this:GetTransform().position.x, targetLocation.y - this:GetTransform().position.y)
 	local dLength = math.sqrt((targetDirection.x * targetDirection.x) + (targetDirection.y * targetDirection.y))
-	targetDirection = vec2(targetDirection.x / dLength, targetDirection.y / dLength)]]
+	targetDirection = vec2(targetDirection.x / dLength, targetDirection.y / dLength)
+
+end
+
+function SetDive(target)
+
+	-- the bird is diving
+	isDiving = true
+	isOnPatrol = false
+
+	currentDelay = delayBeforeAttacking
+
+	targetLocation = target
+
+	SetTargetDirection()
+
+	targetLocation = vec2(targetLocation.x + (targetDirection.x * overshootDistance), targetLocation.y + (targetDirection.y * overshootDistance))
+
+end
+
+function ChooseTarget()
 
 	-- if in straight line mode
 	if(circleArea == false)
@@ -57,22 +87,41 @@ function ChooseTarget()
 		-- get the target location based on a line
 		targetLocation = vec2(circleCenter.x + (currMod * radius), circleCenter.y)
 
-		-- get and normalize the target Direction
-		targetDirection = vec2(targetLocation.x - this:GetTransform().position.x, targetLocation.y - this:GetTransform().position.y)
-		local dLength = math.sqrt((targetDirection.x * targetDirection.x) + (targetDirection.y * targetDirection.y))
-		targetDirection = vec2(targetDirection.x / dLength, targetDirection.y / dLength)
+		SetTargetDirection()
 
 	else -- if in circle mode
 
-		
+		local randomDirectionRad = DegreesToRadians(math.random(0, 360))
+
+		local randomDirection = vec2(math.cos(randomDirectionRad), math.sin(randomDirectionRad))
+
+		local randomDistance = math.random() * radius
+
+		targetLocation = vec2(circleCenter.x + (randomDistance * randomDirection.x), circleCenter.y + (randomDistance * randomDirection.y))
+
+		SetTargetDirection()
 
 	end
 end
 
 function MoveBoi(dt)
 
+	local moveSpeed = speed
 
-	local velocity = vec3(targetDirection.x * speed, targetDirection.y * speed, this:GetRigidBody().velocity.z)
+	if(currentDelay > 0)
+	then
+
+		moveSpeed = 0
+		currentDelay = currentDelay - dt
+
+	elseif(isDiving == true and isOnPatrol == false)
+	then
+
+		moveSpeed = diveSpeed
+
+	end
+
+	local velocity = vec3(targetDirection.x * moveSpeed, targetDirection.y * moveSpeed, this:GetRigidBody().velocity.z)
 	local position = this:GetTransform().position
 	local destination = vec2(position.x + (velocity.x * dt), position.y + (velocity.y * dt))
 
@@ -109,6 +158,7 @@ function MoveBoi(dt)
 		ChooseTarget()
 		local newVelocity = vec3(targetDirection.x * speed, targetDirection.y * speed, this:GetRigidBody().velocity.z)
 		this:GetRigidBody().velocity = newVelocity
+		isOnPatrol = true
 
 	end
 
@@ -116,11 +166,43 @@ end
 
 function EditingEffects()
 
-	if(adjustCenter == true)
+	if(editMode == true)
 	then
 
 		circleCenter = this:GetTransform().position
 		ChooseTarget()
+
+	end
+
+end
+
+function LookForGnomes()
+
+	if(isOnPatrol == false)
+	then
+
+		return
+
+	end
+
+	local radiansBetweenRays = detectionConeWidthDegrees / numberOfDetectionRays
+	-- start downward and adjust according to the cone width
+	local initialDirection = 270 - (detectionConeWidthDegrees / 2)
+	local directionIncrease = detectionConeWidthDegrees / (numberOfDetectionRays - 1)
+	local endDirection = 270 + (detectionConeWidthDegrees / 2)
+
+	-- for each detection ray
+	for currDirection = initialDirection, endDirection, directionIncrease
+	do
+		 -- raycast from the bird
+		 local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER)
+
+		 if(cast.gameObjectHit:IsValid())
+		 then
+
+			SetDive(cast.gameObjectHit:GetTransform().position)
+
+		 end
 
 	end
 
@@ -140,19 +222,28 @@ end
 -- Updates each frame
 function Update(dt)
 	
+	-- Effects to adjust for the object being edited
 	EditingEffects()
 
 	-- Move the boi toward the target, handling arriving at the target
 	MoveBoi(dt)
 
+	-- Look for gnomes in the cone below
+	LookForGnomes()
+
 end
 
 -- Other is a game object
 function OnCollisionEnter(other)
---[[
-	if(collider.colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
+
+	if(isDiving)
 	then
-		this:Destroy()
+
+		currentDelay = delayAfterDiving
+		isDiving = false
+
 	end
-]]
+
+	ChooseTarget()
+
 end
