@@ -264,7 +264,6 @@ function CheckGround(count)
 
 	local pos	 = this:GetTransform().position
 	local scale = this:GetCollider().dimensions
-	scale.y = gnomeColliderYSize
 
 	local DOWN = vec2(0, -1)
 	
