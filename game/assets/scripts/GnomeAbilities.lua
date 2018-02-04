@@ -50,19 +50,18 @@ function Update()
 	-- Attacks
 	if(this:GetScript("InputHandler.lua").attackPressed)
 	then
+		local type = status.GnomeType
 		if(status.stacked)
 		then
 			if(status.stackedBelow == nil)
 			then
 				FootAbility()
 			else
-				local type = status.GnomeType
-				local belowType = status.stackedBelow:GetScript("GnomeStatus.lua").type
-
+				local belowType = status.stackedBelow:GetScript("GnomeStatus.lua").GnomeType
 				StackedAttack(type, belowType)
 			end
 		else
-			Attack()
+			Attack(type)
 		end
 	end
 
@@ -82,13 +81,15 @@ function FootAbility()
 		if(usedFootAbilityThisJump == false)
 		then
 			this:GetScript("GnomeMovement.lua").Jump()
+			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Red_Foot.json")
 			usedFootAbilityThisJump = true
 		end
 	elseif(type == 2)	-- Green
 	then
 		if(usedFootAbilityThisJump == false)
 		then
-		this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
+			this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
+			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
 		--[[
 			local v = this:GetRigidBody().velocity
 			this:GetRigidBody().velocity = vec3(v.x + Green_Foot_PushSpeed, v.y, 0)
@@ -106,19 +107,18 @@ function FootAbility()
 
 end
 
-function Attack()
-
-	--PrefabName = "Projectile_" .. TypeName(type) .."_Standard.json"
-	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+function Attack(type)
+	PrefabName = "Projectile_" .. TypeName(type) .."_Standard.json"
+	this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
+	--this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
 
 end
 
 function StackedAttack(type, belowType)
 
-	--PrefabName = "Projectile_" .. TypeName(type) .."_on" TypeName(belowType)
-	--this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	this:GetScript("ProjectileSpawner.lua").Fire("otherProjectile.json")
+	PrefabName = "Projectile_" .. TypeName(type) .."_on" .. TypeName(belowType) .. ".json"
+	this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
+	--this:GetScript("ProjectileSpawner.lua").Fire("otherProjectile.json")
 
 end
 

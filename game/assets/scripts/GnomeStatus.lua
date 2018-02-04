@@ -38,3 +38,6 @@ specialMoveScale = 0.5
 
 specialJump = false
 specialJumpScale = 2
+
+-- Collectibles
+hasGem = false

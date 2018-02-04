@@ -485,6 +485,8 @@ public:
 
 	void Reload() { m_editorState.reload = true; m_editorState.exiting = true; }
 
+	glm::vec2 GetCamPos();
+
 	// Sets/gets the global UI scale.
 	static float GetUiScale();
 	static void SetUiScale(float scale);

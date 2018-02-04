@@ -6,6 +6,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 
 #include "LuaSetup.h"
+#include "LuaBridge.h"
+#include "GameObjectSystem\GameObject.h"
 
 const char *setup = R"SETUP_DELIMITER(
 
@@ -150,5 +152,7 @@ key = KEY
 
 void SetupLua(lua_State * L)
 {
+	static GameObject invalidObj = GameObject(INVALID_GAMEOBJECT_ID);
+
 	luaL_dostring(L, setup);
 }

@@ -25,7 +25,7 @@ GameObject::GameObject(GameObject_ID id, GameSpaceIndex gameSpace) : m_id(id), m
 }
 
 
-implicit GameObject::GameObject(GameObject_ID id) : m_objID(id)
+GameObject::GameObject(GameObject_ID id) : m_objID(id)
 {
 }
 
