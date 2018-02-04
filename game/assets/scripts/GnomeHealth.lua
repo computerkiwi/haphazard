@@ -12,6 +12,9 @@ health = 6
 healthBar = nil
 invulTime = 0
 
+INVULN_BLINK_RATE = 30
+INVLUN_BLINK_SPEEDUP = 1.0
+
 KNOCKBACK_ANGLE = 40
 KNOCKBACK_FORCE = 5
 
@@ -34,10 +37,32 @@ function Update(dt)
   if(invulTime > 0)
   then
     invulTime = invulTime - dt
-  end
+		
+		-- Handle blinking
+		local blinkOn = (math.sin(invulTime * INVULN_BLINK_RATE) > 0)
+		local sprite = this:GetSprite()
+		local tempColor = sprite.color
+		if (blinkOn)
+		then
+			tempColor.w = 1
+		else
+			tempColor.w = 0.6
+		end
+		sprite.color = tempColor
+		
+  elseif(invulTime < 0)
+	then
+	
+		local sprite = this:GetSprite()
+		local tempColor = sprite.color
+		tempColor.w = 1
+		sprite.color = tempColor
+		
+		-- Set invulTime to 0
+		invulTime = 0
+	end
   
 end
-
 function Damage(damageAmount, damageSourceLocation)
 	-- Actually deal the damage
   health = health - damageAmount
@@ -55,7 +80,7 @@ function Damage(damageAmount, damageSourceLocation)
 	local movementScript = this:GetScript("GnomeMovement.lua")
 	local pos = this:GetTransform().position
 	local knockbackDir = {x = math.cos(KNOCKBACK_ANGLE), y = math.sin(KNOCKBACK_ANGLE)}
-	if (pos.x < damageSourceLocation.x)
+	if (pos.x > damageSourceLocation.x)
 	then
 		knockbackDir.x = -knockbackDir.x
 	end
