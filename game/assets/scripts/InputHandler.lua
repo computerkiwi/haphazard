@@ -35,21 +35,28 @@ horizontalAxis = 0
 verticalAxis   = 0
 
 function EarlyUpdate()
-	
-	onJumpPress = false
+	ResetInput()
 
-	if(UseKeyboard)
+	GetKeyboardInput()
+	if(UseKeyboard == false)
 	then
-		GetKeyboardInput()
-	else
 		GetInputGamepad()
 	end
 
+	NormInput()
 end
 
--- Temporary: Set input.
-function Start()
-	UseKeyboard = false
+function ResetInput()
+	horizontalAxis = 0
+	verticalAxis   = 0
+end
+
+function NormInput()
+	if(horizontalAxis > 1)  then horizontalAxis = 1 end
+	if(horizontalAxis < -1) then horizontalAxis = -1 end
+
+	if(verticalAxis > 1)  then verticalAxis = 1 end
+	if(verticalAxis < -1) then verticalAxis = -1 end
 end
 
 -- Gamepad input
@@ -57,22 +64,22 @@ function GetInputGamepad()
 	-- Movement
 	if (GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS) > DEADZONE)
 	then
-		horizontalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
+		horizontalAxis = horizontalAxis + GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
 	elseif (GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS) < -DEADZONE)
 	then
-		horizontalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
+		horizontalAxis = horizontalAxis + GamepadGetAxis(PLAYER_INPUT_NUM, HORIZONTAL_AXIS)
 	else
-		horizontalAxis = 0
+		--horizontalAxis = 0
 	end
 
 	if (GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS) > DEADZONE)
 	then
-		verticalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
+		verticalAxis = verticalAxis + GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
 	elseif (GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS) < -DEADZONE)
 	then
-		verticalAxis = GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
+		verticalAxis = verticalAxis + GamepadGetAxis(PLAYER_INPUT_NUM, VERTICAL_AXIS)
 	else
-		verticalAxis = 0
+		--verticalAxis = 0
 	end
 
 	-- Jump
@@ -155,5 +162,7 @@ function GetKeyboardInput()
 	else
 		tossOther = false
 	end
+
+	UseKeyboard = jumpPressed or onJumpPress or attackPressed or tossPressed or (horizontalAxis ~= 0) or (verticalAxis ~= 0)
 
 end

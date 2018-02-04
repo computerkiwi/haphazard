@@ -98,8 +98,8 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->Use();
 	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
 
-	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
-	Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
+	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
+	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
 
 	LoadLevel("defaultLevel.json");
 }

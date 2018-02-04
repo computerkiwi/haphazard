@@ -44,8 +44,6 @@ MOVE_LEFT	= -1 -- Player moving left
 MOVE_IDLE	=	0 -- Player idle
 MOVE_RIGHT =	1 -- Player moving right
 
-
-
 --[[ VARIABLES ]]--
 
 -- Movement
@@ -152,10 +150,7 @@ function Update(dt)
 
 	end
 	
-	if(status.stacked == true and status.stackedBelow == nil)
-	then
-		this:GetScript("GnomeStack.lua").UpdateParenting()
-	end
+	this:GetScript("GnomeStack.lua").UpdateParenting()
 
 end -- fn end
 
@@ -264,12 +259,9 @@ end
 
 -- Returns (bool: found ground below), (number: y position of the top of the ground)
 function CheckGround(count)
-	local PLAYER_LAYER = 1 << 2
-	local GROUND_LAYER = 1 << 3
-
 	local pos	 = this:GetTransform().position
 	local scale = this:GetCollider().dimensions
-	
+
 	local DOWN = vec2(0, -1)
 	
 	-- Make an array of raycast origins
