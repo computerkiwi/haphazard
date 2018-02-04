@@ -1,0 +1,9 @@
+{
+  "textureName": "Ability Sprites/Projectile_Yellow_Standard.png",
+  "frameWidth":  512,
+  "frameHeight": 640,
+  "framesX":     2,
+  "framesY":     1,
+  "fps":         1,
+  "frameCount":  2
+}

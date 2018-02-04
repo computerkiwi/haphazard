@@ -11,7 +11,7 @@ PLAYER_INPUT_NUM = 0 -- Player number
 
 DEADZONE = 0.5
 
-UseKeyboard = true
+UseKeyboard = false
 
 JUMP	 = 0 -- A
 ATTACK   = 2 -- X
@@ -36,6 +36,8 @@ verticalAxis   = 0
 
 function EarlyUpdate()
 	
+	onJumpPress = false
+
 	if(UseKeyboard)
 	then
 		GetKeyboardInput()
@@ -43,6 +45,11 @@ function EarlyUpdate()
 		GetInputGamepad()
 	end
 
+end
+
+-- Temporary: Set input.
+function Start()
+	UseKeyboard = false
 end
 
 -- Gamepad input
