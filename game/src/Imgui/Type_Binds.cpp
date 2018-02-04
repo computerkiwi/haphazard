@@ -589,7 +589,9 @@ void LoadPreFab(Editor *editor)
 		// Log and load the file in the engine
 		logger << "[EDITOR] Loading Prefab: " << filename << "\n";
 
-		editor->SetGameObject(GameObject::LoadPrefab(filename));
+		GameObject obj = GameObject::LoadPrefab(filename);
+		obj.GetComponent<TransformComponent>()->SetPosition(editor->GetCamPos());
+		editor->SetGameObject(obj);
 	}
 	else
 	{

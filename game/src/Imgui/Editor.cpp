@@ -289,7 +289,7 @@ void Editor::Update(float dt)
 			m_editorState.first_update = false;
 		}
 		
-		m_editor_cam->SetZoom(m_editorSettings.cameraZoom);
+		m_editor_cam->SetZoom(0.4f * m_editorSettings.cameraZoom * m_editorSettings.cameraZoom);
 
 		// Check for click events
 		OnClick();
@@ -482,6 +482,11 @@ void Editor::ResetStyle()
 	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
 
 	style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+}
+
+glm::vec2 Editor::GetCamPos()
+{
+	return m_editor_cam->GetCenter();
 }
 
 float Editor::GetUiScale()
@@ -745,6 +750,7 @@ void Editor::KeyBindings(float dt)
 	if (!ImGui::IsAnyWindowHovered())
 	{
 		m_editorSettings.cameraZoom -= 0.4f * ImGui::GetIO().MouseWheel;
+		m_editorSettings.cameraZoom = max(m_editorSettings.cameraZoom, 0.2);
 	}
 }
 
