@@ -259,12 +259,8 @@ end
 
 -- Returns (bool: found ground below), (number: y position of the top of the ground)
 function CheckGround(count)
-	local PLAYER_LAYER = 1 << 2
-	local GROUND_LAYER = 1 << 3
-
 	local pos	 = this:GetTransform().position
 	local scale = this:GetCollider().dimensions
-	scale.y = gnomeColliderYSize
 
 	local DOWN = vec2(0, -1)
 	

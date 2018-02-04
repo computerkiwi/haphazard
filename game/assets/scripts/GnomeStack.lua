@@ -69,7 +69,7 @@ function Update(dt)
 	--ResizeColliders()
 end
 
-function EarlyUpdate()
+function LateUpdate(dt)
 	CheckForUnstack()
 end
 
@@ -86,16 +86,24 @@ end
 
 function UpdateParenting()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
+	--local thisTransform = this:GetTransform()
 
 	local newPos = this:GetTransform().position
 
 	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
 	do
+		--if(thisStatus.stackedBelow == nil)
+		--then
+		--	thisTransform.zLayer = 4
+		--end 
+		--thisStatus.stackedAbove:GetTransform().zLayer = thisTransform.zLayer - 1
+
 		newPos.y = newPos.y + gnomeStackDistance
 		thisStatus.stackedAbove:GetTransform().position = newPos
 
 		thisStatus.stackedAbove:GetRigidBody().velocity = vec3(0,0,0)
 
+		--thisTransform = thisStatus.stackedAbove:GetTransform()
 		thisStatus = thisStatus.stackedAbove:GetScript("GnomeStatus.lua")
 	end
 end
@@ -146,6 +154,9 @@ function CheckForUnstack()
 		then
 			print("Unstacked because " .. distX .."  " ..distY ..".    I am " ..this:GetName() ..",  was on " ..thisStatus.stackedBelow:GetName())
 			print("Top was at: " ..pos.y ..", bot was at: " ..belowPos.y)
+
+			local below = thisStatus.stackedBelow
+
 			Unstack()
 		end
 		
@@ -181,6 +192,7 @@ function DetachGnomes(top, bot)
 		topStatus.stacked = true
 	else
 		topStatus.stacked = false
+		this:GetTransform().zLayer = 4
 	end
 
 	if (botStatus.stackedBelow ~= nil)
@@ -188,6 +200,7 @@ function DetachGnomes(top, bot)
 		botStatus.stacked = true
 	else
 		botStatus.stacked = false
+		this:GetTransform().zLayer = 4
 	end
 
 end
@@ -218,23 +231,25 @@ function AttachGnomes(top, bot)
 	topStatus.stacked = true
 	botStatus.stacked = true
 
+	top:GetTransform().zLayer = bot:GetTransform().zLayer - 1
 
 	local newPos = bot:GetTransform().position
 	while(topStatus ~= nil and topStatus.stacked)
 	do
 		newPos.y = newPos.y + gnomeStackDistance
-		print(top:GetName() .." is now on " ..topStatus.stackedBelow:GetName())
 		top:GetTransform().position = newPos
+
+		top:GetScript("GnomeStack.lua").Update(0);
 
 		if(topStatus.stackedAbove ~= nil)
 		then
 			top = topStatus.stackedAbove
 			topStatus = topStatus.stackedAbove:GetScript("GnomeStatus.lua")
-			print("Not breaking")
 		else
 			break
 		end
 	end
+
 	-- Warning: top and topStatus are not the same topStatus after this loop
 end
 
@@ -262,7 +277,6 @@ end
 
 -- Disconnects from the gnome below.
 function Disconnect()
-
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 
 	DetachGnomes(this, thisStatus.stackedBelow)
@@ -271,5 +285,4 @@ end
 
 function Unstack()
 	Disconnect()
-
 end
