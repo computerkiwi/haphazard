@@ -1,0 +1,9 @@
+{
+  "textureName": "Animations\Death_Red.png",
+  "frameWidth":  256,
+  "frameHeight": 256,
+  "framesX":     4,
+  "framesY":     1,
+  "fps":         1,
+  "frameCount":  4
+}
