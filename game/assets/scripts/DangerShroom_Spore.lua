@@ -23,7 +23,7 @@ end -- fn end
 
 
 function OnCollisionEnter(object)
-  if (not object:HasTag("Enemy"))
+  if (not object:HasTag("Enemy") and not object:HasTag("Collectible"))
   then
 	  this:Destroy();
   end
