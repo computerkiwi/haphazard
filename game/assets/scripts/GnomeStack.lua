@@ -69,7 +69,7 @@ function Update(dt)
 	--ResizeColliders()
 end
 
-function LateUpdate(dt)
+function EarlyUpdate(dt)
 	CheckForUnstack()
 end
 
@@ -86,24 +86,24 @@ end
 
 function UpdateParenting()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
-	--local thisTransform = this:GetTransform()
+	local thisTransform = this:GetTransform()
 
 	local newPos = this:GetTransform().position
 
 	while(thisStatus.stacked and thisStatus.stackedAbove ~= nil)
 	do
-		--if(thisStatus.stackedBelow == nil)
-		--then
-		--	thisTransform.zLayer = 4
-		--end 
-		--thisStatus.stackedAbove:GetTransform().zLayer = thisTransform.zLayer - 1
+		if(thisStatus.stackedBelow == nil)
+		then
+			thisTransform.zLayer = 4
+		end 
+		thisStatus.stackedAbove:GetTransform().zLayer = thisTransform.zLayer - 1
 
 		newPos.y = newPos.y + gnomeStackDistance
 		thisStatus.stackedAbove:GetTransform().position = newPos
 
 		thisStatus.stackedAbove:GetRigidBody().velocity = vec3(0,0,0)
 
-		--thisTransform = thisStatus.stackedAbove:GetTransform()
+		thisTransform = thisStatus.stackedAbove:GetTransform()
 		thisStatus = thisStatus.stackedAbove:GetScript("GnomeStatus.lua")
 	end
 end
@@ -192,7 +192,7 @@ function DetachGnomes(top, bot)
 		topStatus.stacked = true
 	else
 		topStatus.stacked = false
-		this:GetTransform().zLayer = 4
+		top:GetTransform().zLayer = 4
 	end
 
 	if (botStatus.stackedBelow ~= nil)
@@ -200,7 +200,7 @@ function DetachGnomes(top, bot)
 		botStatus.stacked = true
 	else
 		botStatus.stacked = false
-		this:GetTransform().zLayer = 4
+		bot:GetTransform().zLayer = 4
 	end
 
 end
@@ -269,7 +269,7 @@ end -- fn end
 -- Other is a game object
 function OnCollisionEnter(other)
 	-- Player collides with other player
-	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stackedAbove == nil)
+	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stackedAbove == nil and this:GetScript("GnomeStatus.lua").isStatue == false)
 	then
 		StackPlayers(other)
 	end

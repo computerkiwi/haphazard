@@ -70,6 +70,7 @@ public:
 private:
 	friend void ImGui_Camera(Camera *camera, GameObject object, Editor *editor);
 	friend glm::vec2 Input::ScreenToWorld(glm::vec2 cursor);
+	friend glm::vec2 Input::ScreenPercentToWorld(glm::vec2 cursor);
 
 	void ApplyCameraMatrices();
 
