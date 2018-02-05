@@ -32,7 +32,12 @@ bool LuaIsTriggered(int val)
 
 bool LuaGamepadIsPressed(int player, int button)
 {
-  return Input::GamepadIsPressed(static_cast<PlayerID>(player), static_cast<GamepadButton>(button));
+  return Input::GamepadIsHeldDown(static_cast<PlayerID>(player), static_cast<GamepadButton>(button));
+}
+
+bool LuaGamepadIsTriggered(int player, int button)
+{
+	return Input::GamepadIsPressed(static_cast<PlayerID>(player), static_cast<GamepadButton>(button));
 }
 
 float LuaGamepadGetAxis(int player, int axis)
@@ -58,9 +63,10 @@ int LuaGamepadsConnected()
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
-		.addFunction("IsPressed", &LuaIsPressed)
-		.addFunction("IsTriggered", &LuaIsTriggered)
-    .addFunction("GamepadIsPressed", &LuaGamepadIsPressed)
+		.addFunction("IsHeld", &LuaIsPressed)
+		.addFunction("OnPress", &LuaIsTriggered)
+    .addFunction("GamepadIsHeld", &LuaGamepadIsPressed)
+	.addFunction("GamepadOnPress", &LuaGamepadIsTriggered)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
     .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
     .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
