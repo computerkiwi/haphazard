@@ -9,7 +9,7 @@ Activated = false
 GEM_SPRITE = "Interactive(Green)_On.png"
 
 function OnCollisionEnter(other)
-	if other:HasTag("Player")
+	if (other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == true)
 	then
 		Activated = true
     this:GetSprite().id = Resource.FilenameToID(GEM_SPRITE)
