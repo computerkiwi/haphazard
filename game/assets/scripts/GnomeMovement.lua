@@ -65,6 +65,10 @@ blockJump = false
 dustParticleObject = nil
 dustParticlesEnabled = nil -- Initialized in start.
 
+-- Prefab files
+WALK_PREFAB_NAME = "assets/prefabs/DustParticles.json"
+JUMP_PREFAB_NAME = "assets/prefabs/DustJump.json"
+
 function SetDustEnabled(shouldBeEnabled)
 	-- Don't bother changing if our status is already in the state we want it in.
 	if (dustParticlesEnabled == shouldBeEnabled)
@@ -94,7 +98,7 @@ function InitDustParticles()
 	
 
 	-- Create the dust particle object.
-	dustParticleObject = GameObject.LoadPrefab("assets/prefabs/DustParticles.json")
+	dustParticleObject = GameObject.LoadPrefab(WALK_PREFAB_NAME)
 	dustParticleObject:SetName(particleObjectName)
 	local transform = dustParticleObject:GetTransform()
 	
@@ -202,6 +206,10 @@ function Jump()
 
 	onGround = false
 
+	local jumpParticle = GameObject.LoadPrefab(JUMP_PREFAB_NAME)
+	local pos = this:GetTransform().position
+	jumpParticle:GetTransform().position = vec2(pos.x, pos.y + DUST_PARTICLE_OFFSET)
+	
 	this:GetScript("GnomeAbilities.lua").Jump()
 end
 
