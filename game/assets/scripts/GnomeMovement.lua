@@ -35,6 +35,8 @@ WALK_FPS = 7
 DEADZONE = 0.5 -- Joystick dead zone
 GROUND_CHECK_LENGTH = 0.05
 DUST_PARTICLE_OFFSET = -0.5
+STATUE_MOVE_COOLDOWN = 1
+
 -- Layers
 PLAYER_LAYER = 1 << 2
 GROUND_LAYER = 1 << 3
@@ -49,8 +51,9 @@ MOVE_RIGHT =	1 -- Player moving right
 -- Movement
 moveSpeed	 = 2
 moveDir		 = 0
-statueXSpeed = 0.1
-statueYVelocity = 1
+statueXSpeed = 0.4
+statueYVelocity = 2
+statueMoveTimer = 0
 
 -- Jumping
 onGround      = false
@@ -111,7 +114,6 @@ function InitDustParticles()
 end
 
 function Start()
-	
 	InitDustParticles()
 end
 
@@ -123,7 +125,7 @@ function Update(dt)
 	-- Knockback is checked before ground update so it doesnt cancel on first update
 	if(status.knockedBack == true)
 	then
-		if(status.stackedBelow ~= nil)
+		if(status.stackedBelow ~= nil or this:GetDynamicCollider().colliderData:IsCollidingWithLayer(GROUND_LAYER) )
 		then
 			status.knockedBack = false
 		end
@@ -158,7 +160,7 @@ function Update(dt)
 
 	elseif(status.isStatue == true)
 	then
-		StatueUpdate()
+		StatueUpdate(dt)
 	end
 	
 	this:GetScript("GnomeStack.lua").UpdateParenting()
@@ -209,6 +211,7 @@ function Knockback(dir, force)
 
 	this:GetScript("GnomeStatus.lua").knockedBack = true
 	this:GetRigidBody().velocity = vec3(dir.x * force, dir.y * force, 0)
+	this:GetTransform().position = vec2(this:GetTransform().position.x, this:GetTransform().position.y + 0.1)
 	onGround = false
 
 end
@@ -254,12 +257,16 @@ function UpdateDir()
 end -- fn end
 
 function SetWalkAnimFPS()
+	if(this:GetScript("GnomeStatus.lua").isStatue) then return end
+
 	local tex = this:GetSprite().textureHandler
 	tex.fps = WALK_FPS
 	this:GetSprite().textureHandler = tex
 end
 
 function SetIdleAnimFPS()
+	if(this:GetScript("GnomeStatus.lua").isStatue) then return end
+
 	local tex = this:GetSprite().textureHandler
 	tex.fps = 0
 	tex.currentFrame = 0
@@ -309,19 +316,36 @@ function OnCollisionEnter(other)
 	end
 end
 
-function StatueUpdate()
-	local playerBody = this:GetRigidBody()
 
-	if(moveDir ~= 0)
+function StatueUpdate(dt)
+	local playerBody = this:GetRigidBody()
+	statueMoveTimer = statueMoveTimer - dt
+
+	UpdateDir()
+
+	if(moveDir ~= 0 and onGround)
 	then
+		if(statueMoveTimer <= 0)
+		then
+			this:GetScript("GnomeHealth.lua").ChipStatue()
+			statueMoveTimer = STATUE_MOVE_COOLDOWN
+		end
+
 		local speed = statueXSpeed
 		local jump = statueYVelocity
 
 		local newVelocity = vec3(moveDir * speed, jump, 0)
 
 		playerBody.velocity = newVelocity	-- Update player velocity
-	
+		
 		-- Update dust particles
 		SetDustEnabled(moveDir ~= 0 and onGround)
+	else
+		SetDustEnabled(false)
+		
+		if(onGround)
+		then
+			playerBody.velocity = vec3(0, playerBody.velocity.y, 0)
+		end
 	end
 end

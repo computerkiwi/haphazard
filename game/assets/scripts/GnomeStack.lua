@@ -269,7 +269,10 @@ end -- fn end
 -- Other is a game object
 function OnCollisionEnter(other)
 	-- Player collides with other player
-	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stackedAbove == nil and this:GetScript("GnomeStatus.lua").isStatue == false)
+	if (other:HasTag("Player") 
+		and this:GetScript("GnomeStatus.lua").stackedAbove == nil 
+		and this:GetScript("GnomeStatus.lua").isStatue == false
+		and other:GetScript("GnomeStatus.lua").isStatue == false)
 	then
 		StackPlayers(other)
 	end

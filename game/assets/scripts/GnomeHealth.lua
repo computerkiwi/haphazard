@@ -5,10 +5,13 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+STATUE_HIT_POINTS = 14
 
 ENEMY_LAYER = 16;
 
 health = 6
+statueHitPoints = 14
+
 healthBar = nil
 invulTime = 0
 
@@ -21,6 +24,12 @@ KNOCKBACK_FORCE = 5
 INVULNERABLE_TIME = 2
 
 LEVEL = "Level1.json"
+
+Sprite_Red_Statue = "Death_Red.json"
+Sprite_Green_Statue = "Death_Green.json"
+Sprite_Blue_Statue = "Death_Blue.json"
+Sprite_Yellow_Statue = "Death_Yellow.json"
+
 
 function Start()
 
@@ -95,6 +104,8 @@ function Damage(damageAmount, damageSourceLocation)
 		-- Is dead
 		this:GetScript("GnomeStatus.lua").isStatue = true
 		this:GetScript("GnomeStatus.lua").statueHitPoints = this:GetScript("GnomeStatus.lua").STATUE_HIT_POINTS
+
+		SetStatueSprite()
 	end
 end
 
@@ -102,7 +113,67 @@ function OnCollisionEnter(other)
 
   if(invulTime <= 0 and this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ENEMY_LAYER))
   then
+	if(this:GetScript("GnomeStatus.lua").isStatue == false)
+	then
 		Damage(1, other:GetTransform().position)
 	end
+  end
 
+end
+
+
+function SetStatueSprite()
+	local type = this:GetScript("GnomeStatus.lua").GnomeType
+
+	print("IM DEAD" .. type)	
+
+	if(this:GetScript("GnomeStatus.lua").isStatue)
+	then		
+		print("IM A STATUE OF TYPE " .. type .." To sprite " ..Sprite_Red_Statue)
+		-- Set sprite
+		if(type == 1)	-- Red
+		then
+			this:GetSprite().id = Resource.FilenameToID(Sprite_Red_Statue)
+		elseif(type == 2)	-- Green
+		then
+			this:GetSprite().id = Resource.FilenameToID(Sprite_Green_Statue)
+		elseif(type == 3)	-- Blue
+		then
+			this:GetSprite().id = Resource.FilenameToID(Sprite_Blue_Statue)
+		elseif(type == 4)	-- Yellow
+		then
+			this:GetSprite().id = Resource.FilenameToID(Sprite_Yellow_Statue)
+		end
+
+		local tex = this:GetSprite().textureHandler
+		tex.currentFrame = 0
+		this:GetSprite().textureHandler = tex
+	else
+		this:GetScript("GnomeAbilities.lua").SetType(type) -- Reset sprite
+	end
+
+end
+
+function ChipStatue()
+	statueHitPoints = statueHitPoints - 1
+	
+	if(statueHitPoints < 12)
+	then
+		local tex = this:GetSprite().textureHandler
+		tex.currentFrame = 4 - math.ceil(statueHitPoints / 3)
+		this:GetSprite().textureHandler = tex
+	else
+		tex.currentFrame = 0
+		this:GetSprite().textureHandler = tex
+	end
+
+	if(statueHitPoints <= 0)
+	then
+		this:GetScript("GnomeStatus.lua").isStatue = false
+		SetStatueSprite()
+
+		health = 6
+
+		this:GetScript("GnomeMovement.lua").Jump()
+	end
 end

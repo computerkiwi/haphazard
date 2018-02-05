@@ -11,8 +11,6 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 PLAYER_NUM = 0
 PLAYER_PHYS_LAYER = 1 << 2
 
-STATUE_HIT_POINTS = 10
-
 -- Gnome type
 
 GnomeType = 1
@@ -43,7 +41,6 @@ specialJumpScale = 2
 
 -- Health info
 isStatue = false
-statueHitPoints = 10
 
 -- Collectibles
 hasGem = false

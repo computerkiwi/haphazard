@@ -12,7 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Sprites
 
-local defaultGravity
+defaultGravity = 0
 
 Sprite_RedGnome    = "redGnomeWalk.json"
 Sprite_GreenGnome  = "greenGnomeWalk.json"
@@ -44,6 +44,7 @@ end
 
 function Update()
 	this:GetScript("GnomeStatus.lua").specialMove = false
+	this:GetRigidBody().gravity = defaultGravity
 
 	local status = this:GetScript("GnomeStatus.lua")
 
@@ -98,7 +99,9 @@ function FootAbility()
 	elseif(type == 3)	-- Blue
 	then
 		-- Lowers fall speed
-		this:GetRigidBody().gravity = defaultGravity * Blue_Foot_GravityScale
+		this:GetRigidBody().gravity = vec3(defaultGravity.x * Blue_Foot_GravityScale, defaultGravity.y * Blue_Foot_GravityScale,0)
+
+		print(this:GetRigidBody().gravity .y)
 	elseif(type == 4)	-- Yellow
 	then
 		this:GetScript("GnomeStatus.lua").specialMove = true

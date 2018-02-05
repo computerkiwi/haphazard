@@ -4,6 +4,6 @@
   "frameHeight": 256,
   "framesX":     4,
   "framesY":     1,
-  "fps":         1,
+  "fps":         0,
   "frameCount":  4
 }
