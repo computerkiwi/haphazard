@@ -75,14 +75,6 @@ function Damage(damageAmount, damageSourceLocation)
 	-- Actually deal the damage
   health = health - damageAmount
 	PlaySound("gnome_injure.mp3", 1.5, 1, false)
-
-	-- Update the healthbar
-	if (healthBar:IsValid())
-	then
-		local th = healthBar:GetSprite().textureHandler
-		th.currentFrame = health
-		healthBar:GetSprite().textureHandler = th
-	end
 	
 	-- Apply player knockback.
 	local movementScript = this:GetScript("GnomeMovement.lua")
