@@ -53,8 +53,8 @@ function Update(dt)
 	local transform = this:GetTransform()
 	local currPos = transform.position
 	
-	currPos.x = ((1 - LERP_SPEED) * currPos.x + LERP_SPEED * position.x)
-	currPos.y = ((1 - LERP_SPEED) * currPos.y + LERP_SPEED * position.y) + OFFSET_Y
+	currPos.x = math.lerp(currPos.x, position.x, LERP_SPEED)
+	currPos.y = math.lerp(currPos.y, position.y, LERP_SPEED)
 	
 	transform.position = currPos
 	

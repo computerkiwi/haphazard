@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+
+
 PlayerName = "Player1"
 Player = nil
 
@@ -15,6 +17,14 @@ startScale = vec3(0,0,0)
 
 XOffset = 0
 YOffset = 0
+
+shakeAmount = 0
+SHAKE_SCALE = 0.2
+SHAKE_FALLOFF = 0.3
+
+function Shake(amount)
+	shakeAmount = shakeAmount + amount
+end
 
 function Start()
 	cam = GameObject.FindByName("Main Camera")
@@ -36,8 +46,16 @@ function LateUpdate(dt)
 
 	Player = GameObject.FindByName(PlayerName)
 
+	-- Change shake amount
+	shakeAmount = math.max(math.lerp(shakeAmount, 0 , SHAKE_FALLOFF), 0)
+	
+	-- Calculate shake
+	local shakeAngle = math.random() * math.rad(360)
+	local shakeX = math.cos(shakeAngle) * shakeAmount * SHAKE_SCALE
+	local shakeY = math.sin(shakeAngle) * shakeAmount * SHAKE_SCALE
+	
 	local zoomScale = cam:GetCamera().zoom / 5
-	this:GetTransform().position = vec2(cam:GetTransform().position.x + XOffset * zoomScale, cam:GetTransform().position.y + YOffset * zoomScale)
+	this:GetTransform().position = vec2(cam:GetTransform().position.x + (XOffset + shakeX) * zoomScale, cam:GetTransform().position.y + (YOffset + shakeY) * zoomScale)
 	this:GetTransform().scale = vec3(startScale.x * zoomScale, startScale.y * zoomScale, 1)
 
 	if (Player:IsValid())
