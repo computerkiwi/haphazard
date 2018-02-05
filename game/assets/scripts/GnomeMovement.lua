@@ -56,6 +56,8 @@ statueYVelocity = 1
 onGround      = false
 jumpSpeed	 = 5.5
 fallSpeed	 = 2
+ledgeForgivenessTimer = 0
+LEDGE_FORGIVENESS_TIME = 0.15
 
 -- Flags
 blockMovement = false
@@ -134,7 +136,17 @@ function Update(dt)
 	end
 
 	-- Update if they are on the ground
-	onGround = CheckGround(2)
+	ledgeForgivenessTimer = ledgeForgivenessTimer - dt
+	if (CheckGround(2))
+	then
+		onGround = true
+	else
+		if (onGround == true)
+		then
+			ledgeForgivenessTimer = LEDGE_FORGIVENESS_TIME 
+		end		
+		onGround = false                  
+	end
 
 	if(status.canMove == true and status.knockedBack == false and status.isStatue == false)
 	then
@@ -148,7 +160,7 @@ function Update(dt)
 		end
 
 		-- Jump
-		if (onGround == true and this:GetScript("InputHandler.lua").jumpPressed)
+		if ((onGround == true or ledgeForgivenessTimer > 0) and this:GetScript("InputHandler.lua").jumpPressed)
 		then
 			Jump()
 		end
@@ -194,6 +206,9 @@ end -- fn end
 function Jump()
 	PlaySound("jump.mp3", 0.1, 0.8, false)
 
+	-- Get rid of ledge forgiveness
+	ledgeForgivenessTimer = 0
+	
 	local speed = jumpSpeed
 	if(this:GetScript("GnomeStatus.lua").specialJump)
 	then
