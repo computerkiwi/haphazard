@@ -101,7 +101,13 @@ function InitDustParticles()
 	-- Attach it to the gnome.
 	transform.parent = this
 	transform.localPosition = vec2(0, DUST_PARTICLE_OFFSET)
-	SetDustEnabled(false)
+	
+	-- Initially disable the dust.
+	dustParticlesEnabled = false
+	local pSystem = dustParticleObject:GetParticleSystem()
+	local settings = pSystem.settings
+	settings.isLooping = false
+	pSystem.settings = settings
 end
 
 function Start()

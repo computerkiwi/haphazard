@@ -9,10 +9,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 otherPlayer = nil
 
 ALLY_PROJECTILE_LAYER = 32 --1 << 5
+GROUND_LAYER = 1 << 3
 
 -- Variables
 direction = 1 -- direction of movement - -1 for left, 1 for right
 speed = 2      -- speed at which boi moves
+scaredSpeed = 3
+
+scared = false
 
 -- Called at frame start
 function Start()
@@ -24,7 +28,18 @@ function Update(dt)
 	
 	local velocity = this:GetRigidBody().velocity
 
-	if(velocity.x == 0)
+	--[[local moveSpeed = speed
+
+	if(scared == true)
+	then
+
+		moveSpeed = scaredSpeed
+
+	end]]
+
+	cast = Raycast.Cast(this:GetSpaceIndex(), this:GetTransform().position, vec2(0, -1), this:GetCollider().dimensions.y / 1.8, GROUND_LAYER)
+
+	if(velocity.x == 0 or not cast.gameObjectHit:IsValid())
 	then
 		
 		-- change direction
@@ -50,7 +65,9 @@ function OnCollisionEnter(other)
 
 	if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
 	then
-		this:Destroy()
+		
+		scared = true
+
 	end
 
 end -- fn end

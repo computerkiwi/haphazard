@@ -11,7 +11,7 @@ PLAYER_INPUT_NUM = 0 -- Player number
 
 DEADZONE = 0.5
 
-UseKeyboard = true
+UseKeyboard = false
 
 JUMP	 = 0 -- A
 ATTACK   = 2 -- X
