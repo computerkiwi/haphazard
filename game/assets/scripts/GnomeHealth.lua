@@ -31,12 +31,30 @@ Sprite_Blue_Statue = "Death_Blue.json"
 Sprite_Yellow_Statue = "Death_Yellow.json"
 
 
-function Start()
+UI_SHAKE_AMOUNT = 1
 
+function GetHealthBar()
+  healthBar = GameObject.FindByName(this:GetName().."Healthbar") 
+  if (healthBar:IsValid()) 
+  then 
+		return true
+  else
+		healthBar = nil
+		return false
+	end
+end
+
+function Start()
+	GetHealthBar()
 end
 
 function Update(dt)
   
+	if (healthBar == nil)
+	then
+		GetHealthBar()
+	end
+	
   if(invulTime > 0)
   then
     invulTime = invulTime - dt
@@ -94,6 +112,13 @@ function Damage(damageAmount, damageSourceLocation)
 		knockbackDir.x = -knockbackDir.x
 	end
 	movementScript.Knockback(knockbackDir, KNOCKBACK_FORCE)
+	
+	-- Shake the UI
+	if (healthBar ~= nil)
+	then
+		local healthBarScript = healthBar:GetScript("Level1GUI.lua")
+		healthBarScript.Shake(UI_SHAKE_AMOUNT)
+	end
 	
 	-- Set the invulnerability timer
 	invulTime = INVULNERABLE_TIME
