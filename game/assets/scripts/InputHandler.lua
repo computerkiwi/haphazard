@@ -11,8 +11,6 @@ PLAYER_INPUT_NUM = 0 -- Player number
 
 DEADZONE = 0.5
 
-UseKeyboard = false
-
 JUMP	 = 0 -- A
 ATTACK   = 2 -- X
 TOSS	 = 3 -- Y
@@ -40,10 +38,7 @@ function EarlyUpdate()
 	ResetInput()
 
 	GetKeyboardInput()
-	if(UseKeyboard == false)
-	then
-		GetInputGamepad()
-	end
+	GetInputGamepad()
 
 	NormInput()
 end
@@ -51,7 +46,12 @@ end
 function ResetInput()
 	horizontalAxis = 0
 	verticalAxis   = 0
-	onJumpPress = false
+	
+	jumpPressed    = false
+	attackPressed  = false
+	tossPressed    = false
+	
+	onJumpPress	   = false
 end
 
 function NormInput()
@@ -86,26 +86,26 @@ function GetInputGamepad()
 	end
 
 	-- Jump
-	if (GamepadIsPressed(PLAYER_INPUT_NUM, JUMP))
+	if(GamepadOnPress(PLAYER_INPUT_NUM, JUMP))
 	then
-		if(jumpPressed == false)
-		then
-			onJumpPress = true
-		else
-			onJumpPress = false
-		end
+		onJumpPress = true
+	end
 
+	if (GamepadIsHeld(PLAYER_INPUT_NUM, JUMP))
+	then
 		jumpPressed = true
-	else
-		jumpPressed = false
 	end
 
 	-- Toss
-	if (GamepadIsPressed(PLAYER_INPUT_NUM, TOSS))
+	if (GamepadIsHeld(PLAYER_INPUT_NUM, TOSS))
+	then
+		tossPressed = true
+	end
+
+	-- Attack
+	if (GamepadIsHeld(PLAYER_INPUT_NUM, ATTACK))
 	then
 		attackPressed = true
-	else
-		attackPressed = false
 	end
 
 end -- fn end
@@ -115,20 +115,20 @@ end -- fn end
 function GetKeyboardInput()
 
 	-- Movement
-	if (IsPressed(KEY_RIGHT))
+	if (IsHeld(KEY_RIGHT))
 	then
 		horizontalAxis = 1
-	elseif (IsPressed(KEY_LEFT))
+	elseif (IsHeld(KEY_LEFT))
 	then
 		horizontalAxis = -1
 	else
 		horizontalAxis = 0
 	end
 
-	if (IsPressed(KEY_UP))
+	if (IsHeld(KEY_UP))
 	then
 		verticalAxis = 1
-	elseif (IsPressed(KEY_DOWN))
+	elseif (IsHeld(KEY_DOWN))
 	then
 		verticalAxis = -1
 	else
@@ -136,36 +136,26 @@ function GetKeyboardInput()
 	end
 
 	-- Jumps
-	if (IsPressed(KEY_JUMP))
+	if(OnPress(KEY_JUMP))
 	then
-		if(jumpPressed == false)
-		then
-			onJumpPress = true
-		else
-			onJumpPress = false
-		end
+		onJumpPress = true
+	end
 
+	if (IsHeld(KEY_JUMP))
+	then
 		jumpPressed = true
-	else
-		jumpPressed = false
 	end
 
 	-- Attack
-	if (IsPressed(KEY_ATTACK))
+	if (IsHeld(KEY_ATTACK))
 	then
 		attackPressed = true
-	else
-		attackPressed = false
 	end
 
 	-- Toss
-	if (IsPressed(KEY_TOSS))
+	if (IsHeld(KEY_TOSS))
 	then
 		tossPressed = true
-	else
-		tossOther = false
 	end
-
-	UseKeyboard = jumpPressed or onJumpPress or attackPressed or tossPressed or (horizontalAxis ~= 0) or (verticalAxis ~= 0)
 
 end

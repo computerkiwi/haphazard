@@ -39,7 +39,7 @@ function ContinuePressed()
 	-- Check each button.
 	for i,key in ipairs(CONTINUE_BUTTONS)
 	do
-		if (IsTriggered(key))
+		if (OnPress(key))
 		then
 			return true
 		end

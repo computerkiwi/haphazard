@@ -15,7 +15,7 @@ function Update(dt)
 	local obj4 = GameObject.FindByName("CheatTeleport4")
 	local obj5 = GameObject.FindByName("CheatTeleport5")
 
-	if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.One) and obj1:IsValid())
+	if(IsHeld(KEY.LeftControl) and OnPress(KEY.One) and obj1:IsValid())
 	then
 
 		local location = obj1:GetTransform().position
@@ -23,7 +23,7 @@ function Update(dt)
 
 	end
 
-	if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.Two) and obj2:IsValid())
+	if(IsHeld(KEY.LeftControl) and OnPress(KEY.Two) and obj2:IsValid())
 	then
 
 		local location = obj2:GetTransform().position
@@ -31,7 +31,7 @@ function Update(dt)
 
 	end
 
-	if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.Three) and obj3:IsValid())
+	if(IsHeld(KEY.LeftControl) and OnPress(KEY.Three) and obj3:IsValid())
 	then
 
 		local location = obj3:GetTransform().position
@@ -39,7 +39,7 @@ function Update(dt)
 
 	end
 
-	if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.Four) and obj4:IsValid())
+	if(IsHeld(KEY.LeftControl) and OnPress(KEY.Four) and obj4:IsValid())
 	then
 
 		local location = obj4:GetTransform().position
@@ -47,7 +47,7 @@ function Update(dt)
 
 	end
 
-	if(IsPressed(KEY.LeftControl) and IsTriggered(KEY.Five) and obj5:IsValid())
+	if(IsHeld(KEY.LeftControl) and OnPress(KEY.Five) and obj5:IsValid())
 	then
 
 		local location = obj5:GetTransform().position
