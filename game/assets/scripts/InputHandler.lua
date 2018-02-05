@@ -28,9 +28,11 @@ KEY_TOSS   = 84 -- T
 KEY_ATTACK = 89 -- Y
 
 jumpPressed    = false
-onJumpPress	   = false
 attackPressed  = false
 tossPressed    = false
+
+onJumpPress	   = false
+
 horizontalAxis = 0
 verticalAxis   = 0
 
@@ -49,6 +51,7 @@ end
 function ResetInput()
 	horizontalAxis = 0
 	verticalAxis   = 0
+	onJumpPress = false
 end
 
 function NormInput()

@@ -64,6 +64,8 @@ void RegisterLua(lua_State * L)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
     .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
     .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
+    .addFunction("MouseToWorld", &Input::ScreenToWorld)
+    .addFunction("ScreenToWorld", &Input::ScreenPercentToWorld)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
 

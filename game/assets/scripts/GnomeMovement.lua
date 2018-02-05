@@ -49,6 +49,8 @@ MOVE_RIGHT =	1 -- Player moving right
 -- Movement
 moveSpeed	 = 2
 moveDir		 = 0
+statueXSpeed = 0.1
+statueYVelocity = 1
 
 -- Jumping
 onGround      = false
@@ -115,7 +117,7 @@ function Update(dt)
 	-- Knockback is checked before ground update so it doesnt cancel on first update
 	if(status.knockedBack == true)
 	then
-		if(onGround or status.stackedBelow ~= nil)
+		if(status.stackedBelow ~= nil)
 		then
 			status.knockedBack = false
 		end
@@ -124,7 +126,7 @@ function Update(dt)
 	-- Update if they are on the ground
 	onGround = CheckGround(2)
 
-	if(status.canMove == true and status.knockedBack == false)
+	if(status.canMove == true and status.knockedBack == false and status.isStatue == false)
 	then
 		-- Get Direction
 		UpdateDir()
@@ -148,6 +150,9 @@ function Update(dt)
 			Jump()
 		end
 
+	elseif(status.isStatue == true)
+	then
+		StatueUpdate()
 	end
 	
 	this:GetScript("GnomeStack.lua").UpdateParenting()
@@ -159,7 +164,6 @@ end -- fn end
 function UpdateMovement(dt)
 	-- Connections
 	local playerBody = this:GetRigidBody()
-	local playerTransform = this:GetTransform()
 
 	local newVelocity	= playerBody.velocity
 
@@ -290,4 +294,28 @@ function CheckGround(count)
 	end
 	
 	return hit, hitY
+end
+
+function OnCollisionEnter(other)
+	if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(GROUND_LAYER))
+	then
+		this:GetScript("GnomeStatus.lua").knockedBack = false
+	end
+end
+
+function StatueUpdate()
+	local playerBody = this:GetRigidBody()
+
+	if(moveDir ~= 0)
+	then
+		local speed = statueXSpeed
+		local jump = statueYVelocity
+
+		local newVelocity = vec3(moveDir * speed, jump, 0)
+
+		playerBody.velocity = newVelocity	-- Update player velocity
+	
+		-- Update dust particles
+		SetDustEnabled(moveDir ~= 0 and onGround)
+	end
 end

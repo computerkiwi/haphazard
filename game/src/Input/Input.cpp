@@ -121,7 +121,6 @@ namespace Input
 	  return ScreenToWorld(prevCursorPos);
   }
 
-  // Noah's code ======================================================
   // Upper left is (0,0)
   glm::vec2 ScreenToWorld(glm::vec2 cursor)
   {
@@ -141,6 +140,23 @@ namespace Input
 	glm::vec4 cPos = matrix * glm::vec4(screenPos, 0.0f, 1);
 
     return cPos;
+  }
+
+  glm::vec2 ScreenPercentToWorld(glm::vec2 screenPos)
+  {
+	  Camera *cam = Camera::GetActiveCamera();
+
+	  // Get the view and projection matrices from the camera
+	  glm::mat4 view = glm::lookAt(cam->m_Position, cam->m_Center, cam->m_Up);
+	  glm::mat4 proj = glm::ortho(-1.0f * cam->m_Zoom, 1.0f * cam->m_Zoom, -1.0f * cam->m_Zoom / cam->m_AspectRatio, 1.0f * cam->m_Zoom / cam->m_AspectRatio, cam->m_Near, cam->m_Far);
+
+	  // Get the matrix needed to undo the camera matrix
+	  glm::mat4 matrix = glm::inverse(proj * view);
+
+	  // Calculate and save the world coordinates
+	  glm::vec4 cPos = matrix * glm::vec4(screenPos, 0.0f, 1);
+
+	  return cPos;
   }
 
   // Check if key is pressed; takes the key to check

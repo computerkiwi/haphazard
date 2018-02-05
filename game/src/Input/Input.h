@@ -53,6 +53,7 @@ namespace Input
   	glm::vec2 GetPrevMousePos();
   	glm::vec2 GetPrevMousePos_World();
     glm::vec2 ScreenToWorld(glm::vec2 cursor);
+	glm::vec2 ScreenPercentToWorld(glm::vec2 cursor);
     glm::vec2 GetScroll();
     int GetScrollCount();
 

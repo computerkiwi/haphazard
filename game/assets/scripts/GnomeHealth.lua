@@ -17,13 +17,7 @@ INVULNERABLE_TIME = 2
 LEVEL = "Level1.json"
 
 function Start()
-	healthBar = GameObject.FindByName(this:GetName().."Healthbar")
-	if (healthBar:IsValid())
-	then
-		local th = healthBar:GetSprite().textureHandler
-		th.currentFrame = health
-		healthBar:GetSprite().textureHandler = th
-	end
+
 end
 
 function Update(dt)
@@ -37,32 +31,19 @@ end
 
 function OnCollisionEnter(other)
 
-  if(invulTime <= 0 and this:GetDynamicCollider().colliderData:IsCollidingWithLayer(16))
+  invulTime = ScreenToWorld(vec2(-1,-1)).x
+  if(invulTime <= 0 and this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ENEMY_LAYER))
   then
     health = health - 1
 	PlaySound("gnome_injure.mp3", 1.5, 1, false)
-
-	if (healthBar:IsValid())
-	then
-		local th = healthBar:GetSprite().textureHandler
-		th.currentFrame = health
-		healthBar:GetSprite().textureHandler = th
-	end
-
 
 	invulTime = INVULNERABLE_TIME
 
 	if(health <= 0)
 	then
-		if(this:GetName() == "Player1" and not GameObject.FindByName("Player2"):IsActive())
-		then
-			Engine.LoadLevel(LEVEL)
-		elseif(this:GetName() == "Player2" and not GameObject.FindByName("Player1"):IsActive())
-		then
-			Engine.LoadLevel(LEVEL)
-		end
-
-		this:Deactivate();
+		-- Is dead
+		this:GetScript("GnomeStatus.lua").isStatue = true
+		this:GetScript("GnomeStatus.lua").statueHitPoints = this:GetScript("GnomeStatus.lua").STATUE_HIT_POINTS
 	end
   end
 
