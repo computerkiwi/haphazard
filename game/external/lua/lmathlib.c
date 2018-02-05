@@ -162,6 +162,19 @@ static int math_modf (lua_State *L) {
   return 2;
 }
 
+// HAPHAZARD ADDITION:
+// Kieran Williams
+static int math_lerp(lua_State *L)
+{
+	lua_Number a = luaL_checknumber(L, 1);
+	lua_Number b = luaL_checknumber(L, 2);
+	lua_Number t = luaL_checknumber(L, 3);
+
+	lua_Number result = a + t * (b - a);
+	lua_pushnumber(L, result);
+
+	return 1;
+}
 
 static int math_sqrt (lua_State *L) {
   lua_pushnumber(L, l_mathop(sqrt)(luaL_checknumber(L, 1)));
@@ -362,6 +375,7 @@ static const luaL_Reg mathlib[] = {
   {"floor", math_floor},
   {"fmod",   math_fmod},
   {"ult",   math_ult},
+	{"lerp",  math_lerp},
   {"log",   math_log},
   {"max",   math_max},
   {"min",   math_min},
