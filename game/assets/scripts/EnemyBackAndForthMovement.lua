@@ -15,6 +15,7 @@ GROUND_LAYER = 1 << 3
 direction = 1 -- direction of movement - -1 for left, 1 for right
 speed = 2      -- speed at which boi moves
 scaredSpeed = 3
+health = 5
 
 scared = false
 
@@ -63,11 +64,14 @@ end -- fn end
 -- Other is a game object
 function OnCollisionEnter(other)
 
-	if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
+  if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
 	then
-		
 		scared = true
-
+    health = health - 1
 	end
+  if(health <= 0)
+  then
+    this:Destroy()
+  end
 
 end -- fn end
