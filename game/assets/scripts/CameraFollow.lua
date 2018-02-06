@@ -54,7 +54,7 @@ function Update(dt)
 	local currPos = transform.position
 	
 	currPos.x = math.lerp(currPos.x, position.x, LERP_SPEED)
-	currPos.y = math.lerp(currPos.y, position.y, LERP_SPEED)
+	currPos.y = math.lerp(currPos.y, position.y + OFFSET_Y, LERP_SPEED)
 	
 	transform.position = currPos
 	
