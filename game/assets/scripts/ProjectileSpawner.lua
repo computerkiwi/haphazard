@@ -13,8 +13,6 @@ relativeOffset = true
 
 fireSpeed = 10
 
-parented = false -- TODO. Wait til parenting via script works properly
-
 -- Local variables
 local direction = vec2(1,0)	-- Left = -1    Right = 1
 local timer = 0
@@ -56,6 +54,12 @@ function Fire(PrefabName)
 
 	proj:GetTransform().position = vec2(this:GetTransform().position.x + off.x, this:GetTransform().position.y + off.y)
 
+	if(direction.x < 0)
+	then
+	print(direction.x)
+		proj:GetTransform().scale = vec3(-proj:GetTransform().scale.x, proj:GetTransform().scale.y, proj:GetTransform().scale.z)
+	end
+
 	-- Set Speed
 	local dir = aimDirection
 
@@ -65,4 +69,9 @@ function Fire(PrefabName)
 
 	canFire = false
 	timer = info.cooldownTime
+
+	if(info.parented)
+	then
+		proj:GetTransform().parent = this
+	end
 end

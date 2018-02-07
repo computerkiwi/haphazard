@@ -10,9 +10,11 @@ life = 1
 cooldownTime = 0.5
 offsetX = 0
 offsetY = 0
+parented = false
 
 local lifeTimer = 0
 local startTimer = false
+
 
 function Update(dt)
 	if(startTimer)
