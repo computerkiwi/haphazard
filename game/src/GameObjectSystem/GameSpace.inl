@@ -104,7 +104,7 @@ void ComponentMap<T>::DeleteComponent(GameObject_ID id)
 //-----------------------------------------
 
 template <typename T>
-ComponentMap<T>::iterator::iterator(typename std::map<GameObject_ID, T>::iterator iterator, GameSpace *space) : m_iterator(iterator), m_space(space)
+ComponentMap<T>::iterator::iterator(typename std::unordered_map<GameObject_ID, T>::iterator iterator, GameSpace *space) : m_iterator(iterator), m_space(space)
 {
 }
 
