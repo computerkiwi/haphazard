@@ -15,7 +15,7 @@ GROUND_LAYER = 1 << 3
 direction = 1 -- direction of movement - -1 for left, 1 for right
 speed = 2      -- speed at which boi moves
 scaredSpeed = 3
-health = 5
+health = 10
 
 scared = false
 
