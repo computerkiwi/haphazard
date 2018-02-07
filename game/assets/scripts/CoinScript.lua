@@ -15,15 +15,17 @@ function OnCollisionEnter(other)
   then
 
   
-	PlaySound("regular_pickup.mp3", 0.2, 1, false)
+  --[[
 
-    print("Coin collision")
+	PlaySound("regular_pickup.mp3", 0.2, 1, false)
 
     local score = GameObject.FindByName("Stats")
 
     -- Increment score
     local script = score:GetScript("PlayerStats.lua")
     script.AddScore()
+
+  ]]
 
     -- Deactivate the object
     this:Deactivate()

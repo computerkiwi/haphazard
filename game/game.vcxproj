@@ -293,6 +293,8 @@
     <None Include="assets\scripts\CoinScript.lua" />
     <None Include="assets\scripts\DangerShroom.lua" />
     <None Include="assets\scripts\DangerShroom_Spore.lua" />
+    <None Include="assets\scripts\DestructibleShroom.lua" />
+    <None Include="assets\scripts\DropScript.lua" />
     <None Include="assets\scripts\GemInteractive.lua" />
     <None Include="assets\scripts\GemScript.lua" />
     <None Include="assets\scripts\GnomeAutoMovement.lua" />

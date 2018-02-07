@@ -191,6 +191,8 @@
     <None Include="assets\scripts\GnomeSpawner.lua" />
     <None Include="assets\scripts\ParentObject.lua" />
     <None Include="assets\scripts\ChallengeScript.lua" />
+    <None Include="assets\scripts\DestructibleShroom.lua" />
+    <None Include="assets\scripts\DropScript.lua" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
