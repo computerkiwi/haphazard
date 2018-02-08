@@ -89,16 +89,12 @@ function FootAbility()
 	then
 		if(usedFootAbilityThisJump == false)
 		then
-  	  this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
-			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
+		local moveScript = this:GetScript("GnomeMovement.lua")
+		
+  		moveScript.Knockback(vec2(moveScript.facing, 0.4), Green_Foot_PushSpeed)
+		this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
 
-      --[[
-			this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
-			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
-
-			local v = this:GetRigidBody().velocity
-			this:GetRigidBody().velocity = vec3(v.x + Green_Foot_PushSpeed, v.y, 0)]]
-			usedFootAbilityThisJump = true
+		usedFootAbilityThisJump = true
 		end
 	elseif(type == 3)	-- Blue
 	then
