@@ -61,7 +61,7 @@ function Fire(PrefabName)
 
 	if(relativeOffset)
 	then
-		off = vec2(off.x * direction.x, off.y * direction.y)
+		off = vec2(off.x * direction.x, off.y)
 	end
 
 	proj:GetTransform().position = vec2(this:GetTransform().position.x + off.x, this:GetTransform().position.y + off.y)

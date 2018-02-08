@@ -11,6 +11,7 @@ cooldownTime = 0.5
 offsetX = 0
 offsetY = 0
 parented = false
+isMelee = false
 
 local lifeTimer = 0
 local startTimer = false
@@ -31,4 +32,11 @@ end
 function StartLifeTimer()
 	startTimer = true
 	lifeTimer = life
+end
+
+function OnCollisionEnter(other)
+	if (not isMelee)
+	then
+		this:Destroy()
+	end
 end
