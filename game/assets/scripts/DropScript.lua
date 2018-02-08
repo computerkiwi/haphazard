@@ -5,30 +5,48 @@ PRIMARY AUTHOR: Lya Vera
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-DropHeight = 1
-Lifetime = 5
+Lifetime = 15
+Invulnerable = 1
+Collectible = false
+Timer = false
 
 function Start()
 end -- fn end
 
 
 function Update(dt)
-  Lifetime = Lifetime - dt
-  
-  -- Timer runs out; destroy
-  if (Lifetime <= 0)
-  then
-    this:Destroy()
---  elseif (this:GetTransform().position.y ~= DropHeight)
-    
---  then
 
+  Invulnerable = Invulnerable - dt
+
+  if (Invulnerable <= 0)
+  then
+    StartTimer()
+  end
+
+  CheckTimer(dt)
+
+end -- fn end
+
+function StartTimer()
+  Timer = true  
+  Collectible = true
+end -- fn end
+
+function CheckTimer(dt)
+  if (Timer == true)
+  then
+    Lifetime = Lifetime - dt
+
+    -- Timer runs out; destroy
+    if (Lifetime <= 0)
+    then
+      this:Destroy()
+    end
   end
 end -- fn end
 
-
 function OnCollisionEnter(object)
-  if (not object:HasTag("Enemy") and not object:HasTag("Collectible"))
+  if ((Collectible == true) and (object:HasTag("Player")))
   then
 	  this:Destroy();
   end
