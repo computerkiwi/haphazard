@@ -8,6 +8,8 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 -- No start/update etc. Everything will be set up when the script is first loaded.
 -- Just attach an instance of the script somewhere, probably on the intro screen.
 
+local GNOME_PREFAB_PATH = "assets/prefabs/PlayerGnome.json"
+
 function ConstructPlayer(playerID, controllerID, gnomeID)
 	local player = {}
 	
@@ -30,13 +32,6 @@ local PM = PLAYER_MANAGER
 
 -- IDs for gnomes.
 PM.GNOME_IDS = {RED = 1, GREEN = 2, BLUE = 3, YELLOW = 4}
-
--- Correlate a prefab to each gnome type.
-PM.GNOME_PREFABS = {}
-PM.GNOME_PREFABS[PM.GNOME_IDS.RED]    = "assets/prefabs/Player1Gnome.json"
-PM.GNOME_PREFABS[PM.GNOME_IDS.GREEN]  = "assets/prefabs/Player2Gnome.json"
-PM.GNOME_PREFABS[PM.GNOME_IDS.BLUE]   = "assets/prefabs/Player3Gnome.json"
-PM.GNOME_PREFABS[PM.GNOME_IDS.YELLOW] = "assets/prefabs/Player4Gnome.json"
 
 -- Player list starts empty.
 PM.PLAYERS = {}
@@ -83,18 +78,9 @@ function PM.SpawnPlayerCharacter(playerID)
 	then
 		return nil
 	end
-	
-	-- Get the gnome prefab string.
-	local gnomeID = player.gnomeID
-	print("Gnome ID: " .. tostring(gnomeID))
-	local prefabString = PM.GNOME_PREFABS[gnomeID]
-	if (prefabString == nil)
-	then
-		return nil
-	end
-	
+
 	-- Spawn the actual object.
-	local obj = GameObject.LoadPrefab(prefabString)
+	local obj = GameObject.LoadPrefab(GNOME_PREFAB_PATH)
 	if (not obj:IsValid())
 	then
 		return nil
@@ -105,7 +91,17 @@ function PM.SpawnPlayerCharacter(playerID)
 	
 	-- Set info on the gnome status.
 	local status = obj:GetScript("GnomeStatus.lua")
-	status.PLAYER_NUM = playerID
+	if (status ~= nil)
+	then
+		status.SetInfo(player.playerID, player.gnomeID)
+	end
+
+	local input = obj:GetScript("InputHandler.lua")
+	if (input ~= nil)
+	then
+		input.PLAYER_INPUT_NUM = player.controllerID
+		input.SetKeyboardControls(player.playerID)
+	end
 	
 	return obj
 end

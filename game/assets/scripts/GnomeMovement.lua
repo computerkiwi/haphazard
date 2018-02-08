@@ -51,6 +51,7 @@ MOVE_RIGHT =	1 -- Player moving right
 -- Movement
 moveSpeed	 = 2
 moveDir		 = 0
+facing       = 1
 statueXSpeed = 0.4
 statueYVelocity = 2
 statueMoveTimer = 0
@@ -245,21 +246,39 @@ function UpdateDir()
 
 	-- Call input to get horizontal axis
 	moveDir = input.horizontalAxis
+	if (moveDir > 0)
+	then
+		moveDir = MOVE_RIGHT
+		facing = moveDir
+	elseif(moveDir < 0)
+	then
+		moveDir = MOVE_LEFT
+		facing = moveDir
+	end
+
 
 	if(moveDir == 0)
 	then
+		if (facing == MOVE_RIGHT)
+		then
+			this:GetScript("ProjectileSpawner.lua").SetAim({x = 1, y = 0})
+		else
+			this:GetScript("ProjectileSpawner.lua").SetAim({x = -1, y = 0})
+		end
+
 		SetIdleAnimFPS()
 		return
 	end
 
 	local dir = vec2(1,0)
-	if(moveDir == -1)
+	if(moveDir < 0)
 	then
 		dir = vec2(-1,0)
 	end
 
 	this:GetScript("ProjectileSpawner.lua").SetDir(dir)
 
+	-- If we're stacked and aiming set the aim.
 	if(this:GetScript("GnomeStatus.lua").stacked)
 	then
 		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
