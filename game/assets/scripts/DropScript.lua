@@ -10,6 +10,10 @@ Invulnerable = 1
 Collectible = false
 Timer = false
 
+-- Layers
+LAYER_DECOR = 1 << 6
+LAYER_PLAYER = 1 << 2
+
 function Start()
 end -- fn end
 
@@ -30,6 +34,9 @@ end -- fn end
 function StartTimer()
   Timer = true  
   Collectible = true
+  local layer = this:GetCollider().collisionLayer
+  layer.layer = LAYER_PLAYER
+  this:GetCollider().collisionLayer = layer
 end -- fn end
 
 function CheckTimer(dt)
