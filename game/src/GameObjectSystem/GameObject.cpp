@@ -232,12 +232,26 @@ void GameObject::DeserializeObject(rapidjson::Value& jsonValue)
 
 GameObject GameObject::FindByName(const char * name)
 {
-	// TODO: Make this deal with multiple spaces.
+	// TODO: Make this deal with multiple spaces
+
+	// Map of names to gameobject to cache repeatedly-searched objects.
+	static std::unordered_map<std::string, GameObject> cacheMap;
+
+	// Get a cached GameObject if we can.
+	auto objIter = cacheMap.find(name);
+	if (objIter != cacheMap.end() && objIter->second.IsValid())
+	{
+		return objIter->second;
+	}
+
+	// Look through the list.
 	for (auto info : *engine->GetSpace(0)->GetComponentMap<ObjectInfo>())
 	{
 		if (info->m_name == name)
 		{
-			return GameObject(info->m_id);
+			GameObject foundObj = GameObject(info->m_id);
+			cacheMap.insert_or_assign(name, foundObj);
+			return foundObj;
 		}
 	}
 	return GameObject();
