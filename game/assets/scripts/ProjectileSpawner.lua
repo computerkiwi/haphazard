@@ -37,6 +37,18 @@ function SetAim(aim)
 	aimDirection = aim
 end
 
+function VecLength(vec)
+	return math.sqrt(vec.x * vec.x + vec.y * vec.y)
+end
+
+function Normalize(vec)
+	local len = VecLength(vec)
+
+	vec.x = vec.x / len
+	vec.y = vec.y / len
+
+end
+
 function Fire(PrefabName)
 	if (canFire == false) then return end
 
@@ -62,6 +74,7 @@ function Fire(PrefabName)
 
 	-- Set Speed
 	local dir = aimDirection
+	Normalize(dir)
 
 	proj:GetRigidBody().velocity = vec3(dir.x * info.speed, dir.y * info.speed, 0)
 
