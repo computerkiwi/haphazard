@@ -143,7 +143,7 @@ function CheckForUnstack()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 
 	if(thisStatus.stackedBelow ~= nil)
-	then
+	then		
 		local pos = this:GetTransform().position
 		local belowPos = thisStatus.stackedBelow:GetTransform().position
 

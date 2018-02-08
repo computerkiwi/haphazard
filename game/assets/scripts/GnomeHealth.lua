@@ -128,7 +128,7 @@ function Damage(damageAmount, damageSourceLocation)
 	then
 		-- Is dead
 		this:GetScript("GnomeStatus.lua").isStatue = true
-		this:GetScript("GnomeStatus.lua").statueHitPoints = this:GetScript("GnomeStatus.lua").STATUE_HIT_POINTS
+		statueHitPoints = STATUE_HIT_POINTS
 
 		SetStatueSprite()
 	end
