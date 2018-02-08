@@ -321,6 +321,7 @@ function CheckGround(count)
 	local pos	 = this:GetTransform().position
 	local scale = this:GetCollider().dimensions
 
+	local WIDTH_FRACTION = 0.9
 	local DOWN = vec2(0, -1)
 	
 	-- Make an array of raycast origins
@@ -328,7 +329,7 @@ function CheckGround(count)
 	for i = 1, count do
 		local fraction = (i - 1) / (count - 1)
 	
-		origins[i] = vec2(pos.x - scale.x / 2 + fraction * scale.x, pos.y)
+		origins[i] = vec2(pos.x + WIDTH_FRACTION *(fraction * scale.x - scale.x / 2), pos.y)
 	end
 	
 	-- Cast each raycast
