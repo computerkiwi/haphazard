@@ -1,0 +1,9 @@
+{
+  "textureName": "Emotes.png",
+  "frameWidth":  128,
+  "frameHeight": 192,
+  "framesX":     2,
+  "framesY":     1,
+  "fps":         0,
+  "frameCount":  2
+}

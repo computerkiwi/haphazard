@@ -11,8 +11,6 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 PLAYER_NUM = 0
 PLAYER_PHYS_LAYER = 1 << 2
 
-STATUE_HIT_POINTS = 10
-
 -- Gnome type
 
 GnomeType = 1
@@ -34,6 +32,7 @@ stackedBelow = nil
 
 canMove = true
 knockedBack = false
+tossed = false
 
 specialMove = false
 specialMoveScale = 0.5
@@ -43,7 +42,25 @@ specialJumpScale = 2
 
 -- Health info
 isStatue = false
-statueHitPoints = 10
 
 -- Collectibles
 hasGem = false
+
+-- Apply the current gnome type. (Change sprite, etc.)
+function SetInfo(playerNum, gnomeId)
+	
+	PLAYER_NUM = playerNum
+	GnomeType = gnomeId
+
+	this:SetName("Player" .. tostring(playerNum))
+
+	PLAYER_PHYS_LAYER = 1 << (6 + playerNum)
+
+	local abilityScript = this:GetScript("GnomeAbilities.lua")
+	if (abilityScript ~= nil)
+	then
+		abilityScript.SetType(gnomeId)
+	end
+
+end
+

@@ -320,7 +320,7 @@ size_t RenderSystem::DefaultPriority()
 
 void ToggleFullscreen()
 {
-	static bool isFullscreen = false;
+	static bool isFullscreen = true;
 
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primary);

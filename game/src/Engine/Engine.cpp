@@ -348,5 +348,9 @@ GLFWwindow *WindowInit()
 
 	RenderSystem::ResizeWindowEvent(window, Settings::ScreenWidth(), Settings::ScreenHeight());
 
+	GLFWmonitor* primary = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(primary);
+	glfwSetWindowMonitor(window, primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+
 	return window;
 }

@@ -1,5 +1,5 @@
 --[[
-FILE: CoinScript.lua
+FILE: ChallengeScript.lua
 PRIMARY AUTHOR: Lya Vera
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
@@ -15,17 +15,13 @@ function OnCollisionEnter(other)
   then
 
   
-  --[[
+	--PlaySound("regular_pickup.mp3", 0.2, 1, false)
 
-	PlaySound("regular_pickup.mp3", 0.2, 1, false)
-
-    local score = GameObject.FindByName("Stats")
+--    local score = GameObject.FindByName("Stats")
 
     -- Increment score
-    local script = score:GetScript("PlayerStats.lua")
-    script.AddScore()
-
-  ]]
+--    local script = score:GetScript("PlayerStats.lua")
+--    script.AddScore()
 
     -- Deactivate the object
     this:Deactivate()

@@ -84,7 +84,7 @@ function GetBottomGnome()
 	end
 end
 
-function UpdateParenting()
+function UpdateParenting() -- Called in GnomeMovement.lua Update because it needs to happen right after movement update
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 	local thisTransform = this:GetTransform()
 
@@ -143,7 +143,7 @@ function CheckForUnstack()
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 
 	if(thisStatus.stackedBelow ~= nil)
-	then
+	then		
 		local pos = this:GetTransform().position
 		local belowPos = thisStatus.stackedBelow:GetTransform().position
 
@@ -269,7 +269,10 @@ end -- fn end
 -- Other is a game object
 function OnCollisionEnter(other)
 	-- Player collides with other player
-	if (other:HasTag("Player") and this:GetScript("GnomeStatus.lua").stackedAbove == nil and this:GetScript("GnomeStatus.lua").isStatue == false)
+	if (other:HasTag("Player") 
+		and this:GetScript("GnomeStatus.lua").stackedAbove == nil 
+		and this:GetScript("GnomeStatus.lua").isStatue == false
+		and other:GetScript("GnomeStatus.lua").isStatue == false)
 	then
 		StackPlayers(other)
 	end

@@ -12,7 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 -- Sprites
 
-local defaultGravity
+defaultGravity = 0
 
 Sprite_RedGnome    = "redGnomeWalk.json"
 Sprite_GreenGnome  = "greenGnomeWalk.json"
@@ -21,7 +21,7 @@ Sprite_YellowGnome = "yellowGnomeWalk.json"
 
 Blue_Foot_GravityScale = 0.5
 Yellow_Foot_SpeedBoost = 2
-Green_Foot_PushSpeed = 10
+Green_Foot_PushSpeed = 30
 
 local usedFootAbilityThisJump = false
 
@@ -44,6 +44,7 @@ end
 
 function Update()
 	this:GetScript("GnomeStatus.lua").specialMove = false
+	this:GetRigidBody().gravity = defaultGravity
 
 	local status = this:GetScript("GnomeStatus.lua")
 
@@ -88,17 +89,19 @@ function FootAbility()
 	then
 		if(usedFootAbilityThisJump == false)
 		then
-			this:GetScript("GnomeMovement.lua").Knockback(vec2(1,0), Green_Foot_PushSpeed)
-			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
-		--[[
-			local v = this:GetRigidBody().velocity
-			this:GetRigidBody().velocity = vec3(v.x + Green_Foot_PushSpeed, v.y, 0)
-			usedFootAbilityThisJump = true]]
+		local moveScript = this:GetScript("GnomeMovement.lua")
+		
+  		moveScript.Knockback(vec2(moveScript.facing, 0.4), Green_Foot_PushSpeed)
+		this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
+
+		usedFootAbilityThisJump = true
 		end
 	elseif(type == 3)	-- Blue
 	then
 		-- Lowers fall speed
-		this:GetRigidBody().gravity = defaultGravity * Blue_Foot_GravityScale
+		this:GetRigidBody().gravity = vec3(defaultGravity.x * Blue_Foot_GravityScale, defaultGravity.y * Blue_Foot_GravityScale,0)
+
+		print(this:GetRigidBody().gravity .y)
 	elseif(type == 4)	-- Yellow
 	then
 		this:GetScript("GnomeStatus.lua").specialMove = true
