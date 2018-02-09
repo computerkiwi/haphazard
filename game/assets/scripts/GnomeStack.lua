@@ -84,7 +84,7 @@ function GetBottomGnome()
 	end
 end
 
-function UpdateParenting()
+function UpdateParenting() -- Called in GnomeMovement.lua Update because it needs to happen right after movement update
 	local thisStatus = this:GetScript("GnomeStatus.lua")
 	local thisTransform = this:GetTransform()
 
