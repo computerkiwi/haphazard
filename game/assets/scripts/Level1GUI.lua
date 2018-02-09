@@ -13,7 +13,8 @@ Player = nil
 cam = nil
 
 offset = vec2(0,0)
-startScale = vec3(0,0,0)
+startScaleX = 1
+startScaleY = 1
 
 XOffset = 0
 YOffset = 0
@@ -32,11 +33,8 @@ function Start()
        I zoom out, edit a level, save, and load. -- Lya ]]
   if(this:GetName() == "GemCounter")
   then
-    startScale.x = 1.5
-    startScale.y = 0.5
-  else
-    startScale.x = 1
-    startScale.y = 1
+    startScaleX = 1.5
+    startScaleY = 0.5
   end
 
 	--offset = this:GetTransform().position
@@ -56,7 +54,7 @@ function LateUpdate(dt)
 	
 	local zoomScale = cam:GetCamera().zoom / 5
 	this:GetTransform().position = vec2(cam:GetTransform().position.x + (XOffset + shakeX) * zoomScale, cam:GetTransform().position.y + (YOffset + shakeY) * zoomScale)
-	this:GetTransform().scale = vec3(startScale.x * zoomScale, startScale.y * zoomScale, 1)
+	this:GetTransform().scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
 
 	if (Player:IsValid())
 	then
