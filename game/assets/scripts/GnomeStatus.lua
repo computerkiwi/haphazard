@@ -32,6 +32,7 @@ stackedBelow = nil
 
 canMove = true
 knockedBack = false
+tossed = false
 
 specialMove = false
 specialMoveScale = 0.5

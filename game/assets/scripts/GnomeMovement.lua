@@ -135,6 +135,7 @@ function Update(dt)
 		if(status.stackedBelow ~= nil or this:GetDynamicCollider().colliderData:IsCollidingWithLayer(GROUND_LAYER) )
 		then
 			status.knockedBack = false
+			status.tossed = false
 		end
 	end
 
@@ -168,6 +169,8 @@ function Update(dt)
 			Jump()
 		end
 	
+		CheckToss()
+
 		-- Is stacked (not bottom gnome) and jumps off (on jump press, not hold)
 		if(status.stacked and this:GetScript("InputHandler.lua").onJumpPress and status.stackedBelow ~= nil)
 		then
@@ -198,8 +201,19 @@ function UpdateMovement(dt)
 		speed = speed * this:GetScript("GnomeStatus.lua").specialMoveScale
 	end
 
-	newVelocity.x = moveDir * speed		-- Calculate x velocity
-	playerBody.velocity = newVelocity	-- Update player velocity
+	if(this:GetScript("GnomeStatus.lua").tossed)
+	then
+		-- Tossed movement
+		newVelocity.x = newVelocity.x + moveDir * speed -- Calculate x velocity ()
+
+		if(newVelocity.x > speed) then newVelocity.x = speed end
+		if(newVelocity.x < -speed) then newVelocity.x = -speed end
+
+		playerBody.velocity = newVelocity	-- Update player velocity
+	else
+		newVelocity.x = moveDir * speed		-- Calculate x velocity
+		playerBody.velocity = newVelocity	-- Update player velocity
+	end
 	
 	-- Update dust particles
 	SetDustEnabled(moveDir ~= 0 and onGround)
@@ -229,6 +243,35 @@ function Jump()
 	jumpParticle:GetTransform().position = vec2(pos.x, pos.y + DUST_PARTICLE_OFFSET)
 	
 	this:GetScript("GnomeAbilities.lua").Jump()
+end
+
+function CheckToss()
+	local input = this:GetScript("InputHandler.lua")
+	local status = this:GetScript("GnomeStatus.lua")
+
+	if(input.tossPressed and status.stackedAbove ~= nil)
+	then
+		-- Toss
+		local above = status.stackedAbove
+		above:GetScript("GnomeStack.lua").Unstack()
+		above:GetScript("GnomeStatus.lua").tossed = true
+		above:GetScript("GnomeMovement.lua").Jump()
+
+		local newVelocity = above:GetRigidBody().velocity
+		
+		dir = moveDir
+		if(dir == 0) 
+		then 
+			dir = this:GetTransform().scale.x
+			if(math.abs(dir) ~= 1)
+			then
+				dir = dir / math.abs(dir)
+			end
+		end
+
+		newVelocity.x = moveSpeed * dir
+		above:GetRigidBody().velocity = newVelocity
+	end
 end
 
 function Knockback(dir, force)
@@ -356,6 +399,7 @@ function OnCollisionEnter(other)
 	if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(GROUND_LAYER))
 	then
 		this:GetScript("GnomeStatus.lua").knockedBack = false
+		this:GetScript("GnomeStatus.lua").tossed = false
 	end
 end
 
