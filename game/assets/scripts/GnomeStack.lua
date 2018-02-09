@@ -185,6 +185,7 @@ function DetachGnomes(top, bot)
 
 	topStatus.stackedBelow = nil
 	botStatus.stackedAbove = nil
+	PlaySound("stack_off.mp3", 0.5, 1, false)
 	
 	-- Update the stacked variables.
 	if (topStatus.stackedAbove ~= nil)
@@ -230,6 +231,7 @@ function AttachGnomes(top, bot)
 	--SetLayersNotColliding(topStatus.PLAYER_PHYS_LAYER, botStatus.PLAYER_PHYS_LAYER)
 	topStatus.stacked = true
 	botStatus.stacked = true
+	PlaySound("stack_on.mp3", 0.5, 1, false)
 
 	top:GetTransform().zLayer = bot:GetTransform().zLayer - 1
 
