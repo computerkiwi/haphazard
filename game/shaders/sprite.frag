@@ -20,7 +20,9 @@ void main()
 	vec2 coord = TexBounds.xy + ( vec2(Texcoord.x - int(Texcoord.x), Texcoord.y - int(Texcoord.y)) * (TexBounds.zw - TexBounds.xy));
 
 	vec4 texColor = texture(tex, vec3(coord,TexLayer));
+
 	if(texColor.a < 0.1)
 		discard;
+
 	outColor = texColor * Color;
 }
