@@ -23,3 +23,8 @@ int WinMain()
 
 	return 0;
 }
+
+int main(int argc, const char *argv[])
+{
+	WinMain();
+}
