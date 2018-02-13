@@ -79,6 +79,41 @@ private:
 
 	GameObject m_parent;
 
+	static void TransformComponentDeserializeAssign(void *transformPtr, rapidjson::Value& jsonTransform)
+	{
+		// Get the engine.
+		TransformComponent& transform = *reinterpret_cast<TransformComponent *>(transformPtr);
+
+		Assert(jsonTransform.IsObject());
+
+		// Set the parent manually so our position doesn't change.
+		if (jsonTransform.HasMember("parent")) { transform.m_parent = meta::DeserializeConstruct<decltype(transform.GetParent())>(jsonTransform["parent"]); }
+		if (jsonTransform.HasMember("position")) { transform.SetPosition(meta::DeserializeConstruct<decltype(transform.GetPosition())>(jsonTransform["position"])); }
+		if (jsonTransform.HasMember("scale")) { transform.SetScale(meta::DeserializeConstruct<decltype(transform.GetScale())>(jsonTransform["scale"])); }
+		if (jsonTransform.HasMember("zLayer")) { transform.SetZLayer(meta::DeserializeConstruct<decltype(transform.GetZLayer())>(jsonTransform["zLayer"])); }
+		if (jsonTransform.HasMember("rotation")) { transform.SetRotation(meta::DeserializeConstruct<decltype(transform.GetRotation())>(jsonTransform["rotation"])); }
+
+	}
+
+	static rapidjson::Value TransformComponentSerializeFunction(const void *transformPtr, rapidjson::Document::AllocatorType& allocator)
+	{
+		// Const cast away is fine because we're not really changing anything.
+		TransformComponent& transform = *reinterpret_cast<TransformComponent *>(const_cast<void *>(transformPtr));
+
+		// Setup the object to store the engine info in.
+		rapidjson::Value jsonOut;
+		jsonOut.SetObject();
+
+		
+		jsonOut.AddMember("position", meta::Any(transform.GetPosition()).Serialize(allocator), allocator);
+		jsonOut.AddMember("scale", meta::Any(transform.GetScale()).Serialize(allocator), allocator);
+		jsonOut.AddMember("zLayer", meta::Any(transform.GetZLayer()).Serialize(allocator), allocator);
+		jsonOut.AddMember("rotation", meta::Any(transform.GetRotation()).Serialize(allocator), allocator);
+		jsonOut.AddMember("parent", meta::Any(transform.GetParent()).Serialize(allocator), allocator);
+
+		return jsonOut;
+	}
+
 	META_REGISTER(TransformComponent)
 	{
 		META_DefineGetterSetter(TransformComponent, glm::vec2, GetPosition, SetPosition, "position");
@@ -92,5 +127,9 @@ private:
 		META_DefineGetterSetter(TransformComponent, float, GetRotation, SetRotation, "rotation");
 
 		META_DefineGetterSetter(TransformComponent, GameObject, GetParent, SetParentLua, "parent");
+
+		META_DefineDeserializeAssignFunction(TransformComponent, TransformComponentDeserializeAssign);
+
+		META_DefineSerializeFunction(TransformComponent, TransformComponentSerializeFunction);
 	}
 };
