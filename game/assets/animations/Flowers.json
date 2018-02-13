@@ -1,0 +1,9 @@
+{
+  "textureName": "Flowers.png",
+  "frameWidth":  128,
+  "frameHeight": 128,
+  "framesX":     3,
+  "framesY":     1,
+  "fps":         0,
+  "frameCount":  3
+}
