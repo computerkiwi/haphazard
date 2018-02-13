@@ -13,6 +13,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 class LuaScript
 {
+	static const int INVALID_ENVIRONMENT_ID = 0;
+
 public:
 	static bool currentlyRunningScript;
 	static std::string currentFileName;

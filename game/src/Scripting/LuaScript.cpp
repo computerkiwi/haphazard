@@ -24,6 +24,14 @@ LuaScript::LuaScript() : m_L(GetGlobalLuaState()), m_resID(INVALID_ID)
 
 LuaScript::~LuaScript()
 {
+	// Remove the environment table if we have a valid one. It will get garbage collected by Lua.
+	if (m_environmentID != INVALID_ENVIRONMENT_ID)
+	{
+		lua_getfield(m_L, LUA_REGISTRYINDEX, SCRIPT_ENVIRONMENT_TABLE);
+		lua_pushnil(m_L);
+		lua_rawseti(m_L, -2, m_environmentID);
+		lua_pop(m_L, 1);
+	}
 }
 
 LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(other.m_L)
@@ -42,6 +50,7 @@ LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(o
 
 LuaScript::LuaScript(LuaScript && other) : m_thisObj(other.m_thisObj), m_resID(other.m_resID), m_environmentID(other.m_environmentID), m_L(other.m_L)
 {
+	other.m_environmentID = INVALID_ENVIRONMENT_ID;
 }
 
 LuaScript & LuaScript::operator=(const LuaScript & other)
