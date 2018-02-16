@@ -65,6 +65,8 @@
     <ClCompile Include="src\Scripting\LuaSetup.cpp" />
     <ClCompile Include="src\Util\Assert.cpp" />
     <ClCompile Include="src\Imgui\EditorScript.cpp" />
+    <ClCompile Include="src\Util\DataStructures\UnorderedIterableTests.cpp" />
+    <ClCompile Include="src\Util\DataStructures\UnorderedIterable.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Engine\Engine.cpp">
@@ -209,6 +211,7 @@
     <ClInclude Include="src\graphics\VertexObjects.h" />
     <ClInclude Include="src\Imgui\EditorScript.h" />
     <ClInclude Include="src\meta\SerializationKeys.h" />
+    <ClInclude Include="src\Util\DataStructures\UnorderedIterable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />
