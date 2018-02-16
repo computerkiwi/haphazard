@@ -388,8 +388,10 @@
     <None Include="assets\scripts\PlatformOneWay.lua" />
     <None Include="assets\scripts\PlayerStats.lua" />
     <None Include="assets\scripts\PortalEmitter.lua" />
+    <None Include="assets\scripts\ReceiveMessage.lua" />
     <None Include="assets\scripts\RedGnomeAttack.lua" />
     <None Include="assets\scripts\RedGnomeWeapon.lua" />
+    <None Include="assets\scripts\SendMessageOnCollide.lua" />
     <None Include="assets\scripts\TossScript.lua" />
     <None Include="PlayerController.lua" />
     <None Include="shaders\background.frag" />

@@ -84,6 +84,21 @@ LuaScript::LuaScript(Resource *resource, GameObject thisObj) : m_L(GetGlobalLuaS
 	SetScriptResource(resource);
 }
 
+bool LuaScript::HasFunction(const char *functionName)
+{
+	Assert(m_resID != INVALID_ID);
+
+	// Pull the function out of the script environment.
+	GetScriptEnvironment();
+	lua_getfield(m_L, -1, functionName);
+	lua_remove(m_L, -2);
+
+	bool functionExists = !lua_isnil(m_L, -1);
+	lua_remove(m_L, -1);
+
+	return functionExists;
+}
+
 void LuaScript::RunFunction(const char *functionName, int args, int returns)
 {
 	Assert(m_resID != INVALID_ID);

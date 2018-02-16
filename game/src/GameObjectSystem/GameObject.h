@@ -155,6 +155,8 @@ public:
 
 	bool HasTag(const char *tagName);
 
+	int SendLuaMessage(lua_State *L);
+
 private:
 	union
 	{
@@ -252,6 +254,8 @@ private:
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("CreateToSpace", CreateToSpace).endClass();
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addStaticFunction("LoadPrefab", LoadPrefab).endClass();
+
+		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addCFunction("SendMessage", &SendLuaMessage).endClass();
 
 		luabridge::getGlobalNamespace(GetGlobalLuaState()).beginClass<GameObject>("GameObject").addConstructor<void(*)(int)>().endClass();
 	}
