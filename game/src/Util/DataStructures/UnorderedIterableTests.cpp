@@ -164,6 +164,12 @@ static bool RemoveFrontTest1()
 static bool EmptyTest()
 {
 	UnorderedIterable<int> data;
+	for (int i = 0; i < 300; ++i)
+	{
+		data.insert(i);
+	}
+	data.clear();
+
 	RETURN_IF_FALSE(data.empty());
 	RETURN_IF_FALSE(data.size() == 0);
 

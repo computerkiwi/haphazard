@@ -20,7 +20,7 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 // Constructors, etc.
 
 template<typename T>
-inline UnorderedIterable<T>::UnorderedIterable() : m_data(new Element[INITIAL_SIZE]), m_size(0), m_capacity(INITIAL_SIZE), m_furthestIndex(0), m_freeListHead(m_data)
+inline UnorderedIterable<T>::UnorderedIterable() : m_data(new Element[INITIAL_SIZE]), m_size(0), m_capacity(INITIAL_SIZE), m_furthestIndex(-1), m_freeListHead(m_data)
 {
 	// Setup the initial free list.
 	InitElementList(0, m_capacity);
@@ -134,6 +134,14 @@ inline size_t UnorderedIterable<T>::capacity() const
 // Modification
 
 template<typename T>
+inline void UnorderedIterable<T>::clear()
+{
+	m_size = 0;
+	m_freeListHead = InitElementList(0, m_capacity);
+	m_furthestIndex = 0;
+}
+
+template<typename T>
 inline typename UnorderedIterable<T>::ID UnorderedIterable<T>::insert(const T & val)
 {
 	if (m_freeListHead == nullptr)
@@ -163,7 +171,7 @@ inline typename UnorderedIterable<T>::ID UnorderedIterable<T>::insert(const T & 
 
 	// Offset into the array is the index.
 	ID index = newElement - m_data;
-	if (index > m_furthestIndex)
+	if (static_cast<long>(index) > m_furthestIndex)
 	{
 		m_furthestIndex = index;
 	}

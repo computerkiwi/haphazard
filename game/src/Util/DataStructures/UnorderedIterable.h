@@ -119,7 +119,7 @@ private:
 	Element *m_data;
 	size_t m_size;
 	size_t m_capacity;
-	size_t m_furthestIndex;
+	long m_furthestIndex;
 
 	Element *m_freeListHead;
 };
