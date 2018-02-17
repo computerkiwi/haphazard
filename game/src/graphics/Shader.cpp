@@ -290,6 +290,7 @@ namespace Shaders
 	ShaderProgram* ScreenShader::Sharpen;
 	ShaderProgram* ScreenShader::ExtractBrights;
 	ShaderProgram* ScreenShader::Bloom;
+	ShaderProgram* ScreenShader::Dropshadow;
 
 	void LoadSpriteShader()
 	{
@@ -483,6 +484,10 @@ namespace Shaders
 
 		ScreenShader::Raindrop = LoadShaders(path + "raindrop.vert", path + "raindrop.frag", attribs);
 		if (!ScreenShader::Raindrop->wasCompiled())
+			FailedCompile();
+
+		ScreenShader::Dropshadow = LoadShaders(path + "screenDefault.vert", path + "screenDropshadow.frag", attribs);
+		if (!ScreenShader::Dropshadow->wasCompiled())
 			FailedCompile();
 	}
 

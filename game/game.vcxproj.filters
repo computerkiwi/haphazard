@@ -193,6 +193,7 @@
     <None Include="assets\scripts\ChallengeScript.lua" />
     <None Include="assets\scripts\DestructibleShroom.lua" />
     <None Include="assets\scripts\DropScript.lua" />
+    <None Include="shaders\screenDropshadow.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
