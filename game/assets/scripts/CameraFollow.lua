@@ -33,6 +33,10 @@ function max(a, b)
 	
 end
 
+function Start()
+	OFFSET_Y = 0.5
+end
+
 function Update(dt)
 	local player1 = GameObject.FindByName("Player1")
 	local player2 = GameObject.FindByName("Player2")

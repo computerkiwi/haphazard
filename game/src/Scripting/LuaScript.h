@@ -28,6 +28,7 @@ public:
 
 	LuaScript(Resource *resource, GameObject thisObj);
 
+	bool HasFunction(const char *functionName);
 	void RunFunction(const char *functionName, int args, int returns);
 
 	lua_State *GetLuaState() const { return m_L; }

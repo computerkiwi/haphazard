@@ -193,6 +193,8 @@
     <None Include="assets\scripts\ChallengeScript.lua" />
     <None Include="assets\scripts\DestructibleShroom.lua" />
     <None Include="assets\scripts\DropScript.lua" />
+    <None Include="assets\scripts\SendMessageOnCollide.lua" />
+    <None Include="assets\scripts\ReceiveMessage.lua" />
     <None Include="shaders\screenDropshadow.frag" />
   </ItemGroup>
   <ItemGroup>
