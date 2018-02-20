@@ -17,7 +17,12 @@ uniform sampler2DArray tex;
 
 void main()
 {
-	vec2 coord = TexBounds.xy + ( vec2(Texcoord.x - int(Texcoord.x), Texcoord.y - int(Texcoord.y)) * (TexBounds.zw - TexBounds.xy));
+	bool tiled = fract(TexBounds) != TexBounds; // Flag (+1 to all bounds) is set if texture is tiled
+
+	vec2 coord = TexBounds.xy + (fract(Texcoord) * (TexBounds.zw - TexBounds.xy));
+
+	if(tiled)
+		coord = clamp(coord,TexBounds.xy + 0.001, TexBounds.zw - 0.001);
 
 	vec4 texColor = texture(tex, vec3(coord,TexLayer));
 	if(texColor.a < 0.1)
