@@ -107,7 +107,7 @@ glm::ivec3 FindLocationForSprite(int width, int height)
 	return glm::ivec3(-1,-1,-1);
 }
 
-Texture::Texture(const char* file)
+Texture::Texture(const char* file, bool isTiled)
 {
 	unsigned char* image = SOIL_load_image(file, &m_pixelWidth, &m_pixelHeight, 0, SOIL_LOAD_RGBA);
 
