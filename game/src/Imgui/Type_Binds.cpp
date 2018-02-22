@@ -983,6 +983,10 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			SavePrefab(object);
 		}
 
+		if (Checkbox("Saves With Level##object_savesWithLevel", &object.GetComponent<ObjectInfo>()->m_savesWithLevel))
+		{
+			editor->Push_Action({ !object.GetComponent<ObjectInfo>()->m_savesWithLevel, object.GetComponent<ObjectInfo>()->m_savesWithLevel, "savesWithLevel",{ object, true }, Action_General<ObjectInfo, bool> });
+		}
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 

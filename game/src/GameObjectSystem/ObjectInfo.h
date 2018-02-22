@@ -20,7 +20,9 @@ public:
 	std::string m_name;
 	GameObject_ID m_id;
 	std::map<std::size_t, std::string> m_tags;
-
+	
+	// If false, level saves won't save this object.
+	bool m_savesWithLevel = true;
 	bool m_destroyed = false;
 	bool m_active = true;
 
@@ -103,6 +105,8 @@ private:
 		META_DefineType(TagMap);
 		META_DefineSerializeFunction(TagMap, TagMapSerializeFunction);
 		META_DefineDeserializeAssignFunction(TagMap, TagMapDeserializeAssign);
+
+		META_DefineMember(ObjectInfo, m_savesWithLevel, "savesWithLevel");
 
 		META_DefineMember(ObjectInfo, m_tags, "tags");
 

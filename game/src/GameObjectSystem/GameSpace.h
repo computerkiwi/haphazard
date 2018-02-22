@@ -315,7 +315,11 @@ private:
 		// Put the objects in the json array.
 		for (const auto& gameObject : objects)
 		{
-			gameObjectArray.PushBack(gameObject.SerializeObject(allocator), allocator);
+			// Don't save GameObject marked not to save with the level.
+			if (gameObject.GetComponent<ObjectInfo>()->m_savesWithLevel)
+			{
+				gameObjectArray.PushBack(gameObject.SerializeObject(allocator), allocator);
+			}
 		}
 
 		return gameObjectArray;
