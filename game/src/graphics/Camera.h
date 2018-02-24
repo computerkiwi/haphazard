@@ -110,14 +110,16 @@ private:
 
 	META_REGISTER(Camera)
 	{
-		META_DefineGetterSetter(Camera, glm::vec2, GetPosition, SetPosition, "position");
 
 		META_DefineGetterSetter(Camera, float, GetZoom, SetZoom, "zoom");
-		META_DefineGetterSetter(Camera, float, GetAspectRatio, SetAspectRatio, "aspectRatio");
-		//META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
-		//META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
 
 		META_DefineGetterSetter(Camera, bool, IsActiveCam, SetIsActiveCam, "isActiveCam");
+
+		// These shouldn't be registered because they're internal
+		//META_DefineGetterSetter(Camera, glm::vec2, GetPosition, SetPosition, "position");
+		//META_DefineGetterSetter(Camera, float, GetAspectRatio, SetAspectRatio, "aspectRatio");
+		//META_DefineGetterSetter(Camera, float, GetNearPlane, SetNearPlane, "nearPlane");
+		//META_DefineGetterSetter(Camera, float, GetFarPlane, SetFarPlane, "farPlane");
 
 	}
 };
