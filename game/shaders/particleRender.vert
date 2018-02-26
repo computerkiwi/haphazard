@@ -13,6 +13,8 @@ layout (location = 3) in vec2 scale;
 layout (location = 4) in float rotation;
 layout (location = 5) in float life;
 layout (location = 6) in float maxLife;
+layout (location = 7) in float frame;
+layout (location = 8) in float seed;
 
 out float Type;
 out vec2 Velocity;
@@ -58,6 +60,7 @@ layout (std140) uniform Settings
 	// Scalars
 	float	SimulationSpace;
 	float	TextureLayer;
+	float   ChooseRandomColor;
 };
 
 
@@ -88,7 +91,12 @@ void main()
 		Color = TrailStartColor * (1 - maxLife) + TrailEndColor * maxLife;
 	}
 	else
-		Color = StartColor * (1 - percent) + EndColor * percent;
+	{
+		if(ChooseRandomColor == 0)
+			Color = StartColor * (1 - seed) + EndColor * seed;
+		else
+			Color = StartColor * (1 - percent) + EndColor * percent;
+	}
 
 	Rotation = rotation;
 	Scale = scale;

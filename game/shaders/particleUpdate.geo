@@ -17,6 +17,7 @@ in float PRot[];
 in float PLife[];
 in float PMaxLife[];
 in float PFrame[];
+in float PSeed[];
 
 out float Type;
 out vec2 Position;
@@ -26,6 +27,7 @@ out float Rotation;
 out float Life;
 out float MaxLife;
 out float Frame;
+out float Seed;
 
 
 /// Enum Defines \\\
@@ -152,7 +154,7 @@ void HandleEmitter()
 			for(int i = 0; i < ParticlesPerEmission + extra + 1; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
-				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5);
 
 				if(SimulationSpace == SPACE_LOCAL)
 					Position = NewParticlePosition(vec2(0,0), r.xy);
@@ -166,6 +168,8 @@ void HandleEmitter()
 				Rotation = StartRotation + StartRotationVariation.x + (StartRotationVariation.y - StartRotationVariation.x) * (r.z-0.5f);
 				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
+
+				Seed = rand(i).x;
 
 				EmitVertex();
 				EndPrimitive();
@@ -182,7 +186,7 @@ void HandleEmitter()
 			for(int i = 0; i < amt; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
-				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5);
 
 				Type = PARTICLE_TYPE;
 				Position = NewParticlePosition(PPos[0], r.xy);
@@ -212,7 +216,7 @@ void HandleEmitter()
 			for(int i = 0; i < ParticlesPerEmission + 1; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
-				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5);
 
 				if(SimulationSpace == SPACE_LOCAL)
 					Position = NewParticlePosition(vec2(0,0), r.xy);
@@ -251,6 +255,7 @@ void HandleParticle()
 		Scale = ScaleOverTime.xy * (1 - PLife[0]/PMaxLife[0]) + ScaleOverTime.zw * (PLife[0]/PMaxLife[0]);
 		Rotation = PRot[0] + RotationRate*dt;
 		Frame = PFrame[0];
+		Seed = PSeed[0];
 	    EmitVertex();
 	    EndPrimitive();
 		

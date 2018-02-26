@@ -64,6 +64,7 @@ struct ParticleSettings
 	glm::vec2       startRotationVariation = {0,0}; // Variation of starting rotation of particle in seconds, between -Variation/2 and +Variation/2
 	float           rotationRate = 0;               // Rotation in radians per second
 	// Render
+	bool						randomBetweenColors;     // Use a random between start/end instead of being a gradient
 	glm::vec4       startColor = {1,1,1,1};  // Blend color of particle at start of life
 	glm::vec4       endColor = {1,1,1,1};    // Blend color of particle at end of life, linearly interpolated from start color through lifetime
 	ResourceID      texture_resourceID = -1; // Texture of particle

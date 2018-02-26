@@ -2166,8 +2166,10 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 			if (TreeNode("Variance##particles"))
 			{
-				Drag_Vec("X##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.x, settings.startingVelocityVariance);
-				Drag_Vec("Y##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.y, settings.startingVelocityVariance);
+				Drag_Vec("X Min##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.x, settings.startingVelocityVariance);
+				Drag_Vec("Y Min##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.y, settings.startingVelocityVariance);
+				Drag_Vec("X Max##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.z, settings.startingVelocityVariance);
+				Drag_Vec("Y Max##particles_variance_velocity", particleSave.startingVelocityVariance, settings.startingVelocityVariance.w, settings.startingVelocityVariance);
 
 				DragRelease_Func(ParticleSettings, particleSave.startingVelocityVariance, settings.startingVelocityVariance, "StartingVelocityVariance", Action_General_Particle<decltype(settings.startingVelocityVariance)>);
 

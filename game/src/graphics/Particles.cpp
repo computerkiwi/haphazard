@@ -35,7 +35,8 @@ struct Particle
 	float rotation;
 	float life;
 	float maxLife;
-	float distance = 0;
+	float frame;
+	float seed;
 };
 
 ///
@@ -245,7 +246,8 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 		0,0,1,1, // Default texture bounds
 		pos.x, pos.y,
 		static_cast<float>(m_settings.particleSpace),
-		-1		// Default texture (solid color square)
+		-1,		// Default texture (solid color square)
+		1,  // Choose random color
 	};
 
 	if (m_settings.texture_resourceID != -1)
