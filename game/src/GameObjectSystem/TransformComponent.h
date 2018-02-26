@@ -86,9 +86,10 @@ private:
 
 		Assert(jsonTransform.IsObject());
 
-		// Set the parent manually so our position doesn't change.
-		if (jsonTransform.HasMember("parent")) { transform.m_parent = meta::DeserializeConstruct<decltype(transform.GetParent())>(jsonTransform["parent"]); }
+		// Position first so it doesn't remove a bad parent.
 		if (jsonTransform.HasMember("position")) { transform.SetPosition(meta::DeserializeConstruct<decltype(transform.GetPosition())>(jsonTransform["position"])); }
+		// Set the parent manually so our position doesn't change.
+		if (jsonTransform.HasMember("parent")) {transform.m_parent = meta::DeserializeConstruct<decltype(transform.GetParent())>(jsonTransform["parent"]); }
 		if (jsonTransform.HasMember("scale")) { transform.SetScale(meta::DeserializeConstruct<decltype(transform.GetScale())>(jsonTransform["scale"])); }
 		if (jsonTransform.HasMember("zLayer")) { transform.SetZLayer(meta::DeserializeConstruct<decltype(transform.GetZLayer())>(jsonTransform["zLayer"])); }
 		if (jsonTransform.HasMember("rotation")) { transform.SetRotation(meta::DeserializeConstruct<decltype(transform.GetRotation())>(jsonTransform["rotation"])); }
