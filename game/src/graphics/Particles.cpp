@@ -170,13 +170,16 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 	{
 		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,
 		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
+		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,m_settings.startingVelocityVariance.z, m_settings.startingVelocityVariance.w,
 
 		m_settings.emissionShapeScale.x, m_settings.emissionShapeScale.y,
 		m_settings.startingVelocity.x, m_settings.startingVelocity.y,
-		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,
 		m_settings.acceleration.x, m_settings.acceleration.y,
 		m_settings.trailScale.x, m_settings.trailScale.y,
 		pos.x, pos.y,
+
+		m_settings.particleLifetimeVariance.x,m_settings.particleLifetimeVariance.y,
+		m_settings.startRotationVariation.x,m_settings.startRotationVariation.y,
 		
 		dt, 
 		m_time + id * 1.2345f, // Some randomness added to time
@@ -188,10 +191,8 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		
 		m_settings.emitterLifetime,
 		m_settings.particleLifetime,
-		m_settings.particleLifetimeVariance,
 		
 		m_settings.startRotation,
-		m_settings.startRotationVariation,
 		m_settings.rotationRate,
 		
 		static_cast<float>(m_settings.hasTrail),

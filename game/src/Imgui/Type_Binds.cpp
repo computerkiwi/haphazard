@@ -2141,8 +2141,19 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		Drag("Lifetime##particles", particleSave.particleLifetime, settings.particleLifetime);
 		DragRelease_Func(ParticleSettings, particleSave.particleLifetime, settings.particleLifetime, "EmitterLifetime", Action_General_Particle<decltype(settings.particleLifetime)>);
 
-		Drag("Lifetime Variance##particles", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance);
-		DragRelease_Func(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance", Action_General_Particle<decltype(settings.particleLifetimeVariance)>);
+		//Drag("Lifetime Variance##particles", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance);
+		//DragRelease_Func(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance", Action_General_Particle<decltype(settings.particleLifetimeVariance)>);
+
+		if (TreeNode("Lifetime Variance##particles"))
+		{
+			Drag_Vec("Min##particle_life_var", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance.x, settings.particleLifetimeVariance);
+			Drag_Vec("Max##particle_life_var", particleSave.particleLifetimeVariance, settings.particleLifetimeVariance.y, settings.particleLifetimeVariance);
+
+			DragRelease_Func(ParticleSettings, particleSave.particleLifetimeVariance, settings.particleLifetimeVariance, "ParticleLifetimeVariance", Action_General_Particle<decltype(settings.particleLifetimeVariance)>);
+
+			TreePop();
+		}
+
 
 		Separator();
 
@@ -2199,9 +2210,19 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			DragRelease_Func(ParticleSystem, particleSave.startRotation, settings.startRotation, "StartRotation", Action_General_Particle<decltype(settings.scaleOverTime)>);
 
 
-			Drag("Variance##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation);
-			DragRelease_Func(ParticleSystem, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation", Action_General_Particle<decltype(settings.startRotationVariation)>);
-			
+			//Drag("Variance##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation);
+			//DragRelease_Func(ParticleSystem, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation", Action_General_Particle<decltype(settings.startRotationVariation)>);
+			if (TreeNode("Rotation Variance##particles"))
+			{
+				Drag_Vec("Min##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation.x, settings.startRotationVariation);
+				Drag_Vec("Max##particles_rot_variance", particleSave.startRotationVariation, settings.startRotationVariation.y, settings.startRotationVariation);
+
+				DragRelease_Func(ParticleSettings, particleSave.startRotationVariation, settings.startRotationVariation, "StartRotationVariation", Action_General_Particle<decltype(settings.startRotationVariation)>);
+
+				TreePop();
+			}
+
+
 			Drag("Rate##particles_rot_rate", particleSave.rotationRate, settings.rotationRate);
 			DragRelease_Func(ParticleSystem, particleSave.rotationRate, settings.rotationRate, "RotationRate", Action_General_Particle<decltype(settings.rotationRate)>);
 

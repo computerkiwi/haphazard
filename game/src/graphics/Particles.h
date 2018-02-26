@@ -42,38 +42,38 @@ enum SimulationSpace
 struct ParticleSettings
 {
 	// Emission
-	bool			isLooping = true;				 // Emitter loops or dies after lifetime
-	float			emissionRate = 1;				 // Time (in seconds) between each particle spawning
-	int				particlesPerEmission = 1;		 // Particles emitted per emission
-	glm::vec3		burstEmission = {0.0f,0,0};		 // Burst settings: particles min, particles max, reoccurance rate in seconds
-	EmissionShape	emissionShape = SHAPE_POINT;			 // Shape particles are emitted in
-	glm::vec2		emissionShapeScale = {1,1};		 // Scale of emission shape around center point of emission
-	SimulationSpace particleSpace = WORLD;			 // Particle simulation space
+	bool            isLooping = true;            // Emitter loops or dies after lifetime
+	float           emissionRate = 1;            // Time (in seconds) between each particle spawning
+	int             particlesPerEmission = 1;    // Particles emitted per emission
+	glm::vec3	      burstEmission = {0.0f,0,0};  // Burst settings: particles min, particles max, reoccurance rate in seconds
+	EmissionShape	  emissionShape = SHAPE_POINT; // Shape particles are emitted in
+	glm::vec2	      emissionShapeScale = {1,1};	 // Scale of emission shape around center point of emission
+	SimulationSpace particleSpace = WORLD;       // Particle simulation space
 	// Lifetimes									 
-	float			emitterLifetime = 1;			 // Lifetime of emitter (applicable only if isLooping = false)
-	float			particleLifetime = 1;			 // Lifetime of particle
-	float			particleLifetimeVariance = 0;	 // Variation of life of particle in seconds, between -Variation/2 and +Variation/2
+	float           emitterLifetime = 1;              // Lifetime of emitter (applicable only if isLooping = false)
+	float           particleLifetime = 1;             // Lifetime of particle
+	glm::vec2	      particleLifetimeVariance = {0,0}; // Variation of life of particle in seconds, between -Variation/2 and +Variation/2
 	// Movement										 
-	glm::vec2		startingVelocity = {0,0};		 // Velocity of particle at creation in world units per second
-	glm::vec2		startingVelocityVariance = {0,0};// Variation of starting velocity in each direction, between -Variation/2 and +Variation/2
-	glm::vec2		acceleration = {0,0};			 // Acceleration of particle in world units per second per second
+	glm::vec2       startingVelocity = {0,0};             // Velocity of particle at creation in world units per second
+	glm::vec4       startingVelocityVariance = {0,0,0,0}; // Variation of starting velocity in each direction, between -Variation/2 and +Variation/2
+	glm::vec2       acceleration = {0,0};                 // Acceleration of particle in world units per second per second
 	// Scale										 
-	glm::vec4		scaleOverTime = {1,1,1,1};		 // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
+	glm::vec4       scaleOverTime = {1,1,1,1}; // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
 	// Rotation										 
-	float			startRotation = 0;				 // Start rotation of particle in radians
-	float			startRotationVariation = 0;		 // Variation of starting rotation of particle in seconds, between -Variation/2 and +Variation/2
-	float			rotationRate = 0;				 // Rotation in radians per second
+	float           startRotation = 0;              // Start rotation of particle in radians
+	glm::vec2       startRotationVariation = {0,0}; // Variation of starting rotation of particle in seconds, between -Variation/2 and +Variation/2
+	float           rotationRate = 0;               // Rotation in radians per second
 	// Render
-	glm::vec4		startColor = {1,1,1,1};			 // Blend color of particle at start of life
-	glm::vec4		endColor = {1,1,1,1};			 // Blend color of particle at end of life, linearly interpolated from start color through lifetime
-	ResourceID		texture_resourceID = -1;		 // Texture of particle
+	glm::vec4       startColor = {1,1,1,1};  // Blend color of particle at start of life
+	glm::vec4       endColor = {1,1,1,1};    // Blend color of particle at end of life, linearly interpolated from start color through lifetime
+	ResourceID      texture_resourceID = -1; // Texture of particle
 	// Trail										 
-	bool			hasTrail = false;				 // Spawn trail particles
-	float			trailEmissionRate = 0.05f;		 // Emission rate of trail particles, lower for smoother trail
-	float			trailLifetime = 1;				 // Lifetime of trail particles in seconds
-	glm::vec2		trailScale = {1,1};				 // Scale of trail particles RELATIVE TO SOURCE PARTICLE
-	glm::vec4		trailStartColor = {1,1,1,1};	 // Color of trail near particle
-	glm::vec4		trailEndColor = {1,1,1,1};		 // Color of trail near tail
+	bool            hasTrail = false;            // Spawn trail particles
+	float           trailEmissionRate = 0.05f;   // Emission rate of trail particles, lower for smoother trail
+	float	          trailLifetime = 1;           // Lifetime of trail particles in seconds
+	glm::vec2       trailScale = {1,1};          // Scale of trail particles RELATIVE TO SOURCE PARTICLE
+	glm::vec4       trailStartColor = {1,1,1,1}; // Color of trail near particle
+	glm::vec4       trailEndColor = {1,1,1,1};   // Color of trail near tail
 
 private:
 	// For meta.
@@ -156,10 +156,10 @@ public:
 	void SetEmitterLifetime(float life) { m_settings.emitterLifetime = life; }
 	
 	// Lifetime of particle in seconds, and variation of life of particle, between -Variation/2 and +Variation/2
-	void SetParticleLifetime(float life, float variance = 0) { m_settings.particleLifetime = life; m_settings.particleLifetimeVariance = variance; }
+	void SetParticleLifetime(float life, float varianceMin = 0, float varianceMax = 0) { m_settings.particleLifetime = life; m_settings.particleLifetimeVariance = glm::vec2(varianceMin, varianceMax); }
 	
 	// Velocity of particle at creation in world units per second, and variation of starting velocity in each direction, between -Variation/2 and +Variation/2
-	void SetVelocity(glm::vec2 vel, glm::vec2 variance = glm::vec2(0, 0)) { m_settings.startingVelocity = vel; m_settings.startingVelocityVariance = variance; }
+	void SetVelocity(glm::vec2 vel, glm::vec4 variance = glm::vec4(0,0,0,0)) { m_settings.startingVelocity = vel; m_settings.startingVelocityVariance = variance; }
 	
 	// Acceleration of particle in world units per second per second
 	void SetAcceleration(glm::vec2 a) { m_settings.acceleration = a; }
@@ -168,7 +168,7 @@ public:
 	void SetScaleOverLife(glm::vec2 startScale, glm::vec2 endScale) { m_settings.scaleOverTime = glm::vec4(startScale, endScale); }
 	
 	// Start rotation of particle, and variation of start rotation between -Variation/2 and +Variation/2
-	void SetStartRotation(float degrees, float variation = 0) { m_settings.startRotation = degrees * 3.14159265359f / 180.0f; m_settings.startRotationVariation = variation * 3.14159265359f / 180.0f; }
+	void SetStartRotation(float degrees, float variationMin = 0, float variationMax = 0) { m_settings.startRotation = degrees * 3.14159265359f / 180.0f; m_settings.startRotationVariation = glm::vec2(variationMin, variationMax) * 3.14159265359f / 180.0f; }
 	
 	// Rotation in degrees per second
 	void SetRotationRate(float rate) { m_settings.rotationRate = rate; }

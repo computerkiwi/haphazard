@@ -50,14 +50,17 @@ layout(std140) uniform UpdateSettings
 	// Vector 4s
 	vec4	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate. 4th variable is nothing because padding) 
 	vec4	ScaleOverTime;
+	vec4	StartingVelocityVariance;
 
 	// Vector 2s
 	vec2	EmissionShapeScale;
 	vec2	StartingVelocity;
-	vec2	StartingVelocityVariance;
 	vec2	Acceleration;
 	vec2	TrailScale;
 	vec2	EmitterPosition;
+
+	vec2	ParticleLifetimeVariance;
+	vec2	StartRotationVariation;
 
 	// Scalars
 	float	dt;
@@ -70,10 +73,8 @@ layout(std140) uniform UpdateSettings
 
 	float	EmitterLifetime;
 	float	ParticleLifetime;
-	float	ParticleLifetimeVariance;
 
 	float	StartRotation;
-	float	StartRotationVariation;
 	float	RotationRate;
 
 	float	HasTrail;
@@ -159,10 +160,11 @@ void HandleEmitter()
 					Position = NewParticlePosition(EmitterPosition, r.xy);
 
 				Type = PARTICLE_TYPE;
-				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
+				                                   StartingVelocityVariance.y + (StartingVelocityVariance.w - StartingVelocityVariance.y) * r1.y);
 				Scale = ScaleOverTime.xy;
-				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
-				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Rotation = StartRotation + StartRotationVariation.x + (StartRotationVariation.y - StartRotationVariation.x) * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
 
 				EmitVertex();
@@ -189,10 +191,11 @@ void HandleEmitter()
 				else
 					Position = NewParticlePosition(EmitterPosition, r.xy);
 
-				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
+				                                   StartingVelocityVariance.y + (StartingVelocityVariance.w - StartingVelocityVariance.y) * r1.y);
 				Scale = ScaleOverTime.xy;
-				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
-				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Rotation = StartRotation + StartRotationVariation.x + (StartRotationVariation.y - StartRotationVariation.x) * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
 
 				EmitVertex();
@@ -217,10 +220,11 @@ void HandleEmitter()
 					Position = NewParticlePosition(EmitterPosition, r.xy);
 
 				Type = PARTICLE_TYPE;
-				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
+				                                   StartingVelocityVariance.y + (StartingVelocityVariance.w - StartingVelocityVariance.y) * r1.y);
 				Scale = ScaleOverTime.xy;
-				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
-				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Rotation = StartRotation + StartRotationVariation.x + (StartRotationVariation.y - StartRotationVariation.x) * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
 
 				EmitVertex();
