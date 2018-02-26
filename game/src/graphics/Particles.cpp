@@ -189,6 +189,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		m_settings.emissionRate,
 		static_cast<float>(m_settings.particlesPerEmission),
 		static_cast<float>(m_settings.emissionShape),
+		1, //EmitAwayFromCenter
 		
 		m_settings.emitterLifetime,
 		m_settings.particleLifetime,

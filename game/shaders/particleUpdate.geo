@@ -72,6 +72,7 @@ layout(std140) uniform UpdateSettings
 	float	EmissionRate;
 	float	ParticlesPerEmission;
 	float	EmissionShape;
+	float   EmitAwayFromCenter;
 
 	float	EmitterLifetime;
 	float	ParticleLifetime;
@@ -169,7 +170,12 @@ void HandleEmitter()
 				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
 
-				Seed = rand(i).x;
+				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
+				{
+					Velocity = length(Velocity) * normalize(Position - EmitterPosition);
+				}
+
+				Seed = rand(i * 2.1234).x;
 
 				EmitVertex();
 				EndPrimitive();
@@ -202,6 +208,11 @@ void HandleEmitter()
 				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
 
+				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
+				{
+					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
+				}
+
 				EmitVertex();
 				EndPrimitive();
 			}
@@ -230,6 +241,11 @@ void HandleEmitter()
 				Rotation = StartRotation + StartRotationVariation.x + (StartRotationVariation.y - StartRotationVariation.x) * (r.z-0.5f);
 				MaxLife = ParticleLifetime + ParticleLifetimeVariance.x + (ParticleLifetimeVariance.y - ParticleLifetimeVariance.x) * r.z;
 				Life = 0;
+
+				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
+				{
+					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
+				}
 
 				EmitVertex();
 				EndPrimitive();
