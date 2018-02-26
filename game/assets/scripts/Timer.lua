@@ -17,7 +17,9 @@ star_3 = 40
 -- Use this variable from the editor to reset the timer.
 resetTimer = false
 
-
+function AddTime(addTime)
+	timer = math.max(math.min(timer + addTime, maxTime), 0)
+end
 
 function SpawnInternalTimer()
 	local obj = GameObject.LoadPrefab("assets/prefabs/InternalTimer.json")
@@ -51,6 +53,8 @@ end
 function Start()
 	ResetTimer()
 	internalTimerObj = SpawnInternalTimer()
+	
+	_G.AddTimeToTimer = AddTime
 end
 
 function Update(dt)
