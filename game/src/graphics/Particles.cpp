@@ -35,6 +35,7 @@ struct Particle
 	float rotation;
 	float life;
 	float maxLife;
+	float distance = 0;
 };
 
 ///
@@ -197,7 +198,10 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		m_settings.trailEmissionRate,
 		m_settings.trailLifetime,
 		
-		static_cast<float>(m_settings.particleSpace)
+		static_cast<float>(m_settings.particleSpace),
+
+		0,
+		0,
 	};
 
 	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);

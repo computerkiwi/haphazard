@@ -16,6 +16,7 @@ in vec2 PScale[];
 in float PRot[];
 in float PLife[];
 in float PMaxLife[];
+in float PFrame[];
 
 out float Type;
 out vec2 Position;
@@ -24,6 +25,7 @@ out vec2 Scale;
 out float Rotation;
 out float Life;
 out float MaxLife;
+out float Frame;
 
 
 /// Enum Defines \\\
@@ -79,6 +81,9 @@ layout(std140) uniform UpdateSettings
 	float	TrailLifetime;
 
 	float	SimulationSpace;
+
+	float	EmitOverDistanceAmount;
+	float	EmitterDeltaPosition;
 };
 
 uniform sampler1D RandomTexture;
@@ -195,6 +200,34 @@ void HandleEmitter()
 			}
 		}
 	}
+
+	if(EmitOverDistanceAmount > 0)
+	{
+		if( EmitterDeltaPosition > EmitOverDistanceAmount )
+		{			
+			float amt = rand(0).x * (BurstEmission.y - BurstEmission.x) + BurstEmission.x;
+			for(int i = 0; i < ParticlesPerEmission + 1; i++)
+			{
+				vec3 r = rand(i)*2 - vec3(1,1,1);
+				vec3 r1 = rand(i*1.5)*2 - vec3(1,1,1);
+
+				if(SimulationSpace == SPACE_LOCAL)
+					Position = NewParticlePosition(vec2(0,0), r.xy);
+				else
+					Position = NewParticlePosition(EmitterPosition, r.xy);
+
+				Type = PARTICLE_TYPE;
+				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x * r1.x, StartingVelocityVariance.y * r1.y);
+				Scale = ScaleOverTime.xy;
+				Rotation = StartRotation + StartRotationVariation * (r.z-0.5f);
+				MaxLife = ParticleLifetime + ParticleLifetimeVariance * r.z;
+				Life = 0;
+
+				EmitVertex();
+				EndPrimitive();
+			}
+		}
+	}
 }
 
 void HandleParticle()
@@ -213,6 +246,7 @@ void HandleParticle()
 		MaxLife = PMaxLife[0];
 		Scale = ScaleOverTime.xy * (1 - PLife[0]/PMaxLife[0]) + ScaleOverTime.zw * (PLife[0]/PMaxLife[0]);
 		Rotation = PRot[0] + RotationRate*dt;
+		Frame = PFrame[0];
 	    EmitVertex();
 	    EndPrimitive();
 		
@@ -246,6 +280,7 @@ void HandleTrailParticle()
 		MaxLife = PMaxLife[0];
 		Velocity = PVel[0];
 		Rotation = PRot[0];
+		Frame = PFrame[0];
 
 		// Velocity is used to store initial scale
 		Scale = PScale[0] - PVel[0] * dt / TrailLifetime;
