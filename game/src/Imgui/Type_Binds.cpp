@@ -2125,6 +2125,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		{
 			Drag_Vec("X##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.x, settings.emissionShapeScale);
 			Drag_Vec("Y##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.y, settings.emissionShapeScale);
+			Drag_Vec_MinMax("Thiccness##particle_emission_rate", particleSave.emissionShapeScale, settings.emissionShapeScale.z, settings.emissionShapeScale, 0, 1);
 
 			DragRelease_Func(ParticleSettings, particleSave.emissionShapeScale, settings.emissionShapeScale, "EmissionShapeScale", Action_General_Particle<decltype(settings.emissionShapeScale)>);
 

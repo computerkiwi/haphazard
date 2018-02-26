@@ -47,7 +47,7 @@ struct ParticleSettings
 	int             particlesPerEmission = 1;    // Particles emitted per emission
 	glm::vec3	      burstEmission = {0.0f,0,0};  // Burst settings: particles min, particles max, reoccurance rate in seconds
 	EmissionShape	  emissionShape = SHAPE_POINT; // Shape particles are emitted in
-	glm::vec2	      emissionShapeScale = {1,1};	 // Scale of emission shape around center point of emission
+	glm::vec3	      emissionShapeScale = {1,1,0};	 // Scale of emission shape around center point of emission
 	SimulationSpace particleSpace = WORLD;       // Particle simulation space
 	// Lifetimes									 
 	float           emitterLifetime = 1;              // Lifetime of emitter (applicable only if isLooping = false)
@@ -58,7 +58,7 @@ struct ParticleSettings
 	glm::vec4       startingVelocityVariance = {0,0,0,0}; // Variation of starting velocity in each direction, between -Variation/2 and +Variation/2
 	glm::vec2       acceleration = {0,0};                 // Acceleration of particle in world units per second per second
 	// Scale										 
-	glm::vec4       scaleOverTime = {1,1,1,1}; // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
+	glm::vec4       scaleOverTime = {0.1f,0.1f,0.1f,0.1f}; // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
 	// Rotation										 
 	float           startRotation = 0;              // Start rotation of particle in radians
 	glm::vec2       startRotationVariation = {0,0}; // Variation of starting rotation of particle in seconds, between -Variation/2 and +Variation/2
@@ -148,7 +148,7 @@ public:
 	void SetBurstEmissionRate(float repeatRate) { m_settings.burstEmission.z = repeatRate; }
 
 	// Shape particles are emitted in and the scale of that shape, scaled around the center
-	void SetEmissionShape(EmissionShape shape, float scaleX, float scaleY) { m_settings.emissionShape = shape; m_settings.emissionShapeScale = glm::vec2(scaleX, scaleY); }
+	void SetEmissionShape(EmissionShape shape, float scaleX, float scaleY, float thickness = 0) { m_settings.emissionShape = shape; m_settings.emissionShapeScale = glm::vec3(scaleX, scaleY, thickness); }
 	
 	// Simulation space of particles. Local moves all particles relative to emitter, world move particles independantly of emitter
 	void SetSimulationSpace(SimulationSpace space) { m_settings.particleSpace = space; }

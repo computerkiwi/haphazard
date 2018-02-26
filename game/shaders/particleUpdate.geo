@@ -72,6 +72,7 @@ layout(std140) uniform UpdateSettings
 	float	EmissionRate;
 	float	ParticlesPerEmission;
 	float	EmissionShape;
+	float   EmissionShapeThickness;
 	float   EmitAwayFromCenter;
 
 	float	EmitterLifetime;
@@ -99,7 +100,7 @@ vec3 rand(float TexCoord)
 }
 
 
-vec2 NewParticlePosition(vec2 center, vec2 r)
+vec2 NewParticlePosition(vec2 center, vec3 r)
 {
 	if(EmissionShape == SHAPE_POINT)
 		return center;
@@ -111,14 +112,14 @@ vec2 NewParticlePosition(vec2 center, vec2 r)
 
 		// Cirlce Edge
 		if(EmissionShape == SHAPE_CIRCLE_EDGE)
-			return center + vec2( EmissionShapeScale.x * cos(angle), EmissionShapeScale.y * sin(angle));
-
+			return center + vec2( EmissionShapeScale.x * cos(angle), EmissionShapeScale.y * sin(angle)) * (1 + EmissionShapeThickness * r.z);
+		
 		// Circle Volume (Circle edge * random value between 0-1)
 		return center + (r.y + 0.5f) * vec2( EmissionShapeScale.x * cos(angle), EmissionShapeScale.y * sin(angle));
 	}
 
 	// Square (Disabling volume/edge until needed because math)			//if(EmissionShape == SHAPE_SQUARE_VOLUME)
-	return center + r * EmissionShapeScale;
+	return center + r.xy * EmissionShapeScale;
 }
 
 void HandleEmitter()
@@ -158,9 +159,9 @@ void HandleEmitter()
 				vec3 r1 = rand(i*1.5);
 
 				if(SimulationSpace == SPACE_LOCAL)
-					Position = NewParticlePosition(vec2(0,0), r.xy);
+					Position = NewParticlePosition(vec2(0,0), r);
 				else
-					Position = NewParticlePosition(EmitterPosition, r.xy);
+					Position = NewParticlePosition(EmitterPosition, r);
 
 				Type = PARTICLE_TYPE;
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
@@ -195,11 +196,10 @@ void HandleEmitter()
 				vec3 r1 = rand(i*1.5);
 
 				Type = PARTICLE_TYPE;
-				Position = NewParticlePosition(PPos[0], r.xy);
 				if(SimulationSpace == SPACE_LOCAL)
-					Position = NewParticlePosition(vec2(0,0), r.xy);
+					Position = NewParticlePosition(vec2(0,0), r);
 				else
-					Position = NewParticlePosition(EmitterPosition, r.xy);
+					Position = NewParticlePosition(EmitterPosition, r);
 
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
 				                                   StartingVelocityVariance.y + (StartingVelocityVariance.w - StartingVelocityVariance.y) * r1.y);
@@ -230,9 +230,9 @@ void HandleEmitter()
 				vec3 r1 = rand(i*1.5);
 
 				if(SimulationSpace == SPACE_LOCAL)
-					Position = NewParticlePosition(vec2(0,0), r.xy);
+					Position = NewParticlePosition(vec2(0,0), r);
 				else
-					Position = NewParticlePosition(EmitterPosition, r.xy);
+					Position = NewParticlePosition(EmitterPosition, r);
 
 				Type = PARTICLE_TYPE;
 				Velocity = StartingVelocity + vec2(StartingVelocityVariance.x + (StartingVelocityVariance.z - StartingVelocityVariance.x) * r1.x, 
