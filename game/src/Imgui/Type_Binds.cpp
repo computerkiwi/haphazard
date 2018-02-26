@@ -2021,8 +2021,11 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
 
 			int frame = texture.m_CurrentFrame;
-			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
+			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame() - 1);
 			texture.m_CurrentFrame = frame;
+
+			Drag_Float_Speed_MinMax("Frame Time##sprites", spriteSave.AT_timer, texture.m_Timer, 0.05f, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_timer, texture.m_Timer, "fps");
 		}
 
 
