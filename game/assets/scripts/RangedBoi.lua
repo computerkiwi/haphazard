@@ -71,18 +71,20 @@ function ShootAtTarget(target)
 	local projectile = GameObject.LoadPrefab("assets/prefabs/" .. projectilePrefabName)
 
 	-- get the vector to the target
-	targetPosition = target:GetTransform().position
-	thisPosition = this:GetTransform().position
-	vecToTarget = vec2(targetPosition.x - thisPosition.x, targetPosition.y - thisPosition.y)
+	local targetPosition = target:GetTransform().position
+	local thisPosition = this:GetTransform().position
+	local vecToTarget = vec2(targetPosition.x - thisPosition.x, targetPosition.y - thisPosition.y)
 	
 	-- set the position of the projectile
-	yPosition = thisPosition.y
-	xPosition = thisPosition.x
+	local yPosition = thisPosition.y
+	local xPosition = thisPosition.x
+	actualLaunchAngle = projectileLaunchAngleDegrees
 	
 	if(vecToTarget.x <= 0)
 	then
 
 		xPosition = xPosition - (this:GetCollider().dimensions.x / 2) - projectile:GetCollider().dimensions.x
+		actualLaunchAngle = 180 - actualLaunchAngle
 
 	else
 	
@@ -94,7 +96,21 @@ function ShootAtTarget(target)
 	projectile:GetTransform().position = projectilePosition
 
 	-- set the velocity of the projectile
-	projectile:GetRigidBody().velocity = vec3(vecToTarget.x, 2, 0)
+	local left = (1 / math.cos(projectileLaunchAngleDegrees))
+	local numerator = ((1 / 2) * projectile:GetRigidBody().gravity.y * vecToTarget.x * vecToTarget.x)
+	local denominator = (vecToTarget.x * math.tan(projectileLaunchAngleDegrees) + vecToTarget.y)
+	local right = math.sqrt(math.abs(numerator / denominator))
+	speed =  left * right
+
+	directionX = (math.cos(math.rad(actualLaunchAngle)))
+	directionY = (math.sin(math.rad(actualLaunchAngle)))
+
+	local direction = vec3(directionX, directionY, 0)
+
+	print("Speed: " .. tostring(speed))
+	print("Direction: " .. tostring(direction.x) .. "      " .. tostring(direction.y))
+
+	projectile:GetRigidBody().velocity = vec3(direction.x * speed, direction.y * speed, projectile:GetRigidBody().velocity.z )
 
 end
 
