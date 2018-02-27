@@ -213,6 +213,9 @@ class Editor
 	GameObject m_selected_object = 0;
 	std::vector<std::pair<GameObject, glm::vec2>> m_multiselect; // vec2 is offset from m_selected_object
 
+	bool m_select_dragging = false;
+	glm::vec2 m_drag_select_start;
+
 	// Save spot for string editing
 	std::string m_name;
 
@@ -418,6 +421,8 @@ private:
 	// Click Handling
 	void TrySelect(const glm::vec2& mouse);
 	void OnClick();
+	void DrawDragBox();
+	void OnClickRelease();
 	void SortObjectList();
 
 	// Keypresses

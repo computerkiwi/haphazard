@@ -293,6 +293,8 @@ void Editor::Update(float dt)
 
 		// Check for click events
 		OnClick();
+		DrawDragBox();
+		OnClickRelease();
 
 		// Start a new frame in imgui
 		ImGui_ImplGlfwGL3_NewFrame();
@@ -903,6 +905,10 @@ void Editor::TrySelect(const glm::vec2& mouse)
 	{
 		m_selected_object = 0;
 	}
+
+	// Start dragging
+	m_select_dragging = true;
+	m_drag_select_start = mouse;
 }
 
 void Editor::OnClick()
@@ -933,6 +939,86 @@ void Editor::OnClick()
 	}
 }
 
+void Editor::DrawDragBox()
+{
+	if (m_select_dragging)
+	{
+		const glm::vec2 mouse = Input::GetMousePos_World();
+		glm::vec2 scale = mouse - m_drag_select_start;
+		scale.x = abs(scale.x);
+		scale.y = abs(scale.y);
+
+		DebugGraphic::DrawSquare((mouse + m_drag_select_start) * (1.0f / 2), scale);
+	}
+}
+
+void Editor::OnClickRelease()
+{
+	if (Input::IsReleased(Key::Mouse_1))
+	{
+		if (m_select_dragging)
+		{
+			m_select_dragging = false;
+
+			// Clear the current multiselect if we're not trying to multiselect more.
+			if (!Input::IsHeldDown(Key::RightShift) && !Input::IsHeldDown(Key::LeftShift))
+			{
+				m_multiselect.clear();
+			}
+
+			// Get drag bounds.
+			const glm::vec2 selectEnd = Input::GetMousePos_World();
+
+			float left = m_drag_select_start.x;
+			float right = selectEnd.x;
+			float top = m_drag_select_start.y;
+			float bot = selectEnd.y;
+
+			if (left > right)
+			{
+				std::swap(left, right);
+			}
+			if (bot > top)
+			{
+				std::swap(bot, top);
+			}
+
+			// Check EVERY object
+			for (auto id : m_objects)
+			{
+				// Get the GameObject id
+				GameObject object = id;
+
+				if (object.IsValid())
+				{
+					// Transform handle
+					ComponentHandle<TransformComponent> transform = object.GetComponent<TransformComponent>();
+					glm::vec2 scale = abs(transform->GetScale());
+					glm::vec2 pos = transform->GetPosition();
+
+					// Check for non-collision
+					if (pos.x + (scale.x / 2) < left
+					 || pos.x - (scale.x / 2) > right
+					 || pos.y + (scale.y / 2) < bot
+					 || pos.y - (scale.y / 2) > top)
+					{
+						continue;
+					}
+
+					// Save the GameObject data
+					if (m_selected_object == INVALID_GAMEOBJECT_ID)
+					{
+						m_selected_object = transform.GetGameObject();
+					}
+					else
+					{
+						m_multiselect.push_back(std::make_pair(transform.GetGameObject(), transform->GetPosition() - m_selected_object.GetComponent<TransformComponent>()->GetPosition()));
+					}
+				}
+			}
+		}
+	}
+}
 
 // Averages between positions
 static glm::vec2 Average_Pos(Array<GameObject_ID, MAX_SELECT>& objects)
