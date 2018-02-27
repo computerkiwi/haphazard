@@ -16,13 +16,6 @@ function Start()
 end -- fn end
 
 function OnCollisionEnter(other)
-
-  --[[if (other:HasTag("Player"))
-  then
-    print("Shroom hit!")
-    SpawnDrop()
-  end]]
-
   -- Colliding with projectile
   if(other:HasTag("Player"))
 	then
