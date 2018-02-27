@@ -1,5 +1,5 @@
 /*
-FILE: EditorScript.h
+FILE: MultiselectUndo.h
 PRIMARY AUTHOR: Kieran
 
 Class that can be used to handle undo on multiselect objects.
@@ -35,7 +35,7 @@ public:
 			for (const auto& objPair : multi.m_multiselectList)
 			{
 				ComponentHandle<TransformComponent> objTransform = objPair.first.GetComponent<TransformComponent>();
-				objTransform->SetPosition(objPair.second - basePos);
+				objTransform->SetPosition(objPair.second + basePos);
 			}
 
 		};
