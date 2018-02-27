@@ -24,6 +24,27 @@ endTable = _G.globalEndScreenTable
 timer = 0
 timeToMax = 5
 
+function ContinuePressed()
+	-- Spacebar
+	if (OnPress(KEY.Space))
+	then
+		return true
+	end
+	
+	-- A Button on the gamepads
+	for player = 0,3
+	do
+		local A_BUTTON = 0
+		if (GamepadOnPress(player, A_BUTTON))
+		then
+			return true
+		end
+	end
+	
+	-- Failed to find a continue.
+	return false
+end
+
 function SpawnAndAttachObject(prefabName)
 	local obj = GameObject.LoadPrefab(prefabName)
 	if (obj:IsValid())
@@ -102,6 +123,10 @@ function Update(dt)
 		timer = timer + timerSpeed * dt
 	else
 		timer = endTable.finishTime
+		if (ContinuePressed())
+		then
+			Engine.LoadLevel(endTable.nextLevel)
+		end
 	end
 
 	SetInternalVisual()
