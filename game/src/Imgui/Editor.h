@@ -211,7 +211,7 @@ class Editor
 
 	// Current GameObject(s)
 	GameObject m_selected_object = 0;
-	Array<GameObject_ID, MAX_SELECT> m_multiselect;
+	std::vector<std::pair<GameObject, glm::vec2>> m_multiselect; // vec2 is offset from m_selected_object
 
 	// Save spot for string editing
 	std::string m_name;

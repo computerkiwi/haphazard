@@ -348,14 +348,11 @@ void Editor::Update(float dt)
 		}
 
 		// Pass the current object in the editor
-		if (m_multiselect.m_size)
+		if (!m_multiselect.empty())
 		{
 			ImGui_GameObject_Multi(m_multiselect, this);
 		}
-		else
-		{
-			ImGui_GameObject(m_selected_object, this);
-		}
+		ImGui_GameObject(m_selected_object, this);
 
 		#ifdef _DEBUG
 			// Please don't delete, super important
@@ -859,6 +856,14 @@ void Editor::TrySelect(const glm::vec2& mouse)
 	glm::vec2 pos;
 	glm::vec2 scale;
 
+	bool multiselecting = Input::IsHeldDown(Key::LeftShift) || Input::IsHeldDown(Key::RightShift);
+
+	// If we're not holding shift stop multiselecting
+	if (!multiselecting)
+	{
+		m_multiselect.clear();
+	}
+
 	// Check EVERY object
 	for (auto id : m_objects)
 	{
@@ -880,14 +885,24 @@ void Editor::TrySelect(const glm::vec2& mouse)
 			}
 
 			// Save the GameObject data
-			m_selected_object = transform.GetGameObject().Getid();
+			if (!multiselecting || m_selected_object == GameObject(0))
+			{
+				m_selected_object = transform.GetGameObject();
+			}
+			else
+			{
+				m_multiselect.push_back(std::make_pair(transform.GetGameObject(),transform->GetPosition() - m_selected_object.GetComponent<TransformComponent>()->GetPosition()));
+			}
 
 			return;
 		}
 	}
 
 	// Deselect the object if nothing was found
-	m_selected_object = 0;
+	if (!multiselecting)
+	{
+		m_selected_object = 0;
+	}
 }
 
 void Editor::OnClick()
@@ -954,15 +969,7 @@ void Editor::Tools()
 		}
 
 		// Get the position of the object.
-		glm::vec2 pos;
-		if (m_multiselect.m_size)
-		{
-			pos = Average_Pos(m_multiselect);
-		}
-		else
-		{
-			pos = transform->GetPosition();
-		}
+		glm::vec2 pos = transform->GetPosition();
 
 		switch (m_gizmo)
 		{
@@ -999,83 +1006,69 @@ void Editor::Tools()
 				glm::vec2 mouseDiff = mouse - pos;
 				glm::vec2 initialMouseDiff = initialMousePos - initialObjPos;
 
-				// Check if there are multiple objects selected
-				if (m_multiselect.m_size)
+				// Check if we need to save the old value
+				if (!m_editorState.MouseDragClick)
 				{
-					// foreach object add the mouseDiff to its position
-					for (unsigned int i = 0; i < m_multiselect.m_size; ++i)
-					{
-						GameObject gameObject = m_multiselect[i];
+					bool freeze_axis = false;
 
-						gameObject.GetComponent<TransformComponent>()->SetPosition(pos + mouseDiff);
+					// AABB of the box to only allow movement on the x-axis
+					if (mouse.x < pos_x_dir.x + (scale_x_dir.x / 2) && mouse.x > pos_x_dir.x - (scale_x_dir.x / 2))
+					{
+						if (mouse.y < pos_x_dir.y + (scale_x_dir.y / 2) && mouse.y > pos_x_dir.y - (scale_x_dir.y / 2))
+						{
+							m_transformDir = EditorGizmoDirection::Dir_X;
+							freeze_axis = true;
+							DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+						}
 					}
+
+					// AABB of the box to only allow movement on the y-axis
+					if (mouse.x < pos_y_dir.x + (scale_y_dir.x / 2) && mouse.x > pos_y_dir.x - (scale_y_dir.x / 2))
+					{
+						if (mouse.y < pos_y_dir.y + (scale_y_dir.y / 2) && mouse.y > pos_y_dir.y - (scale_y_dir.y / 2))
+						{
+							m_transformDir = EditorGizmoDirection::Dir_Y;
+							freeze_axis = true;
+							DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
+						}
+					}
+
+					// Default to allow both, and auto-unfreeze
+					if (!freeze_axis)
+					{
+						m_transformDir = EditorGizmoDirection::Both;
+					}
+
+					objectSave.SetLocalPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
+					m_editorState.MouseDragClick = true;
 				}
-				else
+
+
+				// Keeping track of direction allows for us to freeze the other axes
+				switch (m_transformDir)
 				{
-					// Check if we need to save the old value
-					if (!m_editorState.MouseDragClick)
-					{
-						bool freeze_axis = false;
+					// Freeze the y-axis and allow movement in the x-axis
+				case EditorGizmoDirection::Dir_X:
+					targetPos = glm::vec2(pos.x + mouseDiff.x - initialMouseDiff.x, pos.y);
+					DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
 
-						// AABB of the box to only allow movement on the x-axis
-						if (mouse.x < pos_x_dir.x + (scale_x_dir.x / 2) && mouse.x > pos_x_dir.x - (scale_x_dir.x / 2))
-						{
-							if (mouse.y < pos_x_dir.y + (scale_x_dir.y / 2) && mouse.y > pos_x_dir.y - (scale_x_dir.y / 2))
-							{
-								m_transformDir = EditorGizmoDirection::Dir_X;
-								freeze_axis = true;
-								DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
-							}
-						}
+					break;
 
-						// AABB of the box to only allow movement on the y-axis
-						if (mouse.x < pos_y_dir.x + (scale_y_dir.x / 2) && mouse.x > pos_y_dir.x - (scale_y_dir.x / 2))
-						{
-							if (mouse.y < pos_y_dir.y + (scale_y_dir.y / 2) && mouse.y > pos_y_dir.y - (scale_y_dir.y / 2))
-							{
-								m_transformDir = EditorGizmoDirection::Dir_Y;
-								freeze_axis = true;
-								DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0x0000FF), 1));
-							}
-						}
+					// Freeze the x-axis and allow movement in the y-axis
+				case EditorGizmoDirection::Dir_Y:
+					targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - initialMouseDiff.y);
 
-						// Default to allow both, and auto-unfreeze
-						if (!freeze_axis)
-						{
-							m_transformDir = EditorGizmoDirection::Both;
-						}
+					DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
+					break;
 
-						objectSave.SetLocalPosition(object.GetComponent<TransformComponent>()->GetRelativePosition());
-						m_editorState.MouseDragClick = true;
-					}
+					// Move by both
+				case EditorGizmoDirection::Both:
 
+					// Add the mouseDiff to the position
+					targetPos = pos + mouseDiff - initialMouseDiff;
 
-					// Keeping track of direction allows for us to freeze the other axes
-					switch (m_transformDir)
-					{
-						// Freeze the y-axis and allow movement in the x-axis
-					case EditorGizmoDirection::Dir_X:
-						targetPos = glm::vec2(pos.x + mouseDiff.x - initialMouseDiff.x, pos.y);
-						DebugGraphic::DrawSquare(pos_x_dir, scale_x_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
-
-						break;
-
-						// Freeze the x-axis and allow movement in the y-axis
-					case EditorGizmoDirection::Dir_Y:
-						targetPos = glm::vec2(pos.x, pos.y + mouseDiff.y - initialMouseDiff.y);
-
-						DebugGraphic::DrawSquare(pos_y_dir, scale_y_dir, 0, glm::vec4(HexVec(0xFFFF00), 1));
-						break;
-
-						// Move by both
-					case EditorGizmoDirection::Both:
-
-						// Add the mouseDiff to the position
-						targetPos = pos + mouseDiff - initialMouseDiff;
-
-					default:
-						break;
-					}
+				default:
+					break;
 				}
 
 				m_prevMouse = Input::GetMousePos_World();
@@ -1093,6 +1086,11 @@ void Editor::Tools()
 				}
 
 				transform->SetPosition(targetPos);
+				for (const auto& objPair : m_multiselect)
+				{
+					objPair.first.GetComponent<TransformComponent>()->SetPosition(targetPos + objPair.second);
+				}
+
 				return;
 			}
 			else
@@ -1503,33 +1501,16 @@ void Editor::PrintObjects()
 				ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(1,1,1,0.6f));
 			}
 
-			// Multiselect with Left Control + LClick
-			if (Input::IsHeldDown(Key::LeftControl))
+			if (GetSearchBars().objects.PassFilter(name_buffer))
 			{
-				// Draw each object
 				if (ImGui::Selectable(name_buffer))
 				{
-					if (m_multiselect.m_size < MAX_SELECT)
-					{
-						m_multiselect.push_back(object);
-					}
-
+					m_multiselect.clear();
 					SetGameObject(object);
-				}
-			}
-			else
-			{
-				if (GetSearchBars().objects.PassFilter(name_buffer))
-				{
-					if (ImGui::Selectable(name_buffer))
-					{
-						m_multiselect.clear();
-						SetGameObject(object);
 
-						if (!object.IsActive())
-						{
-							ImGui::PopStyleColor();
-						}
+					if (!object.IsActive())
+					{
+						ImGui::PopStyleColor();
 					}
 				}
 			}
