@@ -15,6 +15,8 @@ star_1 = 10
 star_2 = 20
 star_3 = 40
 
+starHeight = 1
+
 -- We can't set arrays from the editor, so we manually put them into a table for iteration
 starTimes = {}
 
@@ -72,6 +74,7 @@ function SetInternalVisual()
 	starTimes[1] = star_1
 	starTimes[2] = star_2
 	starTimes[3] = star_3
+	tempScale.y = tempScale.y * starHeight
 	tempScale.x = tempScale.y -- Stars are square.
 	for i = 1,STAR_COUNT
 	do
