@@ -886,10 +886,39 @@ void Editor::TrySelect(const glm::vec2& mouse)
 				continue;
 			}
 
+			GameObject obj = transform.GetGameObject();
+			// If we already have the object while holding shift we're trying to deselect.
+			if (multiselecting)
+			{
+				// First object should be deselected.
+				if (obj == m_selected_object)
+				{
+					m_selected_object = m_multiselect.back().first;
+					m_multiselect.pop_back();
+					transform = m_selected_object.GetComponent<TransformComponent>();
+
+					// Update the offsets.
+					for (auto& multiPair : m_multiselect)
+					{
+						multiPair.second = multiPair.first.GetComponent<TransformComponent>()->GetPosition() - transform->GetPosition();
+					}
+					return;
+				}
+				// Check each other object to be deselected.
+				for (auto iter = m_multiselect.begin(); iter != m_multiselect.end(); ++iter)
+				{
+					if (iter->first == obj)
+					{
+						m_multiselect.erase(iter);
+						return;
+					}
+				}
+			}
+
 			// Save the GameObject data
 			if (!multiselecting || m_selected_object == GameObject(0))
 			{
-				m_selected_object = transform.GetGameObject();
+				m_selected_object = obj;
 			}
 			else
 			{
