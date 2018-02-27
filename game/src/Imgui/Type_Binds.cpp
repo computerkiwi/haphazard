@@ -1061,18 +1061,16 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 }
 
 
-void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor)
+void ImGui_GameObject_Multi(std::vector<std::pair<GameObject, glm::vec2>>& objects, Editor *editor)
 {
 #if 1
-	for (size_t i = 0; i < objects.m_size - 1; i++)
+	for (size_t i = 0; i < objects.size(); i++)
 	{
-		GameObject object = objects[i];
+		GameObject object = objects[i].first;
 		
 		TransformComponent *transform = object.GetComponent<TransformComponent>().Get();
 		DebugGraphic::DrawSquare(transform->GetPosition(), glm::vec2(transform->GetScale()) + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0, 1, 1, 1));
 	}
-
-	ImGui_GameObject(objects[objects.m_size - 1], editor);
 
 #else
 	(void)objects;

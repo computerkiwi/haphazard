@@ -213,6 +213,7 @@
     <ClInclude Include="src\graphics\VertexObjects.h" />
     <ClInclude Include="src\Imgui\EditorScript.h" />
     <ClInclude Include="src\meta\SerializationKeys.h" />
+    <ClInclude Include="src\Imgui\MultiselectUndo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />
