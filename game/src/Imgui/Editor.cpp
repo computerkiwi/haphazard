@@ -10,6 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Main Editor Includes
 #include "Editor.h"
 #include "Type_Binds.h"
+#include "MultiselectUndo.h"
 
 // Standard Includes
 #include "Engine/Engine.h"
@@ -1216,7 +1217,16 @@ void Editor::Tools()
 			if (Input::IsReleased(Key::Mouse_1) && m_editorState.MouseDragClick)
 			{
 				ComponentHandle<TransformComponent> handle = m_selected_object.GetComponent<TransformComponent>();
-				Push_Action({ glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> });
+				EditorAction undoAction = { glm::vec2(objectSave.GetRelativePosition()), glm::vec2(handle->GetRelativePosition()), "position",{ m_selected_object, true }, Action_General<TransformComponent, glm::vec2> };
+
+				if (m_multiselect.empty())
+				{
+					Push_Action(std::move(undoAction));
+				}
+				else
+				{
+					Push_Action(MultiselectTransformUndo::CreateAction(undoAction, m_multiselect));
+				}
 				
 				// Reset the click state
 				m_editorState.MouseDragClick = false;
