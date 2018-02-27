@@ -20,13 +20,11 @@ function LateUpdate(dt)
 	local parentObj = this:GetTransform().parent
 	if (not parentObj:IsValid())
 	then
-		print("bad parent")
 		return nil
 	end
 	
 	if (not parentObj:HasCamera())
 	then
-		print("bad cam")
 		return nil
 	end
 	
