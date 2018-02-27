@@ -13,6 +13,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 class LuaScript
 {
+	static const int INVALID_ENVIRONMENT_ID = 0;
+
 public:
 	static bool currentlyRunningScript;
 	static std::string currentFileName;
@@ -26,6 +28,7 @@ public:
 
 	LuaScript(Resource *resource, GameObject thisObj);
 
+	bool HasFunction(const char *functionName);
 	void RunFunction(const char *functionName, int args, int returns);
 
 	lua_State *GetLuaState() const { return m_L; }

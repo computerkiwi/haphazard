@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "graphics\Settings.h"
 #include "Screen.h"
 #include "Shaders.h"
+#include "Camera.h"
 
 FrameBuffer* FrameBuffer::fb_FX = nullptr;
 static Screen::Mesh* fullscreenMesh = nullptr;
@@ -200,6 +201,9 @@ void FrameBuffer::ApplyFXSettings(FX fx)
 {
 	switch (fx)
 	{
+	case FX::DROPSHADOW:
+		Shaders::ScreenShader::Dropshadow->SetVariable("ZoomScale", Camera::GetActiveCamera()->GetZoom() );
+		return;
 	case FX::BLUR:
 		Shaders::ScreenShader::Blur->SetVariable("Intensity", m_BlurAmount);
 		return;
@@ -246,6 +250,9 @@ bool FrameBuffer::UseFxShader(FX fx, FrameBuffer& source, FrameBuffer& target)
 	case FX::BLOOM:
 		RenderBloom(source, target);
 		return false;
+	case FX::DROPSHADOW:
+		Shaders::ScreenShader::Dropshadow->Use();
+		return true;
 	default:
 		Shaders::ScreenShader::Default->Use();
 		return true;

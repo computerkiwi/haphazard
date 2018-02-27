@@ -55,6 +55,7 @@ end -- fn end
 function OnCollisionEnter(object)
   if ((Collectible == true) and (object:HasTag("Player")))
   then
-	  this:Destroy();
+	PlaySound("regular_pickup.mp3", 0.2, 1, false)
+	this:Destroy();
   end
 end -- fn end

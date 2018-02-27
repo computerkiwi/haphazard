@@ -152,6 +152,8 @@ glm::vec2 TransformComponent::GetParentPosition() const
 	}
 	else
 	{
+		// Const cast because we're not changing the state. No data is really changed.
+		const_cast<TransformComponent *>(this)->m_parent = INVALID_GAMEOBJECT_ID;
 		return glm::vec2(0, 0);
 	}
 }

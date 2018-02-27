@@ -129,8 +129,10 @@ function Update(dt)
 
 	local status = this:GetScript("GnomeStatus.lua")
 
+	local transform = this:GetTransform()
+
 	-- Knockback is checked before ground update so it doesnt cancel on first update
-	if(status.knockedBack == true)
+	if(status.knockedBack == true or status.tossed == true)
 	then
 		if(status.stackedBelow ~= nil or this:GetDynamicCollider().colliderData:IsCollidingWithLayer(GROUND_LAYER) )
 		then
@@ -183,6 +185,12 @@ function Update(dt)
 		StatueUpdate(dt)
 	end
 	
+	-- Make sure we don't have any lingering effects from toss rotation.
+	if(status.tossed == false)
+	then
+		transform.rotation = 0
+	end
+
 	this:GetScript("GnomeStack.lua").UpdateParenting()
 
 end -- fn end
@@ -194,6 +202,7 @@ function UpdateMovement(dt)
 	local playerBody = this:GetRigidBody()
 
 	local newVelocity	= playerBody.velocity
+	local transform = this:GetTransform()
 
 	local speed = moveSpeed
 	if(this:GetScript("GnomeStatus.lua").specialMove)
@@ -203,6 +212,13 @@ function UpdateMovement(dt)
 
 	if(this:GetScript("GnomeStatus.lua").tossed)
 	then
+		local rotateMult = 1000
+		if (newVelocity.x >= 0)
+		then
+			rotateMult = -rotateMult
+		end
+		
+		transform.rotation = transform.rotation + dt * rotateMult
 		-- Tossed movement
 		newVelocity.x = newVelocity.x + moveDir * speed -- Calculate x velocity ()
 
@@ -387,10 +403,17 @@ function CheckGround(count)
 	for i, cast in pairs(casts) do
 		if (cast.gameObjectHit:IsValid())
 		then
+			this:GetTransform().parent = cast.gameObjectHit
 			hit = true
 			hitY = math.max(hitY, cast.intersection.y)
 		end
 	end
+	
+	if (hit == false)
+	then
+		this:GetTransform().parent = GameObject(0)
+	end
+	
 	
 	return hit, hitY
 end

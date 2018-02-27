@@ -12,6 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 const char * const FX_Names[] =
 {
 	"Default",
+	"Dropshadow",
 	"Edge Detection",
 	"Sharpen",
 	"Blur",
@@ -22,6 +23,7 @@ const char * const FX_Names[] =
 enum FX
 {
 	DEFAULT,
+	DROPSHADOW,
 	EDGE_DETECTION,
 	SHARPEN,
 	BLUR,
@@ -77,7 +79,7 @@ private:
 	int m_Width, m_Height;
 	int m_NumColBfrs;
 	glm::vec4 m_ClearColor = glm::vec4(0,0,0,0);
-	std::vector<FX> m_FXList;
+	std::vector<FX> m_FXList = {DROPSHADOW};
 
 	bool m_UsedThisUpdate = false;
 

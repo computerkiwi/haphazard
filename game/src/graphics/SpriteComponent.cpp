@@ -70,10 +70,10 @@ void SpriteComponent::SetRenderData(const TransformComponent* transform, std::ve
 
 	if (m_TextureHandler.IsTiling())
 	{
-		data->push_back(bounds.x + 0.00032f);
-		data->push_back(bounds.y + 0.00032f);
-		data->push_back(bounds.z - 0.00032f);
-		data->push_back(bounds.w - 0.00032f);
+		data->push_back(bounds.x + 1);
+		data->push_back(bounds.y + 1);
+		data->push_back(bounds.z + 1);
+		data->push_back(bounds.w + 1);
 	}
 	else
 	{

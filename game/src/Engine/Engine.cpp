@@ -348,9 +348,13 @@ GLFWwindow *WindowInit()
 
 	RenderSystem::ResizeWindowEvent(window, Settings::ScreenWidth(), Settings::ScreenHeight());
 
+	// Make the game fullscreen by default in release build.
+#ifndef SHORTSTACK_DEV
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primary);
 	glfwSetWindowMonitor(window, primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+#endif
+	
 
 	return window;
 }

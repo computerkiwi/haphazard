@@ -119,7 +119,7 @@ end
 
 function StackedAttack(type, belowType)
 
-	PrefabName = "Projectile_" .. TypeName(type) .."_on" .. TypeName(belowType) .. ".json"
+	PrefabName = "Projectile_" .. TypeName(type) .."_Stacked.json"
 	this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
 	--this:GetScript("ProjectileSpawner.lua").Fire("otherProjectile.json")
 

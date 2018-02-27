@@ -2,7 +2,7 @@
 FILE: CameraFollow.lua
 PRIMARY AUTHOR: Kieran
 
-Copyright (c) 2017 DigiPen (USA) Corporation.
+Copyright (c) 2018 DigiPen (USA) Corporation.
 ]]
 
 LERP_SPEED = 0.05
@@ -33,40 +33,59 @@ function max(a, b)
 	
 end
 
+function Start()
+	OFFSET_Y = 0.5
+end
+
 function Update(dt)
-	local player1 = GameObject.FindByName("Player1")
-	local player2 = GameObject.FindByName("Player2")
-	local player3 = GameObject.FindByName("Player3")
-	local player4 = GameObject.FindByName("Player4")
-
-	local camera = this:GetCamera()
-
-	-- Check if we actually got the players.
-	if (not player1:IsValid() or not player2:IsValid())
-	then
-		return
+	local PM = _G.PLAYER_MANAGER
+	
+	-- Get gnome positions and average.
+	local gnomeCount = 0
+	local positions = {}
+	local avgPos = vec2(0, 0)
+	for k,player in pairs(PM.PLAYERS)
+	do
+		local gnomeObj = player.gameObject
+		if (gnomeObj:IsValid())
+		then
+			gnomeCount = gnomeCount + 1
+			local transform = gnomeObj:GetTransform()
+			table.insert(positions, transform.position)
+			avgPos.x = avgPos.x + transform.position.x
+			avgPos.y = avgPos.y + transform.position.y
+		end
 	end
-
-	local position = this:GetTransform().position
-
-	local position1 = player1:GetTransform().position
-	local position2 = player2:GetTransform().position
-	local position3 = player3:GetTransform().position
-	local position4 = player4:GetTransform().position
-
-	position.x = (position1.x + position2.x + position3.x + position4.x) / 4
-	position.y = (position1.y + position2.y + position3.y + position4.y) / 4
-
+	avgPos.x = avgPos.x / gnomeCount
+	avgPos.y = avgPos.y / gnomeCount
+	
+	-- Get the transform/position of the camera.
 	local transform = this:GetTransform()
 	local currPos = transform.position
 	
-	currPos.x = math.lerp(currPos.x, position.x, LERP_SPEED)
-	currPos.y = math.lerp(currPos.y, position.y + OFFSET_Y, LERP_SPEED)
+	-- Exit early for no gnomes.
+	if (gnomeCount == 0)
+	then
+		return nil
+	end
 	
+	-- Lerp toward the average gnome position.
+	currPos.x = math.lerp(currPos.x, avgPos.x, LERP_SPEED)
+	currPos.y = math.lerp(currPos.y, avgPos.y + OFFSET_Y, LERP_SPEED)
 	transform.position = currPos
 	
-	dist = VectorDistance(player1:GetTransform().position, player2:GetTransform().position)
-	camera.zoom = ClampedZoom()
+	-- Get the furthest gnome distance from the camera
+	local maxGnomeDist = 0
+	for gnomeNum, gnomePos in pairs(positions)
+	do
+		local currentDist = VectorDistance(avgPos, gnomePos)
+		maxGnomeDist = math.max(maxGnomeDist, currentDist)
+	end
+	
+	-- Zoom based on the distance.
+	local camera = this:GetCamera()
+	dist = maxGnomeDist * 2
+	camera.zoom = math.lerp(camera.zoom, ClampedZoom(), LERP_SPEED)
 end
 
 function ClampedZoom()

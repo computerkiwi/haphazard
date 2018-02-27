@@ -983,6 +983,10 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 			SavePrefab(object);
 		}
 
+		if (Checkbox("Saves With Level##object_savesWithLevel", &object.GetComponent<ObjectInfo>()->m_savesWithLevel))
+		{
+			editor->Push_Action({ !object.GetComponent<ObjectInfo>()->m_savesWithLevel, object.GetComponent<ObjectInfo>()->m_savesWithLevel, "savesWithLevel",{ object, true }, Action_General<ObjectInfo, bool> });
+		}
 
 		ImGui_ObjectInfo(object.GetComponent<ObjectInfo>().Get(), editor);
 
@@ -1057,18 +1061,16 @@ void ImGui_GameObject(GameObject object, Editor *editor)
 }
 
 
-void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor)
+void ImGui_GameObject_Multi(std::vector<std::pair<GameObject, glm::vec2>>& objects, Editor *editor)
 {
 #if 1
-	for (size_t i = 0; i < objects.m_size - 1; i++)
+	for (size_t i = 0; i < objects.size(); i++)
 	{
-		GameObject object = objects[i];
+		GameObject object = objects[i].first;
 		
 		TransformComponent *transform = object.GetComponent<TransformComponent>().Get();
 		DebugGraphic::DrawSquare(transform->GetPosition(), glm::vec2(transform->GetScale()) + glm::vec2(0.025f, 0.025f), (transform->GetRotation() * 3.14159265f) / 180, glm::vec4(0, 1, 1, 1));
 	}
-
-	ImGui_GameObject(objects[objects.m_size - 1], editor);
 
 #else
 	(void)objects;
@@ -2017,8 +2019,11 @@ void ImGui_Sprite(SpriteComponent *sprite, GameObject object, Editor * editor)
 			DragRelease(SpriteComponent, spriteSave.AT_fps, texture.m_FPS, "fps");
 
 			int frame = texture.m_CurrentFrame;
-			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame());
+			SliderInt("Frame", &frame, 0, reinterpret_cast<AnimatedTexture *>(texture.GetTexture())->GetMaxFrame() - 1);
 			texture.m_CurrentFrame = frame;
+
+			Drag_Float_Speed_MinMax("Frame Time##sprites", spriteSave.AT_timer, texture.m_Timer, 0.05f, 0, FLT_MAX);
+			DragRelease(SpriteComponent, spriteSave.AT_timer, texture.m_Timer, "fps");
 		}
 
 

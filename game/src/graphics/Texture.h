@@ -20,7 +20,7 @@ class Texture
 	friend class TextureHandler;
 public:
 	// Load texture from file
-	Texture(const char* file);
+	Texture(const char* file, bool isTiled = false);
 
 	virtual ~Texture();
 

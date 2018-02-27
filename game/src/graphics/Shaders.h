@@ -47,6 +47,7 @@ namespace Shaders
 		extern ShaderProgram* BlurCorners;
 		extern ShaderProgram* ExtractBrights;
 		extern ShaderProgram* Bloom;
+		extern ShaderProgram* Dropshadow;
 
 		extern ShaderProgram* Raindrop;
 	}

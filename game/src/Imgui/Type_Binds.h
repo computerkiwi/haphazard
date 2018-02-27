@@ -39,7 +39,7 @@ void LoadPreFab(Editor *editor);
 void SavePrefab(GameObject object);
 
 void ImGui_GameObject(GameObject object, Editor *editor);
-void ImGui_GameObject_Multi(Array<GameObject_ID, MAX_SELECT>& objects, Editor *editor);
+void ImGui_GameObject_Multi(std::vector<std::pair<GameObject, glm::vec2>>& objects, Editor *editor);
 
 void ImGui_ObjectInfo(ObjectInfo *info, Editor *editor);
 void ImGui_Transform(TransformComponent *transform, GameObject object, Editor *editor);
