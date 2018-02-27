@@ -1,5 +1,5 @@
 --[[
-FILE: Timer.lua
+FILE: EndScreenTimer.lua
 PRIMARY AUTHOR: Kieran Williams
 
 Copyright (c) 2018 DigiPen (USA) Corporation.
@@ -8,44 +8,21 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 internalTimerObj = nil
 stars = {}
 
-startingTime = 60
-maxTime = 80
-
-star_1 = 10
-star_2 = 20
-star_3 = 40
-
 starHeight = 1
-
--- We can't set arrays from the editor, so we manually put them into a table for iteration
-starTimes = {}
 
 STAR_SPRITE_ACTIVE = "Sticker_ChallengeGem.png"
 STAR_SPRITE_MISSED = "Sticker_Gem.png"
 STAR_COUNT = 3
 
--- Use this variable from the editor to reset the timer.
-resetTimer = false
-
--- Setup the end screen table if it doesn't exist
+-- Also set up in Timer.lua
 if (_G.globalEndScreenTable == nil)
 then
-	_G.globalEndScreenTable = {starTimes = {}, finishTime = 10, maxTime = 10, nextLevel = "defaultLevel.json"}
+	_G.globalEndScreenTable = {starTimes = {2, 3, 4}, finishTime = 9, maxTime = 10, nextLevel = "defaultLevel.json"}
 end
+endTable = _G.globalEndScreenTable
 
-function UpdateEndScreenTable()
-	local endTab = _G.globalEndScreenTable
-	endTab.maxTime = maxTime
-	endTab.finishTime = timer
-	
-	endTab.starTimes[1] = star_1
-	endTab.starTimes[2] = star_2
-	endTab.starTimes[3] = star_3
-end
-
-function AddTime(addTime)
-	timer = math.max(math.min(timer + addTime, maxTime), 0)
-end
+timer = 0
+timeToMax = 5
 
 function SpawnAndAttachObject(prefabName)
 	local obj = GameObject.LoadPrefab(prefabName)
@@ -75,7 +52,7 @@ function AmountToLocalXPos(amount)
 end
 
 function SetInternalVisual()
-	local amount = timer / maxTime
+	local amount = timer / endTable.maxTime
 	local thisTransform = this:GetTransform()
 	local internalTransform = internalTimerObj:GetTransform()
 	
@@ -87,22 +64,19 @@ function SetInternalVisual()
 	internalTransform.scale = tempScale
 	
 	-- Handle the stars
-	starTimes[1] = star_1
-	starTimes[2] = star_2
-	starTimes[3] = star_3
 	tempScale.y = tempScale.y * starHeight
 	tempScale.x = tempScale.y -- Stars are square.
-	for i = 1,STAR_COUNT
+	for starNum, starTime in pairs(endTable.starTimes)
 	do
-		local star = stars[i]
+		local star = stars[starNum]
 		if (star ~= nil)
 		then
-			local starAmount = starTimes[i] / maxTime
+			local starAmount = starTime / endTable.maxTime
 			local starTransform = star:GetTransform()
 			starTransform.localPosition = vec2(AmountToLocalXPos(starAmount), 0)
 			starTransform.scale = tempScale
 			
-			if (starTimes[i] <= timer)
+			if (starTime <= timer)
 			then
 				star:GetSprite().id = Resource.FilenameToID(STAR_SPRITE_ACTIVE)
 			else
@@ -112,33 +86,23 @@ function SetInternalVisual()
 	end
 end
 
-function ResetTimer()
-	timer = startingTime
-end
-
 function Start()
-	ResetTimer()
 	internalTimerObj = SpawnInternalTimer()
-	
 	for i = 1, STAR_COUNT
 	do
 		stars[i] = SpawnStar()
 	end
 	
-	_G.AddTimeToTimer = AddTime
+	timerSpeed = endTable.maxTime / timeToMax
 end
 
-function Update(dt)
-	-- Reset the timer from the editor.
-	if (resetTimer)
+function Update(dt)	
+	if (timer < endTable.finishTime)
 	then
-		resetTimer = false
-		ResetTimer()
+		timer = timer + timerSpeed * dt
+	else
+		timer = endTable.finishTime
 	end
-	
-	-- Tick the timer down
-	timer = math.max(timer - dt, 0)
-	SetInternalVisual(timer / maxTime)
-	
-	UpdateEndScreenTable()
+
+	SetInternalVisual()
 end
