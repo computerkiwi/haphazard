@@ -27,6 +27,9 @@ function OnCollisionEnter(other)
 
   ]]
 
+	-- Defined in Timer.lua
+	_G.AddTimeToTimer(1)
+
     -- Deactivate the object
     this:Deactivate()
 	PlaySound("regular_pickup.mp3", 0.2, 1, false)

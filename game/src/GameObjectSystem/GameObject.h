@@ -179,6 +179,12 @@ private:
 		return GetComponent<T>().Get();
 	}
 
+	template <typename T>
+	bool HasComponent()
+	{
+		return GetComponent<T>().IsValid();
+	}
+
 	class Collider2D *GetCollider();
 
 	// Gets a script by name (1 parameter from Lua - string name)
@@ -234,6 +240,17 @@ private:
 		META_DefineFunction(GameObject, GetComponentPointer<ParticleSystem>,             "GetParticleSystem");
 		META_DefineFunction(GameObject, GetComponentPointer<ScriptComponent>,            "GetScripts");
 		META_DefineFunction(GameObject, GetCollider,                                     "GetCollider");
+
+
+		META_DefineFunction(GameObject, HasComponent<ObjectInfo>, "HasObjectInfo");
+		META_DefineFunction(GameObject, HasComponent<TransformComponent>, "HasTransform");
+		META_DefineFunction(GameObject, HasComponent<RigidBodyComponent>, "HasRigidBody");
+		META_DefineFunction(GameObject, HasComponent<StaticCollider2DComponent>, "HasStaticCollider");
+		META_DefineFunction(GameObject, HasComponent<DynamicCollider2DComponent>, "HasDynamicCollider");
+		META_DefineFunction(GameObject, HasComponent<SpriteComponent>, "HasSprite");
+		META_DefineFunction(GameObject, HasComponent<Camera>, "HasCamera");
+		META_DefineFunction(GameObject, HasComponent<ParticleSystem>, "HasParticleSystem");
+		META_DefineFunction(GameObject, HasComponent<ScriptComponent>, "HasScripts");
 
 		META_DefineFunction(GameObject, GetName, "GetName");
 		META_DefineFunction(GameObject, SetName, "SetName");
