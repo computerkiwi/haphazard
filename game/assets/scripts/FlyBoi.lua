@@ -186,7 +186,6 @@ function LookForGnomes()
 
 	end
 
-	local radiansBetweenRays = detectionConeWidthDegrees / numberOfDetectionRays
 	-- start downward and adjust according to the cone width
 	local initialDirection = 270 - (detectionConeWidthDegrees / 2)
 	local directionIncrease = detectionConeWidthDegrees / (numberOfDetectionRays - 1)
