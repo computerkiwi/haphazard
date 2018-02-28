@@ -95,8 +95,10 @@ function OnCollisionEnter(other)
 
   if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
 	then
+		local projInfo = other:GetScript("ProjectileInfo.lua")
+
 		scared = true
-		health = health - 1
+		health = health - projInfo.damage
 		damageFlashTimer = DAMAGE_FLASH_TIME
 	end
   if(health <= 0)

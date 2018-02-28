@@ -5,6 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+damage = 1
 speed = 10
 life = 1
 cooldownTime = 0.5
