@@ -23,6 +23,7 @@ pulleyStartOffsetRight_x = 3
 pulleyStartOffsetRight_y = 0
 
 averageRopeLength = 3
+minRopeLength = 0.1
 
 startingLeftRopeLength = averageRopeLength
 leftRopeLength = startingLeftRopeLength
@@ -92,6 +93,16 @@ function CalculatePlatforms(dt)
   
   leftRopeLength = leftRopeLength + dt * currentVelocity
   
+  -- Stop the platforms at the ends.
+  if (leftRopeLength < minRopeLength)
+  then
+    leftRopeLength = minRopeLength
+    currentVelocity = math.max(0, currentVelocity)
+  elseif( leftRopeLength > averageRopeLength * 2 - minRopeLength)
+  then
+    leftRopeLength = averageRopeLength * 2 - minRopeLength
+    currentVelocity = math.min(0, currentVelocity)
+  end
 end
 
 function UpdatePlatformPositions()
