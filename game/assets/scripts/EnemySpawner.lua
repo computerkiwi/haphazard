@@ -12,13 +12,14 @@ SpawnTimerMax = 3.2
 SpawnTimer = SpawnTimerMax
 SpawnTotalMax = 5  -- Total number of enemies to spawn
 SpawnTotal = SpawnTotalMax
+SpawnKey = KEY.Numpad_9
 
 function Start()
   this:Active()
 end -- fn end
 
 function Update(dt)
-  if (IsHeld(KEY.NumpadAdd))
+  if (IsHeld(SpawnKey))
   then
     Enabled = Enabled or true
     print(Enabled)
