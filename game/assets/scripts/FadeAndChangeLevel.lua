@@ -35,17 +35,23 @@ function Start()
 end
 
 function ContinuePressed()
-
-	-- Check each button.
-	for i,key in ipairs(CONTINUE_BUTTONS)
+	-- Spacebar
+	if (OnPress(KEY.Space))
+	then
+		return true
+	end
+	
+	-- A Button on the gamepads
+	for player = 0,3
 	do
-		if (OnPress(key))
+		local A_BUTTON = 0
+		if (GamepadOnPress(player, A_BUTTON))
 		then
 			return true
 		end
 	end
 	
-	-- If we got here nothing was pushed.
+	-- Failed to find a continue.
 	return false
 end
 
