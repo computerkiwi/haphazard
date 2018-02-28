@@ -96,11 +96,11 @@ function ShootAtTarget(target)
 	projectile:GetTransform().position = projectilePosition
 
 	-- set the velocity of the projectile
-	local left = (1 / math.cos(projectileLaunchAngleDegrees))
+	local left = (1 / math.cos(math.rad(projectileLaunchAngleDegrees)))
 	local numerator = ((1 / 2) * projectile:GetRigidBody().gravity.y * vecToTarget.x * vecToTarget.x)
-	local denominator = (vecToTarget.x * math.tan(projectileLaunchAngleDegrees) + vecToTarget.y)
+	local denominator = (-math.abs(vecToTarget.x) * math.tan(math.rad(projectileLaunchAngleDegrees)) + vecToTarget.y)
 	local right = math.sqrt(math.abs(numerator / denominator))
-	speed =  left * right
+	speed = math.abs(left * right)
 
 	directionX = (math.cos(math.rad(actualLaunchAngle)))
 	directionY = (math.sin(math.rad(actualLaunchAngle)))
