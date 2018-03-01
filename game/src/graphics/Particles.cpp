@@ -44,7 +44,7 @@ struct Particle
 ///
 
 #define RENDER_UBO_SIZE 24
-#define UPDATE_UBO_SIZE 36
+#define UPDATE_UBO_SIZE 43
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -167,6 +167,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 	// Set settings
 	///
 
+	// UPDATE THE UPDATE_UBO_SIZE VARIABLE IF ADJUSTING THESE
 	float data[] =
 	{
 		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,

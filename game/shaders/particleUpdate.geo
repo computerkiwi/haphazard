@@ -269,7 +269,7 @@ void HandleParticle()
 	    Life = currAge;
 		MaxLife = PMaxLife[0];
 		Scale = ScaleOverTime.xy * (1 - PLife[0]/PMaxLife[0]) + ScaleOverTime.zw * (PLife[0]/PMaxLife[0]);
-		Rotation = PRot[0] + RotationRate*dt;
+		Rotation = PRot[0] + RotationRate*dt/MaxLife;
 		Frame = PFrame[0];
 		Seed = PSeed[0];
 	    EmitVertex();

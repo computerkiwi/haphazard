@@ -94,21 +94,21 @@ private:
 		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmission");
 		META_DefineMember(ParticleSettings, burstEmission, "BurstEmission");
 		META_DefineGetterSetter(ParticleSettings, int, GetEmissionShape, SetEmissionShape, "EmissionShape");
-		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScale");
+		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScaleThickness");
 		META_DefineGetterSetter(ParticleSettings, int, GetParticleSpace, SetParticleSpace, "ParticleSpace");
 
 		META_DefineMember(ParticleSettings, emitterLifetime, "EmitterLifetime");
 		META_DefineMember(ParticleSettings, particleLifetime, "ParticleLifetime");
-		META_DefineMember(ParticleSettings, particleLifetimeVariance, "ParticleLifetimeVariance");
+		META_DefineMember(ParticleSettings, particleLifetimeVariance, "ParticleLifetimeMinMax");
 
 		META_DefineMember(ParticleSettings, startingVelocity, "StartingVelocity");
-		META_DefineMember(ParticleSettings, startingVelocityVariance, "StartingVelocityVariance");
+		META_DefineMember(ParticleSettings, startingVelocityVariance, "StartingVelocityMinMax");
 		META_DefineMember(ParticleSettings, acceleration, "Acceleration");
 
 		META_DefineMember(ParticleSettings, scaleOverTime, "ScaleOverTime");
 
 		META_DefineMember(ParticleSettings, startRotation, "StartRotation");
-		META_DefineMember(ParticleSettings, startRotationVariation, "StartRotationVariation");
+		META_DefineMember(ParticleSettings, startRotationVariation, "StartRotationMinMax");
 		META_DefineMember(ParticleSettings, rotationRate, "RotationRate");
 
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
