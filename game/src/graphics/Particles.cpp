@@ -146,6 +146,10 @@ void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 	RenderParticles(pos, id);
 
 	std::swap(m_currVB, m_currTFB);
+	lastPos = pos;
+
+	if (m_time > m_settings.emitterLifetime && m_settings.isLooping)
+		m_time = 0;
 }
 
 void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
@@ -167,7 +171,6 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 	// Set settings
 	///
 
-	// UPDATE THE UPDATE_UBO_SIZE VARIABLE IF ADJUSTING THESE
 	float data[UPDATE_UBO_SIZE] =
 	{
 		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,
@@ -205,8 +208,8 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		
 		static_cast<float>(m_settings.particleSpace),
 
-		0,
-		0,
+		0, // EmitOverDistanceAmount
+		glm::length(pos - lastPos),
 	};
 
 	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);

@@ -39,6 +39,13 @@ enum SimulationSpace
 	LOCAL = 1
 };
 
+/*
+Settings to add:
+EmitOverDistanceAmount
+EmitAwayFromCenter
+RandomBetweenTwoColors
+EmitBurstAtStart
+*/
 struct ParticleSettings
 {
 	// Emission
@@ -50,7 +57,7 @@ struct ParticleSettings
 	glm::vec3	      emissionShapeScale = {1,1,0};	 // Scale of emission shape around center point of emission
 	SimulationSpace particleSpace = WORLD;       // Particle simulation space
 	// Lifetimes									 
-	float           emitterLifetime = 1;              // Lifetime of emitter (applicable only if isLooping = false)
+	float           emitterLifetime = 10;             // Lifetime of emitter (applicable only if isLooping = false)
 	float           particleLifetime = 1;             // Lifetime of particle
 	glm::vec2	      particleLifetimeVariance = {0,0}; // Variation of life of particle in seconds, between -Variation/2 and +Variation/2
 	// Movement										 
@@ -209,6 +216,7 @@ private:
 	unsigned int m_currTFB = 1; // Current Transform Feedback index
 
 	float m_time = 0; // Time particle has been alive, used for random generation seed in shader
+	glm::vec2 lastPos;
 	ParticleSettings m_settings; // Particle settings (So much memory!)
 
 	// Buffers

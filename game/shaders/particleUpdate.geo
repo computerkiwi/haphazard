@@ -131,6 +131,7 @@ void HandleEmitter()
     Position = EmitterPosition;
     Velocity = PVel[0];
     Life = currAge;
+	Frame = mod((PFrame[0] + EmitterDeltaPosition), EmitOverDistanceAmount);
     EmitVertex();
     EndPrimitive();
 
@@ -213,6 +214,8 @@ void HandleEmitter()
 					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
 				}
 
+				Seed = rand(i * 2.1234).x;
+
 				EmitVertex();
 				EndPrimitive();
 			}
@@ -221,9 +224,8 @@ void HandleEmitter()
 
 	if(EmitOverDistanceAmount > 0)
 	{
-		if( EmitterDeltaPosition > EmitOverDistanceAmount )
-		{			
-			float amt = rand(0).x * (BurstEmission.y - BurstEmission.x) + BurstEmission.x;
+		if( PFrame[0] + EmitterDeltaPosition > EmitOverDistanceAmount )
+		{
 			for(int i = 0; i < ParticlesPerEmission + 1; i++)
 			{
 				vec3 r = rand(i)*2 - vec3(1,1,1);
@@ -246,6 +248,8 @@ void HandleEmitter()
 				{
 					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
 				}
+
+				Seed = rand(i * 2.1234).x;
 
 				EmitVertex();
 				EndPrimitive();
