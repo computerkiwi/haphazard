@@ -50,7 +50,7 @@ out float Seed;
 layout(std140) uniform UpdateSettings
 {
 	// Vector 4s
-	vec4	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate. 4th variable is nothing because padding) 
+	vec4	BurstEmission;			// (Amt Min, Amt Max, Reoccurance Rate, Emit At 0 Flag) 
 	vec4	ScaleOverTime;
 	vec4	StartingVelocityVariance;
 
@@ -67,6 +67,7 @@ layout(std140) uniform UpdateSettings
 	// Scalars
 	float	dt;
 	float	Time;
+	float	RandomID;
 	
 	float	IsLooping;
 	float	EmissionRate;
@@ -96,7 +97,7 @@ uniform sampler1D RandomTexture;
 
 vec3 rand(float TexCoord)
 {
-    return texture(RandomTexture, 1.0f/(TexCoord+1) * (Time + dt) ).xyz;
+    return texture(RandomTexture, 1.0f/(TexCoord+1) * (Time + dt + RandomID) ).xyz;
 }
 
 
@@ -186,9 +187,9 @@ void HandleEmitter()
 	}
 
 	// Burst Emission
-	if(BurstEmission.z > 0.0f)
+	if(BurstEmission.z > 0.0f || BurstEmission.w == 1)
 	{
-		if( int(currAge / BurstEmission.z) > int(PLife[0] / BurstEmission.z) )
+		if((BurstEmission.w == 1 && Time == 0) || int(currAge / BurstEmission.z) > int(PLife[0] / BurstEmission.z))
 		{
 			float amt = rand(0).x * (BurstEmission.y - BurstEmission.x) + BurstEmission.x;
 			for(int i = 0; i < amt; i++)

@@ -44,7 +44,7 @@ struct Particle
 ///
 
 #define RENDER_UBO_SIZE 25
-#define UPDATE_UBO_SIZE 44
+#define UPDATE_UBO_SIZE 45
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -140,6 +140,10 @@ ParticleSystem::ParticleSystem(const ParticleSystem& ps)
 
 void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 {
+	m_time += dt;
+	if (m_time > m_settings.emitterLifetime && m_settings.isLooping)
+		m_time = 0;
+
 	glBindVertexArray(m_VAO);
 	//glPointSize(10);
 	UpdateParticles(dt, pos, id);
@@ -147,15 +151,10 @@ void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 
 	std::swap(m_currVB, m_currTFB);
 	lastPos = pos;
-
-	if (m_time > m_settings.emitterLifetime && m_settings.isLooping)
-		m_time = 0;
 }
 
 void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 {
-	m_time += dt;
-
 	Shaders::particleUpdateShader->Use();
 
 	// Don't want particle updates to be rendered to the screen, just sent through the feedback transform
@@ -173,7 +172,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 
 	float data[UPDATE_UBO_SIZE] =
 	{
-		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,
+		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 1, // EmitBurstAtStart
 		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
 		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,m_settings.startingVelocityVariance.z, m_settings.startingVelocityVariance.w,
 
@@ -187,7 +186,8 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		m_settings.startRotationVariation.x,m_settings.startRotationVariation.y,
 		
 		dt, 
-		m_time + id * 1.2345f, // Some randomness added to time
+		m_time,
+		id * 1.2345f, // Some randomness
 
 		static_cast<float>(m_settings.isLooping),
 		m_settings.emissionRate,
