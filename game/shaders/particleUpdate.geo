@@ -175,7 +175,10 @@ void HandleEmitter()
 
 				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
 				{
-					Velocity = length(Velocity) * normalize(Position - EmitterPosition);
+					if(SimulationSpace == SPACE_LOCAL)
+						Velocity = length(Velocity) * normalize(Position);
+					else
+						Velocity = length(Velocity) * normalize(Position - EmitterPosition);
 				}
 
 				Seed = rand(i * 2.1234).x;
@@ -212,7 +215,10 @@ void HandleEmitter()
 
 				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
 				{
-					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
+					if(SimulationSpace == SPACE_LOCAL)
+						Velocity = length(Velocity) * normalize(Position);
+					else
+						Velocity = length(Velocity) * normalize(Position - EmitterPosition);
 				}
 
 				Seed = rand(i * 2.1234).x;
@@ -247,7 +253,10 @@ void HandleEmitter()
 
 				if(EmitAwayFromCenter == 1 && EmissionShape != SHAPE_POINT)
 				{
-					Velocity = normalize(Position - EmitterPosition) * length(Velocity);
+					if(SimulationSpace == SPACE_LOCAL)
+						Velocity = length(Velocity) * normalize(Position);
+					else
+						Velocity = length(Velocity) * normalize(Position - EmitterPosition);
 				}
 
 				Seed = rand(i * 2.1234).x;

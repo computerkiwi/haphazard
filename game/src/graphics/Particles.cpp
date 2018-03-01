@@ -43,7 +43,7 @@ struct Particle
 //  Uniform Buffer Objects
 ///
 
-#define RENDER_UBO_SIZE 25
+#define RENDER_UBO_SIZE 23
 #define UPDATE_UBO_SIZE 45
 
 static GLuint renderSettingsUBO = -1;
@@ -140,9 +140,8 @@ ParticleSystem::ParticleSystem(const ParticleSystem& ps)
 
 void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 {
-	m_time += dt;
 	if (m_time > m_settings.emitterLifetime && m_settings.isLooping)
-		m_time = 0;
+		m_time = 0; // Burst at start checks for time to be 0
 
 	glBindVertexArray(m_VAO);
 	//glPointSize(10);
@@ -151,6 +150,8 @@ void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 
 	std::swap(m_currVB, m_currTFB);
 	lastPos = pos;
+
+	m_time += dt;
 }
 
 void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
@@ -247,24 +248,25 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 	{
 		m_settings.startColor.x,		m_settings.startColor.y, m_settings.startColor.z, m_settings.startColor.w,
 		m_settings.endColor.x,			m_settings.endColor.y, m_settings.endColor.z, m_settings.endColor.w,
-		m_settings.trailStartColor.x,	m_settings.trailStartColor.y, m_settings.trailStartColor.z, m_settings.trailStartColor.w,
 		m_settings.trailEndColor.x,		m_settings.trailEndColor.y, m_settings.trailEndColor.z, m_settings.trailEndColor.w,
 		0,0,1,1, // Default texture bounds
 		pos.x, pos.y,
 		static_cast<float>(m_settings.particleSpace),
 		-1,		// Default texture (solid color square)
 		1,  // Choose random color
+		m_settings.trailLifetime,
+		1, // FadeTrailToEndColor
 	};
 
 	if (m_settings.texture_resourceID != -1)
 	{
 		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
-		data[23] = static_cast<float>(texture->GetLayer());
+		data[19] = static_cast<float>(texture->GetLayer());
 
-		data[16] = texture->GetBounds().x;
-		data[17] = texture->GetBounds().y;
-		data[18] = texture->GetBounds().z;
-		data[19] = texture->GetBounds().w;
+		data[12] = texture->GetBounds().x;
+		data[13] = texture->GetBounds().y;
+		data[14] = texture->GetBounds().z;
+		data[15] = texture->GetBounds().w;
 	}
 
  	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);

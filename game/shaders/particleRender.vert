@@ -50,7 +50,6 @@ layout (std140) uniform Settings
 	// Vec4s
 	vec4	StartColor;
 	vec4	EndColor;
-	vec4	TrailStartColor;
 	vec4	TrailEndColor;
 	vec4	TextureBox;
 
@@ -61,6 +60,8 @@ layout (std140) uniform Settings
 	float	SimulationSpace;
 	float	TextureLayer;
 	float   ChooseRandomColor;
+	float   TrailLifetime;
+	float   FadeTrailToColor;
 };
 
 
@@ -85,13 +86,23 @@ void main()
 	if(type == TYPE_TRAIL)
 	{
 		TexLayer = -1;
-		percent = maxLife;
+
+		if(ChooseRandomColor == 1)
+			Color = StartColor * (1 - seed) + EndColor * seed;
+		else
+			Color = StartColor * (1 - maxLife) + EndColor * maxLife;
+
+		if(FadeTrailToColor == 1)
+			Color = Color * (1 - life / TrailLifetime) + TrailEndColor * (life / TrailLifetime);
+	}
+	else
+	{
+		if(ChooseRandomColor == 1)
+			Color = StartColor * (1 - seed) + EndColor * seed;
+		else
+			Color = StartColor * (1 - percent) + EndColor * percent;
 	}
 
-	if(ChooseRandomColor == 1)
-		Color = StartColor * (1 - seed) + EndColor * seed;
-	else
-		Color = StartColor * (1 - percent) + EndColor * percent;
 	
 	Rotation = rotation;
 	Scale = scale;
