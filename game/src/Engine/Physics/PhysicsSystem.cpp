@@ -648,7 +648,19 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<StaticCollider2DComponent> collider2)
 {
-	if (collider2->ColliderData().GetCollisionType() == Collider2D::collisionType::solid && collider1->ColliderData().GetCollisionType() == Collider2D::collisionType::solid)
+	if (collider2->ColliderData().GetCollisionType() == Collider2D::collisionType::oneWay)
+	{
+		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
+		// make sure rigidbodies were successfully retrieved
+		Assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
+
+		if (rigidBody1->Velocity().y >= 0)
+		{
+			return;
+		}
+	}
+
+	if (collider2->ColliderData().GetCollisionType() != Collider2D::collisionType::passthrough && collider1->ColliderData().GetCollisionType() == Collider2D::collisionType::solid)
 	{
 		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 		// make sure rigidbodies were successfully retrieved
