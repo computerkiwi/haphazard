@@ -255,7 +255,8 @@ void Action_AddComponent_DynamicCollider(EditorAction& a);
 const char * const ColliderTypeNames[] =
 {
 	"Solid",
-	"Passthrough"
+	"Passthrough",
+	"One Way"
 };
 
 
