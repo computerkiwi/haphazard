@@ -23,7 +23,7 @@ pulleyStartOffsetRight_x = 3
 pulleyStartOffsetRight_y = 0
 
 averageRopeLength = 3
-minRopeLength = 0.1
+minRopeLength = 0.5
 
 startingLeftRopeLength = averageRopeLength
 leftRopeLength = startingLeftRopeLength
@@ -82,15 +82,17 @@ end
 
 function CalculatePlatforms(dt)
   local diff = gnomeCounterLeft.gnomeCount - gnomeCounterRight.gnomeCount
+  -- The amount of gnomes on the gnome 
+  local numHeavyGnomes = math.max(gnomeCounterLeft.gnomeCount, gnomeCounterRight.gnomeCount)
   
-  currentVelocity = currentVelocity + dt * diff * accelerationPerGnome
-  
-  if (diff == 0)
+  local targetLength = math.lerp(averageRopeLength, minRopeLength, -sign(diff) * numHeavyGnomes / 4)
+  local targetVel = maxSpeed * sign(targetLength - leftRopeLength)
+  if (math.abs(targetLength - leftRopeLength) < 0.1)
   then
-    currentVelocity = currentVelocity - (currentVelocity - correctionFactor * currentVelocity) * dt
-    leftRopeLength = leftRopeLength - (leftRopeLength - math.lerp(averageRopeLength ,leftRopeLength, correctionFactor)) * dt
+    targetVel = 0
   end
   
+  currentVelocity = math.lerp(currentVelocity, targetVel, 0.05)
   leftRopeLength = leftRopeLength + dt * currentVelocity
   
   -- Stop the platforms at the ends.
@@ -110,7 +112,19 @@ function UpdatePlatformPositions()
   platformRight:GetTransform().localPosition = vec2(0, -(averageRopeLength * 2 - leftRopeLength ))
 end
 
+function SavePulleyOffsets()
+  local leftPos = pulleyLeft:GetTransform().localPosition
+  local rightPos = pulleyRight:GetTransform().localPosition
+  
+  pulleyStartOffsetLeft_x = leftPos.x
+  pulleyStartOffsetLeft_y = leftPos.y
+  
+  pulleyStartOffsetRight_x = rightPos.x
+  pulleyStartOffsetRight_y = rightPos.y
+end
+
 function Update(dt)
+  SavePulleyOffsets()
   CalculatePlatforms(dt)
   UpdatePlatformPositions()
 end
