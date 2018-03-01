@@ -654,7 +654,18 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 		// make sure rigidbodies were successfully retrieved
 		Assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynStcCollision in PhysicsSystem.cpp\n");
 
-		if (rigidBody1->Velocity().y >= 0)
+		ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
+		Assert(rigidBody1.IsValid() && "Transform is invalid. See REsolveDynStcCollision in PhysicsSystem.cpp\n");
+
+		// the bottom of the object before it was moved by velocity
+		float objBot = transform1->GetPosition().y - (collider1->ColliderData().GetDimensions().y / 2) - (rigidBody1->Velocity().y * dt);
+
+		ComponentHandle<TransformComponent> transform2 = collider2.GetSiblingComponent<TransformComponent>();
+		Assert(transform2.IsValid() && "Transform is invalid. See REsolveDynStcCollision in PhysicsSystem.cpp\n");
+
+		float platformTop = transform2->GetPosition().y + collider2->ColliderData().GetDimensions().y / 2;
+
+		if (objBot <= platformTop)
 		{
 			return;
 		}
