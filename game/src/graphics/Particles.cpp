@@ -43,8 +43,8 @@ struct Particle
 //  Uniform Buffer Objects
 ///
 
-#define RENDER_UBO_SIZE 24
-#define UPDATE_UBO_SIZE 43
+#define RENDER_UBO_SIZE 25
+#define UPDATE_UBO_SIZE 44
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -168,7 +168,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 	///
 
 	// UPDATE THE UPDATE_UBO_SIZE VARIABLE IF ADJUSTING THESE
-	float data[] =
+	float data[UPDATE_UBO_SIZE] =
 	{
 		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 0,
 		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
@@ -240,7 +240,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 
 	// Set rendering state (color, texture, etc)
 
-	float data[] =
+	float data[RENDER_UBO_SIZE] =
 	{
 		m_settings.startColor.x,		m_settings.startColor.y, m_settings.startColor.z, m_settings.startColor.w,
 		m_settings.endColor.x,			m_settings.endColor.y, m_settings.endColor.z, m_settings.endColor.w,
@@ -264,7 +264,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 		data[19] = texture->GetBounds().w;
 	}
 
-	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);
+ 	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, RENDER_UBO_SIZE * sizeof(float), data);
 
 	// Enable rendering

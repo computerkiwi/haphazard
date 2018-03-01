@@ -285,7 +285,7 @@ void HandleParticle()
 		    Velocity = Scale; // Velocity is used to store initial scale for future scale calculations
 			MaxLife = PLife[0] / PMaxLife[0]; // MaxLife is used to hold parent life percent
 			Life = 0;
-			// Keep Position and Rotation as source
+			// Keep Position, Rotation, Seed as source
 
 		    EmitVertex();
 		    EndPrimitive();
@@ -306,6 +306,7 @@ void HandleTrailParticle()
 		Velocity = PVel[0];
 		Rotation = PRot[0];
 		Frame = PFrame[0];
+		Seed = PSeed[0];
 
 		// Velocity is used to store initial scale
 		Scale = PScale[0] - PVel[0] * dt / TrailLifetime;
