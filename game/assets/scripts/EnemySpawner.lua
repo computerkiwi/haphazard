@@ -8,7 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ENEMY = "assets/prefabs/Creepyboi.json"
 
 Enabled = true -- Enabled the spawner
-SpawnTimerMax = 3.2
+SpawnTimerMax = 3
 SpawnTimer = SpawnTimerMax
 SpawnTotalMax = 5  -- Total number of enemies to spawn
 SpawnTotal = SpawnTotalMax
@@ -21,7 +21,7 @@ end -- fn end
 function Update(dt)
   if (IsHeld(SpawnKey))
   then
-    Enabled = Enabled or true
+    Enabled = true
     print(Enabled)
   end
 
