@@ -11,7 +11,6 @@ function OnCollisionEnter(other)
   then
 	PlaySound("button_confirm.mp3", 0.4, 1, false)
     print("Gem collected")
-    GameObject.FindByName("Stats"):GetScript("PlayerStats.lua").AddGem()
 	
     -- Set gnome to have gem
     other:GetScript("GnomeStatus.lua").hasGem = true
