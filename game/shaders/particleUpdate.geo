@@ -81,6 +81,7 @@ layout(std140) uniform UpdateSettings
 
 	float	StartRotation;
 	float	RotationRate;
+	float   SpeedScaledRotation;
 
 	float	HasTrail;
 	float	TrailEmissionRate;
@@ -90,6 +91,8 @@ layout(std140) uniform UpdateSettings
 
 	float	EmitOverDistanceAmount;
 	float	EmitterDeltaPosition;
+
+	float   VelocityClamp;
 };
 
 uniform sampler1D RandomTexture;
@@ -274,16 +277,21 @@ void HandleParticle()
 
 	if(PLife[0] < PMaxLife[0]) 
 	{
-		
 		// Still alive, update then emit self
 	
 		Type = PType[0];
 		Position = PPos[0] + PVel[0] * dt;
-	    Velocity = PVel[0] + Acceleration * dt;
+	    
+		Velocity = PVel[0] + Acceleration * dt;
+		if(VelocityClamp > 0)
+		{
+			Velocity = mix(Velocity, Velocity * (1-VelocityClamp), currAge / PMaxLife[0]);
+		}
+
 	    Life = currAge;
 		MaxLife = PMaxLife[0];
 		Scale = ScaleOverTime.xy * (1 - PLife[0]/PMaxLife[0]) + ScaleOverTime.zw * (PLife[0]/PMaxLife[0]);
-		Rotation = PRot[0] + RotationRate*dt/MaxLife;
+		Rotation = PRot[0] + RotationRate*dt/MaxLife + SpeedScaledRotation*length(Velocity)*dt;
 		Frame = PFrame[0];
 		Seed = PSeed[0];
 	    EmitVertex();

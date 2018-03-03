@@ -10,6 +10,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <cstdlib>
 #include "Engine\Engine.h"
 #define MAX_PARTICLES 500
+#define LARGE_MAX_PARTICLES 1500
 
 ///
 // Enums
@@ -44,7 +45,7 @@ struct Particle
 ///
 
 #define RENDER_UBO_SIZE 23
-#define UPDATE_UBO_SIZE 45
+#define UPDATE_UBO_SIZE 48
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -89,24 +90,11 @@ ParticleSystem::ParticleSystem()
 	if (renderSettingsUBO == -1)
 		GenerateUBOs();
 
-	Particle Particles[MAX_PARTICLES] = { 0 };
-
-	Particles[0].type = static_cast<float>(EMITTER);
-	Particles[0].position = glm::vec2(1,0);
-	Particles[0].velocity = glm::vec2(0.0f, 1.0f);
-	Particles[0].scale = glm::vec2(1.0f, 1.0f);
-	Particles[0].life = 0.0f;
-
 	glGenTransformFeedbacks(2, m_transformFeedback);
 	glGenBuffers(2, m_particleBuffer);
 	glGenVertexArrays(1, &m_VAO);
-
-	for (int i = 0; i < 2; i++) {
-		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
-	}
+	
+	Resize();
 
 	Shaders::particleUpdateShader->Use();
 	glBindTexture(GL_TEXTURE_1D, m_randTexture);
@@ -115,33 +103,67 @@ ParticleSystem::ParticleSystem()
 ParticleSystem::ParticleSystem(const ParticleSystem& ps)
 	: m_settings {ps.m_settings}
 {
-	Particle Particles[MAX_PARTICLES] = { 0 };
-
-	Particles[0].type = static_cast<float>(EMITTER);
-	Particles[0].position = glm::vec2(1, 0);
-	Particles[0].velocity = glm::vec2(0.0f, 1.0f);
-	Particles[0].scale = glm::vec2(1.0f, 1.0f);
-	Particles[0].life = 0.0f;
-
 	glGenTransformFeedbacks(2, m_transformFeedback);
 	glGenBuffers(2, m_particleBuffer);
 	glGenVertexArrays(1, &m_VAO);
 
-	for (int i = 0; i < 2; i++) {
-		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
-	}
+	Resize();
 
 	Shaders::particleUpdateShader->Use();
 	glBindTexture(GL_TEXTURE_1D, m_randTexture);
 }
 
+void ParticleSystem::Resize()
+{
+	if (m_settings.increasedMaxParticles)
+	{
+		Particle Particles[MAX_PARTICLES] = { 0 };
+
+		Particles[0].type = static_cast<float>(EMITTER);
+		Particles[0].position = glm::vec2(1, 0);
+		Particles[0].velocity = glm::vec2(0.0f, 1.0f);
+		Particles[0].scale = glm::vec2(1.0f, 1.0f);
+		Particles[0].life = 0.0f;
+
+		for (int i = 0; i < 2; i++) {
+			glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
+			glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
+		}
+	}
+	else
+	{
+		Particle Particles[LARGE_MAX_PARTICLES] = { 0 };
+
+		Particles[0].type = static_cast<float>(EMITTER);
+		Particles[0].position = glm::vec2(1, 0);
+		Particles[0].velocity = glm::vec2(0.0f, 1.0f);
+		Particles[0].scale = glm::vec2(1.0f, 1.0f);
+		Particles[0].life = 0.0f;
+
+		for (int i = 0; i < 2; i++) {
+			glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
+			glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
+		}
+	}
+}
+
 void ParticleSystem::Render(float dt, glm::vec2 pos, int id)
 {
+	if (isLargeSize != m_settings.increasedMaxParticles)
+	{
+		Resize();
+		isLargeSize = m_settings.increasedMaxParticles;
+	}
+
 	if (m_time > m_settings.emitterLifetime && m_settings.isLooping)
+	{
 		m_time = 0; // Burst at start checks for time to be 0
+		m_loops++;
+	}
 
 	glBindVertexArray(m_VAO);
 	//glPointSize(10);
@@ -185,10 +207,10 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 
 		m_settings.particleLifetimeVariance.x,m_settings.particleLifetimeVariance.y,
 		m_settings.startRotationVariation.x,m_settings.startRotationVariation.y,
-		
-		dt, 
+
+		dt,
 		m_time,
-		id * 1.2345f, // Some randomness
+		(id + m_loops) * 1.2345f, // Some randomness
 
 		static_cast<float>(m_settings.isLooping),
 		m_settings.emissionRate,
@@ -196,12 +218,13 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		static_cast<float>(m_settings.emissionShape),
 		m_settings.emissionShapeScale.z, //EmissionShapeThickness
 		1, //EmitAwayFromCenter
-		
+
 		m_settings.emitterLifetime,
 		m_settings.particleLifetime,
-		
+
 		m_settings.startRotation,
 		m_settings.rotationRate,
+		1, // SpeedScaledRotation
 		
 		static_cast<float>(m_settings.hasTrail),
 		m_settings.trailEmissionRate,
@@ -211,6 +234,8 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 
 		0, // EmitOverDistanceAmount
 		glm::length(pos - lastPos),
+
+		0.5f,// VelocityClamp
 	};
 
 	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);

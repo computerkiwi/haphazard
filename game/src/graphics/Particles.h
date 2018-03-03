@@ -45,10 +45,14 @@ EmitOverDistanceAmount
 EmitAwayFromCenter
 RandomBetweenTwoColors
 EmitBurstAtStart
+VelocityLimitAmount
+speedScaledRotation
+increasedMaxParticles
 */
 struct ParticleSettings
 {
 	// Emission
+	bool            increasedMaxParticles = false;        // Maximum particles at one time in this system
 	bool            isLooping = true;            // Emitter loops or dies after lifetime
 	float           emissionRate = 1;            // Time (in seconds) between each particle spawning
 	int             particlesPerEmission = 1;    // Particles emitted per emission
@@ -69,7 +73,8 @@ struct ParticleSettings
 	// Rotation										 
 	float           startRotation = 0;              // Start rotation of particle in radians
 	glm::vec2       startRotationVariation = {0,0}; // Variation of starting rotation of particle in seconds, between -Variation/2 and +Variation/2
-	float           rotationRate = 0;               // Rotation in radians per second
+	float           rotationRate = 0;               // Rotation over lifetime in radians
+	float           speedScaledRotation = 0;
 	// Render
 	bool						randomBetweenColors;     // Use a random between start/end instead of being a gradient
 	glm::vec4       startColor = {1,1,1,1};  // Blend color of particle at start of life
@@ -137,7 +142,6 @@ public:
 	ParticleSystem();
 	ParticleSystem(const ParticleSystem& ps);
 	void Render(float dt, glm::vec2 pos, int id);
-
 
 	// Emitter loops or dies after lifetime
 	void SetIsLooping(bool loop) { m_settings.isLooping = true; }
@@ -210,13 +214,16 @@ private:
 	void UpdateParticles(float dt, glm::vec2 pos, int id);
 	void RenderParticles(glm::vec2 pos, int id);
 	void GenRandomTexture();
+	void Resize();
 
 	int m_isFirst = 0; // Is first time rendering
 	unsigned int m_currVB = 0; // Current VBO index 
 	unsigned int m_currTFB = 1; // Current Transform Feedback index
-
+	
 	float m_time = 0; // Time particle has been alive, used for random generation seed in shader
+	int m_loops = 0; // Loop counter, used to add randomness to burst emitters that emit at 0
 	glm::vec2 lastPos;
+	bool isLargeSize = false;
 	ParticleSettings m_settings; // Particle settings (So much memory!)
 
 	// Buffers
