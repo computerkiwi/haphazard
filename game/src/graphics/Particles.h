@@ -20,6 +20,11 @@ Note to future self: Possible future optimizations
 
 #include "Engine\ResourceManager.h"
 
+
+#define MAX_PARTICLES 500
+#define LARGE_MAX_PARTICLES 1500
+
+
 // Editor Forward Declares
    class GameObject;
    class Editor;
@@ -41,13 +46,14 @@ enum SimulationSpace
 
 /*
 Settings to add:
-EmitOverDistanceAmount
-EmitAwayFromCenter
-RandomBetweenTwoColors
-EmitBurstAtStart
-VelocityLimitAmount
-speedScaledRotation
-increasedMaxParticles
+!--EmitOverDistanceAmount
+!--EmitAwayFromCenter
+--RandomBetweenTwoColors
+!--EmitBurstAtStart
+--VelocityLimitAmount
+--speedScaledRotation
+--increasedMaxParticles
+-- trail color start removed
 */
 struct ParticleSettings
 {
@@ -56,11 +62,14 @@ struct ParticleSettings
 	bool            isLooping = true;            // Emitter loops or dies after lifetime
 	float           emissionRate = 1;            // Time (in seconds) between each particle spawning
 	int             particlesPerEmission = 1;    // Particles emitted per emission
+	bool              emitBurstAtStart = true;
 	glm::vec3	      burstEmission = {0.0f,0,0};  // Burst settings: particles min, particles max, reoccurance rate in seconds
 	EmissionShape	  emissionShape = SHAPE_POINT; // Shape particles are emitted in
 	glm::vec3	      emissionShapeScale = {1,1,0};	 // Scale of emission shape around center point of emission
 	SimulationSpace particleSpace = WORLD;       // Particle simulation space
-	// Lifetimes									 
+	float           emitOverDistanceAmount = 0;
+	bool            emitAwayFromCenter = false;
+	// Lifetimes
 	float           emitterLifetime = 10;             // Lifetime of emitter (applicable only if isLooping = false)
 	float           particleLifetime = 1;             // Lifetime of particle
 	glm::vec2	      particleLifetimeVariance = {0,0}; // Variation of life of particle in seconds, between -Variation/2 and +Variation/2
@@ -68,6 +77,7 @@ struct ParticleSettings
 	glm::vec2       startingVelocity = {0,0};             // Velocity of particle at creation in world units per second
 	glm::vec4       startingVelocityVariance = {0,0,0,0}; // Variation of starting velocity in each direction, between -Variation/2 and +Variation/2
 	glm::vec2       acceleration = {0,0};                 // Acceleration of particle in world units per second per second
+	float           velocityLimitAmount = 0;
 	// Scale										 
 	glm::vec4       scaleOverTime = {0.1f,0.1f,0.1f,0.1f}; // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
 	// Rotation										 
@@ -76,7 +86,7 @@ struct ParticleSettings
 	float           rotationRate = 0;               // Rotation over lifetime in radians
 	float           speedScaledRotation = 0;
 	// Render
-	bool						randomBetweenColors;     // Use a random between start/end instead of being a gradient
+	bool			randomBetweenColors;     // Use a random between start/end instead of being a gradient
 	glm::vec4       startColor = {1,1,1,1};  // Blend color of particle at start of life
 	glm::vec4       endColor = {1,1,1,1};    // Blend color of particle at end of life, linearly interpolated from start color through lifetime
 	ResourceID      texture_resourceID = -1; // Texture of particle
@@ -85,7 +95,6 @@ struct ParticleSettings
 	float           trailEmissionRate = 0.05f;   // Emission rate of trail particles, lower for smoother trail
 	float	          trailLifetime = 1;           // Lifetime of trail particles in seconds
 	glm::vec2       trailScale = {1,1};          // Scale of trail particles RELATIVE TO SOURCE PARTICLE
-	glm::vec4       trailStartColor = {1,1,1,1}; // Color of trail near particle
 	glm::vec4       trailEndColor = {1,1,1,1};   // Color of trail near tail
 
 private:
@@ -100,14 +109,18 @@ private:
 		META_DefineType(EmissionShape);
 		META_DefineType(SimulationSpace);
 
+		META_DefineMember(ParticleSettings, increasedMaxParticles, "increasedMaxParticles");
 		META_DefineMember(ParticleSettings, isLooping, "isLooping");
 
 		META_DefineMember(ParticleSettings, emissionRate, "EmissionRate");
 		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmission");
+		META_DefineMember(ParticleSettings, emitBurstAtStart, "emitBurstAtStart");
 		META_DefineMember(ParticleSettings, burstEmission, "BurstEmission");
 		META_DefineGetterSetter(ParticleSettings, int, GetEmissionShape, SetEmissionShape, "EmissionShape");
 		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScaleThickness");
 		META_DefineGetterSetter(ParticleSettings, int, GetParticleSpace, SetParticleSpace, "ParticleSpace");
+		META_DefineMember(ParticleSettings, emitOverDistanceAmount, "emitOverDistanceAmount");
+		META_DefineMember(ParticleSettings, emitAwayFromCenter, "emitAwayFromCenter");
 
 		META_DefineMember(ParticleSettings, emitterLifetime, "EmitterLifetime");
 		META_DefineMember(ParticleSettings, particleLifetime, "ParticleLifetime");
@@ -116,12 +129,14 @@ private:
 		META_DefineMember(ParticleSettings, startingVelocity, "StartingVelocity");
 		META_DefineMember(ParticleSettings, startingVelocityVariance, "StartingVelocityMinMax");
 		META_DefineMember(ParticleSettings, acceleration, "Acceleration");
+		META_DefineMember(ParticleSettings, velocityLimitAmount, "velocityLimitAmount");
 
 		META_DefineMember(ParticleSettings, scaleOverTime, "ScaleOverTime");
 
 		META_DefineMember(ParticleSettings, startRotation, "StartRotation");
 		META_DefineMember(ParticleSettings, startRotationVariation, "StartRotationMinMax");
 		META_DefineMember(ParticleSettings, rotationRate, "RotationRate");
+		META_DefineMember(ParticleSettings, speedScaledRotation, "speedScaledRotation");
 
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
 		META_DefineMember(ParticleSettings, endColor, "EndColor");
@@ -131,7 +146,6 @@ private:
 		META_DefineMember(ParticleSettings, trailEmissionRate, "TrailEmissionRate");
 		META_DefineMember(ParticleSettings, trailLifetime, "TrailLifetime");
 		META_DefineMember(ParticleSettings, trailScale, "TrailScale");
-		META_DefineMember(ParticleSettings, trailStartColor, "TrailStartColor");
 		META_DefineMember(ParticleSettings, trailEndColor, "TrailEndColor");
 	}
 };
@@ -204,7 +218,7 @@ public:
 	void SetTrailScale(glm::vec2 scale) { m_settings.trailScale = scale; }
 
 	// Set color of trail, start color is color of trail near particle, end color is color of trail near tail end
-	void SetTrailColor(glm::vec4 start, glm::vec4 end) { m_settings.trailStartColor = start; m_settings.trailEndColor = end; }
+	//void SetTrailColor(glm::vec4 start, glm::vec4 end) { m_settings.trailStartColor = start; m_settings.trailEndColor = end; }
 
 	ParticleSettings *GetSettings() { return &m_settings; }
 
@@ -222,7 +236,7 @@ private:
 	
 	float m_time = 0; // Time particle has been alive, used for random generation seed in shader
 	int m_loops = 0; // Loop counter, used to add randomness to burst emitters that emit at 0
-	glm::vec2 lastPos;
+	glm::vec2 lastPos = glm::vec2(0,0);
 	bool isLargeSize = false;
 	ParticleSettings m_settings; // Particle settings (So much memory!)
 

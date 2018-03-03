@@ -9,8 +9,6 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Texture.h"
 #include <cstdlib>
 #include "Engine\Engine.h"
-#define MAX_PARTICLES 500
-#define LARGE_MAX_PARTICLES 1500
 
 ///
 // Enums
@@ -195,7 +193,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 
 	float data[UPDATE_UBO_SIZE] =
 	{
-		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, 1, // EmitBurstAtStart
+		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, m_settings.emitBurstAtStart, // EmitBurstAtStart
 		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
 		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,m_settings.startingVelocityVariance.z, m_settings.startingVelocityVariance.w,
 
@@ -217,14 +215,14 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		static_cast<float>(m_settings.particlesPerEmission),
 		static_cast<float>(m_settings.emissionShape),
 		m_settings.emissionShapeScale.z, //EmissionShapeThickness
-		1, //EmitAwayFromCenter
+		m_settings.emitAwayFromCenter,
 
 		m_settings.emitterLifetime,
 		m_settings.particleLifetime,
 
 		m_settings.startRotation,
 		m_settings.rotationRate,
-		1, // SpeedScaledRotation
+		m_settings.speedScaledRotation,
 		
 		static_cast<float>(m_settings.hasTrail),
 		m_settings.trailEmissionRate,
@@ -232,13 +230,13 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		
 		static_cast<float>(m_settings.particleSpace),
 
-		0, // EmitOverDistanceAmount
-		glm::length(pos - lastPos),
+		m_settings.emitOverDistanceAmount,
+		pos == lastPos ? 0 : glm::length(pos - lastPos),
 
-		0.5f,// VelocityClamp
+		m_settings.velocityLimitAmount,
 	};
 
-	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);
+ 	glBindBuffer(GL_UNIFORM_BUFFER, updateSettingsUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, UPDATE_UBO_SIZE * sizeof(float), data);
 
 	// Make feedback transform active with topology of (GL_POINTS, GL_TRIANGLES, GL_LINES)
@@ -278,7 +276,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 		pos.x, pos.y,
 		static_cast<float>(m_settings.particleSpace),
 		-1,		// Default texture (solid color square)
-		1,  // Choose random color
+		m_settings.randomBetweenColors,
 		m_settings.trailLifetime,
 		1, // FadeTrailToEndColor
 	};

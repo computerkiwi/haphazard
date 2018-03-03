@@ -2095,20 +2095,28 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		ParticleSettings& settings = particles->m_settings;
 		
 		Checkbox("Looping", &settings.isLooping);
-		
-		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, 0.005f, FLT_MAX);
+
+		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, -0.005f, FLT_MAX);
 		DragRelease_Func(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate", Action_General_Particle<decltype(settings.emissionRate)>);
 
-		Drag_Int_Speed_MinMax("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.05f, 1, INT_MAX);
+		Drag_Int_Speed_MinMax("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.05f, 1, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
 		DragRelease_Func(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission", Action_General_Particle<decltype(settings.particlesPerEmission)>);
 
+		if (TreeNode("Distance##particles"))
+		{
+			Drag_Float_Speed_MinMax("Emission Distance##particles", particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, SLIDER_STEP, 0.005f, FLT_MAX);
+			DragRelease_Func(ParticleSystem, particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, "EmitOverDistanceAmount", Action_General_Particle<decltype(settings.emitOverDistanceAmount)>);
+			Separator();
+			TreePop();
+		}
 
 		if (TreeNode("Burst##particles"))
 		{
-			InputFloat("Frequency", &settings.burstEmission.z, SLIDER_STEP, 0);
+			Checkbox("Emit At Start", &settings.emitBurstAtStart);
+			Drag_Vec_MinMax("Repeat Time##particle", particleSave.burstEmission, settings.burstEmission.z, settings.burstEmission, 0, FLT_MAX);
 
-			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, FLT_MAX);
-			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, FLT_MAX);
+			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
+			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
 
 			DragRelease_Func(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission", Action_General_Particle<decltype(settings.burstEmission)>);
 			Separator();
@@ -2160,6 +2168,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 		if (TreeNode("Velocity##particles"))
 		{
+			Checkbox("Emit Away From Center", &settings.emitAwayFromCenter);
+
 			Drag_Vec("X##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.x, settings.startingVelocity);
 			Drag_Vec("Y##particles_init_velocity", particleSave.startingVelocity, settings.startingVelocity.y, settings.startingVelocity);
 
@@ -2237,7 +2247,35 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		{
 			if (TreeNode("Color##particles"))
 			{
-				Text("Start Color");
+				Checkbox("Random Between 2 Colors", &settings.randomBetweenColors);
+
+				if (BeginPopup("##particle_startColor_picker"))
+				{
+					ColorPicker4("Start Color", &settings.startColor.x, ImGuiColorEditFlags_AlphaBar);
+
+					EndPopup();
+				} 
+				else if (widget_click["Colors##particle_startColor"] == true)
+				{
+					editor->Push_Action({ particleSave.startColor, settings.startColor, "color", handle, Action_General<SpriteComponent, glm::vec4> });
+					widget_click["Colors##particle_startColor"] = false;
+				}
+
+				if (BeginPopup("##particle_endColor_picker"))
+				{
+					ColorPicker4("End Color", &settings.endColor.x, ImGuiColorEditFlags_AlphaBar);
+
+					EndPopup();
+				}
+				else if (widget_click["Colors##particle_endColor"] == true)
+				{
+					editor->Push_Action({ particleSave.endColor, settings.endColor, "color", handle, Action_General<SpriteComponent, glm::vec4> });
+					widget_click["Colors##particle_endColor"] = false;
+				}
+
+
+
+				/*Text("Start Color");
 				Drag_Vec_MinMax("R##particles_startColor", particleSave.startColor, settings.startColor.x, settings.startColor, 0, 1);
 				Drag_Vec_MinMax("G##particles_startColor", particleSave.startColor, settings.startColor.y, settings.startColor, 0, 1);
 				Drag_Vec_MinMax("B##particles_startColor", particleSave.startColor, settings.startColor.z, settings.startColor, 0, 1);
@@ -2252,6 +2290,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec_MinMax("A##particles_endColor", particleSave.endColor, settings.endColor.w, settings.endColor, 0, 1);
 
 				DragRelease_Func(ParticleSystem, particleSave.endColor, settings.endColor, "EndColor", Action_General_Particle<decltype(settings.endColor)>);
+				*/
 
 				Separator();
 				TreePop();
@@ -2316,6 +2355,7 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 			if (TreeNode("Color##trail_particles"))
 			{
+				/*
 				Text("Start Color");
 				Drag_Vec("R##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.x, settings.trailStartColor);
 				Drag_Vec("G##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.y, settings.trailStartColor);
@@ -2323,8 +2363,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				Drag_Vec("A##particles_trail_startColor", particleSave.trailStartColor, settings.trailStartColor.w, settings.trailStartColor);
 				
 				DragRelease_Func(ParticleSystem, particleSave.trailStartColor, settings.trailStartColor, "TrailStartColor", Action_General_Particle<decltype(settings.trailStartColor)>);
-
 				Separator();
+				*/
 
 				Text("End Color");
 				Drag_Vec("R##particles_trail_endColor", particleSave.trailEndColor, settings.trailEndColor.x, settings.trailEndColor);
