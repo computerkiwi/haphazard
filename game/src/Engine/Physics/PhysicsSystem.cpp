@@ -577,6 +577,79 @@ void printAMatrix(glm::mat3 matrix)
 
 void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<TransformComponent> transform1, ComponentHandle<DynamicCollider2DComponent> collider2, ComponentHandle<TransformComponent> transform2)
 {
+	//!?!? FIX THESE ONE WAY PLATFORM NONSENSES - THEY JUST FALL THROUGH IT NOW
+	if (collider2->ColliderData().GetCollisionType() == Collider2D::collisionType::oneWay)
+	{
+		// Find the bottom of the non-one-way object
+
+		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
+		Assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
+		Assert(rigidBody1.IsValid() && "Transform is invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		// the bottom of the object before it was moved by velocity
+		float objBot = transform1->GetPosition().y - (collider1->ColliderData().GetDimensions().y / 2) - (rigidBody1->Velocity().y * dt);
+
+		// Find the top of the one-way object
+
+		ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
+		Assert(rigidBody2.IsValid() && "Rigidbody invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		ComponentHandle<TransformComponent> transform2 = collider2.GetSiblingComponent<TransformComponent>();
+		Assert(transform2.IsValid() && "Transform is invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		float platformTop = (transform2->GetPosition().y + collider2->ColliderData().GetDimensions().y / 2) - (rigidBody2->Velocity().y * dt);
+
+		// The rotations of the objects
+
+		float platformRotation = transform2->GetRotation() + collider2->ColliderData().GetRotationOffset();
+		float objectRotation = transform1->GetRotation() + collider1->ColliderData().GetRotationOffset();
+
+
+		// If the object is not colliding with the top of the object, retrn without resolving colision
+		if (objBot <= platformTop && platformRotation == 0 && objectRotation == 0)
+		{
+			return;
+		}
+	}
+
+	if (collider1->ColliderData().GetCollisionType() == Collider2D::collisionType::oneWay)
+	{
+		// Find the bottom of the non-one-way object
+
+		ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
+		Assert(rigidBody2.IsValid() && "Rigidbody invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		ComponentHandle<TransformComponent> transform2 = collider2.GetSiblingComponent<TransformComponent>();
+		Assert(rigidBody2.IsValid() && "Transform is invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		// the bottom of the object before it was moved by velocity
+		float objBot = transform2->GetPosition().y - (collider2->ColliderData().GetDimensions().y / 2) - (rigidBody2->Velocity().y * dt);
+
+		// Find the top of the one-way object
+
+		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
+		Assert(rigidBody1.IsValid() && "Rigidbody invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		ComponentHandle<TransformComponent> transform1 = collider1.GetSiblingComponent<TransformComponent>();
+		Assert(transform1.IsValid() && "Transform is invalid. See ResolveDynDynCollision in PhysicsSystem.cpp\n");
+
+		float platformTop = (transform1->GetPosition().y + collider1->ColliderData().GetDimensions().y / 2) - (rigidBody1->Velocity().y * dt);
+
+		// The rotations of the objects
+
+		float platformRotation = transform1->GetRotation() + collider1->ColliderData().GetRotationOffset();
+		float objectRotation = transform2->GetRotation() + collider2->ColliderData().GetRotationOffset();
+
+
+		// If the object is not colliding with the top of the object, retrn without resolving colision
+		if (objBot <= platformTop && platformRotation == 0 && objectRotation == 0)
+		{
+			return;
+		}
+	}
+
 	if (collider2->ColliderData().GetCollisionType() == Collider2D::collisionType::solid && collider1->ColliderData().GetCollisionType() == Collider2D::collisionType::solid)
 	{
 		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
@@ -665,7 +738,11 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 		float platformTop = transform2->GetPosition().y + collider2->ColliderData().GetDimensions().y / 2;
 
-		if (objBot <= platformTop)
+		float platformRotation = transform2->GetRotation() + collider2->ColliderData().GetRotationOffset();
+		float objectRotation = transform1->GetRotation() + collider1->ColliderData().GetRotationOffset();
+
+		// If the object is not colliding with the top of the object, retrn without resolving colision
+		if (objBot <= platformTop && platformRotation == 0 && objectRotation == 0)
 		{
 			return;
 		}
