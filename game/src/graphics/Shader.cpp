@@ -372,7 +372,9 @@ namespace Shaders
 			"Scale",
 			"Rotation",
 			"Life",
-			"MaxLife"
+			"MaxLife",
+			"Frame",
+			"Seed"
 		};
 
 		glTransformFeedbackVaryings(updateProgram, _countof(TFVaryings), TFVaryings, GL_INTERLEAVED_ATTRIBS);
@@ -400,13 +402,15 @@ namespace Shaders
 		particleUpdateShader = new ShaderProgram(updateProgram);
 
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 10, 0));
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 10, 1));
-		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 10, 3));
-		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 10, 5));
-		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 10, 7));
-		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 10, 8));
-		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 10, 9));
+		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 12, 0));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 12, 1));
+		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 12, 3));
+		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 12, 5));
+		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 12, 7));
+		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 12, 8));
+		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 12, 9));
+		attribs.push_back(ShaderProgram::Attribute("frame", 1, GL_FLOAT, sizeof(float), false, 12, 10));
+		attribs.push_back(ShaderProgram::Attribute("seed", 1, GL_FLOAT, sizeof(float), false, 12, 11));
 		particleUpdateShader->SetAttributes(attribs);
 
 		// Particle Render Shader Program
