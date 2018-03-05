@@ -2236,8 +2236,13 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			}
 
 
-			Drag("Rate##particles_rot_rate", particleSave.rotationRate, settings.rotationRate);
+			Text("Rotation Over Life");
+			Drag("##particles_rot_rate", particleSave.rotationRate, settings.rotationRate);
 			DragRelease_Func(ParticleSystem, particleSave.rotationRate, settings.rotationRate, "RotationRate", Action_General_Particle<decltype(settings.rotationRate)>);
+
+			Text("Speed Scaled Rotation");
+			Drag("##particles_speedRot", particleSave.speedScaledRotation, settings.speedScaledRotation);
+			DragRelease_Func(ParticleSystem, particleSave.speedScaledRotation, settings.speedScaledRotation, "SpeedScaledRotation", Action_General_Particle<decltype(settings.speedScaledRotation)>);
 
 			Separator();
 			TreePop();

@@ -50,7 +50,7 @@ Settings to add:
 !--EmitAwayFromCenter
 !--RandomBetweenTwoColors
 !--EmitBurstAtStart
---VelocityLimitAmount
+!--VelocityLimitAmount
 --speedScaledRotation
 --increasedMaxParticles
 -- trail color start removed
