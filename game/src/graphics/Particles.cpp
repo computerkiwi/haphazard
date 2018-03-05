@@ -1,3 +1,4 @@
+#pragma optimize("", off)
 /*
 FILE: Particles.cpp
 PRIMARY AUTHOR: Max Rauffer
@@ -43,7 +44,7 @@ struct Particle
 ///
 
 #define RENDER_UBO_SIZE 23
-#define UPDATE_UBO_SIZE 48
+#define UPDATE_UBO_SIZE 47
 
 static GLuint renderSettingsUBO = -1;
 static GLuint updateSettingsUBO = -1;
@@ -223,11 +224,11 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		m_settings.startRotation,
 		m_settings.rotationRate,
 		m_settings.speedScaledRotation,
-		
+
 		static_cast<float>(m_settings.hasTrail),
 		m_settings.trailEmissionRate,
 		m_settings.trailLifetime,
-		
+
 		static_cast<float>(m_settings.particleSpace),
 
 		m_settings.emitOverDistanceAmount,
@@ -334,3 +335,4 @@ void ParticleSystem::GenRandomTexture()
 }
 
 
+#pragma optimize("", on)

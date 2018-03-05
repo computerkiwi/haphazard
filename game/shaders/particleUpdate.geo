@@ -135,7 +135,7 @@ void HandleEmitter()
     Position = EmitterPosition;
     Velocity = PVel[0];
     Life = currAge;
-	Frame = mod((PFrame[0] + EmitterDeltaPosition), EmitOverDistanceAmount);
+	Frame = EmitOverDistanceAmount == 0 ? 0 : mod((PFrame[0] + EmitterDeltaPosition), EmitOverDistanceAmount);
     EmitVertex();
     EndPrimitive();
 

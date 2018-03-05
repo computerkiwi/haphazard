@@ -2096,19 +2096,19 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 		
 		Checkbox("Looping", &settings.isLooping);
 
-		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, -0.005f, FLT_MAX);
+		Drag_Float_Speed_MinMax("Rate##particles", particleSave.emissionRate, settings.emissionRate, SLIDER_STEP, 0.005f, FLT_MAX);
 		DragRelease_Func(ParticleSystem, particleSave.emissionRate, settings.emissionRate, "EmissionRate", Action_General_Particle<decltype(settings.emissionRate)>);
 
 		Drag_Int_Speed_MinMax("Count##particles", particleSave.particlesPerEmission, settings.particlesPerEmission, 0.05f, 1, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
 		DragRelease_Func(ParticleSystem, particleSave.particlesPerEmission, settings.particlesPerEmission, "ParticlesPerEmission", Action_General_Particle<decltype(settings.particlesPerEmission)>);
 
-		if (TreeNode("Distance##particles"))
+		Drag_Float_Speed("Emission Distance##particles", particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, SLIDER_STEP);
+		DragRelease_Func(ParticleSystem, particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, "EmitOverDistanceAmount", Action_General_Particle<decltype(settings.emitOverDistanceAmount)>);
+		/*if (TreeNode("Distance##particles"))
 		{
-			Drag_Float_Speed_MinMax("Emission Distance##particles", particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, SLIDER_STEP, 0.005f, FLT_MAX);
-			DragRelease_Func(ParticleSystem, particleSave.emitOverDistanceAmount, settings.emitOverDistanceAmount, "EmitOverDistanceAmount", Action_General_Particle<decltype(settings.emitOverDistanceAmount)>);
 			Separator();
 			TreePop();
-		}
+		}*/
 
 		if (TreeNode("Burst##particles"))
 		{

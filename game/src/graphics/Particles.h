@@ -109,18 +109,18 @@ private:
 		META_DefineType(EmissionShape);
 		META_DefineType(SimulationSpace);
 
-		META_DefineMember(ParticleSettings, increasedMaxParticles, "increasedMaxParticles");
+		META_DefineMember(ParticleSettings, increasedMaxParticles, "IncreasedMaxParticles");
 		META_DefineMember(ParticleSettings, isLooping, "isLooping");
 
 		META_DefineMember(ParticleSettings, emissionRate, "EmissionRate");
 		META_DefineMember(ParticleSettings, particlesPerEmission, "ParticlesPerEmission");
-		META_DefineMember(ParticleSettings, emitBurstAtStart, "emitBurstAtStart");
+		META_DefineMember(ParticleSettings, emitBurstAtStart, "EmitBurstAtStart");
 		META_DefineMember(ParticleSettings, burstEmission, "BurstEmission");
 		META_DefineGetterSetter(ParticleSettings, int, GetEmissionShape, SetEmissionShape, "EmissionShape");
 		META_DefineMember(ParticleSettings, emissionShapeScale, "EmissionShapeScaleThickness");
 		META_DefineGetterSetter(ParticleSettings, int, GetParticleSpace, SetParticleSpace, "ParticleSpace");
-		META_DefineMember(ParticleSettings, emitOverDistanceAmount, "emitOverDistanceAmount");
-		META_DefineMember(ParticleSettings, emitAwayFromCenter, "emitAwayFromCenter");
+		META_DefineMember(ParticleSettings, emitOverDistanceAmount, "EmitOverDistanceAmount");
+		META_DefineMember(ParticleSettings, emitAwayFromCenter, "EmitAwayFromCenter");
 
 		META_DefineMember(ParticleSettings, emitterLifetime, "EmitterLifetime");
 		META_DefineMember(ParticleSettings, particleLifetime, "ParticleLifetime");
@@ -136,7 +136,7 @@ private:
 		META_DefineMember(ParticleSettings, startRotation, "StartRotation");
 		META_DefineMember(ParticleSettings, startRotationVariation, "StartRotationMinMax");
 		META_DefineMember(ParticleSettings, rotationRate, "RotationRate");
-		META_DefineMember(ParticleSettings, speedScaledRotation, "speedScaledRotation");
+		META_DefineMember(ParticleSettings, speedScaledRotation, "SpeedScaledRotation");
 
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
 		META_DefineMember(ParticleSettings, endColor, "EndColor");
