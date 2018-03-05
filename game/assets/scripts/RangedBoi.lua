@@ -60,6 +60,16 @@ function LookForGnomes()
 
 	end
 
+	-- Flip sprite
+	local absoluteLookDirection = math.fmod(lookDirectionDegrees , 360)
+
+	if(absoluteLookDirection >= 90 and absoluteLookDirection < 270 )
+	then
+		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	else
+		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	end
+
 	-- no gnome was found
 	return GameObject(0)
 
@@ -78,17 +88,30 @@ function ShootAtTarget(target)
 	-- set the position of the projectile
 	local yPosition = thisPosition.y
 	local xPosition = thisPosition.x
-	actualLaunchAngle = projectileLaunchAngleDegrees
+	local actualLaunchAngle = projectileLaunchAngleDegrees
 	
+	-- Flip sprite
+	if(vecToTarget.x <= 0)
+	then
+		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	elseif(vecToTarget.x > 0)
+	then
+		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	end
+
 	if(vecToTarget.x <= 0)
 	then
 
-		xPosition = xPosition - (this:GetCollider().dimensions.x / 2) - projectile:GetCollider().dimensions.x
+		local xOffset =  - (this:GetCollider().dimensions.x / 2) - projectile:GetCollider().dimensions.x
+		xPosition = xPosition - xOffset
 		actualLaunchAngle = 180 - actualLaunchAngle
+		vecToTarget.x = vecToTarget.x  + xOffset
 
 	else
 	
-		xPosition = xPosition + (this:GetCollider().dimensions.x / 2) + projectile:GetCollider().dimensions.x
+		local xOffset = (this:GetCollider().dimensions.x / 2) + projectile:GetCollider().dimensions.x
+		xPosition = xPosition - xOffset
+		vecToTarget.x = vecToTarget.x  + xOffset
 
 	end
 

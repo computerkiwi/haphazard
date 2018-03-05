@@ -163,6 +163,15 @@ function MoveBoi(dt)
 
 	end
 
+	-- Flip sprite
+	if(targetDirection.x <= 0)
+	then
+		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	elseif(targetDirection.x > 0)
+	then
+		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	end
+
 end
 
 function EditingEffects()
