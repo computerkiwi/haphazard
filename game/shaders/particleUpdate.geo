@@ -283,9 +283,9 @@ void HandleParticle()
 		Position = PPos[0] + PVel[0] * dt;
 	    
 		Velocity = PVel[0] + Acceleration * dt;
-		if(VelocityClamp > 0)
+		if(VelocityClamp != 1)
 		{
-			Velocity = mix(Velocity, Velocity * (1-VelocityClamp), currAge / PMaxLife[0]);
+			Velocity = mix(Velocity, Velocity * (VelocityClamp), currAge / PMaxLife[0]);
 		}
 
 	    Life = currAge;

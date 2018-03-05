@@ -77,7 +77,7 @@ struct ParticleSettings
 	glm::vec2       startingVelocity = {0,0};             // Velocity of particle at creation in world units per second
 	glm::vec4       startingVelocityVariance = {0,0,0,0}; // Variation of starting velocity in each direction, between -Variation/2 and +Variation/2
 	glm::vec2       acceleration = {0,0};                 // Acceleration of particle in world units per second per second
-	float           velocityLimitAmount = 0;
+	float           velocityLimitAmount = 1;
 	// Scale										 
 	glm::vec4       scaleOverTime = {0.1f,0.1f,0.1f,0.1f}; // Start scale, end scale. Particles spawned at start scale and linearly interpolate to end scale over their lifetime
 	// Rotation										 
@@ -129,7 +129,7 @@ private:
 		META_DefineMember(ParticleSettings, startingVelocity, "StartingVelocity");
 		META_DefineMember(ParticleSettings, startingVelocityVariance, "StartingVelocityMinMax");
 		META_DefineMember(ParticleSettings, acceleration, "Acceleration");
-		META_DefineMember(ParticleSettings, velocityLimitAmount, "velocityLimitAmount");
+		META_DefineMember(ParticleSettings, velocityLimitAmount, "VelocityLimitAmount");
 
 		META_DefineMember(ParticleSettings, scaleOverTime, "ScaleOverTime");
 

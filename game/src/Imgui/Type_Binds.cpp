@@ -2181,6 +2181,11 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 
 				TreePop();
 			}
+
+			Text("Speed Scale Over Life");
+			Drag_Float_Speed("##particles_velocity_lifeScale", particleSave.velocityLimitAmount, settings.velocityLimitAmount,  SLIDER_STEP);
+			DragRelease_Func(ParticleSettings, particleSave.velocityLimitAmount, settings.velocityLimitAmount, "VelocityLimitAmount", Action_General_Particle<decltype(settings.velocityLimitAmount)>);
+
 			Separator();
 			TreePop();
 		}
