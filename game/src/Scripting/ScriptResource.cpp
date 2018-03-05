@@ -26,7 +26,7 @@ void ScriptResource::LoadData(const char *filePath)
 	// Make sure the lua file actually compiles.
 	lua_State *L = GetGlobalLuaState();
 	int currentStack = lua_gettop(L);
-	if (luaL_loadstring(L, m_fileString.c_str()) != LUA_OK)
+	if (luaL_loadstring(L, m_fileString.c_str()) != 0)
 	{
 		Logging::Log(Logging::SCRIPTING, Logging::CRITICAL_PRIORITY, "Failed to load Lua file \"", filePath, "\"\n. Lua says: ", lua_tostring(L, -1));
 		Assert(!"Failed to load lua string. See logfile.");

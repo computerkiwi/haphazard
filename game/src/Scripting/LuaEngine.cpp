@@ -24,10 +24,6 @@ namespace
 	// Initializes a new Lua state and sets up data structures we may need.
 	lua_State *InitNewLuaState()
 	{
-		// Set the custom lua function to redirect print to the console.
-		SetLuaWriteFunction([](const char *str, size_t len) {Logging::Log(Logging::SCRIPTING, Logging::MEDIUM_PRIORITY, str); });
-		SetLuaWriteLineFunction([]() {});
-
 		lua_State *L = luaL_newstate();
 		luaL_openlibs(L);
 

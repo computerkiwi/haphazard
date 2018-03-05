@@ -283,7 +283,7 @@ std::vector<std::pair<std::string, meta::Any>> LuaScript::GetAllVars()
 	std::vector<std::pair<std::string, meta::Any>> outVec;
 
 	GetScriptEnvironment();
-	int envIndex = lua_absindex(m_L, -1);
+	int envIndex = lua_gettop(m_L);
 
 	// First key.
 	lua_pushnil(m_L);

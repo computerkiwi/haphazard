@@ -355,8 +355,7 @@ int GameObject::SendLuaMessage(lua_State *L)
 				// Copy the values.
 				for (int i = 1; i <= argCount; ++i)
 				{
-					lua_pushnil(L);
-					lua_copy(L, i + 2, -1);
+					lua_pushvalue(L, i + 2);
 				}
 				script.RunFunction(functionName.c_str(), argCount, 0);
 				lua_settop(L, argCount + 2);

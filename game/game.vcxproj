@@ -109,7 +109,7 @@
       <PreprocessorDefinitions>SHORTSTACK_DEV;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmodL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -130,7 +130,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmodL64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;$(ProjectDir)external\lib</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -154,7 +154,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -179,7 +179,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -204,7 +204,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;$(ProjectDir)external\lib</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
     </Link>
@@ -229,7 +229,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua53.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua51.lib;glew32.lib;glew32s.lib;glfw3.lib;glfw3dll.lib;OpenGL32.Lib;SOIL.lib;fmod64_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)external\fmod\lib;$(ProjectDir)external\lua\lib;$(ProjectDir)external\lib</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
