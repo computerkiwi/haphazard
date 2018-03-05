@@ -44,17 +44,6 @@ enum SimulationSpace
 	LOCAL = 1
 };
 
-/*
-Settings to add:
-!--EmitOverDistanceAmount
-!--EmitAwayFromCenter
-!--RandomBetweenTwoColors
-!--EmitBurstAtStart
-!--VelocityLimitAmount
---speedScaledRotation
---increasedMaxParticles
--- trail color start removed
-*/
 struct ParticleSettings
 {
 	// Emission

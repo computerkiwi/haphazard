@@ -2092,7 +2092,11 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			return;
 		}
 
+		SameLine();
+
 		ParticleSettings& settings = particles->m_settings;
+
+		Checkbox("Increase Max Particles", &settings.increasedMaxParticles);
 		
 		Checkbox("Looping", &settings.isLooping);
 

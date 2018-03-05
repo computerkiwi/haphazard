@@ -114,7 +114,7 @@ ParticleSystem::ParticleSystem(const ParticleSystem& ps)
 
 void ParticleSystem::Resize()
 {
-	if (m_settings.increasedMaxParticles)
+	if (!m_settings.increasedMaxParticles)
 	{
 		Particle Particles[MAX_PARTICLES] = { 0 };
 
