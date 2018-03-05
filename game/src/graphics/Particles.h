@@ -48,7 +48,7 @@ enum SimulationSpace
 Settings to add:
 !--EmitOverDistanceAmount
 !--EmitAwayFromCenter
---RandomBetweenTwoColors
+!--RandomBetweenTwoColors
 !--EmitBurstAtStart
 --VelocityLimitAmount
 --speedScaledRotation
