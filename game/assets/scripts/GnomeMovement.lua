@@ -38,8 +38,8 @@ DUST_PARTICLE_OFFSET = -0.5
 STATUE_MOVE_COOLDOWN = 1
 
 -- Layers
-PLAYER_LAYER = 1 << 2
-GROUND_LAYER = 1 << 3
+PLAYER_LAYER = bit.lshift(1, 2)
+GROUND_LAYER = bit.lshift(1, 3)
 
 -- Move directions
 MOVE_LEFT	= -1 -- Player moving left

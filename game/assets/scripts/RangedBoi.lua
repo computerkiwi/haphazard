@@ -6,11 +6,11 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 -- 
-PLAYER1LAYER = 1 << 7
-PLAYER2LAYER = 1 << 8
-PLAYER3LAYER = 1 << 9
-PLAYER4LAYER = 1 << 10
-GROUND_LAYER = 1 << 3
+PLAYER1LAYER = bit.lshift(1, 7)
+PLAYER2LAYER = bit.lshift(1, 8)
+PLAYER3LAYER = bit.lshift(1, 9)
+PLAYER4LAYER = bit.lshift(1, 10)
+GROUND_LAYER = bit.lshift(1, 3)  
 
 -- info about his vision
 lookDirectionDegrees = 180
@@ -44,7 +44,7 @@ function LookForGnomes()
 	for currDirection = initialDirection, endDirection, directionIncrease
 	do
 		-- raycast from itself
-		local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, lookConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
+		local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, lookConeLength, bit.bor(PLAYER1LAYER, PLAYER2LAYER, PLAYER3LAYER, PLAYER4LAYER, GROUND_LAYER))
 
 		-- if a gnome was hit
 		if(cast.gameObjectHit:IsValid() and cast.gameObjectHit:GetCollider().collisionLayer.layer ~= GROUND_LAYER)
@@ -163,7 +163,7 @@ function ShootAtCorrectTime(dt)
 	-- Raycast at the gnome to make sure it's still in vision
 	directionTowardsTarget = vec2(- this:GetTransform().position.x + target:GetTransform().position.x, - this:GetTransform().position.y + target:GetTransform().position.y)
 
-	theCast = Raycast.Cast(this:GetSpaceIndex(), this:GetTransform().position, directionTowardsTarget, lookConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
+	theCast = Raycast.Cast(this:GetSpaceIndex(), this:GetTransform().position, directionTowardsTarget, lookConeLength, bit.bor(PLAYER1LAYER, PLAYER2LAYER, PLAYER3LAYER, PLAYER4LAYER, GROUND_LAYER))
 
 	if(theCast.gameObjectHit:IsValid() and theCast.gameObjectHit:GetCollider().collisionLayer.layer ~= GROUND_LAYER)
 	then

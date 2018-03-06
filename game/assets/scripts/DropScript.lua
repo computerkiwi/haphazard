@@ -11,8 +11,8 @@ Collectible = false
 Timer = false
 
 -- Layers
-LAYER_DECOR = 1 << 6
-LAYER_PLAYER = 1 << 2
+LAYER_DECOR = bit.lshift(1, 6)
+LAYER_PLAYER = bit.lshift(1, 2)
 
 function Start()
 end -- fn end

@@ -6,11 +6,11 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 -- 
-PLAYER1LAYER = 1 << 7
-PLAYER2LAYER = 1 << 8
-PLAYER3LAYER = 1 << 9
-PLAYER4LAYER = 1 << 10
-GROUND_LAYER = 1 << 3  --8
+PLAYER1LAYER = bit.lshift(1, 7)
+PLAYER2LAYER = bit.lshift(1, 8)
+PLAYER3LAYER = bit.lshift(1, 9)
+PLAYER4LAYER = bit.lshift(1, 10)
+GROUND_LAYER = bit.lshift(1, 3)  --8
 
 -- editing tools
 editMode = true;
@@ -195,7 +195,7 @@ function LookForGnomes()
 	for currDirection = initialDirection, endDirection, directionIncrease
 	do
 		 -- raycast from the bird
-		 local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
+		 local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, detectionConeLength, bit.bor(PLAYER1LAYER, PLAYER2LAYER, PLAYER3LAYER, PLAYER4LAYER, GROUND_LAYER))
 
 		 if(cast.gameObjectHit:IsValid() and cast.gameObjectHit:GetCollider().collisionLayer.layer ~= GROUND_LAYER)
 		 then

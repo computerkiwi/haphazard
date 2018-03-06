@@ -9,7 +9,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 otherPlayer = nil
 
 ALLY_PROJECTILE_LAYER = 32 --1 << 5
-GROUND_LAYER = 1 << 3
+GROUND_LAYER = bit.lshift(1, 3)
 
 -- Variables
 direction = 1 -- direction of movement - -1 for left, 1 for right

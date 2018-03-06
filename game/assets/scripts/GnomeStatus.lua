@@ -9,7 +9,7 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 -- Player info
 
 PLAYER_NUM = 0
-PLAYER_PHYS_LAYER = 1 << 2
+PLAYER_PHYS_LAYER = bit.lshift(1, 2)
 
 -- Gnome type
 
@@ -54,7 +54,7 @@ function SetInfo(playerNum, gnomeId)
 
 	this:SetName("Player" .. tostring(playerNum))
 
-	PLAYER_PHYS_LAYER = 1 << (6 + playerNum)
+	PLAYER_PHYS_LAYER = bit.lshift(1, 6 + playerNum)
 
 	local abilityScript = this:GetScript("GnomeAbilities.lua")
 	if (abilityScript ~= nil)
