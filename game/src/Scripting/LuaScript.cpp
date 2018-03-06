@@ -191,7 +191,7 @@ void LuaScript::SetupEnvironment(const char *scriptString)
 		Logging::Log(Logging::CORE, Logging::HIGH_PRIORITY, "Lua couldn't load script file: ", lua_tostring(m_L, -1));
 	}
 	lua_pushvalue(m_L, -2);
-	LuaSetUpValue(m_L, "_ENV", -2);
+	lua_setfenv(m_L, -2);
 
 	// STACK: EnvTable, FileFunc
 
