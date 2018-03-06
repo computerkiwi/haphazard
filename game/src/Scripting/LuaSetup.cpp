@@ -148,6 +148,10 @@ KEY = {
 Key = KEY
 key = KEY
 
+function math.lerp(a, b, t)
+	return (1 - t) * a + t * b
+end
+
 )SETUP_DELIMITER";
 
 void SetupLua(lua_State * L)

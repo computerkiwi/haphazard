@@ -81,7 +81,7 @@ function PositionRope(rope, pos1, pos2)
 	transform.scale = tempScale
 	
 	-- Rotate along the diff vector.
-	local angle = math.deg(math.atan(diff.y, diff.x)) - 90
+	local angle = math.deg(math.atan2(diff.y, diff.x)) - 90
 	transform.rotation = angle
 end
 
