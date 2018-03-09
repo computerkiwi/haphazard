@@ -12,14 +12,69 @@ numGnomesToBreak = 2
 timeToReformSeconds = 2
 normalCollisionLayer = COLLISION_LAYER_GROUND
 
-Sprite_Platform = "breakablePlatform.json"
+gnomeCounterObj = nil
+gnomeCounter = nil
+
+Sprite_Platform = "PlatformBreaking.json"
 
 isBroken = false;
 currTimer = 0;
 
+function SpawnAndAttachObject(prefabName, parentObj)
+	local obj = GameObject.LoadPrefab(prefabName)
+	if (obj:IsValid())
+	then
+		obj:GetTransform().parent = parentObj
+	
+		return obj
+	else
+		return nil
+	end
+end
+
+function SpawnGnomeCounter()
+
+	gnomeCounterObj = SpawnAndAttachObject("assets/prefabs/breakable_internal/BreakablePlatformGnomeCounter.json", this)
+	gnomeCounterObj:GetTransform().localPosition = vec2(0, 0.25)
+
+	local tempScale = gnomeCounterObj:GetTransform().scale
+	tempScale.x = this:GetTransform().scale.x
+	gnomeCounterObj:GetTransform().scale = tempScale
+	gnomeCounterObj:GetCollider().dimensions = tempScale
+	
+	gnomeCounter = gnomeCounterObj:GetScript("GnomeCounter.lua")
+
+end
+
+function SetSolidAnimation()
+
+	local tex = this:GetSprite().textureHandler
+	tex.currentFrame = 0
+	this:GetSprite().textureHandler = tex
+
+end
+
+function SetCrackedAnimation()
+
+	local tex = this:GetSprite().textureHandler
+	tex.currentFrame = 1
+	this:GetSprite().textureHandler = tex
+
+end
+
+function SetBrokenAnimation()
+
+	local tex = this:GetSprite().textureHandler
+	tex.currentFrame = 2
+	this:GetSprite().textureHandler = tex
+
+end
+
+
 function Start()
 
 	this:GetSprite().id = Resource.FilenameToID(Sprite_Platform)
+	SpawnGnomeCounter()
 
 end
 
@@ -29,14 +84,26 @@ function Update(dt)
 	if(not isBroken)
 	then
 
-		local gnomeCount = this:GetScript("GnomeCounter.lua").gnomeCount
+		local gnomeCount = gnomeCounter.gnomeCount
 
-		if(gnomeCount >= numGnomesToBreak)
+
+		if(gnomeCount == 0)
 		then
-			
+
+			SetSolidAnimation()
+
+		elseif(gnomeCount >= numGnomesToBreak)
+		then
+		
 			isBroken = true;
+			SetBrokenAnimation()
 
 			this:GetCollider().collisionLayer = CollisionLayer(COLLISION_LAYER_NO_COLLSION)
+
+		elseif(gnomeCount > 0)
+		then
+			
+			SetCrackedAnimation()
 
 		end
 
@@ -51,6 +118,7 @@ function Update(dt)
 
 			currTimer = 0
 			isBroken = false
+			SetSolidAnimation()
 			this:GetCollider().collisionLayer = CollisionLayer(normalCollisionLayer)
 
 		end
