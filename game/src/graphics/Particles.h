@@ -131,6 +131,7 @@ private:
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
 		META_DefineMember(ParticleSettings, endColor, "EndColor");
 		META_DefineMember(ParticleSettings, texture_resourceID, "TextureResourceID");
+		META_DefineMember(ParticleSettings, trailTex_resourceID, "TrailTextureResourceID");
 
 		META_DefineMember(ParticleSettings, hasTrail, "HasTrail");
 		META_DefineMember(ParticleSettings, trailEmissionRate, "TrailEmissionRate");

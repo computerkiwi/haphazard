@@ -9,6 +9,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Screen.h"
 #include "Shaders.h"
 #include "Camera.h"
+#include "Engine\Engine.h"
 
 FrameBuffer* FrameBuffer::fb_FX = nullptr;
 static Screen::Mesh* fullscreenMesh = nullptr;
@@ -18,11 +19,33 @@ static FrameBuffer* blur_pingpongFBO[2];
 static FrameBuffer* bloom_blurredBrights;
 
 ///
+// FXManager
+///
+
+void FXManager::AddEffect(int layer, FX fx)
+{
+	m_layerFX[layer].push_back(fx);
+}
+
+void FXManager::SetEffects(int layer, int count, FX fx[])
+{
+	m_layerFX[layer].clear();
+	for (int i = 0; i < count; ++i)
+	{
+		m_layerFX[layer].push_back(fx[i]);
+	}
+}
+
+///
 // FrameBuffer
 ///
 
+FXManager* FrameBuffer::m_FXManager = nullptr;
+
 void FrameBuffer::InitFrameBuffers()
 {
+	FrameBuffer::m_FXManager = engine->GetFXManager();
+
 	fb_FX = new FrameBuffer(-999);
 	blur_pingpongFBO[0] = new FrameBuffer(-999);
 	blur_pingpongFBO[1] = new FrameBuffer(-999);
@@ -114,20 +137,6 @@ void FrameBuffer::Use()
 	m_UsedThisUpdate = true;
 }
 
-void FrameBuffer::AddEffect(FX fx)
-{
-	m_FXList.push_back(fx);
-}
-
-void FrameBuffer::SetEffects(int c, FX fx[])
-{
-	m_FXList.clear();
-	for (int i = 0; i < c; ++i)
-	{
-		m_FXList.push_back(fx[i]);
-	}
-}
-
 void FrameBuffer::BindColorBuffer(int attachment)
 {
 	glBindTexture(GL_TEXTURE_2D, m_ColorBuffers[attachment]);
@@ -147,8 +156,11 @@ void FrameBuffer::SetClearColor(float r, float g, float b, float a)
 
 void FrameBuffer::RenderEffects()
 {
-	if (m_FXList.size() == 0) // No PPFX to apply. Return.
+
+	if (m_FXManager->m_layerFX[m_Layer].size() == 0) // No PPFX to apply. Return.
 		return;
+
+	std::vector<FX>& FXList = m_FXManager->m_layerFX[m_Layer];
 
 	FrameBuffer* source = this;
 	FrameBuffer* target = fb_FX;
@@ -157,7 +169,7 @@ void FrameBuffer::RenderEffects()
 
 	fullscreenMesh->Bind(); // Bind screen mesh
 
-	for (auto i = m_FXList.begin(); i < m_FXList.end(); ++i)
+	for (auto i = FXList.begin(); i < FXList.end(); ++i)
 	{
 		if (*i == DEFAULT)
 			continue;

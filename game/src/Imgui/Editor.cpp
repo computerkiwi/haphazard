@@ -3079,7 +3079,7 @@ void Editor::PPFX()
 			sprintf(addButtonNames[i], "Add Effect##ppfxlayer%dadd", layer->GetLayer());
 			if (Button(addButtonNames[i]))
 			{
-				layer->AddEffect(FX::DEFAULT);
+				engine->GetFXManager()->AddEffect(layer->GetLayer(), FX::DEFAULT);
 			}
 
 			int count = 0;
