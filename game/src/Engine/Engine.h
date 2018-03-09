@@ -13,6 +13,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <LuaBridge.h>
 #include "GameObjectSystem/GameSpace.h"
 #include "../Imgui/Editor.h"
+#include "../graphics/RenderLayer.h"
 
 #include "ResourceManager.h"
 
@@ -44,6 +45,8 @@ public:
 	GameSpace *GetSpace(std::size_t index) { return m_spaces[index]; }
 
 	Editor *GetEditor() { return &m_editor; }
+
+	FXManager *GetFXManager() { return &m_fxManager; }
 
 	GLFWwindow *GetWindow() const { return m_window; }
 
@@ -93,6 +96,7 @@ private:
 	Editor   m_editor;
 	GameSpaceManagerID m_spaces;
 	ResourceManager m_resManager;
+	FXManager m_fxManager;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
 	{

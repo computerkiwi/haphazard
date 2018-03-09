@@ -8,6 +8,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "GL\glew.h"
 #include "glm\glm.hpp"
 #include <vector>
+#include <map>
 
 const char * const FX_Names[] =
 {
@@ -31,6 +32,15 @@ enum FX
 	BLOOM,
 };
 
+class FXManager
+{
+public:
+	void AddEffect(int layer, FX fx);
+	void SetEffects(int layer, int count, FX fx[]);
+
+	std::map<int, std::vector<FX>> m_layerFX;
+};
+
 class FrameBuffer
 {
 	friend class Screen; // Give access to framebuffer IDs
@@ -48,19 +58,19 @@ public:
 	GLuint GetColorBuffer(int attachment = 0) { return m_ColorBuffers[attachment]; }
 	void BindColorBuffer(int attachment = 0);
 
-	void AddEffect(FX fx);
-	void SetEffects(int count, FX fx[]);
 	void RenderEffects();
 
 	int GetLayer() const { return m_Layer; }
-	
+
 	void SetBlurAmount(float amt);
 
 	static void ResizePrivateFrameBuffers(int w, int h);
 
-	std::vector<FX>& GetFXList() { return m_FXList; }
+	std::vector<FX>& GetFXList() { return m_FXManager->m_layerFX[m_Layer]; }
 
 private:
+	static FXManager* m_FXManager;
+
 	void GenerateColorBuffers();
 	void GenerateDepthStencilObject();
 
@@ -79,7 +89,7 @@ private:
 	int m_Width, m_Height;
 	int m_NumColBfrs;
 	glm::vec4 m_ClearColor = glm::vec4(0,0,0,0);
-	std::vector<FX> m_FXList = {DROPSHADOW};
+	//std::vector<FX> m_FXList = {DROPSHADOW};
 
 	bool m_UsedThisUpdate = false;
 
