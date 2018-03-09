@@ -1,0 +1,9 @@
+{
+  "textureName": "HUD_Gnome_Blue.png",
+  "frameWidth":  256,
+  "frameHeight": 256,
+  "framesX":     3,
+  "framesY":     1,
+  "fps":         0,
+  "frameCount":  3
+}

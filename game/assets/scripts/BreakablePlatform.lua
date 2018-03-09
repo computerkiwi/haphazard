@@ -12,12 +12,14 @@ numGnomesToBreak = 2
 timeToReformSeconds = 2
 normalCollisionLayer = COLLISION_LAYER_GROUND
 
+Sprite_Platform = "breakablePlatform.json"
+
 isBroken = false;
 currTimer = 0;
 
 function Start()
 
-	
+	this:GetSprite().id = Resource.FilenameToID(Sprite_Platform)
 
 end
 
@@ -27,7 +29,7 @@ function Update(dt)
 	if(not isBroken)
 	then
 
-		gnomeCount = this:GetScript("GnomeCounter.lua").gnomeCount
+		local gnomeCount = this:GetScript("GnomeCounter.lua").gnomeCount
 
 		if(gnomeCount >= numGnomesToBreak)
 		then
