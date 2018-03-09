@@ -13,6 +13,8 @@ layout (location = 3) in vec2 scale;
 layout (location = 4) in float rotation;
 layout (location = 5) in float life;
 layout (location = 6) in float maxLife;
+layout (location = 7) in float frame;
+layout (location = 8) in float seed;
 
 out float PType;
 out vec2 PPos;
@@ -21,6 +23,8 @@ out vec2 PScale;
 out float PRot;
 out float PLife;
 out float PMaxLife;
+out float PFrame;
+out float PSeed;
 
 void main()
 {
@@ -31,4 +35,6 @@ void main()
 	PRot = rotation;
 	PLife = life;
 	PMaxLife = maxLife;
+	PFrame = frame;
+	PSeed= seed;
 }
