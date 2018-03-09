@@ -13,6 +13,8 @@ layout (location = 3) in vec2 scale;
 layout (location = 4) in float rotation;
 layout (location = 5) in float life;
 layout (location = 6) in float maxLife;
+layout (location = 7) in float frame;
+layout (location = 8) in float seed;
 
 out float Type;
 out vec2 Velocity;
@@ -48,16 +50,20 @@ layout (std140) uniform Settings
 	// Vec4s
 	vec4	StartColor;
 	vec4	EndColor;
-	vec4	TrailStartColor;
 	vec4	TrailEndColor;
-	vec4	TextureBox;
+	vec4	ParticleTextureBox;
+	vec4	TrailTextureBox;
 
 	// Vec2s
 	vec2	EmitterPosition;
 
 	// Scalars
 	float	SimulationSpace;
-	float	TextureLayer;
+	float	ParticleTextureLayer;
+	float	TrailTextureLayer;
+	float   ChooseRandomColor;
+	float   TrailLifetime;
+	float   FadeTrailToColor;
 };
 
 
@@ -66,8 +72,8 @@ void main()
 	Type = type;
 	Velocity = vel;
 
-	TexLayer = TextureLayer;
-	TexBox = TextureBox;
+	TexLayer = ParticleTextureLayer;
+	TexBox = ParticleTextureBox;
 
 
 	if(SimulationSpace == SPACE_LOCAL)
@@ -81,15 +87,26 @@ void main()
 
 	if(type == TYPE_TRAIL)
 	{
-		TexLayer = -1;
-		// MaxLife for trail particles is the parent's life percent
-		// Because it is used to make a gradient over the whole trail rather than
-		// per particle
-		Color = TrailStartColor * (1 - maxLife) + TrailEndColor * maxLife;
+		TexLayer = TrailTextureLayer;
+		TexBox = TrailTextureBox;
+
+		if(ChooseRandomColor == 1)
+			Color = StartColor * (1 - seed) + EndColor * seed;
+		else
+			Color = StartColor * (1 - maxLife) + EndColor * maxLife;
+
+		if(FadeTrailToColor == 1)
+			Color = Color * (1 - life / TrailLifetime) + TrailEndColor * (life / TrailLifetime);
 	}
 	else
-		Color = StartColor * (1 - percent) + EndColor * percent;
+	{
+		if(ChooseRandomColor == 1)
+			Color = StartColor * (1 - seed) + EndColor * seed;
+		else
+			Color = StartColor * (1 - percent) + EndColor * percent;
+	}
 
+	
 	Rotation = rotation;
 	Scale = scale;
 	IResolution = vec2(proj[0][0], proj[1][1]);
