@@ -43,7 +43,7 @@ struct Particle
 //  Uniform Buffer Objects
 ///
 
-#define RENDER_UBO_SIZE 23
+#define RENDER_UBO_SIZE 28
 #define UPDATE_UBO_SIZE 47
 
 static GLuint renderSettingsUBO = -1;
@@ -273,10 +273,12 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 		m_settings.startColor.x,		m_settings.startColor.y, m_settings.startColor.z, m_settings.startColor.w,
 		m_settings.endColor.x,			m_settings.endColor.y, m_settings.endColor.z, m_settings.endColor.w,
 		m_settings.trailEndColor.x,		m_settings.trailEndColor.y, m_settings.trailEndColor.z, m_settings.trailEndColor.w,
-		0,0,1,1, // Default texture bounds
+		0,0,1,1, // Particle: Default texture bounds
+		0,0,1,1, // Trail: Default texture bounds
 		pos.x, pos.y,
 		static_cast<float>(m_settings.particleSpace),
-		-1,		// Default texture (solid color square)
+		-1,		// Particle: Default texture (solid color square)
+		-1,		// Trail: Default texture (solid color square)
 		m_settings.randomBetweenColors,
 		m_settings.trailLifetime,
 		1, // FadeTrailToEndColor
@@ -285,12 +287,23 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 	if (m_settings.texture_resourceID != -1)
 	{
 		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.texture_resourceID)->Data());
-		data[19] = static_cast<float>(texture->GetLayer());
+		data[23] = static_cast<float>(texture->GetLayer());
 
 		data[12] = texture->GetBounds().x;
 		data[13] = texture->GetBounds().y;
 		data[14] = texture->GetBounds().z;
 		data[15] = texture->GetBounds().w;
+	}
+
+	if (m_settings.trailTex_resourceID != -1)
+	{
+		Texture *texture = static_cast<Texture *>(engine->GetResourceManager().Get(m_settings.trailTex_resourceID)->Data());
+		data[24] = static_cast<float>(texture->GetLayer());
+
+		data[16] = texture->GetBounds().x;
+		data[17] = texture->GetBounds().y;
+		data[18] = texture->GetBounds().z;
+		data[19] = texture->GetBounds().w;
 	}
 
  	glBindBuffer(GL_UNIFORM_BUFFER, renderSettingsUBO);

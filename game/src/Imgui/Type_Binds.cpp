@@ -2432,6 +2432,46 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 				TreePop();
 			}
 
+			if (TreeNode("Sprite"))
+			{
+				ResourceManager& rm = engine->GetResourceManager();
+				std::vector<Resource *> sprites = rm.GetResourcesOfTypes_Alphabetical(ResourceType::TEXTURE, ResourceType::ANIMATION);
+
+
+				if (Button("Reset##paritcleTrail_sprite_reset"))
+				{
+					editor->Push_Action({ settings.trailTex_resourceID, -1, "TextureResourceID", handle, Action_General_Particle<ResourceID> });
+					settings.trailTex_resourceID = -1;
+				}
+				SameLine();
+				editor->GetSearchBars().particles.Draw("Search", 100.0f);
+
+				BeginChild("Sprites", SPRITE_ASSETS_LIST_SIZE, true);
+				for (auto resource : sprites)
+				{
+					if (resource->Id() == settings.trailTex_resourceID)
+					{
+						PushStyleColor(ImGuiCol_Header, SPRITE_SELECTED_COLOR);
+						Selectable(resource->FileName().c_str(), true);
+						PopStyleColor();
+						continue;
+					}
+
+					if (editor->GetSearchBars().particles.PassFilter(resource->FileName().c_str()))
+					{
+						if (Selectable(resource->FileName().c_str()))
+						{
+							// Is resource ref counted, can I store pointers to them?
+							editor->Push_Action({ settings.trailTex_resourceID, resource->Id(), "TextureResourceID", handle, Action_General_Particle<ResourceID> });
+							settings.trailTex_resourceID = resource->Id();
+						}
+					}
+				}
+				EndChild();
+
+				TreePop();
+			}
+
 			Separator();
 			TreePop();
 		}
