@@ -656,6 +656,16 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 	if (collider2->ColliderData().GetCollisionType() != Collider2D::collisionType::passthrough && collider1->ColliderData().GetCollisionType() != Collider2D::collisionType::passthrough)
 	{
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
+		bool removeVelocity = true;
+
+		if (static_cast<int>(collider1->ColliderData().GetCollisionLayer()) >= 128 && static_cast<int>(collider2->ColliderData().GetCollisionLayer()) >= 128)
+		{
+			removeVelocity = false;
+		}
+
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
+
 		ComponentHandle<RigidBodyComponent> rigidBody1 = collider1.GetSiblingComponent<RigidBodyComponent>();
 		ComponentHandle<RigidBodyComponent> rigidBody2 = collider2.GetSiblingComponent<RigidBodyComponent>();
 		// make sure rigidbodies were successfully retrieved
@@ -693,6 +703,11 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 			transform2->SetPosition(pos2 - halfresolve);
 		}
 
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
+		if(removeVelocity)
+		{
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
+
 		// calculate the elasticity multiplier on each object
 		float obj1ElasticityMuliplier = collider1->ColliderData().GetSelfElasticity() * collider2->ColliderData().GetAppliedElasticity();
 		float obj2ElasticityMuliplier = collider2->ColliderData().GetSelfElasticity() * collider1->ColliderData().GetAppliedElasticity();
@@ -720,6 +735,10 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 				rigidBody2->SetVelocity(rigidBody2->Velocity());
 			}
 		}
+
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
+		}
+		//!?!? THIS IS A HACK. REMOVE THIS TODO: 
 	}
 }
 
