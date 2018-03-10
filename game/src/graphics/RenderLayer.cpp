@@ -36,6 +36,11 @@ void FXManager::SetEffects(int layer, int count, FX fx[])
 	}
 }
 
+void FXManager::ClearEffects()
+{
+	m_layerFX.clear();
+}
+
 ///
 // FrameBuffer
 ///
@@ -99,7 +104,7 @@ void FrameBuffer::SetDimensions(int width, int height)
 	{
 		m_Width = width;
 		m_Height = height;
-		
+
 		// Free old buffers
 		//glDeleteTextures(m_NumColBfrs, m_ColorBuffers);
 		//glDeleteRenderbuffers(1, &m_DepthStencilBuffer);
@@ -196,7 +201,7 @@ void FrameBuffer::RenderEffects()
 		fullscreenMesh->DrawTris();
 		*/
 
-		
+
 		// Blit fx framebuffer to this framebuffer
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, fb_FX->m_ID);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_ID);
@@ -214,7 +219,7 @@ void FrameBuffer::ApplyFXSettings(FX fx)
 	switch (fx)
 	{
 	case FX::DROPSHADOW:
-		Shaders::ScreenShader::Dropshadow->SetVariable("ZoomScale", Camera::GetActiveCamera()->GetZoom() );
+		Shaders::ScreenShader::Dropshadow->SetVariable("ZoomScale", Camera::GetActiveCamera()->GetZoom());
 		return;
 	case FX::BLUR:
 		Shaders::ScreenShader::Blur->SetVariable("Intensity", m_BlurAmount);
@@ -322,7 +327,7 @@ void FrameBuffer::RenderBloom(FrameBuffer& source, FrameBuffer& target)
 	// Target now contains (0) source screen, and (1) extracted brights (raw)
 	RenderBlur(target.GetColorBuffer(0), *bloom_blurredBrights); // Draw blurred brights onto new framebuffer
 
-													   // Add blurred brights onto scene 
+																															 // Add blurred brights onto scene 
 	Shaders::ScreenShader::Bloom->Use();
 	target.Use();
 

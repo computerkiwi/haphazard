@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Engine class data, no work really in here yet.
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright ? 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -104,6 +104,10 @@ private:
 		Engine& engine = *reinterpret_cast<Engine *>(const_cast<void *>(enginePtr));
 
 		// Setup the object to store the engine info in.
+		rapidjson::Value jsonObj;
+		jsonObj.SetObject();
+		jsonObj.AddMember("fxManager", meta::Serialize(engine.m_fxManager, allocator), allocator);
+
 		rapidjson::Value spaceArray;
 		spaceArray.SetArray();
 
@@ -112,7 +116,9 @@ private:
 			spaceArray.PushBack(meta::Serialize(space, allocator), allocator);
 		}
 
-		return spaceArray;
+		jsonObj.AddMember("spaces", spaceArray, allocator);
+
+		return jsonObj;
 	}
 
 	static void EngineDeserializeAssign(void *enginePtr, rapidjson::Value& jsonEngine)
@@ -123,14 +129,28 @@ private:
 		// Get rid of all the gamespaces we have.
 		engine.m_spaces.ClearSpaces();
 
-		// We should be passed the array of spaces.
-		Assert(jsonEngine.IsArray());
-		for (rapidjson::Value& jsonSpace : jsonEngine.GetArray())
+		// Figure out whether we have an actual array or are dealing with backwards-compatibilty where engine was just an array.
+		rapidjson::Value *spaceArrayptr = nullptr;
+		if (jsonEngine.IsArray())
+		{
+			spaceArrayptr = &jsonEngine;
+		}
+		else
+		{
+			meta::DeserializeAssign(engine.m_fxManager, jsonEngine["fxManager"]);
+
+			rapidjson::Value& tempArray = jsonEngine["spaces"];
+			spaceArrayptr = &tempArray;
+		}
+		rapidjson::Value& spaceArray = *spaceArrayptr;
+
+		for (rapidjson::Value& jsonSpace : spaceArray.GetArray())
 		{
 			GameSpaceIndex index = engine.m_spaces.AddSpace();
 			meta::DeserializeAssign(*engine.GetSpace(index), jsonSpace);
 			engine.m_spaces.Get(index).SetIndex(index);
 		}
+
 	}
 
 	META_REGISTER(Engine)
