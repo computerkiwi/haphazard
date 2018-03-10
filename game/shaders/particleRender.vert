@@ -51,14 +51,16 @@ layout (std140) uniform Settings
 	vec4	StartColor;
 	vec4	EndColor;
 	vec4	TrailEndColor;
-	vec4	TextureBox;
+	vec4	ParticleTextureBox;
+	vec4	TrailTextureBox;
 
 	// Vec2s
 	vec2	EmitterPosition;
 
 	// Scalars
 	float	SimulationSpace;
-	float	TextureLayer;
+	float	ParticleTextureLayer;
+	float	TrailTextureLayer;
 	float   ChooseRandomColor;
 	float   TrailLifetime;
 	float   FadeTrailToColor;
@@ -70,8 +72,8 @@ void main()
 	Type = type;
 	Velocity = vel;
 
-	TexLayer = TextureLayer;
-	TexBox = TextureBox;
+	TexLayer = ParticleTextureLayer;
+	TexBox = ParticleTextureBox;
 
 
 	if(SimulationSpace == SPACE_LOCAL)
@@ -85,7 +87,8 @@ void main()
 
 	if(type == TYPE_TRAIL)
 	{
-		TexLayer = -1;
+		TexLayer = TrailTextureLayer;
+		TexBox = TrailTextureBox;
 
 		if(ChooseRandomColor == 1)
 			Color = StartColor * (1 - seed) + EndColor * seed;

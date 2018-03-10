@@ -79,6 +79,7 @@ struct ParticleSettings
 	glm::vec4       startColor = {1,1,1,1};  // Blend color of particle at start of life
 	glm::vec4       endColor = {1,1,1,1};    // Blend color of particle at end of life, linearly interpolated from start color through lifetime
 	ResourceID      texture_resourceID = -1; // Texture of particle
+	ResourceID      trailTex_resourceID = -1; // Texture of trail
 	// Trail										 
 	bool            hasTrail = false;            // Spawn trail particles
 	float           trailEmissionRate = 0.05f;   // Emission rate of trail particles, lower for smoother trail
@@ -130,6 +131,7 @@ private:
 		META_DefineMember(ParticleSettings, startColor, "StartColor");
 		META_DefineMember(ParticleSettings, endColor, "EndColor");
 		META_DefineMember(ParticleSettings, texture_resourceID, "TextureResourceID");
+		META_DefineMember(ParticleSettings, trailTex_resourceID, "TrailTextureResourceID");
 
 		META_DefineMember(ParticleSettings, hasTrail, "HasTrail");
 		META_DefineMember(ParticleSettings, trailEmissionRate, "TrailEmissionRate");
