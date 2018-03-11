@@ -98,10 +98,30 @@ function Update(dt)
 	end
   
 end
+
+function TypeName(type)
+	if(type == 1)
+	then
+		return "Red"
+	elseif(type == 2)
+	then
+		return "Green"
+	elseif(type == 3)
+	then
+		return "Blue"
+	elseif(type == 4)
+	then
+		return "Yellow"
+	end
+end
+
 function Damage(damageAmount, damageSourceLocation)
 	-- Actually deal the damage
   health = health - damageAmount
-	PlaySound("gnome_injure.mp3", 1.5, 1, false)
+	PlaySound("Grunt7.wav", 1, 1, false)
+	local type = this:GetScript("GnomeStatus.lua").GnomeType
+	local particle = GameObject.LoadPrefab("assets/prefabs/Particles_" .. TypeName(type) .. "_Hit.json")
+	particle:GetTransform().position = this:GetTransform().position
 	
 	-- Apply player knockback.
 	local movementScript = this:GetScript("GnomeMovement.lua")

@@ -49,7 +49,7 @@ function Update()
 	local status = this:GetScript("GnomeStatus.lua")
 
 	-- Attacks
-	if(this:GetScript("InputHandler.lua").attackPressed)
+	if(this:GetScript("InputHandler.lua").attackPressed and this:GetScript("GnomeHealth.lua").health > 0)
 	then
 		local type = status.GnomeType
 		if(status.stacked)
