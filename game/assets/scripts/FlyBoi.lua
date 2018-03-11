@@ -44,6 +44,11 @@ currMod = 1
 isDiving = false
 isOnPatrol = true
 
+-- Health stuuuuuuuuuuuuuuff
+DAMAGE_FLASH_TIME = 0.1
+damageFlashTimer = 0
+health = 10
+
 function DegreesToRadians(degrees)
 
 	local radiansPerDegree = 0.0174533
@@ -230,6 +235,9 @@ end
 
 -- Updates each frame
 function Update(dt)
+
+  -- Damageeee
+	UpdateDamageFlash(dt)
 	
 	-- Effects to adjust for the object being edited
 	EditingEffects()
@@ -255,4 +263,28 @@ function OnCollisionEnter(other)
 
 	ChooseTarget()
 
+end
+
+
+-- Kieran's stuff
+function UpdateDamageFlash(dt)
+	damageFlashTimer = damageFlashTimer - dt
+
+	local sprite = this:GetSprite()
+	local color = sprite.color
+
+	if (damageFlashTimer <= 0)
+	then
+		color.x = 1
+		color.y = 1
+		color.z = 1
+		color.w = 1
+	else
+		color.x = 0.8
+		color.y = 0
+		color.z = 0
+		color.w = 1
+	end
+
+	sprite.color = color
 end
