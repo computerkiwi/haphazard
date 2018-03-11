@@ -101,7 +101,7 @@ end
 function Damage(damageAmount, damageSourceLocation)
 	-- Actually deal the damage
   health = health - damageAmount
-	PlaySound("gnome_injure.mp3", 1.5, 1, false)
+	PlaySound("Grunt7.wav", 1, 1, false)
 	
 	-- Apply player knockback.
 	local movementScript = this:GetScript("GnomeMovement.lua")
