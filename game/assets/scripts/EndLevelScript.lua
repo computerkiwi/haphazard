@@ -11,7 +11,8 @@ function OnCollisionEnter(other)
   -- Player takes gem
   if (other:HasTag("Player"))
   then
-		Engine.LoadLevel(WIN_LEVEL)
+		_G.globalEndScreenTable.nextLevel = WIN_LEVEL
+		Engine.LoadLevel("LevelEndScreen.json")
   end
   
 end
