@@ -179,7 +179,7 @@ function DetachGnomes(top, bot)
 	]]
 
 	topStack.delayCollisionLayer = topStatus.PLAYER_PHYS_LAYER --botStatus.PLAYER_PHYS_LAYER
-	topStack.delayCollisionCounter = 1
+	topStack.delayCollisionCounter = 0.3
 
 	--topStack.ResizeColliders()
 
@@ -211,7 +211,11 @@ function AttachGnomes(top, bot)
 	local topStack = top:GetScript("GnomeStack.lua")
 	local topStatus = top:GetScript("GnomeStatus.lua")
 	local botStatus = bot:GetScript("GnomeStatus.lua")
-	
+
+	local stackParticle = GameObject.LoadPrefab("assets/prefabs/Particles_StackEffect.json")
+	local tempPos = top:GetTransform().position
+	tempPos.y = tempPos.y - 1
+	stackParticle:GetTransform().position = tempPos
 
 	-- Disconnect gnomes if need be.
 	if (topStatus.stackedBelow ~= nil)
