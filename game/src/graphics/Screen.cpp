@@ -98,7 +98,7 @@ void Screen::Draw()
 	for (auto fb = m_LayerList.begin(); fb != m_LayerList.end();)
 	{
 		auto test = fb++;
-		if (!(*test)->m_UsedThisUpdate && FrameBuffer::m_FXManager->m_layerFX.at((*test)->m_Layer).size() == 0)
+		if (!(*test)->m_UsedThisUpdate && FrameBuffer::m_FXManager->m_layerFX.find((*test)->m_Layer) != FrameBuffer::m_FXManager->m_layerFX.end() && FrameBuffer::m_FXManager->m_layerFX.at((*test)->m_Layer).size() == 0)
 		{
 			delete *test;
 			m_LayerList.erase(test); // Empty framebuffer, remove
