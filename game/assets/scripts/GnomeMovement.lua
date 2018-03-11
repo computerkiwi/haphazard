@@ -237,8 +237,6 @@ function UpdateMovement(dt)
 end -- fn end
 
 function Jump()
-	PlaySound("jump.mp3", 0.1, 0.8, false)
-
 	-- Get rid of ledge forgiveness
 	ledgeForgivenessTimer = 0
 	
@@ -268,6 +266,7 @@ function CheckToss()
 	if(input.tossPressed and status.stackedAbove ~= nil)
 	then
 		-- Toss
+		PlaySound("Grunt4.wav", 1, 1, false)
 		local above = status.stackedAbove
 		above:GetScript("GnomeStack.lua").Unstack()
 		above:GetScript("GnomeStatus.lua").tossed = true
