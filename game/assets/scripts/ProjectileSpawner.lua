@@ -69,7 +69,10 @@ function Fire(PrefabName)
 	if(direction.x < 0)
 	then
 		proj:GetTransform().scale = vec3(-proj:GetTransform().scale.x, proj:GetTransform().scale.y, proj:GetTransform().scale.z)
-		proj:GetCollider().offset = vec3(-proj:GetCollider().offset.x, proj:GetCollider().offset.y, proj:GetCollider().offset.z)
+		if (proj:HasStaticCollider() or proj:HasDynamicCollider())
+		then
+			proj:GetCollider().offset = vec3(-proj:GetCollider().offset.x, proj:GetCollider().offset.y, proj:GetCollider().offset.z)
+		end
 	end
 
 	-- Set Speed
