@@ -575,8 +575,6 @@ void printAMatrix(glm::mat3 matrix)
 
 }
 
-#pragma optimize("", off)
-
 void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<TransformComponent> transform1, ComponentHandle<DynamicCollider2DComponent> collider2, ComponentHandle<TransformComponent> transform2)
 {
 	// one-way platforms
@@ -742,8 +740,6 @@ void ResolveDynDynCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 	}
 }
 
-#pragma optimize("", on)
-
 void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<DynamicCollider2DComponent> collider1, ComponentHandle<StaticCollider2DComponent> collider2)
 {
 	if (collider2->ColliderData().GetCollisionType() == Collider2D::collisionType::oneWay)
@@ -791,11 +787,11 @@ void ResolveDynStcCollision(float dt, glm::vec3* collisionData, ComponentHandle<
 
 		transform1->SetPosition(glm::vec2(position + static_cast<glm::vec2>(resolutionVector)));
 
-		if (resolutionVector.x)
+		if (resolutionVector.x && !signsMatch(resolutionVector.x, rigidBody1->Velocity().x))
 		{
 			rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x * -elasticity, rigidBody1->Velocity().y, rigidBody1->Velocity().z));
 		}
-		if (resolutionVector.y)
+		if (resolutionVector.y && !signsMatch(resolutionVector.y, rigidBody1->Velocity().y))
 		{
 			rigidBody1->SetVelocity(glm::vec3(rigidBody1->Velocity().x, rigidBody1->Velocity().y * -elasticity, rigidBody1->Velocity().z));
 		}
