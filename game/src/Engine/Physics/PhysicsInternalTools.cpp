@@ -187,3 +187,8 @@ float CrossP(glm::vec2 vec1, glm::vec2 vec2)
 {
 	return (vec1.x * vec2.y) - (vec1.y * vec2.x);
 }
+
+bool signsMatch(float f1, float f2)
+{
+	return ((f1 >= 0 && f2 >= 0) || (f1 < 0 && f2 < 0));
+}

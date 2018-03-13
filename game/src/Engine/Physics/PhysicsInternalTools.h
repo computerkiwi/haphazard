@@ -91,3 +91,5 @@ void DrawSmallBoxAtPosition(glm::vec2 position);
 void DrawSmallCircleAtPosition(glm::vec2 position);
 
 float CrossP(glm::vec2 vec1, glm::vec2 vec2);
+
+bool signsMatch(float f1, float f2);
