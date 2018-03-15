@@ -102,16 +102,16 @@ function ShootAtTarget(target)
 	if(vecToTarget.x <= 0)
 	then
 
-		local xOffset =  - (this:GetCollider().dimensions.x / 2) - projectile:GetCollider().dimensions.x
-		xPosition = xPosition - xOffset
+		xOffset =  - (this:GetCollider().dimensions.x / 2) - projectile:GetCollider().dimensions.x
+		xPosition = xPosition + xOffset
 		actualLaunchAngle = 180 - actualLaunchAngle
-		vecToTarget.x = vecToTarget.x  + xOffset
+		vecToTarget.x = vecToTarget.x  - xOffset
 
 	else
 	
-		local xOffset = (this:GetCollider().dimensions.x / 2) + projectile:GetCollider().dimensions.x
-		xPosition = xPosition - xOffset
-		vecToTarget.x = vecToTarget.x  + xOffset
+		xOffset = (this:GetCollider().dimensions.x / 2) + projectile:GetCollider().dimensions.x
+		xPosition = xPosition + xOffset
+		vecToTarget.x = vecToTarget.x  - xOffset
 
 	end
 
