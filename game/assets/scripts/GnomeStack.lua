@@ -18,6 +18,31 @@ minStackedDistanceY = 0.3
 
 local ATinyNumber = 0.1
 
+local popSounds = 
+{
+	"pop_01.wav",
+	"pop_02.wav",
+	"pop_03.wav",
+	"pop_04.wav",
+	"pop_05.wav",
+	"pop_06.wav",
+	"pop_07.wav",
+	"pop_08.wav",
+	"pop_09.wav",
+	"pop_10.wav",
+	"pop_11.wav",
+	"pop_12.wav",
+	"pop_13.wav",
+	"pop_14.wav",
+	"pop_15.wav",
+	"pop_16.wav",
+}
+function PlayStackPop()
+	local soundName = popSounds[math.random(1, #popSounds)]
+	
+	PlaySound(soundName, 1, 1, false)
+end
+
 function Start()
 	
 	currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
@@ -185,7 +210,7 @@ function DetachGnomes(top, bot)
 
 	topStatus.stackedBelow = nil
 	botStatus.stackedAbove = nil
-	PlaySound("stack_off.mp3", 0.5, 1, false)
+	PlayStackPop()
 	
 	-- Update the stacked variables.
 	if (topStatus.stackedAbove ~= nil)
@@ -235,7 +260,7 @@ function AttachGnomes(top, bot)
 	--SetLayersNotColliding(topStatus.PLAYER_PHYS_LAYER, botStatus.PLAYER_PHYS_LAYER)
 	topStatus.stacked = true
 	botStatus.stacked = true
-	PlaySound("stack_on.mp3", 0.5, 1, false)
+	PlayStackPop()
 
 	top:GetTransform().zLayer = bot:GetTransform().zLayer - 1
 
