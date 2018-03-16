@@ -1,5 +1,5 @@
 --[[
-FILE: GemScript.lua
+FILE: EndLevelScript.lua
 PRIMARY AUTHOR: Max Rauffer
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
@@ -44,7 +44,7 @@ function OnCollisionEnter(other)
 		transitionSparkles:GetTransform().position = ScreenToWorld(vec2(0,0))
 		
 		winSparkles:GetTransform().position = this:GetTransform().position
-		winSparkles:GetTransform().position.y = winSparkles:GetTransform().position.y - 1;
+		winSparkles:GetTransform().position = vec2(winSparkles:GetTransform().position.x, winSparkles:GetTransform().position.y - 1);
   end
   
 end
