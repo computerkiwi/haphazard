@@ -7,12 +7,44 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 WIN_LEVEL = "YouWinLevel.json"
 
+transitionTime = 5
+
+transitionStarted = false
+
+transitionScreen = nil
+transitionSparkles = nil
+
+function Update(dt)
+	if(transitionStarted)
+	then
+		transitionTime = transitionTime - dt
+
+		transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
+		transitionSparkles:GetTransform().position = ScreenToWorld(vec2(0,0))
+
+		if(transitionTime < 0)
+		then
+			_G.globalEndScreenTable.nextLevel = WIN_LEVEL
+			Engine.LoadLevel("LevelEndScreen.json")
+		end
+	end
+end
+
 function OnCollisionEnter(other)
   -- Player takes gem
-  if (other:HasTag("Player"))
+  if (other:HasTag("Player") and transitionStarted == false)
   then
-		_G.globalEndScreenTable.nextLevel = WIN_LEVEL
-		Engine.LoadLevel("LevelEndScreen.json")
+		transitionStarted = true
+
+		transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransition.json")
+		transitionSparkles = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionSparkles.json")
+		local winSparkles = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionWin.json")
+
+		transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
+		transitionSparkles:GetTransform().position = ScreenToWorld(vec2(0,0))
+		
+		winSparkles:GetTransform().position = this:GetTransform().position
+		winSparkles:GetTransform().position.y = winSparkles:GetTransform().position.y - 1;
   end
   
 end
