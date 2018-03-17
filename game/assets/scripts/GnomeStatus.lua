@@ -42,6 +42,7 @@ specialJumpScale = 2
 
 -- Health info
 isStatue = false
+killedByChaseBox = false
 
 -- Collectibles
 hasGem = false

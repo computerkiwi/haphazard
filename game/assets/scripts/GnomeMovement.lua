@@ -154,7 +154,7 @@ function Update(dt)
 		onGround = false                  
 	end
 
-	if(status.canMove == true and status.knockedBack == false and status.isStatue == false)
+	if(status.canMove == true and status.knockedBack == false and status.isStatue == false and status.killedByChaseBox == false)
 	then
 		-- Get Direction
 		UpdateDir()
@@ -180,7 +180,7 @@ function Update(dt)
 			Jump()
 		end
 
-	elseif(status.isStatue == true)
+	elseif(status.isStatue == true and status.killedByChaseBox == false)
 	then
 		StatueUpdate(dt)
 	end

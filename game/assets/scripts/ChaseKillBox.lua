@@ -35,12 +35,20 @@ currSpeed = 0.1
 function Start()
 	currSection = 1;
 	currSpeed = Section1_Speed;
-	this:GetTransform().position.y = Section1_Start;
+	this:GetTransform().position = vec2(this:GetTransform().position.x, Section1_Start);
+end
+
+function OnCollisionEnter(other)
+	if (other:HasTag("Player"))
+	then
+		other:GetScript("GnomeHealth.lua").Damage(100, this:GetTransform().position);
+		other:GetScript("GnomeStatus.lua").killedByChaseBox = true;
+	end
 end
 
 function Update(dt)
 
-	this:GetTransform().position.y = this:GetTransform().position.y + currSpeed * dt;
+	this:GetTransform().position = vec2(this:GetTransform().position.x, this:GetTransform().position.y + currSpeed * dt);
 
 	-- This is gross but the only way :(
 
