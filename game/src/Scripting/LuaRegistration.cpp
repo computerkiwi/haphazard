@@ -8,6 +8,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "LuaRegistration.h"
 
+#include "Engine/Engine.h"
+
 #include "lua.hpp"
 #include "LuaBridge.h"
 
@@ -59,6 +61,14 @@ int LuaGamepadsConnected()
   return Input::GamepadsConnected();
 }
 
+void LuaSetPaused(bool paused)
+{
+	engine->SetPaused(paused);
+}
+bool LuaIsPaused()
+{
+	return engine->IsPaused();
+}
 
 void RegisterLua(lua_State * L)
 {
@@ -66,7 +76,7 @@ void RegisterLua(lua_State * L)
 		.addFunction("IsHeld", &LuaIsPressed)
 		.addFunction("OnPress", &LuaIsTriggered)
     .addFunction("GamepadIsHeld", &LuaGamepadIsPressed)
-	.addFunction("GamepadOnPress", &LuaGamepadIsTriggered)
+	  .addFunction("GamepadOnPress", &LuaGamepadIsTriggered)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
     .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
     .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
@@ -75,6 +85,8 @@ void RegisterLua(lua_State * L)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
 
-		.addFunction("PlaySound", Audio::PlaySound);
+		.addFunction("PlaySound", Audio::PlaySound)
+		.addFunction("SetPaused", &LuaSetPaused)
+		.addFunction("IsPaused", &LuaIsPaused);
 		
 }

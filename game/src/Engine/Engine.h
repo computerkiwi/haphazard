@@ -77,6 +77,16 @@ public:
 		engine->FileLoad(fileName);
 	}
 
+	void SetPaused(bool paused)
+	{
+		m_paused = paused;
+	}
+
+	bool IsPaused()
+	{
+		return m_paused;
+	}
+
 private:
 
 	void FileLoadInternal(const char *fileName);
@@ -85,6 +95,7 @@ private:
 
 	float m_dt = (1 / 60.0f);
 	bool m_running = true;
+	bool m_paused = false;
 
 	bool m_fileLoadFlag = false;
 	std::string m_fileToLoad;
