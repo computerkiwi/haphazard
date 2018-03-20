@@ -9,6 +9,10 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 local menuItems = {}
 local itemSelected = 1
 
+-- All the ways to check for input.
+local inputHandlers = {}
+
+-- Big see-through pause background.
 local pauseBackground
 
 -- Main pause menu buttons.
@@ -24,6 +28,9 @@ local toggleFullscreenButton
 local backButton
 
 local inSettings = false
+
+-----------------------------------------------------------------------
+-- GENERAL HELPERS
 
 function SpawnAndAttachObject(prefabName, resetPosition)
 	resetPosition = resetPosition or false
@@ -43,32 +50,6 @@ function SpawnAndAttachObject(prefabName, resetPosition)
 	end
 end
 
-function Start()
-	pauseBackground = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/PauseBackground.json", true)
-	
-	-- TODO: Get rid of this by using real implementations on buttons.
-	local function DummyFunc()
-		print("Menu button not yet implemented!")
-	end
-	
-	resumeButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	restartButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	settingsButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	quitButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-
-	-- TODO: Remove this when properly handling multiple states.
-	menuItems = {resumeButton, restartButton, settingsButton, quitButton}
-	
-	-- Settings pause menu buttons.
-	muteMusicButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	muteSfxButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	toggleFullscreenButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	backButton = NewButton("treeboy.png", "ground.png", DummyFunc)
-	
-	DeactivateAllButtons()
-	
-end
-
 function DeactivateAllButtons()
 	resumeButton:Deactivate()
 	restartButton:Deactivate()
@@ -80,6 +61,16 @@ function DeactivateAllButtons()
 	toggleFullscreenButton:Deactivate()
 	backButton:Deactivate()
 end
+
+function ActivateButtons(buttonTable)
+	for _, button in pairs(buttonTable)
+	do
+		button:Activate()
+	end
+end
+
+-----------------------------------------------------------------------
+-- "OBJECT" BUILDERS
 
 -- Creates a new "button" object.
 function NewButton(spriteSelected, spriteUnselected, activateFunc)
@@ -127,24 +118,209 @@ function NewButton(spriteSelected, spriteUnselected, activateFunc)
 	return button
 end
 
+-- Keyboard-based input handler.
+function NewKeyboardInput(upKey, downKey, confirmKey, backKey, pauseKey)
+	input = {}
+	
+	-- Returns a function wrapper checking for a key
+	local function KeyCheck(key)
+		return function(self) return OnPress(key) end
+	end
+	
+	input.UpPressed = KeyCheck(upKey)
+	input.DownPressed = KeyCheck(downKey)
+	input.ConfirmPressed = KeyCheck(confirmKey)
+	input.BackPressed = KeyCheck(backKey)
+	input.PausePressed = KeyCheck(pauseKey)
+	
+	-- Dummy function. Don't do anything.
+	function input:Finalize() end
+	
+	return input
+end
+
+-- Controller-based input handler.
+function NewControllerInput(controllerID)
+	input = {}
+	input.id = controllerID
+	
+	input.axisLast = 0
+	
+	local DEADZONE = 0.4
+	local VERTICAL_AXIS = 1
+	
+	function input:UpPressed()
+		return (GamepadGetAxis(self.id, VERTICAL_AXIS) > DEADZONE and self.axisLast < DEADZONE)
+	end
+	
+	function input:DownPressed()
+		return (GamepadGetAxis(self.id, VERTICAL_AXIS) < -DEADZONE and self.axisLast > -DEADZONE)
+	end
+	
+	function input:ConfirmPressed()
+		return GamepadOnPress(self.id, 0) -- A button.
+	end
+	
+	function input:BackPressed()
+		return GamepadOnPress(self.id, 1) -- B button.
+	end
+	
+	function input:PausePressed()
+		return GamepadOnPress(self.id, 7) -- Start button.
+	end
+	
+	function input:Finalize()
+		self.axisLast = GamepadGetAxis(self.id, VERTICAL_AXIS)
+	end
+	
+	return input
+end
+
+-----------------------------------------------------------------------
+-- MENU ITEM ACTIONS
+
+function Resume()
+	SetPaused(false)
+end
+
+-- Switches to the "main" pause page.
+function ActivateMain()
+	DeactivateAllButtons()
+	menuItems = {resumeButton, restartButton, settingsButton, quitButton}
+	itemSelected = 1
+	ActivateButtons(menuItems)
+	inSettings = false
+end
+
+-- Switches to the "settings" pause page.
+function ActivateSettings()
+	DeactivateAllButtons()
+	menuItems = {muteMusicButton, muteSfxButton, toggleFullscreenButton, backButton}
+	itemSelected = 1
+	ActivateButtons(menuItems)
+	inSettings = true
+end
+
+-- Opens up the restart confirmation dialog.
+function Restart()
+	-- TODO: Implement this.
+	print("Restart button not yet implemented.")
+end
+
+-- Opens up the quit confirmation dialog.
+function QuitButton()
+	-- TODO: Implement this.
+	print("Quit button not yet implemented.")
+end
+
+function ToggleSFX()
+	-- TODO: Implement this.
+	print("SFX toggle not yet implemented.")
+end
+
+function ToggleMusic()
+	-- TODO: Implement this.
+	print("Music toggle not yet implemented.")
+end
+
+function ToggleFullscreen()
+	-- TODO: Implement this.
+	print("Fullscreen toggle not yet implemented.")
+end
+
+-----------------------------------------------------------------------
+-- MAIN FUNCTIONS
+
+function Start()
+	pauseBackground = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/PauseBackground.json", true)
+	
+	-- Register the input handlers
+	inputHandlers = 
+	{
+		NewKeyboardInput(KEY.W, KEY.S, KEY.Space, KEY.Q, KEY.Escape), 
+		NewControllerInput(0),
+		NewControllerInput(1),
+		NewControllerInput(2),
+		NewControllerInput(3),
+	}
+	
+	-- Main pause menu buttons
+	resumeButton = NewButton("treeboy.png", "ground.png", Resume)
+	restartButton = NewButton("treeboy.png", "ground.png", Restart)
+	settingsButton = NewButton("treeboy.png", "ground.png", ActivateSettings)
+	quitButton = NewButton("treeboy.png", "ground.png", QuitButton)
+	
+	-- Settings pause menu buttons.
+	muteMusicButton = NewButton("treeboy.png", "ground.png", ToggleMusic)
+	muteSfxButton = NewButton("treeboy.png", "ground.png", ToggleSFX)
+	toggleFullscreenButton = NewButton("treeboy.png", "ground.png", ToggleFullscreen)
+	backButton = NewButton("treeboy.png", "ground.png", ActivateMain)
+	
+	ActivateMain()
+	
+end
+
 -- Returns true if we toggled.
 function CheckForToggle()
-	if OnPress(KEY.Escape)
-	then
-		SetPaused(not IsPaused())
-		return true
+	-- Check each input handler.
+	for _, handler in pairs(inputHandlers)
+	do
+		if handler:PausePressed()
+		then
+			SetPaused(not IsPaused())
+			ActivateMain()
+			return true
+		end
 	end
 	
 	-- Didn't detect a toggle
 	return false
 end
 
--- Switches to the "main" pause page.
-function ActivateMain()
+function UpdateSelectedMenuItem()
+	local shiftAmount = 0
+	
+	-- Get how much to shift. (Will usually just be one up or down.
+	for _, handler in pairs(inputHandlers)
+	do
+		if (handler:UpPressed())
+		then
+			shiftAmount = shiftAmount - 1
+		end
+		if (handler:DownPressed())
+		then
+			shiftAmount = shiftAmount + 1
+		end
+	end
+	
+	local newSelected = ((itemSelected + shiftAmount - 1) % #menuItems) + 1
+	
+	menuItems[itemSelected]:Deselect()
+	menuItems[newSelected]:Select()
+	
+	itemSelected = newSelected	
 end
 
--- Switches to the "settings" pause page.
-function ActivateSettings()
+-- Returns true if there was a confirmation.
+function CheckForConfirm()
+	for _, handler in pairs(inputHandlers)
+	do
+		if (handler:ConfirmPressed())
+		then
+			menuItems[itemSelected]:CallAction()
+			return true
+		end
+	end
+	
+	-- No confim button pressed.
+	return false
+end
+
+function FinalizeInputHandlers()
+	for _, handler in pairs(inputHandlers)
+	do
+		handler:Finalize()
+	end
 end
 
 function Update()
@@ -165,8 +341,25 @@ function PausedUpdate()
 		return
 	end
 	
-	pauseBackground:Activate()
+	if (inSettings)
+	then
+		for _, handler in pairs(inputHandlers)
+		do
+			if (handler:BackPressed())
+			then
+				ActivateMain()
+				break
+			end
+		end
+	end
 	
+	if (not CheckForConfirm())
+	then
+		UpdateSelectedMenuItem()
+	end
+	
+	-- TODO: Do this at an appropriate time rather than every frame.
+	pauseBackground:Activate()
 	for i,v in ipairs(menuItems)
 	do
 		v:Activate()
@@ -182,4 +375,5 @@ function PausedUpdate()
 		uiScript.offset_y = 1.5 - i * 0.85
 	end
 	
+	FinalizeInputHandlers()	
 end
