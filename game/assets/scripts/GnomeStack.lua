@@ -238,8 +238,7 @@ function AttachGnomes(top, bot)
 	local botStatus = bot:GetScript("GnomeStatus.lua")
 
 	local stackParticle = GameObject.LoadPrefab("assets/prefabs/Particles_StackEffect.json")
-	local tempPos = top:GetTransform().position
-	tempPos.y = tempPos.y - 1
+	local tempPos = bot:GetTransform().position
 	stackParticle:GetTransform().position = tempPos
 
 	-- Disconnect gnomes if need be.
