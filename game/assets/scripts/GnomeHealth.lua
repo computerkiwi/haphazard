@@ -117,7 +117,17 @@ end
 
 function Damage(damageAmount, damageSourceLocation)
 	-- Actually deal the damage
-  health = health - damageAmount
+    health = health - damageAmount
+	if(health < 0)
+	then 
+		health = 0
+	end
+
+	if(this:GetScript("GnomeStatus.lua").killedByChaseBox)
+	then
+		return
+	end
+
 	PlaySound("Grunt7.wav", 1, 1, false)
 	local type = this:GetScript("GnomeStatus.lua").GnomeType
 	local particle = GameObject.LoadPrefab("assets/prefabs/Particles_" .. TypeName(type) .. "_Hit.json")

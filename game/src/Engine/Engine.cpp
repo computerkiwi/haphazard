@@ -134,7 +134,7 @@ void Engine::Update()
 
 	m_dt = CalculateDt();
 
-	if (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze)
+	if ( m_paused || (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze))
 	{
 		m_spaces[0]->Update(0);
 	}
