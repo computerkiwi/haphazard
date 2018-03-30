@@ -37,3 +37,8 @@ function LateUpdate(dt)
 	transform.localPosition = vec2(zoomScale * offset_x, zoomScale * offset_y)
 	transform.scale = vec3(zoomScale * scale_x, zoomScale * scale_y, 1)
 end
+
+-- Make sure it runs while paused.
+function PausedLateUpdate()
+	LateUpdate()
+end

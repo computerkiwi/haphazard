@@ -51,6 +51,22 @@ void ScriptSystem::Update(float dt)
 		}
 	}
 
+	// Select whether to use paused or unpaused update functions.
+	const char *earlyUpdate, *update, *lateUpdate;
+	if (dt == 0)
+	{
+		earlyUpdate = "PausedEarlyUpdate";
+		update      = "PausedUpdate";
+		lateUpdate  = "PausedLateUpdate";
+	}
+	else
+	{
+		earlyUpdate = "EarlyUpdate";
+		update      = "Update";
+		lateUpdate  = "LateUpdate";
+	}
+
+
 	// Call EarlyUpdate on everything that needs it.
 	for (ComponentHandle<ScriptComponent> scriptComp : *scripts)
 	{
@@ -59,7 +75,7 @@ void ScriptSystem::Update(float dt)
 			for (LuaScript& script : scriptComp->scripts)
 			{
 				luabridge::push(script.GetLuaState(), dt);
-				script.RunFunction("EarlyUpdate", 1, 0);
+				script.RunFunction(earlyUpdate, 1, 0);
 			}
 		}
 	}
@@ -72,7 +88,7 @@ void ScriptSystem::Update(float dt)
 			for (LuaScript& script : scriptComp->scripts)
 			{
 				luabridge::push(script.GetLuaState(), dt);
-				script.RunFunction("Update", 1, 0);
+				script.RunFunction(update, 1, 0);
 			}
 		}
 	}
@@ -85,7 +101,7 @@ void ScriptSystem::Update(float dt)
 			for (LuaScript& script : scriptComp->scripts)
 			{
 				luabridge::push(script.GetLuaState(), dt);
-				script.RunFunction("LateUpdate", 1, 0);
+				script.RunFunction(lateUpdate, 1, 0);
 			}
 		}
 	}
