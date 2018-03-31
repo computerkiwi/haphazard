@@ -114,7 +114,9 @@ Texture::Texture(const char* file, bool isTiled)
 	if (!m_TextureArray)
 		GenerateTextureArray();
 
-	glm::ivec3 offset = FindLocationForSprite(m_pixelWidth, m_pixelHeight);
+	glm::ivec3 offset = FindLocationForSprite(
+		m_pixelWidth == Texture::MAX_WIDTH ? m_pixelWidth : m_pixelWidth + 1,      // Add padding if padding can fit on the page
+		m_pixelHeight == Texture::MAX_HEIGHT ? m_pixelHeight : m_pixelHeight + 1);
 
 	m_layer = offset.z;
 
