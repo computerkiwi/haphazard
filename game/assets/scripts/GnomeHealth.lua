@@ -5,12 +5,12 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-STATUE_HIT_POINTS = 14
+STATUE_HIT_POINTS = 7
 
 ENEMY_LAYER = 16;
 
 health = 6
-statueHitPoints = 14
+statueHitPoints = 7
 
 healthBar = nil
 invulTime = 0

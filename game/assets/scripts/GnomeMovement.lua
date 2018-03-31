@@ -49,7 +49,7 @@ MOVE_RIGHT =	1 -- Player moving right
 --[[ VARIABLES ]]--
 
 -- Movement
-moveSpeed	 = 2
+moveSpeed	 = 2.5
 moveDir		 = 0
 facing       = 1
 statueXSpeed = 0.4
