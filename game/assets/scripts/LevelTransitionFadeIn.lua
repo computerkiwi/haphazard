@@ -13,6 +13,7 @@ function Start()
 	transitionObj = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionIn.json")
 	transitionObj:GetTransform().position = ScreenToWorld(vec2(0,0))
 	ended = false
+  killTime = 2.9
 end
 
 function Update(dt)
