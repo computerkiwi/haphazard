@@ -148,7 +148,16 @@ glm::vec2 TransformComponent::GetParentPosition() const
 {
 	if (m_parent.IsValid())
 	{
-		return m_parent.GetComponent<TransformComponent>()->GetPosition();
+		ComponentHandle<TransformComponent> transform = m_parent.GetComponent<TransformComponent>();
+		if (transform->GetParent() == m_parent) // Hacky fix.
+		{
+			transform->SetParent(INVALID_GAMEOBJECT_ID);
+			return glm::vec2();
+		}
+		else
+		{
+			return transform->GetPosition();
+		}
 	}
 	else
 	{
