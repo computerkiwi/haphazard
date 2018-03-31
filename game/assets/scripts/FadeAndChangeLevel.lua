@@ -78,9 +78,7 @@ function Update(dt)
 	-- Calculate the sprite's color based on where we are.
 	if (timer < VISIBLE_DIGIPEN)
 	then
-		value = InverseLerp(0, VISIBLE_DIGIPEN, timer)
-		-- Skip to the fade out if we push the button.
-		if (ContinuePressed()) then timer = FADE_START_DIGIPEN + value * (END_DIGIPEN - FADE_START_DIGIPEN) end
+		value = 1
 	elseif(timer < FADE_START_DIGIPEN)
 	then
 		value = 1

@@ -77,10 +77,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	meta::Init();
 	Input::Init(m_window);
 
-	// For debug purposes.
-	// TODO: Come up with a smarter resource loading strategy.
-	m_resManager.LoadAll();
-
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 
@@ -88,18 +84,29 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// Initialize the system.
 	m_spaces[0]->Init();
 
+	///
+	// Loading Screen
+	///
 	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
 	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.15f));
 	MainCamera.AddComponent<Camera>();
 	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
 	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	MainCamera.GetComponent<Camera>()->SetZoom(3);
+	MainCamera.GetComponent<Camera>()->SetZoom(7.21);
 	MainCamera.GetComponent<Camera>()->Use();
-	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
+	
+	m_resManager.Get("DigipenSplashScreen.png")->Load();
+	GameObject LoadingScreen = m_spaces[0]->NewGameObject("LoadingScreen");
+	LoadingScreen.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(16, 9, 0));
+	LoadingScreen.AddComponent<SpriteComponent>(m_resManager.Get("DigipenSplashScreen.png"));
 
-	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
-	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
+	//Render
+	Update();
+
+	// For debug purposes.
+	// TODO: Come up with a smarter resource loading strategy.
+	m_resManager.LoadAll();
 
 	LoadLevel("defaultLevel.json");
 }

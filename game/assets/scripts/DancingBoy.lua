@@ -14,6 +14,8 @@ startY = 0
 delta = 0
 
 inAir = false
+flip = true
+oscillationIntensity = .25
 
 function Start()
 
@@ -44,7 +46,7 @@ function Update(dt)
 		end
 	else
 		time = time - dt
-		local delta = 0.25 * math.cos(6.28 / DANCE_TIME *(time));
+		local delta = oscillationIntensity * math.cos(6.28 / DANCE_TIME *(time));
 
 		this:GetTransform().scale = vec3(this:GetTransform().scale.x, startYScale + delta, 1)
 
@@ -53,7 +55,7 @@ function Update(dt)
 			this:GetTransform().position = vec2(this:GetTransform().position.x, standingY + delta/2)
 		end
 		
-		if(time < 0)
+		if(time < 0 and flip)
 		then
 			if(this:GetRigidBody() == nil or math.abs(this:GetRigidBody().velocity.x) < 0.1)
 			then
