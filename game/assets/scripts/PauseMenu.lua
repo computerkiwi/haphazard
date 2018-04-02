@@ -19,6 +19,7 @@ local pauseBackground
 local resumeButton
 local restartButton
 local settingsButton
+local mainMenuButton
 local quitButton
 
 -- Settings pause menu buttons.
@@ -54,6 +55,7 @@ function DeactivateAllButtons()
 	resumeButton:Deactivate()
 	restartButton:Deactivate()
 	settingsButton:Deactivate()
+  mainMenuButton:Deactivate()
 	quitButton:Deactivate()
     
 	muteMusicButton:Deactivate()
@@ -186,7 +188,7 @@ end
 -- Switches to the "main" pause page.
 function ActivateMain()
 	DeactivateAllButtons()
-	menuItems = {resumeButton, restartButton, settingsButton, quitButton}
+	menuItems = {resumeButton, restartButton, settingsButton, mainMenuButton, quitButton}
 	itemSelected = 1
 	ActivateButtons(menuItems)
 	inSettings = false
@@ -199,6 +201,11 @@ function ActivateSettings()
 	itemSelected = 1
 	ActivateButtons(menuItems)
 	inSettings = true
+end
+
+function MainMenu()
+	-- TODO: Implement this.
+	print("Main menu button not yet implemented.")
 end
 
 -- Opens up the restart confirmation dialog.
@@ -245,16 +252,17 @@ function Start()
 	}
 	
 	-- Main pause menu buttons
-	resumeButton = NewButton("treeboy.png", "ground.png", Resume)
-	restartButton = NewButton("treeboy.png", "ground.png", Restart)
-	settingsButton = NewButton("treeboy.png", "ground.png", ActivateSettings)
-	quitButton = NewButton("treeboy.png", "ground.png", QuitButton)
+	resumeButton = NewButton("PauseMenu_Resume_Selected.png", "PauseMenu_Resume_Unselected.png", Resume)
+	restartButton = NewButton("PauseMenu_Restart_Selected.png", "PauseMenu_Restart_Unselected.png", Restart)
+	settingsButton = NewButton("PauseMenu_Options_Selected.png", "PauseMenu_Options_Unselected.png", ActivateSettings)
+	mainMenuButton = NewButton("PauseMenu_MainMenu_Selected.png", "PauseMenu_MainMenu_Unselected.png", MainMenu)
+	quitButton = NewButton("PauseMenu_Quit_Selected.png", "PauseMenu_Quit_Unselected.png", QuitButton)
 	
 	-- Settings pause menu buttons.
-	muteMusicButton = NewButton("treeboy.png", "ground.png", ToggleMusic)
-	muteSfxButton = NewButton("treeboy.png", "ground.png", ToggleSFX)
-	toggleFullscreenButton = NewButton("treeboy.png", "ground.png", ToggleFullscreen)
-	backButton = NewButton("treeboy.png", "ground.png", ActivateMain)
+	muteMusicButton = NewButton("PauseMenu_MuteMusic_Selected.png", "PauseMenu_MuteMusic_Unselected.png", ToggleMusic)
+	muteSfxButton = NewButton("PauseMenu_MuteSFX_Selected.png", "PauseMenu_MuteSFX_Unselected.png", ToggleSFX)
+	toggleFullscreenButton = NewButton("PauseMenu_ToggleFullscreen_Selected.png", "PauseMenu_ToggleFullscreen_Unselected.png", ToggleFullscreen)
+	backButton = NewButton("PauseMenu_Back_Selected.png", "PauseMenu_Back_Unselected.png", ActivateMain)
 	
 	ActivateMain()
 	
@@ -372,7 +380,8 @@ function PausedUpdate()
 		
 		local uiScript = v:GetUI()
 		uiScript.scale_y = 0.7
-		uiScript.offset_y = 1.5 - i * 0.85
+    uiScript.scale_x = 4 * uiScript.scale_y
+		uiScript.offset_y = 1.8 - i * 0.85
 	end
 	
 	FinalizeInputHandlers()	
