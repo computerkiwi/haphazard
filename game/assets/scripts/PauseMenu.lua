@@ -29,6 +29,8 @@ local toggleFullscreenButton
 local backButton
 
 local inSettings = false
+
+hideMenuInEditor = true
 -----------------------------------------------------------------------
 -- GENERAL HELPERS
 
@@ -384,6 +386,33 @@ function FinalizeInputHandlers()
 	end
 end
 
+function EditorUpdate()
+  local backgroundTransform = pauseBackground:GetTransform()
+
+  if (EditorIsOpen() and hideMenuInEditor)
+  then
+    backgroundTransform.localPosition = vec2(9999999999, 99999999)
+    
+    EditHide(resumeButton)
+    EditHide(restartButton)
+    EditHide(settingsButton)
+    EditHide(mainMenuButton)
+    EditHide(quitButton)
+    
+    EditHide(muteMusicButton)
+    EditHide(muteSfxButton)
+    EditHide(toggleFullscreenButton)
+    EditHide(backButton)
+  else
+    backgroundTransform.localPosition = vec2(0, 0)
+  end
+end
+
+function EditHide(button)
+  local uiScript = button:GetUI()
+  uiScript.offset_y = 99999
+end
+
 function Update(dt)
   -- If we're currently transitioning, don't let anyone pause again.
   if (transitionStarted)
@@ -396,9 +425,11 @@ function Update(dt)
 	then
 		return
 	end
-	
+  
 	DeactivateAllButtons()
 	pauseBackground:Deactivate()
+	
+  EditorUpdate()
 end
 
 function PausedUpdate()
@@ -407,7 +438,7 @@ function PausedUpdate()
 	then
 		return
 	end
-	
+  
 	if (inSettings)
 	then
 		for _, handler in pairs(inputHandlers)
@@ -444,4 +475,6 @@ function PausedUpdate()
 	end
 	
 	FinalizeInputHandlers()	
+	
+  EditorUpdate()
 end

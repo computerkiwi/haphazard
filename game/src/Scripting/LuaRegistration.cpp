@@ -75,6 +75,11 @@ const char *LuaCurrentLevel()
 	return engine->GetCurrentLevel().c_str();
 }
 
+bool LuaEditorIsOpen()
+{
+	return engine->GetEditor()->GetEditorState().show;
+}
+
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
@@ -90,6 +95,7 @@ void RegisterLua(lua_State * L)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
 		.addFunction("CurrentLevel", &LuaCurrentLevel)
+		.addFunction("EditorIsOpen", &LuaEditorIsOpen)
 
 		.addFunction("PlaySound", Audio::PlaySound)
 		.addFunction("SetPaused", &LuaSetPaused)
