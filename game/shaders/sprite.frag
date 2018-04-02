@@ -25,7 +25,7 @@ void main()
 		coord = clamp(coord,TexBounds.xy + 0.001, TexBounds.zw - 0.001);
 
 	vec4 texColor = texture(tex, vec3(coord,TexLayer));
-	if(texColor.a < 0.1)
+	if(texColor.a == 0)
 		discard;
 	outColor = texColor * Color;
 }
