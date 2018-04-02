@@ -1,9 +1,0 @@
-{
-  "textureName": "font.png",
-  "frameWidth":  24,
-  "frameHeight": 32,
-  "framesX":     16,
-  "framesY":     6,
-  "fps":         2,
-  "frameCount":  96
-}
