@@ -28,7 +28,15 @@ local muteSfxButton
 local toggleFullscreenButton
 local backButton
 
+local confirmPromptObj
+local confirmYesButton
+local confirmNoButton
+local confirmYesSelected = false
+
 local inSettings = false
+
+local confirming = false
+local confirmingAction = nil
 
 hideMenuInEditor = true
 -----------------------------------------------------------------------
@@ -70,6 +78,16 @@ function ActivateButtons(buttonTable)
 	do
 		button:Activate()
 	end
+end
+
+function ConfirmAction(promptTexture, action)
+  confirming = true
+  confirmingAction = action
+
+  confirmPromptObj:GetSprite().id = Resource.FilenameToID(promptTexture)
+  
+  menuItems = {confirmYesButton, confirmNoButton}
+  itemSelected = 2
 end
 
 -----------------------------------------------------------------------
@@ -258,15 +276,22 @@ function ActivateSettings()
 end
 
 function MainMenu()
-	-- TODO: Implement this.
-	print("Main menu button not yet implemented.")
+  local function ActualMainMenu()
+    SetPaused(false)
+    StartLevelTransition("MainMenu.json")
+  end
+
+  ConfirmAction("Prompt_QuitToMainMenu.png", ActualMainMenu)
 end
 
 -- Opens up the restart confirmation dialog.
 function Restart()
-	-- TODO: Implement this.
-  SetPaused(false)
-  StartLevelTransition(CurrentLevel())
+  local function ActualRestart()
+    SetPaused(false)
+    StartLevelTransition(CurrentLevel())
+  end
+
+  ConfirmAction("Prompt_RestartLevel.png", ActualRestart)
 end
 
 -- Opens up the quit confirmation dialog.
@@ -288,6 +313,17 @@ end
 function ToggleFullscreen()
 	-- TODO: Implement this.
 	print("Fullscreen toggle not yet implemented.")
+end
+
+function ConfirmYes()
+  confirming = false
+  UpdateConfirmDialog(false)
+  confirmingAction()
+end
+
+function ConfirmNo()
+  confirming = false
+  ActivateMain()
 end
 
 -----------------------------------------------------------------------
@@ -319,6 +355,14 @@ function Start()
 	toggleFullscreenButton = NewButton("PauseMenu_ToggleFullscreen_Selected.png", "PauseMenu_ToggleFullscreen_Unselected.png", ToggleFullscreen)
 	backButton = NewButton("PauseMenu_Back_Selected.png", "PauseMenu_Back_Unselected.png", ActivateMain)
 	
+  -- Confirmation stuff.
+  confirmPromptObj = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/GenericPauseUI.json", true)
+  confirmYesButton = NewButton("Button_Yes_On.png", "Button_Yes_Off.png", ConfirmYes)
+  confirmNoButton = NewButton("Button_No_On.png", "Button_No_Off.png", ConfirmNo)
+  confirmPromptObj:GetTransform().zLayer = 1501
+  confirmYesButton.gameObject:GetTransform().zLayer = 1502
+  confirmNoButton.gameObject:GetTransform().zLayer = 1502
+  
 	ActivateMain()
 	
 end
@@ -340,17 +384,80 @@ function CheckForToggle()
 	return false
 end
 
+-- Returns true if actively confirming
+function UpdateConfirmDialog(confirmActive)
+  if (confirmActive == nil)
+  then
+    confirmActive = confirming
+  end
+
+  if (confirmActive)
+  then
+    -- Make sure all the buttons are active.
+    confirmPromptObj:Activate()
+    confirmYesButton:Activate()
+    confirmNoButton:Activate()
+    
+    -- Position all the confirmation UI.
+    do
+      local confirmUI = confirmPromptObj:GetScript("GenericUI.lua")
+      confirmUI.scale_y = 3
+      confirmUI.scale_x = (512 / 384) * confirmUI.scale_y
+      
+      local yesUI = confirmYesButton:GetUI()
+      yesUI.scale_y = 0.5
+      yesUI.scale_x = (192 / 80) * yesUI.scale_y
+      yesUI.offset_y = -0.8
+      yesUI.offset_x = -0.9
+      
+      local noUI = confirmNoButton:GetUI()
+      noUI.scale_y = 0.5
+      noUI.scale_x = (192 / 80) * noUI.scale_y
+      noUI.offset_y = -0.8
+      noUI.offset_x = 0.9
+    end
+    
+    for _, handler in pairs(inputHandlers)
+    do
+      if (handler:LeftPressed() or handler:LeftPressed())
+      then
+        
+      end
+    end
+    
+    return true
+  else
+    confirmPromptObj:Deactivate()
+    confirmYesButton:Deactivate()
+    confirmNoButton:Deactivate()
+    
+    return false
+  end
+end
+
 function UpdateSelectedMenuItem()
 	local shiftAmount = 0
 	
+  -- Left and right when confirming.
+  local forwardPressed
+  local backPressed
+  if (confirming)
+  then
+    forwardPressed = "RightPressed"
+    backPressed = "LeftPressed"
+  else
+    forwardPressed = "DownPressed"
+    backPressed = "UpPressed"
+  end
+  
 	-- Get how much to shift. (Will usually just be one up or down.
 	for _, handler in pairs(inputHandlers)
 	do
-		if (handler:UpPressed())
+		if (handler[backPressed](handler))
 		then
 			shiftAmount = shiftAmount - 1
 		end
-		if (handler:DownPressed())
+		if (handler[forwardPressed](handler))
 		then
 			shiftAmount = shiftAmount + 1
 		end
@@ -458,21 +565,24 @@ function PausedUpdate()
 	
 	-- TODO: Do this at an appropriate time rather than every frame.
 	pauseBackground:Activate()
-	for i,v in ipairs(menuItems)
-	do
-		v:Activate()
-		if (i == itemSelected)
-		then
-			v:Select()
-		else
-			v:Deselect()
-		end
-		
-		local uiScript = v:GetUI()
-		uiScript.scale_y = 0.7
-    uiScript.scale_x = 4 * uiScript.scale_y
-		uiScript.offset_y = 1.8 - i * 0.85
-	end
+  if (not UpdateConfirmDialog())
+  then
+    for i,v in ipairs(menuItems)
+    do
+      v:Activate()
+      if (i == itemSelected)
+      then
+        v:Select()
+      else
+        v:Deselect()
+      end
+      
+      local uiScript = v:GetUI()
+      uiScript.scale_y = 0.7
+      uiScript.scale_x = 4 * uiScript.scale_y
+      uiScript.offset_y = 1.8 - i * 0.85
+    end
+  end
 	
 	FinalizeInputHandlers()	
 	
