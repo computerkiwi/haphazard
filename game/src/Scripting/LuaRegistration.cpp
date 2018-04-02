@@ -70,6 +70,11 @@ bool LuaIsPaused()
 	return engine->IsPaused();
 }
 
+const char *LuaCurrentLevel()
+{
+	return engine->GetCurrentLevel().c_str();
+}
+
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
@@ -84,6 +89,7 @@ void RegisterLua(lua_State * L)
     .addFunction("ScreenToWorld", &Input::ScreenPercentToWorld)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
+		.addFunction("CurrentLevel", &LuaCurrentLevel)
 
 		.addFunction("PlaySound", Audio::PlaySound)
 		.addFunction("SetPaused", &LuaSetPaused)

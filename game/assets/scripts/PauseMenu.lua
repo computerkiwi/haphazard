@@ -29,7 +29,6 @@ local toggleFullscreenButton
 local backButton
 
 local inSettings = false
-
 -----------------------------------------------------------------------
 -- GENERAL HELPERS
 
@@ -121,7 +120,7 @@ function NewButton(spriteSelected, spriteUnselected, activateFunc)
 end
 
 -- Keyboard-based input handler.
-function NewKeyboardInput(upKey, downKey, confirmKey, backKey, pauseKey)
+function NewKeyboardInput(upKey, downKey, leftKey, rightKey, confirmKey, backKey, pauseKey)
 	input = {}
 	
 	-- Returns a function wrapper checking for a key
@@ -131,6 +130,8 @@ function NewKeyboardInput(upKey, downKey, confirmKey, backKey, pauseKey)
 	
 	input.UpPressed = KeyCheck(upKey)
 	input.DownPressed = KeyCheck(downKey)
+	input.LeftPressed = KeyCheck(leftKey)
+	input.RightPressed = KeyCheck(rightKey)
 	input.ConfirmPressed = KeyCheck(confirmKey)
 	input.BackPressed = KeyCheck(backKey)
 	input.PausePressed = KeyCheck(pauseKey)
@@ -146,10 +147,12 @@ function NewControllerInput(controllerID)
 	input = {}
 	input.id = controllerID
 	
-	input.axisLast = 0
+	input.axisLast = 0 -- Vertical axis
+  input.axisLastHoriz = 0
 	
 	local DEADZONE = 0.4
 	local VERTICAL_AXIS = 1
+	local HORIZONTAL_AXIS = 0
 	
 	function input:UpPressed()
 		return (GamepadGetAxis(self.id, VERTICAL_AXIS) > DEADZONE and self.axisLast < DEADZONE)
@@ -157,6 +160,14 @@ function NewControllerInput(controllerID)
 	
 	function input:DownPressed()
 		return (GamepadGetAxis(self.id, VERTICAL_AXIS) < -DEADZONE and self.axisLast > -DEADZONE)
+	end
+  
+	function input:RightPressed()
+		return (GamepadGetAxis(self.id, HORIZONTAL_AXIS) > DEADZONE and self.axisLastHoriz < DEADZONE)
+	end
+	
+	function input:LeftPressed()
+		return (GamepadGetAxis(self.id, HORIZONTAL_AXIS) < -DEADZONE and self.axisLastHoriz > -DEADZONE)
 	end
 	
 	function input:ConfirmPressed()
@@ -173,9 +184,50 @@ function NewControllerInput(controllerID)
 	
 	function input:Finalize()
 		self.axisLast = GamepadGetAxis(self.id, VERTICAL_AXIS)
+		self.axisLastHoriz = GamepadGetAxis(self.id, HORIZONTAL_AXIS)
 	end
 	
 	return input
+end
+
+-----------------------------------------------------------------------
+-- LEVEL CHANGE CODE
+
+-- (mostly stolen from EndLevelScript.lua)
+
+local TRANSITION_LEVEL = ""
+
+local transitionTime = 1.8
+
+transitionStarted = false
+
+transitionScreen = nil
+transitionSparkles = nil
+
+function UpdateLevelTransition(dt)
+	if(transitionStarted)
+	then
+		transitionTime = transitionTime - dt
+
+		transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
+
+		if(transitionTime < 0)
+		then
+			Engine.LoadLevel(TRANSITION_LEVEL)
+		end
+	end
+end
+
+function StartLevelTransition(levelName)
+  TRANSITION_LEVEL = levelName
+  transitionStarted = true
+
+  transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionFast.json")
+
+  transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
+  
+  winSparkles:GetTransform().position = this:GetTransform().position
+  winSparkles:GetTransform().position = vec2(winSparkles:GetTransform().position.x, winSparkles:GetTransform().position.y - 1);
 end
 
 -----------------------------------------------------------------------
@@ -211,7 +263,8 @@ end
 -- Opens up the restart confirmation dialog.
 function Restart()
 	-- TODO: Implement this.
-	print("Restart button not yet implemented.")
+  SetPaused(false)
+  StartLevelTransition(CurrentLevel())
 end
 
 -- Opens up the quit confirmation dialog.
@@ -244,7 +297,7 @@ function Start()
 	-- Register the input handlers
 	inputHandlers = 
 	{
-		NewKeyboardInput(KEY.W, KEY.S, KEY.Space, KEY.Q, KEY.Escape), 
+		NewKeyboardInput(KEY.W, KEY.S, KEY.A, KEY.D, KEY.Space, KEY.Q, KEY.Escape), 
 		NewControllerInput(0),
 		NewControllerInput(1),
 		NewControllerInput(2),
@@ -331,7 +384,13 @@ function FinalizeInputHandlers()
 	end
 end
 
-function Update()
+function Update(dt)
+  -- If we're currently transitioning, don't let anyone pause again.
+  if (transitionStarted)
+  then
+    UpdateLevelTransition(dt)
+  end
+
 	-- Don't do our stuff if we're switching to the other state.
 	if (CheckForToggle())
 	then

@@ -11,7 +11,7 @@ ended = false
 
 function Start()
 	transitionObj = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionIn.json")
-	transitionObj:GetTransform().position = ScreenToWorld(vec2(0,0))
+	transitionObj:GetTransform().position = GameObject.FindByName("Main Camera"):GetTransform().position
 	ended = false
   killTime = 2.9
 end
@@ -21,7 +21,7 @@ function Update(dt)
 	then
 		killTime = killTime - dt
 
-		transitionObj:GetTransform().position = ScreenToWorld(vec2(0,0))
+		transitionObj:GetTransform().position = GameObject.FindByName("Main Camera"):GetTransform().position
 
 		if(killTime < 0)
 		then
