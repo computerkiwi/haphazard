@@ -113,6 +113,7 @@ void RenderSystem::RenderSprites(float dt)
 		{
 			continue;
 		}
+		
 
 		layers.insert(static_cast<int>(transform->GetZLayer()));
 	}
@@ -131,13 +132,15 @@ void RenderSystem::RenderSprites(float dt)
 		{
 			// Check for valid transform
 			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
+
+			if (static_cast<int>(transform->GetZLayer()) != layer)
+				continue;
+
 			if (!transform.IsActive())
 			{
 				continue;
 			}
 
-			if (static_cast<int>(transform->GetZLayer()) != layer)
-				continue;
 
 			// Update animated sprites
 			spriteHandle->UpdateTextureHandler(dt);
