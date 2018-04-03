@@ -307,17 +307,9 @@ function QuitButton()
   ConfirmAction("Prompt_QuitToDesktop.png", ActualQuit)
 end
 
-function ToggleSFX()
-	-- TODO: Implement this.
-	print("SFX toggle not yet implemented.")
-end
-
--- Directly call ToggleMusic() for toggling music.
-
-function ToggleFullscreen()
-	-- TODO: Implement this.
-	print("Fullscreen toggle not yet implemented.")
-end
+-- Directly call ToggleSFX()
+-- Directly call ToggleMusic()
+-- Directly call ToggleFullscreen()
 
 function ConfirmYes()
 	SetPaused(false)

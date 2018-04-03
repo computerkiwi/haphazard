@@ -32,10 +32,15 @@ namespace Audio
 
 	static SoundHandle musicTrack;
 	static float musicTrackVol;
-	static SoundHandle musicTrackOut; // Music track that's currently fading out.
-	static float musicTrackOutVol;
-
 	static bool musicMuted = false;
+
+	static std::list<std::pair<SoundHandle, float>> sfxList; // <soundHandle, volume>
+	static bool sfxMuted = false;
+
+	static void ClearOldSFX()
+	{
+		std::remove_if(sfxList.begin(), sfxList.end(), [](const std::pair<SoundHandle, float>& soundPair) { return !soundPair.first.IsPlaying(); });
+	}
 
 	// Returns the path into the audio folder plus the filename.
 	static std::string AudioAssetPath(const char *filename)
@@ -58,6 +63,8 @@ namespace Audio
 		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
 		fmodSystem->update();
+
+		ClearOldSFX();
 	}
 
 	// Plays a sound without categorizing it as SFX or music.
@@ -96,7 +103,16 @@ namespace Audio
 	// Plays a given sound effect.
 	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
 	{
-		return PlaySoundGeneric(fileName, volume, pitch, looping);
+		float origVolume = volume;
+		if (sfxMuted)
+		{
+			volume = 0;
+		}
+		SoundHandle newSound = PlaySoundGeneric(fileName, volume, pitch, looping);
+
+		sfxList.push_back(std::make_pair(newSound, origVolume));
+
+		return newSound;
 	}
 
 	// TODO: Actually use the transition time parameter.
@@ -107,9 +123,29 @@ namespace Audio
 			musicTrack.Stop();
 		}
 
-		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
 		musicTrackVol = volume;
+		if (musicMuted)
+		{
+			volume = 0;
+		}
+		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
 		return musicTrack;
+	}
+
+	void ToggleSFX()
+	{
+		sfxMuted = !sfxMuted;
+		for (std::pair<SoundHandle, float>& soundPair : sfxList)
+		{
+			if (sfxMuted)
+			{
+				soundPair.first.SetVolume(0);
+			}
+			else
+			{
+				soundPair.first.SetVolume(soundPair.second);
+			}
+		}
 	}
 
 	void ToggleMusic()
