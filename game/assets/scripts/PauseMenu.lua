@@ -19,6 +19,7 @@ local pauseBackground
 local resumeButton
 local restartButton
 local settingsButton
+local mainMenuButton
 local quitButton
 
 -- Settings pause menu buttons.
@@ -27,8 +28,17 @@ local muteSfxButton
 local toggleFullscreenButton
 local backButton
 
+local confirmPromptObj
+local confirmYesButton
+local confirmNoButton
+local confirmYesSelected = false
+
 local inSettings = false
 
+local confirming = false
+local confirmingAction = nil
+
+hideMenuInEditor = true
 -----------------------------------------------------------------------
 -- GENERAL HELPERS
 
@@ -54,6 +64,7 @@ function DeactivateAllButtons()
 	resumeButton:Deactivate()
 	restartButton:Deactivate()
 	settingsButton:Deactivate()
+  mainMenuButton:Deactivate()
 	quitButton:Deactivate()
     
 	muteMusicButton:Deactivate()
@@ -67,6 +78,16 @@ function ActivateButtons(buttonTable)
 	do
 		button:Activate()
 	end
+end
+
+function ConfirmAction(promptTexture, action)
+  confirming = true
+  confirmingAction = action
+
+  confirmPromptObj:GetSprite().id = Resource.FilenameToID(promptTexture)
+  
+  menuItems = {confirmYesButton, confirmNoButton}
+  itemSelected = 2
 end
 
 -----------------------------------------------------------------------
@@ -119,7 +140,7 @@ function NewButton(spriteSelected, spriteUnselected, activateFunc)
 end
 
 -- Keyboard-based input handler.
-function NewKeyboardInput(upKey, downKey, confirmKey, backKey, pauseKey)
+function NewKeyboardInput(upKey, downKey, leftKey, rightKey, confirmKey, backKey, pauseKey)
 	input = {}
 	
 	-- Returns a function wrapper checking for a key
@@ -129,6 +150,8 @@ function NewKeyboardInput(upKey, downKey, confirmKey, backKey, pauseKey)
 	
 	input.UpPressed = KeyCheck(upKey)
 	input.DownPressed = KeyCheck(downKey)
+	input.LeftPressed = KeyCheck(leftKey)
+	input.RightPressed = KeyCheck(rightKey)
 	input.ConfirmPressed = KeyCheck(confirmKey)
 	input.BackPressed = KeyCheck(backKey)
 	input.PausePressed = KeyCheck(pauseKey)
@@ -144,10 +167,12 @@ function NewControllerInput(controllerID)
 	input = {}
 	input.id = controllerID
 	
-	input.axisLast = 0
+	input.axisLast = 0 -- Vertical axis
+  input.axisLastHoriz = 0
 	
 	local DEADZONE = 0.4
 	local VERTICAL_AXIS = 1
+	local HORIZONTAL_AXIS = 0
 	
 	function input:UpPressed()
 		return (GamepadGetAxis(self.id, VERTICAL_AXIS) > DEADZONE and self.axisLast < DEADZONE)
@@ -155,6 +180,14 @@ function NewControllerInput(controllerID)
 	
 	function input:DownPressed()
 		return (GamepadGetAxis(self.id, VERTICAL_AXIS) < -DEADZONE and self.axisLast > -DEADZONE)
+	end
+  
+	function input:RightPressed()
+		return (GamepadGetAxis(self.id, HORIZONTAL_AXIS) > DEADZONE and self.axisLastHoriz < DEADZONE)
+	end
+	
+	function input:LeftPressed()
+		return (GamepadGetAxis(self.id, HORIZONTAL_AXIS) < -DEADZONE and self.axisLastHoriz > -DEADZONE)
 	end
 	
 	function input:ConfirmPressed()
@@ -171,9 +204,53 @@ function NewControllerInput(controllerID)
 	
 	function input:Finalize()
 		self.axisLast = GamepadGetAxis(self.id, VERTICAL_AXIS)
+		self.axisLastHoriz = GamepadGetAxis(self.id, HORIZONTAL_AXIS)
 	end
 	
 	return input
+end
+
+-----------------------------------------------------------------------
+-- TRANSITION CODE
+
+-- (mostly stolen from EndLevelScript.lua)
+
+local TRANSITION_ACTION
+
+function NewLevelTransition(level)
+  return function()
+    Engine.LoadLevel(level)
+  end
+end
+
+local transitionTime = 1.8
+
+transitionStarted = false
+
+transitionScreen = nil
+transitionSparkles = nil
+
+function UpdateLevelTransition(dt)
+	if(transitionStarted)
+	then
+		transitionTime = transitionTime - dt
+
+		transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
+
+		if(transitionTime < 0)
+		then
+			TRANSITION_ACTION()
+		end
+	end
+end
+
+function StartTransition(transitionAction)
+  TRANSITION_ACTION = transitionAction
+  transitionStarted = true
+
+  transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionFast.json")
+
+  transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
 end
 
 -----------------------------------------------------------------------
@@ -186,7 +263,7 @@ end
 -- Switches to the "main" pause page.
 function ActivateMain()
 	DeactivateAllButtons()
-	menuItems = {resumeButton, restartButton, settingsButton, quitButton}
+	menuItems = {resumeButton, restartButton, settingsButton, mainMenuButton, quitButton}
 	itemSelected = 1
 	ActivateButtons(menuItems)
 	inSettings = false
@@ -201,31 +278,49 @@ function ActivateSettings()
 	inSettings = true
 end
 
+function MainMenu()
+  local function ActualMainMenu()
+    SetPaused(false)
+    StartTransition(NewLevelTransition("MainMenu.json"))
+  end
+
+  ConfirmAction("Prompt_QuitToMainMenu.png", ActualMainMenu)
+end
+
 -- Opens up the restart confirmation dialog.
 function Restart()
-	-- TODO: Implement this.
-	print("Restart button not yet implemented.")
+  local function ActualRestart()
+    SetPaused(false)
+    StartTransition(NewLevelTransition(CurrentLevel()))
+  end
+
+  ConfirmAction("Prompt_RestartLevel.png", ActualRestart)
 end
 
 -- Opens up the quit confirmation dialog.
 function QuitButton()
-	-- TODO: Implement this.
-	print("Quit button not yet implemented.")
+  local function ActualQuit()
+    SetPaused(false)
+    StartTransition(QuitGame)
+  end
+
+  ConfirmAction("Prompt_QuitToDesktop.png", ActualQuit)
 end
 
-function ToggleSFX()
-	-- TODO: Implement this.
-	print("SFX toggle not yet implemented.")
+-- Directly call ToggleSFX()
+-- Directly call ToggleMusic()
+-- Directly call ToggleFullscreen()
+
+function ConfirmYes()
+	SetPaused(false)
+  confirming = false
+  UpdateConfirmDialog(false)
+  confirmingAction()
 end
 
-function ToggleMusic()
-	-- TODO: Implement this.
-	print("Music toggle not yet implemented.")
-end
-
-function ToggleFullscreen()
-	-- TODO: Implement this.
-	print("Fullscreen toggle not yet implemented.")
+function ConfirmNo()
+  confirming = false
+  ActivateMain()
 end
 
 -----------------------------------------------------------------------
@@ -237,7 +332,7 @@ function Start()
 	-- Register the input handlers
 	inputHandlers = 
 	{
-		NewKeyboardInput(KEY.W, KEY.S, KEY.Space, KEY.Q, KEY.Escape), 
+		NewKeyboardInput(KEY.W, KEY.S, KEY.A, KEY.D, KEY.Space, KEY.Q, KEY.Escape), 
 		NewControllerInput(0),
 		NewControllerInput(1),
 		NewControllerInput(2),
@@ -245,17 +340,26 @@ function Start()
 	}
 	
 	-- Main pause menu buttons
-	resumeButton = NewButton("treeboy.png", "ground.png", Resume)
-	restartButton = NewButton("treeboy.png", "ground.png", Restart)
-	settingsButton = NewButton("treeboy.png", "ground.png", ActivateSettings)
-	quitButton = NewButton("treeboy.png", "ground.png", QuitButton)
+	resumeButton = NewButton("PauseMenu_Resume_Selected.png", "PauseMenu_Resume_Unselected.png", Resume)
+	restartButton = NewButton("PauseMenu_Restart_Selected.png", "PauseMenu_Restart_Unselected.png", Restart)
+	settingsButton = NewButton("PauseMenu_Options_Selected.png", "PauseMenu_Options_Unselected.png", ActivateSettings)
+	mainMenuButton = NewButton("PauseMenu_MainMenu_Selected.png", "PauseMenu_MainMenu_Unselected.png", MainMenu)
+	quitButton = NewButton("PauseMenu_Quit_Selected.png", "PauseMenu_Quit_Unselected.png", QuitButton)
 	
 	-- Settings pause menu buttons.
-	muteMusicButton = NewButton("treeboy.png", "ground.png", ToggleMusic)
-	muteSfxButton = NewButton("treeboy.png", "ground.png", ToggleSFX)
-	toggleFullscreenButton = NewButton("treeboy.png", "ground.png", ToggleFullscreen)
-	backButton = NewButton("treeboy.png", "ground.png", ActivateMain)
+	muteMusicButton = NewButton("PauseMenu_MuteMusic_Selected.png", "PauseMenu_MuteMusic_Unselected.png", ToggleMusic)
+	muteSfxButton = NewButton("PauseMenu_MuteSFX_Selected.png", "PauseMenu_MuteSFX_Unselected.png", ToggleSFX)
+	toggleFullscreenButton = NewButton("PauseMenu_ToggleFullscreen_Selected.png", "PauseMenu_ToggleFullscreen_Unselected.png", ToggleFullscreen)
+	backButton = NewButton("PauseMenu_Back_Selected.png", "PauseMenu_Back_Unselected.png", ActivateMain)
 	
+  -- Confirmation stuff.
+  confirmPromptObj = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/GenericPauseUI.json", true)
+  confirmYesButton = NewButton("Button_Yes_On.png", "Button_Yes_Off.png", ConfirmYes)
+  confirmNoButton = NewButton("Button_No_On.png", "Button_No_Off.png", ConfirmNo)
+  confirmPromptObj:GetTransform().zLayer = 1501
+  confirmYesButton.gameObject:GetTransform().zLayer = 1502
+  confirmNoButton.gameObject:GetTransform().zLayer = 1502
+  
 	ActivateMain()
 	
 end
@@ -277,17 +381,80 @@ function CheckForToggle()
 	return false
 end
 
+-- Returns true if actively confirming
+function UpdateConfirmDialog(confirmActive)
+  if (confirmActive == nil)
+  then
+    confirmActive = confirming
+  end
+
+  if (confirmActive)
+  then
+    -- Make sure all the buttons are active.
+    confirmPromptObj:Activate()
+    confirmYesButton:Activate()
+    confirmNoButton:Activate()
+    
+    -- Position all the confirmation UI.
+    do
+      local confirmUI = confirmPromptObj:GetScript("GenericUI.lua")
+      confirmUI.scale_y = 3
+      confirmUI.scale_x = (512 / 384) * confirmUI.scale_y
+      
+      local yesUI = confirmYesButton:GetUI()
+      yesUI.scale_y = 0.5
+      yesUI.scale_x = (192 / 80) * yesUI.scale_y
+      yesUI.offset_y = -0.8
+      yesUI.offset_x = -0.9
+      
+      local noUI = confirmNoButton:GetUI()
+      noUI.scale_y = 0.5
+      noUI.scale_x = (192 / 80) * noUI.scale_y
+      noUI.offset_y = -0.8
+      noUI.offset_x = 0.9
+    end
+    
+    for _, handler in pairs(inputHandlers)
+    do
+      if (handler:LeftPressed() or handler:LeftPressed())
+      then
+        
+      end
+    end
+    
+    return true
+  else
+    confirmPromptObj:Deactivate()
+    confirmYesButton:Deactivate()
+    confirmNoButton:Deactivate()
+    
+    return false
+  end
+end
+
 function UpdateSelectedMenuItem()
 	local shiftAmount = 0
 	
+  -- Left and right when confirming.
+  local forwardPressed
+  local backPressed
+  if (confirming)
+  then
+    forwardPressed = "RightPressed"
+    backPressed = "LeftPressed"
+  else
+    forwardPressed = "DownPressed"
+    backPressed = "UpPressed"
+  end
+  
 	-- Get how much to shift. (Will usually just be one up or down.
 	for _, handler in pairs(inputHandlers)
 	do
-		if (handler:UpPressed())
+		if (handler[backPressed](handler))
 		then
 			shiftAmount = shiftAmount - 1
 		end
-		if (handler:DownPressed())
+		if (handler[forwardPressed](handler))
 		then
 			shiftAmount = shiftAmount + 1
 		end
@@ -323,15 +490,53 @@ function FinalizeInputHandlers()
 	end
 end
 
-function Update()
+function EditorUpdate()
+  local backgroundTransform = pauseBackground:GetTransform()
+
+  if (EditorIsOpen() and hideMenuInEditor)
+  then
+    backgroundTransform.localPosition = vec2(9999999999, 99999999)
+    
+    EditHide(resumeButton)
+    EditHide(restartButton)
+    EditHide(settingsButton)
+    EditHide(mainMenuButton)
+    EditHide(quitButton)
+    
+    EditHide(muteMusicButton)
+    EditHide(muteSfxButton)
+    EditHide(toggleFullscreenButton)
+    EditHide(backButton)
+  else
+    backgroundTransform.localPosition = vec2(0, 0)
+  end
+end
+
+function EditHide(button)
+  local uiScript = button:GetUI()
+  uiScript.offset_y = 99999
+end
+
+function Update(dt)
+  -- If we're currently transitioning, don't let anyone pause again.
+  if (transitionStarted)
+  then
+    UpdateLevelTransition(dt)
+  end
+
 	-- Don't do our stuff if we're switching to the other state.
 	if (CheckForToggle())
 	then
 		return
 	end
-	
+  
+  confirming = false
+  UpdateConfirmDialog()
+  
 	DeactivateAllButtons()
 	pauseBackground:Deactivate()
+	
+  EditorUpdate()
 end
 
 function PausedUpdate()
@@ -340,7 +545,7 @@ function PausedUpdate()
 	then
 		return
 	end
-	
+  
 	if (inSettings)
 	then
 		for _, handler in pairs(inputHandlers)
@@ -360,20 +565,26 @@ function PausedUpdate()
 	
 	-- TODO: Do this at an appropriate time rather than every frame.
 	pauseBackground:Activate()
-	for i,v in ipairs(menuItems)
-	do
-		v:Activate()
-		if (i == itemSelected)
-		then
-			v:Select()
-		else
-			v:Deselect()
-		end
-		
-		local uiScript = v:GetUI()
-		uiScript.scale_y = 0.7
-		uiScript.offset_y = 1.5 - i * 0.85
-	end
+  if (not UpdateConfirmDialog())
+  then
+    for i,v in ipairs(menuItems)
+    do
+      v:Activate()
+      if (i == itemSelected)
+      then
+        v:Select()
+      else
+        v:Deselect()
+      end
+      
+      local uiScript = v:GetUI()
+      uiScript.scale_y = 0.7
+      uiScript.scale_x = 4 * uiScript.scale_y
+      uiScript.offset_y = 1.8 - i * 0.85
+    end
+  end
 	
 	FinalizeInputHandlers()	
+	
+  EditorUpdate()
 end

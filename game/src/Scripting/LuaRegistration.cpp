@@ -19,6 +19,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 #include "Audio/AudioEngine.h"
 
+void ToggleFullscreen();
+
 //-------
 // Input
 //-------
@@ -70,6 +72,21 @@ bool LuaIsPaused()
 	return engine->IsPaused();
 }
 
+const char *LuaCurrentLevel()
+{
+	return engine->GetCurrentLevel().c_str();
+}
+
+bool LuaEditorIsOpen()
+{
+	return engine->GetEditor()->GetEditorState().show;
+}
+
+void LuaQuitGame()
+{
+	engine->Exit();
+}
+
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
@@ -84,8 +101,16 @@ void RegisterLua(lua_State * L)
     .addFunction("ScreenToWorld", &Input::ScreenPercentToWorld)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
+		.addFunction("CurrentLevel", &LuaCurrentLevel)
+		.addFunction("EditorIsOpen", &LuaEditorIsOpen)
+		.addFunction("QuitGame", &LuaQuitGame)
+		.addFunction("ToggleFullscreen", &ToggleFullscreen)
 
 		.addFunction("PlaySound", Audio::PlaySound)
+		.addFunction("PlayMusic", Audio::PlayMusic)
+		.addFunction("ToggleMusic", Audio::ToggleMusic)
+		.addFunction("ToggleSFX", Audio::ToggleSFX)
+		.addFunction("GetMusic", Audio::GetMusic)
 		.addFunction("SetPaused", &LuaSetPaused)
 		.addFunction("IsPaused", &LuaIsPaused);
 		

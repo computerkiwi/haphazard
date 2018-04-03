@@ -304,6 +304,8 @@ void Engine::FileLoadInternal(const char * fileName)
 
 	meta::DeserializeAssign(*this, doc);
 	ApplySerializedIdUpdates();
+
+	m_currentLevel = fileName;
 }
 
 
