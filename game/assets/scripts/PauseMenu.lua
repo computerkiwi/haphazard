@@ -211,11 +211,17 @@ function NewControllerInput(controllerID)
 end
 
 -----------------------------------------------------------------------
--- LEVEL CHANGE CODE
+-- TRANSITION CODE
 
 -- (mostly stolen from EndLevelScript.lua)
 
-local TRANSITION_LEVEL = ""
+local TRANSITION_ACTION
+
+function NewLevelTransition(level)
+  return function()
+    Engine.LoadLevel(level)
+  end
+end
 
 local transitionTime = 1.8
 
@@ -233,21 +239,18 @@ function UpdateLevelTransition(dt)
 
 		if(transitionTime < 0)
 		then
-			Engine.LoadLevel(TRANSITION_LEVEL)
+			TRANSITION_ACTION()
 		end
 	end
 end
 
-function StartLevelTransition(levelName)
-  TRANSITION_LEVEL = levelName
+function StartTransition(transitionAction)
+  TRANSITION_ACTION = transitionAction
   transitionStarted = true
 
   transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionFast.json")
 
   transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
-  
-  winSparkles:GetTransform().position = this:GetTransform().position
-  winSparkles:GetTransform().position = vec2(winSparkles:GetTransform().position.x, winSparkles:GetTransform().position.y - 1);
 end
 
 -----------------------------------------------------------------------
@@ -278,7 +281,7 @@ end
 function MainMenu()
   local function ActualMainMenu()
     SetPaused(false)
-    StartLevelTransition("MainMenu.json")
+    StartTransition(NewLevelTransition("MainMenu.json"))
   end
 
   ConfirmAction("Prompt_QuitToMainMenu.png", ActualMainMenu)
@@ -288,7 +291,7 @@ end
 function Restart()
   local function ActualRestart()
     SetPaused(false)
-    StartLevelTransition(CurrentLevel())
+    StartTransition(NewLevelTransition(CurrentLevel()))
   end
 
   ConfirmAction("Prompt_RestartLevel.png", ActualRestart)
@@ -296,8 +299,12 @@ end
 
 -- Opens up the quit confirmation dialog.
 function QuitButton()
-	-- TODO: Implement this.
-	print("Quit button not yet implemented.")
+  local function ActualQuit()
+    SetPaused(false)
+    StartTransition(QuitGame)
+  end
+
+  ConfirmAction("Prompt_QuitToDesktop.png", ActualQuit)
 end
 
 function ToggleSFX()
@@ -316,6 +323,7 @@ function ToggleFullscreen()
 end
 
 function ConfirmYes()
+	SetPaused(false)
   confirming = false
   UpdateConfirmDialog(false)
   confirmingAction()
@@ -532,6 +540,9 @@ function Update(dt)
 	then
 		return
 	end
+  
+  confirming = false
+  UpdateConfirmDialog()
   
 	DeactivateAllButtons()
 	pauseBackground:Deactivate()

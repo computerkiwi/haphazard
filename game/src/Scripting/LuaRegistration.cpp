@@ -80,6 +80,11 @@ bool LuaEditorIsOpen()
 	return engine->GetEditor()->GetEditorState().show;
 }
 
+void LuaQuitGame()
+{
+	engine->Exit();
+}
+
 void RegisterLua(lua_State * L)
 {
   luabridge::getGlobalNamespace(L)
@@ -96,6 +101,7 @@ void RegisterLua(lua_State * L)
 		.addFunction("GetMousePos", &LuaMousePos)
 		.addFunction("CurrentLevel", &LuaCurrentLevel)
 		.addFunction("EditorIsOpen", &LuaEditorIsOpen)
+		.addFunction("QuitGame", &LuaQuitGame)
 
 		.addFunction("PlaySound", Audio::PlaySound)
 		.addFunction("SetPaused", &LuaSetPaused)
