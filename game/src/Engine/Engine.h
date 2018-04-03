@@ -87,6 +87,11 @@ public:
 		return m_paused;
 	}
 
+	const std::string& GetCurrentLevel()
+	{
+		return m_currentLevel;
+	}
+
 private:
 
 	void FileLoadInternal(const char *fileName);
@@ -108,6 +113,8 @@ private:
 	GameSpaceManagerID m_spaces;
 	ResourceManager m_resManager;
 	FXManager m_fxManager;
+
+	std::string m_currentLevel;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
 	{

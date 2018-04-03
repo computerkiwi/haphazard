@@ -30,6 +30,18 @@ namespace Audio
 	}
 	#define CheckErrorFMOD(funcCall) CheckErrorFMODInternal(funcCall, #funcCall)
 
+	static SoundHandle musicTrack;
+	static float musicTrackVol;
+	static bool musicMuted = false;
+
+	static std::list<std::pair<SoundHandle, float>> sfxList; // <soundHandle, volume>
+	static bool sfxMuted = false;
+
+	static void ClearOldSFX()
+	{
+		std::remove_if(sfxList.begin(), sfxList.end(), [](const std::pair<SoundHandle, float>& soundPair) { return !soundPair.first.IsPlaying(); });
+	}
+
 	// Returns the path into the audio folder plus the filename.
 	static std::string AudioAssetPath(const char *filename)
 	{
@@ -51,10 +63,12 @@ namespace Audio
 		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
 		fmodSystem->update();
+
+		ClearOldSFX();
 	}
 
-	// Plays a given sound once.
-	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
+	// Plays a sound without categorizing it as SFX or music.
+	static SoundHandle PlaySoundGeneric(const char *fileName, float volume, float pitch, bool looping)
 	{
 		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
@@ -86,6 +100,72 @@ namespace Audio
 		return(SoundHandle(channel, resource->FileName().c_str()));
 	}
 
+	// Plays a given sound effect.
+	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
+	{
+		float origVolume = volume;
+		if (sfxMuted)
+		{
+			volume = 0;
+		}
+		SoundHandle newSound = PlaySoundGeneric(fileName, volume, pitch, looping);
+
+		sfxList.push_back(std::make_pair(newSound, origVolume));
+
+		return newSound;
+	}
+
+	// TODO: Actually use the transition time parameter.
+	SoundHandle PlayMusic(const char * fileName, float volume, float pitch, float transitionTime)
+	{
+		if (musicTrack.IsPlaying())
+		{
+			musicTrack.Stop();
+		}
+
+		musicTrackVol = volume;
+		if (musicMuted)
+		{
+			volume = 0;
+		}
+		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
+		return musicTrack;
+	}
+
+	void ToggleSFX()
+	{
+		sfxMuted = !sfxMuted;
+		for (std::pair<SoundHandle, float>& soundPair : sfxList)
+		{
+			if (sfxMuted)
+			{
+				soundPair.first.SetVolume(0);
+			}
+			else
+			{
+				soundPair.first.SetVolume(soundPair.second);
+			}
+		}
+	}
+
+	void ToggleMusic()
+	{
+		musicMuted = !musicMuted;
+		if (musicMuted)
+		{
+			musicTrack.SetVolume(0.0f);
+		}
+		else
+		{
+			musicTrack.SetVolume(musicTrackVol);
+		}
+	}
+
+	SoundHandle GetMusic()
+	{
+		return musicTrack;
+	}
+
 	FMOD::System *GetSystem()
 	{
 		return fmodSystem;
@@ -97,6 +177,11 @@ namespace Audio
 
 	bool SoundHandle::IsPlaying() const
 	{
+		if (m_fmodChannel == nullptr)
+		{
+			return false;
+		}
+
 		bool isPlaying;
 		CheckErrorFMOD(m_fmodChannel->isPlaying(&isPlaying));
 
@@ -127,5 +212,10 @@ namespace Audio
 		CheckErrorFMOD(m_fmodChannel->getPitch(&pitch));
 
 		return pitch;
+	}
+
+	void SoundHandle::SetVolume(float volume)
+	{
+		CheckErrorFMOD(m_fmodChannel->setVolume(volume));
 	}
 }
