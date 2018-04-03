@@ -183,7 +183,10 @@ namespace Audio
 		}
 
 		bool isPlaying;
-		CheckErrorFMOD(m_fmodChannel->isPlaying(&isPlaying));
+		if (m_fmodChannel->isPlaying(&isPlaying))
+		{
+			return false;
+		}
 
 		return isPlaying;
 	}
