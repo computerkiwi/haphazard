@@ -30,6 +30,13 @@ namespace Audio
 	}
 	#define CheckErrorFMOD(funcCall) CheckErrorFMODInternal(funcCall, #funcCall)
 
+	static SoundHandle musicTrack;
+	static float musicTrackVol;
+	static SoundHandle musicTrackOut; // Music track that's currently fading out.
+	static float musicTrackOutVol;
+
+	static bool musicMuted = false;
+
 	// Returns the path into the audio folder plus the filename.
 	static std::string AudioAssetPath(const char *filename)
 	{
@@ -53,8 +60,8 @@ namespace Audio
 		fmodSystem->update();
 	}
 
-	// Plays a given sound once.
-	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
+	// Plays a sound without categorizing it as SFX or music.
+	static SoundHandle PlaySoundGeneric(const char *fileName, float volume, float pitch, bool looping)
 	{
 		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
@@ -86,6 +93,43 @@ namespace Audio
 		return(SoundHandle(channel, resource->FileName().c_str()));
 	}
 
+	// Plays a given sound effect.
+	SoundHandle PlaySound(const char *fileName, float volume, float pitch, bool looping)
+	{
+		return PlaySoundGeneric(fileName, volume, pitch, looping);
+	}
+
+	// TODO: Actually use the transition time parameter.
+	SoundHandle PlayMusic(const char * fileName, float volume, float pitch, float transitionTime)
+	{
+		if (musicTrack.IsPlaying())
+		{
+			musicTrack.Stop();
+		}
+
+		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
+		musicTrackVol = volume;
+		return musicTrack;
+	}
+
+	void ToggleMusic()
+	{
+		musicMuted = !musicMuted;
+		if (musicMuted)
+		{
+			musicTrack.SetVolume(0.0f);
+		}
+		else
+		{
+			musicTrack.SetVolume(musicTrackVol);
+		}
+	}
+
+	SoundHandle GetMusic()
+	{
+		return musicTrack;
+	}
+
 	FMOD::System *GetSystem()
 	{
 		return fmodSystem;
@@ -97,6 +141,11 @@ namespace Audio
 
 	bool SoundHandle::IsPlaying() const
 	{
+		if (m_fmodChannel == nullptr)
+		{
+			return false;
+		}
+
 		bool isPlaying;
 		CheckErrorFMOD(m_fmodChannel->isPlaying(&isPlaying));
 
@@ -127,5 +176,10 @@ namespace Audio
 		CheckErrorFMOD(m_fmodChannel->getPitch(&pitch));
 
 		return pitch;
+	}
+
+	void SoundHandle::SetVolume(float volume)
+	{
+		CheckErrorFMOD(m_fmodChannel->setVolume(volume));
 	}
 }

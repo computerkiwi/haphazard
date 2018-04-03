@@ -312,10 +312,7 @@ function ToggleSFX()
 	print("SFX toggle not yet implemented.")
 end
 
-function ToggleMusic()
-	-- TODO: Implement this.
-	print("Music toggle not yet implemented.")
-end
+-- Directly call ToggleMusic() for toggling music.
 
 function ToggleFullscreen()
 	-- TODO: Implement this.
