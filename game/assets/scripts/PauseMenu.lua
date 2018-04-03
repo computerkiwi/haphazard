@@ -18,7 +18,9 @@ local pauseBackground
 -- Main pause menu buttons.
 local resumeButton
 local restartButton
+local howToPlayButton
 local settingsButton
+local creditsButton
 local mainMenuButton
 local quitButton
 
@@ -63,7 +65,9 @@ end
 function DeactivateAllButtons()
 	resumeButton:Deactivate()
 	restartButton:Deactivate()
-	settingsButton:Deactivate()
+  howToPlayButton:Deactivate()
+  settingsButton:Deactivate()
+  creditsButton:Deactivate()
   mainMenuButton:Deactivate()
 	quitButton:Deactivate()
     
@@ -263,7 +267,7 @@ end
 -- Switches to the "main" pause page.
 function ActivateMain()
 	DeactivateAllButtons()
-	menuItems = {resumeButton, restartButton, settingsButton, mainMenuButton, quitButton}
+	menuItems = {resumeButton, restartButton, howToPlayButton, settingsButton, creditsButton, mainMenuButton, quitButton}
 	itemSelected = 1
 	ActivateButtons(menuItems)
 	inSettings = false
@@ -295,6 +299,14 @@ function Restart()
   end
 
   ConfirmAction("Prompt_RestartLevel.png", ActualRestart)
+end
+
+function HowToPlayButton()
+  -- TODO: Implement this
+end
+
+function CreditsButton()
+  -- TODO: Implement this
 end
 
 -- Opens up the quit confirmation dialog.
@@ -342,7 +354,9 @@ function Start()
 	-- Main pause menu buttons
 	resumeButton = NewButton("PauseMenu_Resume_Selected.png", "PauseMenu_Resume_Unselected.png", Resume)
 	restartButton = NewButton("PauseMenu_Restart_Selected.png", "PauseMenu_Restart_Unselected.png", Restart)
+  howToPlayButton = NewButton("PauseMenu_HowToPlay_Selected.png", "PauseMenu_HowToPlay_Unselected.png", Restart)
 	settingsButton = NewButton("PauseMenu_Options_Selected.png", "PauseMenu_Options_Unselected.png", ActivateSettings)
+	creditsButton = NewButton("PauseMenu_Credits_Selected.png", "PauseMenu_Credits_Unselected.png", ActivateSettings)
 	mainMenuButton = NewButton("PauseMenu_MainMenu_Selected.png", "PauseMenu_MainMenu_Unselected.png", MainMenu)
 	quitButton = NewButton("PauseMenu_Quit_Selected.png", "PauseMenu_Quit_Unselected.png", QuitButton)
 	
@@ -491,15 +505,15 @@ function FinalizeInputHandlers()
 end
 
 function EditorUpdate()
-  local backgroundTransform = pauseBackground:GetTransform()
-
   if (EditorIsOpen() and hideMenuInEditor)
   then
-    backgroundTransform.localPosition = vec2(9999999999, 99999999)
+    pauseBackground:GetScript("GenericUI.lua").offset_y = 99999
     
     EditHide(resumeButton)
     EditHide(restartButton)
+    EditHide(howToPlayButton)
     EditHide(settingsButton)
+    EditHide(creditsButton)
     EditHide(mainMenuButton)
     EditHide(quitButton)
     
@@ -508,7 +522,7 @@ function EditorUpdate()
     EditHide(toggleFullscreenButton)
     EditHide(backButton)
   else
-    backgroundTransform.localPosition = vec2(0, 0)
+    pauseBackground:GetScript("GenericUI.lua").offset_y = 0
   end
 end
 
@@ -577,10 +591,18 @@ function PausedUpdate()
         v:Deselect()
       end
       
+      local BUTTON_HEIGHT = .5
+      local BUTTON_SPACING = 0.02
+      local BUTTON_LEFT_X = -3.8
+      local BUTTON_BOT_Y = -2.5
+      
+      local BUTTON_TOP_Y = BUTTON_BOT_Y + #menuItems *(BUTTON_HEIGHT + BUTTON_SPACING)
+      
       local uiScript = v:GetUI()
-      uiScript.scale_y = 0.7
+      uiScript.scale_y = BUTTON_HEIGHT
       uiScript.scale_x = 4 * uiScript.scale_y
-      uiScript.offset_y = 1.8 - i * 0.85
+      uiScript.offset_x = BUTTON_LEFT_X
+      uiScript.offset_y = BUTTON_TOP_Y - i * (BUTTON_HEIGHT + BUTTON_SPACING)
     end
   end
 	
