@@ -185,6 +185,11 @@ function Update(dt)
 		StatueUpdate(dt)
 	end
 	
+	if (status.stacked)
+	then
+		SetDustEnabled(false)
+	end
+	
 	-- Make sure we don't have any lingering effects from toss rotation.
 	if(status.tossed == false)
 	then

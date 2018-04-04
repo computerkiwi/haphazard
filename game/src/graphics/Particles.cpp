@@ -186,7 +186,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 	glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]);
 	glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);
 
-	//Shaders::particleUpdateShader->ApplyAttributes();
+	Shaders::particleUpdateShader->ApplyAttributes();
 	
 	///
 	// Set settings
