@@ -331,12 +331,14 @@ void ToggleFullscreen()
 	{
 		// Resize to fullscreen (store old resolution somewhere)
 		glfwSetWindowMonitor(engine->GetWindow(), primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+		glfwSetInputMode(engine->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		isFullscreen = true;
 	}
 	else
 	{
 		// Resize to window (with w=800,h=600)
 		glfwSetWindowMonitor(engine->GetWindow(), NULL, mode->width / 2 - 400, mode->height / 2 - 320, 889, 500, mode->refreshRate);
+		glfwSetInputMode(engine->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		isFullscreen = false;
 	}
 }
