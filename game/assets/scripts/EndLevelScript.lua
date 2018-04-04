@@ -14,6 +14,11 @@ transitionStarted = false
 transitionScreen = nil
 transitionSparkles = nil
 
+function Start()
+  -- Initialize the end screen table if it doesn't exist yet.
+  _G.globalEndScreenTable = _G.globalEndScreenTable or {nextLevel = "defaultLevel.json"}
+end
+
 function Update(dt)
 	if(transitionStarted)
 	then

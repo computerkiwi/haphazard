@@ -75,6 +75,7 @@ dustParticlesEnabled = nil -- Initialized in start.
 WALK_PREFAB_NAME = "assets/prefabs/DustParticles.json"
 JUMP_PREFAB_NAME = "assets/prefabs/DustJump.json"
 
+local dustParticleCount = 0
 function SetDustEnabled(shouldBeEnabled)
 	-- Don't bother changing if our status is already in the state we want it in.
 	if (dustParticlesEnabled == shouldBeEnabled)
@@ -87,7 +88,7 @@ function SetDustEnabled(shouldBeEnabled)
 	
 	local pSystem = dustParticleObject:GetParticleSystem()
 	local settings = pSystem.settings
-	settings.isLooping = shouldBeEnabled
+	settings.ParticlesPerEmission = shouldBeEnabled and dustParticleCount or 0
 	pSystem.settings = settings
 	
 end
@@ -116,7 +117,9 @@ function InitDustParticles()
 	dustParticlesEnabled = false
 	local pSystem = dustParticleObject:GetParticleSystem()
 	local settings = pSystem.settings
-	settings.isLooping = false
+	-- Save the standard amount of particles per emission and stop emitting particles.
+	dustParticleCount = settings.ParticlesPerEmission
+	settings.ParticlesPerEmission = 0
 	pSystem.settings = settings
 end
 
@@ -183,6 +186,11 @@ function Update(dt)
 	elseif(status.isStatue == true and status.killedByChaseBox == false)
 	then
 		StatueUpdate(dt)
+	end
+	
+	if (status.stacked)
+	then
+		SetDustEnabled(false)
 	end
 	
 	-- Make sure we don't have any lingering effects from toss rotation.
