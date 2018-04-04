@@ -13,25 +13,9 @@ function OnCollisionEnter(other)
   -- Player takes coin
   if (other:HasTag("Player"))
   then
-
-  
-	PlaySound("Coin6.wav", 1, 1, false)
-  --[[
-
-
-    local score = GameObject.FindByName("Stats")
-
-    -- Increment score
-    local script = score:GetScript("PlayerStats.lua")
-    script.AddScore()
-
-  ]]
-
-	-- Defined in Timer.lua
-	_G.AddTimeToTimer(1)
+    PlaySound("Coin6.wav", 1, 1, false)
 
     -- Deactivate the object
     this:Deactivate()
-	--PlaySound("regular_pickup.mp3", 0.2, 1, false)
   end
 end -- fn end
