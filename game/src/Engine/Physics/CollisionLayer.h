@@ -25,8 +25,10 @@ enum collisionLayers
 	player2 = 1 << 8,
 	player3 = 1 << 9,
 	player4 = 1 << 10,
+	deadGnome = 1 << 11,
+	collectable = 1 << 12,
 
-	numLayers = 11
+	numLayers = 13
 };
 
 // set two layers to collide with each other

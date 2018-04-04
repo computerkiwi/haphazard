@@ -25,18 +25,20 @@ numLayers = 7
 */
 
 int CollisionMasks[collisionLayers::numLayers] =
-{ // In order: decor allyProjectile enemy ground player allCollision noCollision
-	0b00000000010,	// noCollision
-	0b11111111111,	// allCollision
-	0b11110011110,	// player     
-	0b11111111110,	// ground     
-	0b11110111110,	// enemy
-	0b00000011010,	// allyProjectile
-	0b00000001010,	// decor
-	0b11100011110,	// player1
-	0b11010011110,	// player2
-	0b10110011110,	// player3
-	0b01110011110,	// player4
+{ // In order: collectable, deadGnome, player4, player3, player2, player1, decor allyProjectile enemy ground player allCollision noCollision
+	0b0000000000010,	// noCollision
+	0b1111111111111,	// allCollision
+	0b1111110011110,	// player     
+	0b1111111111110,	// ground     
+	0b0011110111110,	// enemy
+	0b0000000011010,	// allyProjectile
+	0b0000000001010,	// decor
+	0b1011100011110,	// player1
+	0b1011010011110,	// player2
+	0b1010110011110,	// player3
+	0b1001110011110,	// player4
+	0b0000000001000,	// deadGnome
+	0b0011110000100,	// collectable
 };
 
 // set two layers to collide with each other
