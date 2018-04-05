@@ -13,15 +13,49 @@ Player = nil
 cam = nil
 
 offset = vec2(0,0)
-startScaleX = 1
-startScaleY = 1
+local startScaleY = 0.4
+local startScaleX = (480 / 160) * startScaleY
 
-XOffset = 0
-YOffset = 0
+local SPACING = 0.1
+
+local LEFT_X = -4.8
+local Y_OFFSET = 2.8
+local X_OFFSET = LEFT_X
+
+local bar = nil
+local barAmount = 1.0
+local targetBarAmount = 1.0
+local BAR_LERP_SPEED = 0.35
+
+--local XOffset
+--local YOffset
 
 shakeAmount = 0
 SHAKE_SCALE = 0.2
 SHAKE_FALLOFF = 0.3
+
+function SpawnAndAttachObject(prefabName, resetPosition)
+	resetPosition = resetPosition or false
+
+	local obj = GameObject.LoadPrefab(prefabName)
+	if (obj:IsValid())
+	then
+		obj:GetTransform().parent = this
+		if (resetPosition)
+		then
+			obj:GetTransform().localPosition = vec2(0,0)
+		end
+	
+		return obj
+	else
+		return nil
+	end
+end
+
+-- Returns the frame index of the correctly colored healthbar.
+function ColorFrame()
+  return tonumber(string.match(PlayerName, "Player(.)"))
+end
 
 function Shake(amount)
 	shakeAmount = shakeAmount + amount
@@ -33,11 +67,36 @@ function Start()
        I zoom out, edit a level, save, and load. -- Lya ]]
   if(this:GetName() == "GemCounter")
   then
-    startScaleX = 1.5
-    startScaleY = 0.5
+    this:Destroy()
   end
 
+  X_OFFSET = LEFT_X + (startScaleX + SPACING) * (ColorFrame() - 1) + startScaleX * 0.5
+  
+  -- Change to the new sprite.
+  local spr = this:GetSprite()
+  spr.id = Resource.FilenameToID("Healthbar_Frame.json")
+  local th = spr.textureHandler
+  th.currentFrame = ColorFrame()
+  spr.textureHandler = th
+  
+  bar = SpawnAndAttachObject("assets/prefabs/HealthbarBar.json", true)
+  
 	--offset = this:GetTransform().position
+end
+
+-- Range [0, 1]
+function SetBarAmount(amount)
+  local Y_SCALE_FACTOR = 0.4
+  local X_SCALE_FACTOR = 0.8
+
+  local thisScale = this:GetTransform().scale
+  
+  -- What the scale is at full health.
+  local fullScale = {x = X_SCALE_FACTOR * thisScale.x, y = Y_SCALE_FACTOR * thisScale.y}
+  
+  bar:GetTransform().scale = vec3(fullScale.x * amount, fullScale.y, 1)
+  bar:GetTransform().localPosition = vec2(((fullScale.x - fullScale.x * amount) / 2) * -1, 0)
+  
 end
 
 function LateUpdate(dt)
@@ -53,15 +112,35 @@ function LateUpdate(dt)
 	local shakeY = math.sin(shakeAngle) * shakeAmount * SHAKE_SCALE
 	
 	local zoomScale = cam:GetCamera().zoom / 5
-	this:GetTransform().position = vec2(cam:GetTransform().position.x + (XOffset + shakeX) * zoomScale, cam:GetTransform().position.y + (YOffset + shakeY) * zoomScale)
+	this:GetTransform().position = vec2(cam:GetTransform().position.x + (X_OFFSET + shakeX) * zoomScale, cam:GetTransform().position.y + (Y_OFFSET + shakeY) * zoomScale)
 	this:GetTransform().scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
 
 	if (Player:IsValid())
 	then
-		local sprite = this:GetSprite()
-		local th = sprite.textureHandler
-		th.currentFrame = Player:GetScript("GnomeHealth.lua").health + 2
-		sprite.textureHandler = th
+    -- Modify the bar
+    local MAX_HEALTH = 6
+		local health = Player:GetScript("GnomeHealth.lua").health
+    targetBarAmount = health / MAX_HEALTH
+    
+    
+    local spr = this:GetSprite()
+    local th = spr.textureHandler
+    if (Player:GetScript("GnomeStatus.lua").isStatue)
+    then
+      th.currentFrame = 0
+    else
+      th.currentFrame = ColorFrame()
+    end
+    spr.textureHandler = th
+    
+    local color = spr.color
+    color.x = 1
+    color.y = 1
+    color.z = 1
+    color.w = 1
+    spr.color = color
 	end
-
+  
+  barAmount = math.lerp(barAmount, targetBarAmount, BAR_LERP_SPEED)
+  SetBarAmount(barAmount)
 end
