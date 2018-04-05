@@ -11,6 +11,7 @@ GEM_SPRITE = "Interactive(Green)_On.png"
 function OnCollisionEnter(other)
 	if (other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == true)
 	then
+  	PlaySound("Rocks1.wav", 1, 1, false)
 		Activated = true
     this:GetSprite().id = Resource.FilenameToID(GEM_SPRITE)
 
