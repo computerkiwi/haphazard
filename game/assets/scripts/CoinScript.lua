@@ -7,6 +7,11 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 function Start()
   this:Activate()
+
+  local tex = this:GetSprite().textureHandler
+  tex.fps = 0
+  tex.currentFrame = math.random(0, 4)
+  this:GetSprite().textureHandler = tex
 end -- fn end
 
 function OnCollisionEnter(other)
