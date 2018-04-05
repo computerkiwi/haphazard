@@ -40,6 +40,8 @@ local inSettings = false
 local confirming = false
 local confirmingAction = nil
 
+restartLevelKey = KEY.R
+
 hideMenuInEditor = true
 -----------------------------------------------------------------------
 -- GENERAL HELPERS
