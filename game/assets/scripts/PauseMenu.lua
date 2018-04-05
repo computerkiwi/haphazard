@@ -30,6 +30,9 @@ local muteSfxButton
 local toggleFullscreenButton
 local backButton
 
+local howToPlayObj
+local showingHowToPlay = false
+
 local confirmPromptObj
 local confirmYesButton
 local confirmNoButton
@@ -39,8 +42,6 @@ local inSettings = false
 
 local confirming = false
 local confirmingAction = nil
-
-restartLevelKey = KEY.R
 
 hideMenuInEditor = true
 -----------------------------------------------------------------------
@@ -304,7 +305,7 @@ function Restart()
 end
 
 function HowToPlayButton()
-  -- TODO: Implement this
+  showingHowToPlay = true
 end
 
 function CreditsButton()
@@ -340,6 +341,15 @@ end
 -----------------------------------------------------------------------
 -- MAIN FUNCTIONS
 
+function UpdateHowToPlay()
+  if (showingHowToPlay)
+  then
+    howToPlayObj:Activate()
+  else
+    howToPlayObj:Deactivate()
+  end
+end
+
 function Start()
 	pauseBackground = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/PauseBackground.json", true)
 	
@@ -356,9 +366,9 @@ function Start()
 	-- Main pause menu buttons
 	resumeButton = NewButton("PauseMenu_Resume_Selected.png", "PauseMenu_Resume_Unselected.png", Resume)
 	restartButton = NewButton("PauseMenu_Restart_Selected.png", "PauseMenu_Restart_Unselected.png", Restart)
-  howToPlayButton = NewButton("PauseMenu_HowToPlay_Selected.png", "PauseMenu_HowToPlay_Unselected.png", Restart)
+  howToPlayButton = NewButton("PauseMenu_HowToPlay_Selected.png", "PauseMenu_HowToPlay_Unselected.png", HowToPlayButton)
 	settingsButton = NewButton("PauseMenu_Options_Selected.png", "PauseMenu_Options_Unselected.png", ActivateSettings)
-	creditsButton = NewButton("PauseMenu_Credits_Selected.png", "PauseMenu_Credits_Unselected.png", ActivateSettings)
+	creditsButton = NewButton("PauseMenu_Credits_Selected.png", "PauseMenu_Credits_Unselected.png", CreditsButton)
 	mainMenuButton = NewButton("PauseMenu_MainMenu_Selected.png", "PauseMenu_MainMenu_Unselected.png", MainMenu)
 	quitButton = NewButton("PauseMenu_Quit_Selected.png", "PauseMenu_Quit_Unselected.png", QuitButton)
 	
@@ -375,6 +385,14 @@ function Start()
   confirmPromptObj:GetTransform().zLayer = 1501
   confirmYesButton.gameObject:GetTransform().zLayer = 1502
   confirmNoButton.gameObject:GetTransform().zLayer = 1502
+  
+  howToPlayObj = SpawnAndAttachObject("assets/prefabs/pause_menu_internal/GenericPauseUI.json", true)
+  howToPlayObj:GetSprite().id = Resource.FilenameToID("Controls.png")
+  howToPlayObj:GetTransform().zLayer = 1501
+  local howUI = howToPlayObj:GetScript("GenericUI.lua")
+  howUI.scale_y = 4
+  howUI.scale_x = (1429 / 900) * howUI.scale_y
+  howToPlayObj:Deactivate()
   
 	ActivateMain()
 	
@@ -476,6 +494,11 @@ function UpdateSelectedMenuItem()
 		end
 	end
 	
+  if (shiftAmount ~= 0)
+  then
+    showingHowToPlay = false
+  end
+  
 	local newSelected = ((itemSelected + shiftAmount - 1) % #menuItems) + 1
 	
 	menuItems[itemSelected]:Deselect()
@@ -549,6 +572,9 @@ function Update(dt)
   confirming = false
   UpdateConfirmDialog()
   
+  showingHowToPlay = false
+  UpdateHowToPlay()
+  
 	DeactivateAllButtons()
 	pauseBackground:Deactivate()
 	
@@ -579,6 +605,8 @@ function PausedUpdate()
 		UpdateSelectedMenuItem()
 	end
 	
+  UpdateHowToPlay()
+  
 	-- TODO: Do this at an appropriate time rather than every frame.
 	pauseBackground:Activate()
   if (not UpdateConfirmDialog())
