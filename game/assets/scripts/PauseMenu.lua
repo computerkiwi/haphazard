@@ -309,7 +309,12 @@ function HowToPlayButton()
 end
 
 function CreditsButton()
-  -- TODO: Implement this
+  local function Credits()
+    SetPaused(false)
+    StartTransition(NewLevelTransition("CreditsLevel.json"))
+  end
+
+  ConfirmAction("Prompt_RestartLevel.png", Credits)
 end
 
 -- Opens up the quit confirmation dialog.
