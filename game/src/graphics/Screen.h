@@ -11,6 +11,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Texture.h"
 #include "RenderLayer.h"
 #include "VertexObjects.h"
+#include "TextureResource.h"
 
 typedef unsigned int GLuint;
 
@@ -30,6 +31,7 @@ public:
 	static void Use(); // Start render to this screen (clears screen)
 	static void Draw();
 
+	static void RenderLoadingScreen();
 	static void ResizeScreen(int width, int height);
 	static void SetBackgroundColor(float r, float g, float b, float a);
 

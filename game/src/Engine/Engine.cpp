@@ -96,10 +96,10 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	MainCamera.GetComponent<Camera>()->SetZoom(7.21);
 	MainCamera.GetComponent<Camera>()->Use();
 	
-	m_resManager.Get("DigipenSplashScreen.png")->Load();
+	m_resManager.Get("Loading.png")->Load();
 	GameObject LoadingScreen = m_spaces[0]->NewGameObject("LoadingScreen");
 	LoadingScreen.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(16, 9, 0));
-	LoadingScreen.AddComponent<SpriteComponent>(m_resManager.Get("DigipenSplashScreen.png"));
+	LoadingScreen.AddComponent<SpriteComponent>(m_resManager.Get("Loading.png"));
 
 	//Render
 	Update();
@@ -299,6 +299,8 @@ bool Engine::IsWindowTitleDirty() const
 void Engine::FileLoadInternal(const char * fileName)
 {
 	logger << "Loading Game -> File: " << fileName;
+	Screen::RenderLoadingScreen();
+
 	ClearSerializedIdRelationships();
 	rapidjson::Document doc = LoadJsonFile(fileName);
 

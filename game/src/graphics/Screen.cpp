@@ -12,11 +12,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Settings.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "Engine\Engine.h"
 
 #include "GL\glew.h"
 
 #include <imgui.h>
 #include "Imgui\imgui-setup.h"
+#include "SOIL\SOIL.h"
+#include "GLFW\glfw3.h"
 
 ///
 // Screen
@@ -106,6 +109,48 @@ void Screen::Draw()
 	}
 	if (!(*m_LayerList.begin())->m_UsedThisUpdate)
 		m_LayerList.erase(m_LayerList.begin());
+}
+
+void Screen::RenderLoadingScreen()
+{
+	// This is gross. I'm sorry. I didn't want to do it, but kieran made me
+
+ 	Screen::Use();
+
+	static GLuint tex = 0;
+	static Screen::Mesh loadMesh(1, 0, 0, 1);
+
+	Shaders::ScreenShader::Default->Use();
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_View->m_ID);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	loadMesh.Bind();
+
+	if (tex == 0)
+	{
+		int m_pixelWidth, m_pixelHeight;
+
+		unsigned char* image = SOIL_load_image("assets/textures/Loading.png", &m_pixelWidth, &m_pixelHeight, 0, SOIL_LOAD_RGBA);
+
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+
+		// Warning: If larger or more textures are needed, the size cannot exceed GL_MAX_3D_TEXTURE_SIZE 
+		// 3 mipmap levels, max layers is 32
+		glTexStorage2D(GL_TEXTURE_2D, 3, GL_RGBA8, m_pixelWidth, m_pixelHeight);
+
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_pixelWidth, m_pixelHeight, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, tex);
+	loadMesh.DrawTris();
+	glfwSwapBuffers(engine->GetWindow());
 }
 
 void Screen::ResizeScreen(int width, int height)
