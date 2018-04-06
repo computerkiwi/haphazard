@@ -116,6 +116,14 @@ function TypeName(type)
 end
 
 function Damage(damageAmount, damageSourceLocation)
+	
+	if(_G.GOD_MODE)
+	then
+
+		return
+
+	end
+		
 	-- Actually deal the damage
     health = health - damageAmount
 	if(health < 0)

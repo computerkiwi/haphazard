@@ -44,6 +44,8 @@ function Update(dt)
 
 end -- fn end
 
+
+
 -- Other is a game object
 function OnCollisionEnter(other)
 
@@ -57,6 +59,12 @@ function OnCollisionEnter(other)
   if(health <= 0)
   then
     this:Destroy()
+  end
+
+  -- God mode--kill instantly if it collides with anything tagged player
+  if(_G.GOD_MODE and other:HasTag("Player"))
+  then
+	this:Destroy()
   end
 
 end -- fn end
