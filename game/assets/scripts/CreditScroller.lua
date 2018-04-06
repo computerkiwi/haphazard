@@ -5,7 +5,7 @@ PRIMARY AUTHOR: Brett Schiff
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-local scrollSpeed = 5
+local scrollSpeed = 1.5
 
 local transform = nil
 
