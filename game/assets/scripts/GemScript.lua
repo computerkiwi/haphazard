@@ -9,7 +9,7 @@ function OnCollisionEnter(other)
   -- Player takes gem
   if (other:HasTag("Player"))
   then
-	PlaySound("button_confirm.mp3", 0.4, 1, false)
+	PlaySound("Coin6.wav", 1, 1, false)
     print("Gem collected")
 	
     -- Set gnome to have gem

@@ -169,7 +169,7 @@ function Update(dt)
 		end
 
 		-- Jump
-		if ((onGround == true or ledgeForgivenessTimer > 0) and this:GetScript("InputHandler.lua").jumpPressed)
+		if ((onGround == true or ledgeForgivenessTimer > 0 or _G.GOD_MODE) and this:GetScript("InputHandler.lua").jumpPressed)
 		then
 			Jump()
 		end
