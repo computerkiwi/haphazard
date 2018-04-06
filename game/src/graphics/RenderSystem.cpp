@@ -289,7 +289,6 @@ void RenderSystem::Update(float dt)
 	UpdateCameras(dt);
 	RenderBackgrounds(dt);
 	RenderSprites(dt);
-	RenderText(dt);
 	RenderParticles(dt);
 	RenderForegrounds(dt);
 
