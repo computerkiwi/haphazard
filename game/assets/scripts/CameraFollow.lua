@@ -27,6 +27,9 @@ local SHAKE_DECAY_RATE = 1
 local trauma = 0
 local traumaChange = 0
 
+local wallLeft
+local wallRight
+
 -- Takes a pair of vec2
 function VectorDistance(a, b)
 	local x = b.x - a.x
@@ -44,6 +47,11 @@ function AddTrauma(amount)
 	traumaChange = math.max(traumaChange, amount)
 end
 
+function UpdateWalls(y, left, right)
+	wallLeft:GetTransform().position = vec2(left - 2.6, y)
+	wallRight:GetTransform().position = vec2(right + 2.6, y)
+end
+
 function Start()
 	-- Make the camera shake function accessible
 	_G.Screenshake = AddTrauma
@@ -51,6 +59,9 @@ function Start()
 	local transformPos = this:GetTransform().position
 	camPos.x = transformPos.x
 	camPos.y = transformPos.y
+	
+	wallLeft = GameObject.LoadPrefab("assets/prefabs/CameraWall.json")
+	wallRight = GameObject.LoadPrefab("assets/prefabs/CameraWall.json")
 end
 
 function SetCameraBounds(left, right, top, bot)
@@ -276,6 +287,8 @@ function Update(dt)
 	--]]
 	SetCameraBounds(left, right, top, bot)
 	UpdateRealPosition(dt)
+	
+	UpdateWalls((top + bot) / 2, left, right)
 	
 	_G.focusObjects = {}
 end
