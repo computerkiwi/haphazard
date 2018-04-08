@@ -55,7 +55,13 @@ GameObject TransformComponent::GetParent() const
 
 float TransformComponent::GetRotation() const
 {
-	return m_rotation;
+	float parentRot = 0;
+	if (m_parent)
+	{
+		parentRot = m_parent.GetComponent<TransformComponent>()->GetRotation();
+	}
+
+	return m_rotation + parentRot;
 }
 
 
@@ -73,7 +79,16 @@ glm::vec3& TransformComponent::GetRelativePosition()
 
 glm::vec2 TransformComponent::GetPosition() const
 {
-	return static_cast<glm::vec2>(m_localPosition) + GetParentPosition();
+	if (m_parent)
+	{
+		glm::vec4 affineLocalPos(m_localPosition.x, m_localPosition.y, 0, 1);
+		glm::vec2 rotatedPos = glm::rotate(glm::mat4(), DegToRad(m_parent.GetComponent<TransformComponent>()->GetRotation()), glm::vec3(0, 0, 1)) * affineLocalPos;
+		return rotatedPos + GetParentPosition();
+	}
+	else
+	{
+		return static_cast<glm::vec2>(m_localPosition);
+	}
 }
 
 glm::vec2 TransformComponent::GetLocalPosition() const
@@ -129,7 +144,7 @@ glm::vec2 TransformComponent::Scale2D() const
 
 glm::mat4 TransformComponent::GetMatrix4() const
 {
-	return glm::translate(glm::mat4(), glm::vec3(GetPosition(), 1)) * glm::rotate(glm::mat4(), DegToRad(m_rotation), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
+	return glm::translate(glm::mat4(), glm::vec3(GetPosition(), 1)) * glm::rotate(glm::mat4(), DegToRad(GetRotation()), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
 }
 
 void TransformComponent::Unparent()

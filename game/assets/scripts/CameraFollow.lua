@@ -18,12 +18,37 @@ X_BUFFER = 10
 
 useFocus = true
 
+local camPos = {x = 0, y = 0}
+
+local MAX_SHAKE_X = 1.2
+local MAX_SHAKE_Y = 1.2
+local MAX_SHAKE_ROT = 12
+local SHAKE_DECAY_RATE = 1
+local trauma = 0
+
 -- Takes a pair of vec2
 function VectorDistance(a, b)
 	local x = b.x - a.x
 	local y = b.y - a.y
 
 	return math.sqrt(x * x + y * y)
+end
+
+local function RandomFloat(a, b)
+	return (b - a) * math.random() + a
+end
+
+function AddTrauma(amount)
+	trauma = math.min(math.max(0, trauma + amount), 1)
+end
+
+function Start()
+	-- Make the camera shake function accessible
+	_G.Screenshake = AddTrauma
+	
+	local transformPos = this:GetTransform().position
+	camPos.x = transformPos.x
+	camPos.y = transformPos.y
 end
 
 function SetCameraBounds(left, right, top, bot)
@@ -33,14 +58,9 @@ function SetCameraBounds(left, right, top, bot)
 	local width = right - left
 	local height = top - bot
 	
-	-- Get the transform/position of the camera.
-	local transform = this:GetTransform()
-	local currPos = transform.position
-	
 	-- Lerp toward the center position.
-	currPos.x = math.lerp(currPos.x, centerX, LERP_SPEED_X)
-	currPos.y = math.lerp(currPos.y, centerY, LERP_SPEED_Y)
-	transform.position = currPos
+	camPos.x = math.lerp(camPos.x, centerX, LERP_SPEED_X)
+	camPos.y = math.lerp(camPos.y, centerY, LERP_SPEED_Y)
 
 	-- Zoom based on the distance.
 	local camera = this:GetCamera()
@@ -52,6 +72,18 @@ function SetCameraBounds(left, right, top, bot)
 	-- Zoom to the higher of the values.
 	local zoomVal = math.max(zoomX, zoomY)
 	camera.zoom = math.lerp(camera.zoom, zoomVal, LERP_SPEED_ZOOM)
+end
+
+-- Set the real position, taking screenshake into account.
+function UpdateRealPosition(dt)
+	local shakeX = (trauma * trauma) * RandomFloat(-MAX_SHAKE_X, MAX_SHAKE_X)
+	local shakeY = (trauma * trauma) * RandomFloat(-MAX_SHAKE_Y, MAX_SHAKE_Y)
+	local shakeRot = (trauma * trauma) * RandomFloat(-MAX_SHAKE_ROT, MAX_SHAKE_ROT)
+
+	this:GetTransform().position = vec2(camPos.x + shakeX, camPos.y + shakeY)
+	this:GetTransform().rotation = shakeRot
+	
+	trauma = math.min(math.max(0, trauma - SHAKE_DECAY_RATE * dt), 1)
 end
 
 function ThresholdFunc(distance, innerTresh, outerTresh)
@@ -174,42 +206,42 @@ function Update(dt)
 	local top = maxGnomeY
 	local bot = minGnomeY
 
-	-- Take focus objects into account if we're not already at the max.
-	if (amountOver <= 0)
+	-- Take focus objects into account.
+	if (useFocus and _G.focusObjects)
 	then
-		if (useFocus and _G.focusObjects)
-		then
-			-- Loop through and get the widest bounds CameraFocus objects are asking for.
-			for _, focusObj in pairs(_G.focusObjects)
-			do
-				if (focusObj:IsValid())
+		-- Loop through and get the widest bounds CameraFocus objects are asking for.
+		for _, focusObj in pairs(_G.focusObjects)
+		do
+			if (focusObj:IsValid())
+			then
+				local focusObjPos = focusObj:GetTransform().position
+				local focusScript = focusObj:GetScript("CameraFocus.lua")
+				if (focusScript)
 				then
-					local focusObjPos = focusObj:GetTransform().position
-					local focusScript = focusObj:GetScript("CameraFocus.lua")
-					if (focusScript)
-					then
-						local newLeft
-						local newRight
-						local newTop
-						local newBot
-						
-						newLeft, newRight, newTop, newBot = GetFocusChange(minGnomeX, maxGnomeX, maxGnomeY, minGnomeY, focusObjPos, 
-						                                                   focusScript._INNER_THRESHOLD, focusScript._OUTER_THRESHOLD,
-																		   focusScript.LEFT_DISTANCE_MULTIPLIER,
-																		   focusScript.RIGHT_DISTANCE_MULTIPLIER,
-																		   focusScript.TOP_DISTANCE_MULTIPLIER,
-																		   focusScript.BOT_DISTANCE_MULTIPLIER)
-						
-						left = math.min(left, newLeft)
-						right = math.max(right, newRight)
-						top = math.max(top, newTop)
-						bot = math.min(bot, newBot)
-					end
+					local newLeft
+					local newRight
+					local newTop
+					local newBot
+					
+					newLeft, newRight, newTop, newBot = GetFocusChange(minGnomeX, maxGnomeX, maxGnomeY, minGnomeY, focusObjPos, 
+																	   focusScript._INNER_THRESHOLD, focusScript._OUTER_THRESHOLD,
+																	   focusScript.LEFT_DISTANCE_MULTIPLIER,
+																	   focusScript.RIGHT_DISTANCE_MULTIPLIER,
+																	   focusScript.TOP_DISTANCE_MULTIPLIER,
+																	   focusScript.BOT_DISTANCE_MULTIPLIER)
+					
+					left = math.min(left, newLeft)
+					right = math.max(right, newRight)
+					top = math.max(top, newTop)
+					bot = math.min(bot, newBot)
 				end
 			end
 		end
+	end
 		
-		-- Shrink in the sides a bit if we went over max width.
+	-- Shrink in the sides a bit if we went over max width. If we already went over earlier just use gnome bounds for x.
+	if (amountOver <= 0)
+	then
 		local width = right - left
 		local focusOver = width - MAX_WIDTH
 		if (focusOver > 0)
@@ -220,6 +252,9 @@ function Update(dt)
 			left = math.lerp(minGnomeX, left, focusMultiplier)
 			right = math.lerp(maxGnomeX, right, focusMultiplier)
 		end
+	else
+		left = minGnomeX
+		right = maxGnomeX
 	end
 	
 	-- Add the buffer
@@ -228,7 +263,14 @@ function Update(dt)
 	local top = top + Y_BUFFER / 2
     local bot = bot - Y_BUFFER / 2
 	
-	SetCameraBounds(left, right, top, bot)	
+	--[[ Screenshake debugging.
+	if (OnPress(KEY.P))
+	then
+		AddTrauma(0.3333)
+	end
+	--]]
+	SetCameraBounds(left, right, top, bot)
+	UpdateRealPosition(dt)
 	
 	_G.focusObjects = {}
 end
