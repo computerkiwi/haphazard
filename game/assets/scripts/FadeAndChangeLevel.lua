@@ -12,8 +12,8 @@ MENU_ID      = 3140605471
 LEVEL = "MainMenu.json" -- What level to switch to?
 
 -- Starts faded to black.
-VISIBLE_DIGIPEN      = 1.0 + 0
-FADE_START_DIGIPEN   = 1.5 + VISIBLE_DIGIPEN
+VISIBLE_DIGIPEN      = 0.5 + 0
+FADE_START_DIGIPEN   = 2.0 + VISIBLE_DIGIPEN
 END_DIGIPEN          = 1.0 + FADE_START_DIGIPEN
 -- Switch to Haphazard
 VISIBLE_HAPHAZARD    = 1.0 + END_DIGIPEN

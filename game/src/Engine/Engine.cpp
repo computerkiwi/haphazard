@@ -128,6 +128,12 @@ int frameCounter = 0;
 
 void Engine::Update()
 {
+	if (!glfwGetWindowAttrib(m_window, GLFW_FOCUSED))
+	{
+		glfwPollEvents();
+		return;
+	}
+
 	Timer frameCap;
 
 	if (m_fileLoadFlag)
