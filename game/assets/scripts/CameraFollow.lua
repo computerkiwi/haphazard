@@ -25,6 +25,7 @@ local MAX_SHAKE_Y = 1.2
 local MAX_SHAKE_ROT = 12
 local SHAKE_DECAY_RATE = 1
 local trauma = 0
+local traumaChange = 0
 
 -- Takes a pair of vec2
 function VectorDistance(a, b)
@@ -39,7 +40,8 @@ local function RandomFloat(a, b)
 end
 
 function AddTrauma(amount)
-	trauma = math.min(math.max(0, trauma + amount), 1)
+	-- Only apply the largest screenshake amount each frame.
+	traumaChange = math.max(traumaChange, amount)
 end
 
 function Start()
@@ -76,6 +78,9 @@ end
 
 -- Set the real position, taking screenshake into account.
 function UpdateRealPosition(dt)
+	trauma = math.min(math.max(0, trauma + traumaChange), 1)
+	traumaChange = 0
+
 	local shakeX = (trauma * trauma) * RandomFloat(-MAX_SHAKE_X, MAX_SHAKE_X)
 	local shakeY = (trauma * trauma) * RandomFloat(-MAX_SHAKE_Y, MAX_SHAKE_Y)
 	local shakeRot = (trauma * trauma) * RandomFloat(-MAX_SHAKE_ROT, MAX_SHAKE_ROT)
@@ -263,7 +268,7 @@ function Update(dt)
 	local top = top + Y_BUFFER / 2
     local bot = bot - Y_BUFFER / 2
 	
-	--[[ Screenshake debugging.
+	-- Screenshake debugging.
 	if (OnPress(KEY.P))
 	then
 		AddTrauma(0.3333)
