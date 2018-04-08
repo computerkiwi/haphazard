@@ -9,6 +9,7 @@ local LERP_SPEED_X = 0.05
 local LERP_SPEED_Y = 0.05
 local LERP_SPEED_ZOOM = 0.05
 
+MIN_WIDTH = 4
 MAX_WIDTH = 10
 
 Y_OFFSET = 2
@@ -153,13 +154,18 @@ function Update(dt)
 	
 	maxGnomeY = maxGnomeY + Y_OFFSET
 	
-	-- Keep the camera under max width.
+	-- Keep the camera within width bounds.
 	local gnomeWidth = maxGnomeX - minGnomeX
 	local amountOver = gnomeWidth - MAX_WIDTH
 	if (amountOver > 0)
 	then
 		maxGnomeX = maxGnomeX - amountOver / 2
 		minGnomeX = minGnomeX + amountOver / 2
+	elseif(gnomeWidth < MIN_WIDTH)
+	then
+		local center = (minGnomeX + maxGnomeX) / 2
+		minGnomeX = center - MIN_WIDTH / 2
+		maxGnomeX = center + MIN_WIDTH / 2
 	end
 	
 	-- Vars to store focused bounds.

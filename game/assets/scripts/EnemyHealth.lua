@@ -15,6 +15,17 @@ DAMAGE_FLASH_TIME = 0.1
 damageFlashTimer = 0
 health = 10
 
+-- Using this to mass init some camera focus values on enemies.
+function Start()
+	local focusScript = this:GetScript("CameraFocus.lua")
+	if (focusScript)
+	then
+		focusScript._INNER_THRESHOLD = 3
+		focusScript._OUTER_THRESHOLD = 7
+		focusScript.LEFT_DISTANCE_MULTIPLIER = 1.5
+	end
+end
+
 function UpdateDamageFlash(dt)
 	damageFlashTimer = damageFlashTimer - dt
 
