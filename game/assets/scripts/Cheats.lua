@@ -5,8 +5,8 @@ PRIMARY AUTHOR: Brett Schiff
 Copyright (c) 2018 DigiPen (USA) Corporation.
 ]]
 
-_G.CHEAT_MODE = false
-_G.GOD_MODE = false
+_G.CHEAT_MODE = _G.CHEAT_MODE or false
+_G.GOD_MODE = _G.GOD_MODE or false
 CHEAT_ACTIVATION_KEY = "HEATER"
 KEY_LENGTH = #CHEAT_ACTIVATION_KEY + 1
 CHEAT_ACTIVATION_INDEX = 1
