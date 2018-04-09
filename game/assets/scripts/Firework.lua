@@ -18,6 +18,7 @@ boomPrefab = "assets/prefabs/fireworks_internal/firework_greenboom.json"
 
 sparkleObj = nil
 boomObj = nil
+boomObj2 = nil
 
 currTime = 0
 
@@ -58,6 +59,8 @@ function Update(dt)
 		-- spawn the boom object
 		boomObj = SpawnAndAttachObject(boomPrefab, this)
 		boomObj:GetTransform().position = this:GetTransform().position
+		boomObj2 = SpawnAndAttachObject(boomPrefab, this)
+		boomObj2:GetTransform().position = this:GetTransform().position
 
 	end
 
@@ -66,6 +69,7 @@ function Update(dt)
 		
 		-- destroy the boom object
 		boomObj:Destroy()
+		boomObj2:Destroy()
 
 		this:Destroy()
 

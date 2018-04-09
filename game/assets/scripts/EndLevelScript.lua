@@ -5,7 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
-WIN_LEVEL = "YouWinLevel.json"
+WIN_LEVEL = "YouWin.json"
 
 transitionTime = 5
 
@@ -24,7 +24,7 @@ end
 function GoToNextLevel()
 
 	_G.globalEndScreenTable.nextLevel = WIN_LEVEL
-	Engine.LoadLevel("LevelEndScreen.json")
+	Engine.LoadLevel(WIN_LEVEL)
 
 end
 
