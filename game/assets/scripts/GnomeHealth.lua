@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 STATUE_HIT_POINTS = 7
+DEAD_GNOME_LAYER = 1 << 11 --2048
 
 ENEMY_LAYER = 16;
 
@@ -117,6 +118,12 @@ function TypeName(type)
 	end
 end
 
+function IsDead()
+
+	return health <= 0
+
+end
+
 function Damage(damageAmount, damageSourceLocation)
 	
 	if(_G.GOD_MODE)
@@ -167,11 +174,12 @@ function Damage(damageAmount, damageSourceLocation)
 	invulTime = INVULNERABLE_TIME
 
 	-- Check if the player died.
-	if(health <= 0)
+	if(IsDead())
 	then
 		-- Is dead
 		this:GetScript("GnomeStatus.lua").isStatue = true
 		statueHitPoints = STATUE_HIT_POINTS
+		this:GetCollider().collisionLayer = CollisionLayer(DEAD_GNOME_LAYER)
 
 		SetStatueSprite()
 	end
