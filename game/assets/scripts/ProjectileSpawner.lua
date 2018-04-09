@@ -75,6 +75,8 @@ function Fire(PrefabName)
 		end
 	end
 
+	proj:GetScript("ProjectileInfo.lua").isRight = direction.x > 0
+
 	-- Set Speed
 	local dir = aimDirection
 	Normalize(dir)

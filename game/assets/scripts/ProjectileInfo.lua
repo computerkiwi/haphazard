@@ -14,6 +14,8 @@ offsetY = 0
 parented = false
 isMelee = false
 
+isRight = true
+
 local lifeTimer = 0
 local startTimer = false
 
@@ -25,6 +27,10 @@ function Update(dt)
 
 		if(lifeTimer <= 0)
 		then
+			if(this:GetScript("ProjectileSpawnParticle.lua") ~= nil)
+			then
+				this:GetScript("ProjectileSpawnParticle.lua").Kill()
+			end
 			this:Destroy()
 		end
 	end
@@ -33,6 +39,11 @@ end
 function StartLifeTimer()
 	startTimer = true
 	lifeTimer = life
+
+	if(this:GetScript("ProjectileSpawnParticle.lua") ~= nil)
+	then
+		this:GetScript("ProjectileSpawnParticle.lua").Spawn()
+	end
 end
 
 function OnCollisionEnter(other)

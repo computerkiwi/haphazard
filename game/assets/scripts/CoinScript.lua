@@ -18,11 +18,6 @@ function Start()
   this:GetSprite().textureHandler = tex
 end -- fn end
 
-function Update(dt)
-  
-
-end
-
 function OnCollisionEnter(other)
   -- Player takes coin
   if (other:HasTag("Player"))
