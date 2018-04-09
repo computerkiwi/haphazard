@@ -17,8 +17,18 @@ isMelee = false
 local lifeTimer = 0
 local startTimer = false
 
+local didHit = false
+function DidHit()
+  didHit = true
+end
 
 function Update(dt)
+  if(isMelee and didHit)
+  then
+    -- Haha this is a good way to get rid of the collider.
+    this:GetCollider().offset = vec3(0, 9999999, 0)
+  end
+
 	if(startTimer)
 	then
 		lifeTimer = lifeTimer - dt

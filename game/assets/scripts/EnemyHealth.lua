@@ -15,6 +15,21 @@ DAMAGE_FLASH_TIME = 0.1
 damageFlashTimer = 0
 health = 10
 
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
+
+PlayHurtsound = NewPlaysoundFunction(
+  "mushroom_hurt_01.wav",
+  "mushroom_hurt_02.wav",
+  "mushroom_hurt_03.wav",
+  "mushroom_hurt_04.wav")
+
 -- Using this to mass init some camera focus values on enemies.
 function Start()
 	local focusScript = this:GetScript("CameraFocus.lua")
@@ -59,11 +74,15 @@ end -- fn end
 
 -- Other is a game object
 function OnCollisionEnter(other)
-
+  
+  other:SendMessage("DidHit")
+  
   if(this:GetDynamicCollider().colliderData:IsCollidingWithLayer(ALLY_PROJECTILE_LAYER))
 	then
 		local projInfo = other:GetScript("ProjectileInfo.lua")
-
+    
+    PlayHurtsound()
+    
 		health = health - projInfo.damage
 		damageFlashTimer = DAMAGE_FLASH_TIME
 	end
