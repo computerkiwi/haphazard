@@ -13,19 +13,16 @@ Player = nil
 cam = nil
 
 offset = vec2(0,0)
-local startScaleY = 0.4
-local startScaleX = (480 / 160) * startScaleY
+local startScaleX = 1.8
+local startScaleY = (256 / 512) * startScaleX
 
-local SPACING = 0.1
+local SPACING = -0.05
 
-local LEFT_X = -4.8
-local Y_OFFSET = 2.8
+local LEFT_X = -5.8 + startScaleX / 2
+local Y_OFFSET = 2.8 - startScaleY / 2
 local X_OFFSET = LEFT_X
 
-local bar = nil
-local barAmount = 1.0
-local targetBarAmount = 1.0
-local BAR_LERP_SPEED = 0.35
+local hearts = nil
 
 --local XOffset
 --local YOffset
@@ -52,9 +49,23 @@ function SpawnAndAttachObject(prefabName, resetPosition)
 	end
 end
 
+
+function ColorIndex()
+  return tonumber(string.match(PlayerName, "Player(.)")) - 1
+end
+
 -- Returns the frame index of the correctly colored healthbar.
-function ColorFrame()
-  return tonumber(string.match(PlayerName, "Player(.)"))
+function ColorFrame(isDead)
+  isDead = isDead or false
+  
+  local playerNum = ColorIndex() * 2
+  
+  if(not isDead)
+  then
+    playerNum = playerNum + 1
+  end
+  
+  return playerNum
 end
 
 function Shake(amount)
@@ -70,16 +81,16 @@ function Start()
     this:Destroy()
   end
 
-  X_OFFSET = LEFT_X + (startScaleX + SPACING) * (ColorFrame() - 1) + startScaleX * 0.5
+  X_OFFSET = LEFT_X + (startScaleX + SPACING) * ColorIndex() + startScaleX * 0.5
   
   -- Change to the new sprite.
   local spr = this:GetSprite()
-  spr.id = Resource.FilenameToID("Healthbar_Frame.json")
+  spr.id = Resource.FilenameToID("HUD_Healthbars.json")
   local th = spr.textureHandler
   th.currentFrame = ColorFrame()
   spr.textureHandler = th
   
-  bar = SpawnAndAttachObject("assets/prefabs/HealthbarBar.json", true)
+  hearts = SpawnAndAttachObject("assets/prefabs/HealthbarHearts.json", true)
   
 	--offset = this:GetTransform().position
 end
@@ -95,8 +106,24 @@ function SetBarAmount(amount)
   local fullScale = {x = X_SCALE_FACTOR * thisScale.x, y = Y_SCALE_FACTOR * thisScale.y}
   
   bar:GetTransform().scale = vec3(fullScale.x * amount, fullScale.y, 1)
-  bar:GetTransform().localPosition = vec2(((fullScale.x - fullScale.x * amount) / 2) * -1, 0)
+  bar:GetTransform().localPosition = vec2(((fullScale.x - fullScale.x * amount) / 2) * -1, 999999)
   
+end
+
+function UpdateHeartsPos()
+  local HEIGHT_PERCENT = (64 / 256)
+  
+  local THIS_SCALE_X = this:GetTransform().scale.x
+  local THIS_SCALE_Y = this:GetTransform().scale.y
+  
+  local SCALE_Y = THIS_SCALE_Y * HEIGHT_PERCENT
+  local SCALE_X = SCALE_Y * (224 / 64)
+
+  local OFFSET_X = ((335 / 512) - 0.5) * THIS_SCALE_X
+  local OFFSET_Y = (( 97 / 256) - 0.5) * THIS_SCALE_Y
+  
+  hearts:GetTransform().scale = vec3(SCALE_X, SCALE_Y, 0)
+  hearts:GetTransform().localPosition = vec2(OFFSET_X, OFFSET_Y)
 end
 
 function RotatedVec(x, y, rotation)
@@ -134,18 +161,18 @@ function LateUpdate(dt)
     -- Modify the bar
     local MAX_HEALTH = 6
 		local health = Player:GetScript("GnomeHealth.lua").health
-    targetBarAmount = health / MAX_HEALTH
     
-    
+    -- Set the bar - color and death.
     local spr = this:GetSprite()
     local th = spr.textureHandler
-    if (Player:GetScript("GnomeStatus.lua").isStatue)
-    then
-      th.currentFrame = 0
-    else
-      th.currentFrame = ColorFrame()
-    end
+    th.currentFrame = ColorFrame(Player:GetScript("GnomeStatus.lua").isStatue)
     spr.textureHandler = th
+    
+    -- Set the heart frame.
+    local heartSpr = hearts:GetSprite()
+    local hth = heartSpr.textureHandler
+    hth.currentFrame = health
+    heartSpr.textureHandler = hth
     
     local color = spr.color
     color.x = 1
@@ -155,8 +182,7 @@ function LateUpdate(dt)
     spr.color = color
 	end
   
-	barAmount = math.lerp(barAmount, targetBarAmount, BAR_LERP_SPEED)
-	SetBarAmount(barAmount)
+  UpdateHeartsPos()
 	
-	bar:GetTransform().rotation = camRot
+	hearts:GetTransform().rotation = camRot
 end

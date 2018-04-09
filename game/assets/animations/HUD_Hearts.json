@@ -1,0 +1,9 @@
+{
+  "textureName": "HUD_Hearts.png",
+  "frameWidth":  224,
+  "frameHeight": 64,
+  "framesX":     1,
+  "framesY":     7,
+  "fps":         0,
+  "frameCount":  7
+}

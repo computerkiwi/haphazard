@@ -200,7 +200,7 @@ function Update(dt)
 		end
 	end
 	
-	maxGnomeY = maxGnomeY + Y_OFFSET
+	maxGnomeY = maxGnomeY + math.max(2, ScreenToWorld(vec2(0, 1)).y - ScreenToWorld(vec2(0, 0.75)).y)
 	
 	-- Keep the camera within width bounds.
 	local gnomeWidth = maxGnomeX - minGnomeX
