@@ -45,6 +45,7 @@ end
 function Update()
 	this:GetScript("GnomeStatus.lua").specialMove = false
 	this:GetRigidBody().gravity = defaultGravity
+	this:GetScript("FollowingParticleSystem.lua").SetEnabled(false)
 
 	local status = this:GetScript("GnomeStatus.lua")
 
@@ -84,6 +85,7 @@ function FootAbility()
 			this:GetScript("GnomeMovement.lua").Jump()
 			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Red_Foot.json")
 			usedFootAbilityThisJump = true
+			this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 		end
 	elseif(type == 2)	-- Green
 	then
@@ -100,8 +102,7 @@ function FootAbility()
 	then
 		-- Lowers fall speed
 		this:GetRigidBody().gravity = vec3(defaultGravity.x * Blue_Foot_GravityScale, defaultGravity.y * Blue_Foot_GravityScale,0)
-
-		print(this:GetRigidBody().gravity .y)
+		this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 	elseif(type == 4)	-- Yellow
 	then
 		this:GetScript("GnomeStatus.lua").specialMove = true
@@ -132,12 +133,17 @@ function SetType(type)
 	if(type == 1)	-- Red
 	then
 		this:GetSprite().id = Resource.FilenameToID(Sprite_RedGnome)
+		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Red_Jump.json"
+		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	elseif(type == 2)	-- Green
 	then
 		this:GetSprite().id = Resource.FilenameToID(Sprite_GreenGnome)
 	elseif(type == 3)	-- Blue
 	then
 		this:GetSprite().id = Resource.FilenameToID(Sprite_BlueGnome)
+		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Blue_Jump.json"
+		this:GetScript("FollowingParticleSystem.lua").PARTICLE_OFFSET_Y = -0.5
+		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	elseif(type == 4)	-- Yellow
 	then
 		this:GetSprite().id = Resource.FilenameToID(Sprite_YellowGnome)

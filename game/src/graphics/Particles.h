@@ -241,5 +241,6 @@ private:
 	META_REGISTER(ParticleSystem)
 	{
 		META_DefineMember(ParticleSystem, m_settings, "settings");
+		META_DefineMember(ParticleSystem, m_time, "time");
 	}
 };
