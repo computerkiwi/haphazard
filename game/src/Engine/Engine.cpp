@@ -87,22 +87,7 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	///
 	// Loading Screen
 	///
-	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
-	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.15f));
-	MainCamera.AddComponent<Camera>();
-	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	MainCamera.GetComponent<Camera>()->SetZoom(7.21);
-	MainCamera.GetComponent<Camera>()->Use();
-	
-	m_resManager.Get("Loading.png")->Load();
-	GameObject LoadingScreen = m_spaces[0]->NewGameObject("LoadingScreen");
-	LoadingScreen.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(16, 9, 0));
-	LoadingScreen.AddComponent<SpriteComponent>(m_resManager.Get("Loading.png"));
-
-	//Render
-	Update();
+	Screen::RenderLoadingScreen();
 
 	// For debug purposes.
 	// TODO: Come up with a smarter resource loading strategy.
