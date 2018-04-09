@@ -1,0 +1,9 @@
+{
+  "textureName": "HUD_Healthbars.png",
+  "frameWidth":  512,
+  "frameHeight": 256,
+  "framesX":     2,
+  "framesY":     4,
+  "fps":         0,
+  "frameCount":  8
+}
