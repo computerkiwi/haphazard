@@ -5,14 +5,23 @@ PRIMARY AUTHOR: Lya Vera
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+CoinLayer = 1 << 12
+
 function Start()
   this:Activate()
+
+  this:GetCollider().collisionLayer = CollisionLayer(CoinLayer)
 
   local tex = this:GetSprite().textureHandler
   tex.fps = 0
   tex.currentFrame = math.random(0, 4)
   this:GetSprite().textureHandler = tex
 end -- fn end
+
+function Update(dt)
+  
+
+end
 
 function OnCollisionEnter(other)
   -- Player takes coin
