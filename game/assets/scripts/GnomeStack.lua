@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2018 DigiPen (USA) Corporation.
 ]]
 
+DEAD_GNOME_LAYER = 1 << 11 --2048
+
 gnomeStackDistance = 0.6
 
 currCollisionLayer = 0
@@ -50,6 +52,42 @@ function Start()
 end
 
 function Update(dt)
+	
+	-- if the gnome is dead
+	if(this:GetScript("GnomeHealth.lua").IsDead())
+	then
+
+		local status = this:GetScript("GnomeStatus.lua")
+
+		this:GetCollider().collisionLayer = CollisionLayer(DEAD_GNOME_LAYER)
+
+		if(this:GetCollider().collisionLayer == DEAD_GNOME_LAYER)
+		then
+
+			print("DEAD GNOME IS DEAD")
+
+		end
+
+		-- if a gnome is on top, boot em
+		if(status.stackedAbove ~= nil)
+		then
+
+			DetachGnomes(status.stackedAbove, this)
+
+		end
+
+		-- if a gnome is below, boot em
+		if(status.stackedBelow ~= nil)
+		then
+
+			DetachGnomes(this, status.stackedBelow)
+
+		end
+
+		-- don't do the rest
+		return
+
+	end
 
 	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
 	then
