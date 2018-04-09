@@ -33,6 +33,8 @@ Sprite_Yellow_Statue = "Death_Yellow.json"
 
 UI_SHAKE_AMOUNT = 1
 
+local DAMAGE_SHAKE = 0.3
+
 function GetHealthBar()
   healthBar = GameObject.FindByName(this:GetName().."Healthbar") 
   if (healthBar:IsValid()) 
@@ -150,6 +152,9 @@ function Damage(damageAmount, damageSourceLocation)
 		knockbackDir.x = -knockbackDir.x
 	end
 	movementScript.Knockback(knockbackDir, KNOCKBACK_FORCE)
+	
+	-- Screenshake
+	_G.Screenshake(DAMAGE_SHAKE)
 	
 	-- Shake the UI
 	if (healthBar ~= nil)

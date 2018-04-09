@@ -99,10 +99,19 @@ function SetBarAmount(amount)
   
 end
 
+function RotatedVec(x, y, rotation)
+	local cosTheta = math.cos(math.rad(rotation))
+	local sinTheta = math.sin(math.rad(rotation))
+
+	return vec2(cosTheta * x - sinTheta * y, sinTheta * x + cosTheta * y)
+end
+
 function LateUpdate(dt)
 
 	Player = GameObject.FindByName(PlayerName)
 
+	local camRot = cam:GetTransform().rotation
+	
 	-- Change shake amount
 	shakeAmount = math.max(math.lerp(shakeAmount, 0 , SHAKE_FALLOFF), 0)
 	
@@ -112,8 +121,13 @@ function LateUpdate(dt)
 	local shakeY = math.sin(shakeAngle) * shakeAmount * SHAKE_SCALE
 	
 	local zoomScale = cam:GetCamera().zoom / 5
-	this:GetTransform().position = vec2(cam:GetTransform().position.x + (X_OFFSET + shakeX) * zoomScale, cam:GetTransform().position.y + (Y_OFFSET + shakeY) * zoomScale)
-	this:GetTransform().scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
+	local thisTransform = this:GetTransform()
+	local pos = RotatedVec((X_OFFSET + shakeX) * zoomScale, (Y_OFFSET + shakeY) * zoomScale, camRot)
+	pos.x = pos.x + cam:GetTransform().position.x
+	pos.y = pos.y + cam:GetTransform().position.y
+	thisTransform.position = pos
+	thisTransform.scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
+	thisTransform.rotation = camRot
 
 	if (Player:IsValid())
 	then
@@ -141,6 +155,8 @@ function LateUpdate(dt)
     spr.color = color
 	end
   
-  barAmount = math.lerp(barAmount, targetBarAmount, BAR_LERP_SPEED)
-  SetBarAmount(barAmount)
+	barAmount = math.lerp(barAmount, targetBarAmount, BAR_LERP_SPEED)
+	SetBarAmount(barAmount)
+	
+	bar:GetTransform().rotation = camRot
 end

@@ -55,13 +55,7 @@ GameObject TransformComponent::GetParent() const
 
 float TransformComponent::GetRotation() const
 {
-	float parentRot = 0;
-	if (m_parent)
-	{
-		parentRot = m_parent.GetComponent<TransformComponent>()->GetRotation();
-	}
-
-	return m_rotation + parentRot;
+	return m_rotation;
 }
 
 
@@ -79,16 +73,7 @@ glm::vec3& TransformComponent::GetRelativePosition()
 
 glm::vec2 TransformComponent::GetPosition() const
 {
-	if (m_parent)
-	{
-		glm::vec4 affineLocalPos(m_localPosition.x, m_localPosition.y, 0, 1);
-		glm::vec2 rotatedPos = glm::rotate(glm::mat4(), DegToRad(m_parent.GetComponent<TransformComponent>()->GetRotation()), glm::vec3(0, 0, 1)) * affineLocalPos;
-		return rotatedPos + GetParentPosition();
-	}
-	else
-	{
-		return static_cast<glm::vec2>(m_localPosition);
-	}
+	return static_cast<glm::vec2>(m_localPosition) + GetParentPosition();
 }
 
 glm::vec2 TransformComponent::GetLocalPosition() const
