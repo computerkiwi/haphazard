@@ -16,7 +16,7 @@ offset = vec2(0,0)
 local startScaleX = 1.8
 local startScaleY = (256 / 512) * startScaleX
 
-local SPACING = -0.05
+local SPACING = 0
 
 local LEFT_X = -5.8 + startScaleX / 2
 local Y_OFFSET = 2.8 - startScaleY / 2
