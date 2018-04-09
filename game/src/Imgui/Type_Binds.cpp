@@ -1872,6 +1872,42 @@ void ImGui_Collider2D(Collider2D *collider, GameObject object, Editor * editor)
 				collider->m_collisionLayer = CollisionLayer(layer);
 			}
 
+			NextColumn();
+
+			if (RadioButton("Dead Gnome", &layer, collisionLayers::deadGnome))
+			{
+				if (collider->isStatic())
+				{
+					editor->Push_Action({ collider->m_collisionLayer, CollisionLayer(layer), "collisionLayer",
+						handle, Action_General_Collider<StaticCollider2DComponent, decltype(collider->m_collisionLayer)> });
+				}
+				else
+				{
+					editor->Push_Action({ collider->m_collisionLayer, CollisionLayer(layer), "collisionLayer",
+						handle, Action_General_Collider<DynamicCollider2DComponent, decltype(collider->m_collisionLayer)> });
+				}
+
+				collider->m_collisionLayer = CollisionLayer(layer);
+			}
+
+			NextColumn();
+
+			if (RadioButton("Collectable", &layer, collisionLayers::collectable))
+			{
+				if (collider->isStatic())
+				{
+					editor->Push_Action({ collider->m_collisionLayer, CollisionLayer(layer), "collisionLayer",
+						handle, Action_General_Collider<StaticCollider2DComponent, decltype(collider->m_collisionLayer)> });
+				}
+				else
+				{
+					editor->Push_Action({ collider->m_collisionLayer, CollisionLayer(layer), "collisionLayer",
+						handle, Action_General_Collider<DynamicCollider2DComponent, decltype(collider->m_collisionLayer)> });
+				}
+
+				collider->m_collisionLayer = CollisionLayer(layer);
+			}
+
 			Columns();
 
 			// Check if we need to save the action for static or dynamic
