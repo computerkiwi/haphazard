@@ -47,6 +47,22 @@ hideMenuInEditor = true
 -----------------------------------------------------------------------
 -- GENERAL HELPERS
 
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
+
+PlayMoveSound = NewPlaysoundFunction(
+  "menu_move_01.wav",
+  "menu_move_02.wav",
+  "menu_move_03.wav",
+  "menu_move_04.wav",
+  "menu_move_05.wav")
+
 function SpawnAndAttachObject(prefabName, resetPosition)
 	resetPosition = resetPosition or false
 
@@ -412,6 +428,7 @@ function CheckForToggle()
 		then
 			SetPaused(not IsPaused())
 			ActivateMain()
+      PlayMoveSound()
 			return true
 		end
 	end
@@ -501,6 +518,7 @@ function UpdateSelectedMenuItem()
 	
   if (shiftAmount ~= 0)
   then
+    PlayMoveSound()
     showingHowToPlay = false
   end
   
@@ -518,6 +536,7 @@ function CheckForConfirm()
 	do
 		if (handler:ConfirmPressed())
 		then
+      PlayMoveSound()
 			menuItems[itemSelected]:CallAction()
 			return true
 		end
