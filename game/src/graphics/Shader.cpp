@@ -424,7 +424,7 @@ namespace Shaders
 
 		// Particle Render Shader Program
 		// Keep attribs from other shader, all that data is wanted for this shader
-		
+
 		particleRenderShader = LoadShaders(path + "particleRender.vert", path + "particleRender.geo", path + "particleRender.frag", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();

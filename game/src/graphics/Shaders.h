@@ -105,7 +105,12 @@ public:
 	void Use(); // Binds shader program
 
 	// Sets attributes to new list. Only use if you know what youre doing, and you would know you shouldn't be doing this.
-	void SetAttributes(std::vector<Attribute> attributes) { m_Attributes = attributes; }
+	void SetAttributes(std::vector<Attribute> attributes) 
+	{ 
+		m_Attributes = attributes; 
+		for (auto& a : m_Attributes)
+			a.SetShader(this);
+	}
 
 	// Applies all vertex attributes for shader. Only use if you know what youre doing.
 	void ApplyAttributes();
