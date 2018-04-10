@@ -71,7 +71,8 @@ function OnCollisionEnter(other)
   -- Player takes gem
   if (other:HasTag("Player") and transitionStarted == false)
   then
-	StartTransition()
+    PlaySound("celebration_01.wav", 1, 1, false)
+    StartTransition()
   end
   
 end

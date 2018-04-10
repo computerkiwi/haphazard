@@ -81,11 +81,14 @@ ShaderProgram::Attribute::Attribute(GLuint loc, int numArgs, GLenum argType, siz
 {
 }
 
-void ShaderProgram::Attribute::Apply(ShaderProgram* program)
+void ShaderProgram::Attribute::SetShader(ShaderProgram* program)
 {
 	if(name)
 		index = glGetAttribLocation(program->m_ID, name);
+}
 
+void ShaderProgram::Attribute::Apply()
+{
 	glEnableVertexAttribArray(index);
 
 	if (type == GL_INT)
@@ -132,6 +135,9 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
+
+	for (auto& a : m_Attributes)
+		a.SetShader(this);
 }
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
@@ -161,6 +167,9 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fr
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
+
+	for (auto& a : m_Attributes)
+		a.SetShader(this);
 }
 
 ShaderProgram::~ShaderProgram()
@@ -187,7 +196,7 @@ void ShaderProgram::ApplyAttributes()
 {
 	for (Attribute& attrib : m_Attributes)
 	{
-		attrib.Apply(this);
+		attrib.Apply();
 	}
 }
 
@@ -197,7 +206,7 @@ void ShaderProgram::ApplyAttributes(int start, int end)
 	for (int i = start; i < end; i++)
 	{
 		attrib = &m_Attributes[i];
-		attrib->Apply(this);
+		attrib->Apply();
 	}
 }
 
@@ -415,7 +424,7 @@ namespace Shaders
 
 		// Particle Render Shader Program
 		// Keep attribs from other shader, all that data is wanted for this shader
-		
+
 		particleRenderShader = LoadShaders(path + "particleRender.vert", path + "particleRender.geo", path + "particleRender.frag", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();

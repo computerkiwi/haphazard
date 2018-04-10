@@ -37,8 +37,8 @@ int CollisionMasks[collisionLayers::numLayers] =
 	0b1011010011110,	// player2
 	0b1010110011110,	// player3
 	0b1001110011110,	// player4
-	0b0000000001000,	// deadGnome
-	0b0011110000100,	// collectable
+	0b0000000001010,	// deadGnome
+	0b0011110000110,	// collectable
 };
 
 // set two layers to collide with each other

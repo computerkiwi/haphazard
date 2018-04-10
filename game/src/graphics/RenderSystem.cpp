@@ -92,6 +92,9 @@ void RenderSystem::UpdateCameras(float dt)
 
 void RenderSystem::RenderSprites(float dt)
 {
+	// Bind sprite shader
+	Shaders::spriteShader->Use();
+
 	ComponentMap<SpriteComponent> *sprites = GetGameSpace()->GetComponentMap<SpriteComponent>();
 
 	if (sprites->begin() == sprites->end())
@@ -114,7 +117,6 @@ void RenderSystem::RenderSprites(float dt)
 			continue;
 		}
 		
-
 		layers.insert(static_cast<int>(transform->GetZLayer()));
 	}
 
@@ -157,9 +159,6 @@ void RenderSystem::RenderSprites(float dt)
 
 		if (numMeshes == 0)
 			return;
-
-		// Bind sprite shader
-		Shaders::spriteShader->Use();
 
 		// Bind buffers and set instance data of all sprites
 		SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), tex.size(), tex.data());
