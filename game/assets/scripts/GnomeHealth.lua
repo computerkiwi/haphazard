@@ -35,6 +35,20 @@ Sprite_Yellow_Statue = "Death_Yellow.json"
 UI_SHAKE_AMOUNT = 1
 
 local DAMAGE_SHAKE = 0.3
+local DEATH_SHAKE = 0.6
+
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
+
+PlayCrackSound = NewPlaysoundFunction(
+  "statue_crack_01.wav",
+  "statue_crack_02.wav")
 
 function GetHealthBar()
   healthBar = GameObject.FindByName(this:GetName().."Healthbar") 
@@ -145,7 +159,6 @@ function Damage(damageAmount, damageSourceLocation)
 		return
 	end
 
-	PlaySound("Grunt7.wav", 1, 1, false)
 	local type = this:GetScript("GnomeStatus.lua").GnomeType
 	local particle = GameObject.LoadPrefab("assets/prefabs/Particles_" .. TypeName(type) .. "_Hit.json")
 	particle:GetTransform().position = this:GetTransform().position
@@ -162,6 +175,7 @@ function Damage(damageAmount, damageSourceLocation)
 	
 	-- Screenshake
 	_G.Screenshake(DAMAGE_SHAKE)
+	PlaySound("gnome_hurt_01.wav", 1, 1, false)
 	
 	-- Shake the UI
 	if (healthBar ~= nil)
@@ -181,6 +195,9 @@ function Damage(damageAmount, damageSourceLocation)
 		statueHitPoints = STATUE_HIT_POINTS
 		this:GetCollider().collisionLayer = CollisionLayer(DEAD_GNOME_LAYER)
 
+    _G.Screenshake(DEATH_SHAKE)
+    PlaySound("gnome_death_01.wav", 1, 1, false)
+    
 		SetStatueSprite()
 	end
 end
@@ -233,21 +250,32 @@ end
 function ChipStatue()
 	statueHitPoints = statueHitPoints - 1
 	
+	local tex = this:GetSprite().textureHandler
+  local lastFrame = tex.currentFrame
 	if(statueHitPoints < 12)
 	then
-		local tex = this:GetSprite().textureHandler
 		tex.currentFrame = 4 - math.ceil(statueHitPoints / 3)
 		this:GetSprite().textureHandler = tex
 	else
 		tex.currentFrame = 0
 		this:GetSprite().textureHandler = tex
 	end
+  
+  -- Chipping effects on visual chip
+  if (lastFrame ~= tex.currentFrame)
+  then
+    PlayCrackSound()
+    -- TODO: Chip particles here.
+  end
 
 	if(statueHitPoints <= 0)
 	then
 		this:GetScript("GnomeStatus.lua").isStatue = false
 		SetStatueSprite()
 
+    PlaySound("statue_shatter_01.wav", 1, 1, false)
+    PlaySound("gnome_respawn_01.wav", 1, 1, false)
+    
 		health = 6
 
 		this:GetScript("GnomeMovement.lua").Jump()
