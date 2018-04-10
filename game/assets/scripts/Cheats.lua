@@ -17,6 +17,27 @@ currTime = 0
 muteKey = KEY.M
 godModeKey = KEY.G
 
+function DisplayCheatNotification(prefabName)
+
+	local obj = GameObject.LoadPrefab(prefabName)
+
+	if (obj:IsValid())
+	then
+
+		local camera = GameObject.FindByName("Main Camera")
+		obj:GetTransform().position = camera:GetTransform().position
+		obj:GetTransform().parent = camera
+	
+		return obj
+
+	else
+
+		return nil
+	
+	end
+
+end
+
 function UpdateCheats(dt)
 
 	if(_G.CHEAT_MODE)
@@ -39,6 +60,17 @@ function UpdateCheats(dt)
 			then
 
 				_G.GOD_MODE = not _G.GOD_MODE
+
+				if(_G.GOD_MODE)
+				then
+
+					DisplayCheatNotification("assets/prefabs/cheats_internal/GodModeOn.json")
+
+				else
+
+					DisplayCheatNotification("assets/prefabs/cheats_internal/GodModeOff.json")
+
+				end
 
 			end
 
@@ -78,6 +110,17 @@ function Update(dt)
 		_G.CHEAT_MODE = not _G.CHEAT_MODE
 		_G.GOD_MODE = false
 		CHEAT_ACTIVATION_INDEX = 1
+
+		if(_G.CHEAT_MODE)
+		then
+
+			DisplayCheatNotification("assets/prefabs/cheats_internal/CheatModeOn.json")
+
+		else
+
+			DisplayCheatNotification("assets/prefabs/cheats_internal/CheatModeOff.json")
+
+		end
 
 	end
 
