@@ -191,6 +191,18 @@ function EditingEffects()
 
 end
 
+local function VecSub(a, b)
+  return vec2(a.x - b.x, a.y - b.y)
+end
+
+local function VecMagnitude(vec)
+  return math.sqrt(vec.x * vec.x + vec.y * vec.y)
+end
+
+local function VecDistance(a, b)
+  return VecMagnitude(VecSub(a,b))
+end
+
 function LookForGnomes()
 
 	if(isOnPatrol == false)
@@ -204,21 +216,25 @@ function LookForGnomes()
 	local initialDirection = 270 - (detectionConeWidthDegrees / 2)
 	local directionIncrease = detectionConeWidthDegrees / (numberOfDetectionRays - 1)
 	local endDirection = 270 + (detectionConeWidthDegrees / 2)
+  
+  --Visualisation raycast
+  --Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, initialDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
+  --Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, endDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
 
-	-- for each detection ray
-	for currDirection = initialDirection, endDirection, directionIncrease
-	do
-		 -- raycast from the bird
-		 local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
-
-		 if(cast.gameObjectHit:IsValid() and cast.gameObjectHit:GetCollider().collisionLayer.layer ~= GROUND_LAYER)
-		 then
-
-			SetDive(cast.gameObjectHit:GetTransform().position)
-
-		 end
-
-	end
+  local PM = _G.PLAYER_MANAGER
+  for _, player in pairs(PM.PLAYERS)
+  do
+    local playerPos = player.gameObject:GetTransform().position
+    local thisPos = this:GetTransform().position
+    local offset = VecSub(playerPos, thisPos)
+    local offsetAngle = (math.deg(math.atan(offset.y, offset.x)) + 360) % 360
+    
+    if (VecMagnitude(offset) <= detectionConeLength and offsetAngle <= endDirection and offsetAngle >= initialDirection)
+    then
+			SetDive(playerPos)
+      break
+    end
+  end
 
 end
 
