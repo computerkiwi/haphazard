@@ -18,7 +18,7 @@ spawnRadius = 5
 
 timeTillNextSpawn = 0
 
-timeToDestroyClouds = 5
+timeToDestroyClouds = 60
 
 index = 1
 
@@ -57,6 +57,35 @@ function SpawnRandomizedCloud()
 		index = 1
 
 	end
+
+	return obj
+
+end
+
+function PreSeedClouds(time)
+
+	local remainingTime = time
+
+	while remainingTime > 0
+	do
+		
+		obj = SpawnRandomizedCloud()
+
+		-- account for the missing time
+		obj:GetTransform().position = vec2(obj:GetTransform().position.x + (obj:GetRigidBody().velocity.x * remainingTime), obj:GetTransform().position.y)
+		obj:GetScript("DestroyAfterTime.lua").TIME_TO_DELETE = obj:GetScript("DestroyAfterTime.lua").TIME_TO_DELETE - remainingTime
+
+		-- skip the the next time a cloud would spawn
+		timeTillNextSpawn = minSpawnTime + (math.random() * (maxSpawnTime - minSpawnTime))
+		remainingTime = remainingTime - timeTillNextSpawn
+
+	end
+
+end
+
+function Start()
+
+	PreSeedClouds(timeToDestroyClouds)
 
 end
 
