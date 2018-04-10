@@ -75,6 +75,21 @@ dustParticlesEnabled = nil -- Initialized in start.
 WALK_PREFAB_NAME = "assets/prefabs/DustParticles.json"
 JUMP_PREFAB_NAME = "assets/prefabs/DustJump.json"
 
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
+
+PlayTossSound = NewPlaysoundFunction(
+  "gnome_toss_01.wav",
+  "gnome_toss_02.wav",
+  "gnome_toss_03.wav",
+  "gnome_toss_04.wav")
+
 local dustParticleCount = 0
 function SetDustEnabled(shouldBeEnabled)
 	-- Don't bother changing if our status is already in the state we want it in.
@@ -274,12 +289,13 @@ function CheckToss()
 	if(input.tossPressed and status.stackedAbove ~= nil)
 	then
 		-- Toss
-		PlaySound("Grunt4.wav", 1, 1, false)
+    PlayTossSound()
+
 		local above = status.stackedAbove
 		above:GetScript("GnomeStack.lua").Unstack()
 		above:GetScript("GnomeStatus.lua").tossed = true
 		above:GetScript("GnomeMovement.lua").Jump()
-
+    
 		local newVelocity = above:GetRigidBody().velocity
 		
 		dir = moveDir
