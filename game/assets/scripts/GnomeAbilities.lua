@@ -50,6 +50,12 @@ function Start()
 end
 
 function SetJumpSprite(jumping)
+	-- Statue has its own sprite situation. Don't overwrite.
+	if (this:GetScript("GnomeStatus.lua").isStatue)
+	then
+		return
+	end
+	
 	if (jumping and not this:GetScript("GnomeStatus.lua").stacked)
 	then
 		this:GetSprite().id = Resource.FilenameToID(jumpSprite)
