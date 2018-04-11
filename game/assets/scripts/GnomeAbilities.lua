@@ -18,6 +18,13 @@ Sprite_RedGnome    = "redGnomeWalk.json"
 Sprite_GreenGnome  = "greenGnomeWalk.json"
 Sprite_BlueGnome   = "blueGnomeWalk.json"
 Sprite_YellowGnome = "yellowGnomeWalk.json"
+Sprite_RedGnome_Jump    = "Gnome_Red_Jump.png"
+Sprite_GreenGnome_Jump  = "Gnome_Green_Jump.png"
+Sprite_BlueGnome_Jump   = "Gnome_Blue_Jump.png"
+Sprite_YellowGnome_Jump = "Gnome_Yellow_Jump.png"
+
+local walkSprite
+local jumpSprite
 
 Blue_Foot_GravityScale = 0.5
 Yellow_Foot_SpeedBoost = 2
@@ -40,6 +47,15 @@ function Start()
 
 	defaultGravity = this:GetRigidBody().gravity
 	--this:GetScript("GnomeMovement.lua").Knockback(vec2(1,1), 10)
+end
+
+function SetJumpSprite(jumping)
+	if (jumping and not this:GetScript("GnomeStatus.lua").stacked)
+	then
+		this:GetSprite().id = Resource.FilenameToID(jumpSprite)
+	else
+		this:GetSprite().id = Resource.FilenameToID(walkSprite)
+	end
 end
 
 function Update()
@@ -132,22 +148,28 @@ function SetType(type)
 	-- Set sprite
 	if(type == 1)	-- Red
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_RedGnome)
+		walkSprite = Sprite_RedGnome
+		jumpSprite = Sprite_RedGnome_Jump
 		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Red_Jump.json"
 		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	elseif(type == 2)	-- Green
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_GreenGnome)
+		walkSprite = Sprite_GreenGnome
+		jumpSprite = Sprite_GreenGnome_Jump
 	elseif(type == 3)	-- Blue
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_BlueGnome)
+		walkSprite = Sprite_BlueGnome
+		jumpSprite = Sprite_BlueGnome_Jump
 		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Blue_Jump.json"
 		this:GetScript("FollowingParticleSystem.lua").PARTICLE_OFFSET_Y = -0.5
 		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	elseif(type == 4)	-- Yellow
 	then
-		this:GetSprite().id = Resource.FilenameToID(Sprite_YellowGnome)
+		walkSprite = Sprite_YellowGnome
+		jumpSprite = Sprite_YellowGnome_Jump
 	end
+	
+	SetJumpSprite(false)
 end
 
 function TypeName(type)

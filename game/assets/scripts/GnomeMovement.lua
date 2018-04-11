@@ -90,6 +90,11 @@ PlayTossSound = NewPlaysoundFunction(
   "gnome_toss_03.wav",
   "gnome_toss_04.wav")
 
+local function SetGrounded(grounded)
+	onGround = grounded
+	this:GetScript("GnomeAbilities.lua").SetJumpSprite( not grounded)
+end
+  
 local dustParticleCount = 0
 function SetDustEnabled(shouldBeEnabled)
 	-- Don't bother changing if our status is already in the state we want it in.
@@ -163,13 +168,13 @@ function Update(dt)
 	ledgeForgivenessTimer = ledgeForgivenessTimer - dt
 	if (CheckGround(2))
 	then
-		onGround = true
+		SetGrounded(true)
 	else
 		if (onGround == true)
 		then
 			ledgeForgivenessTimer = LEDGE_FORGIVENESS_TIME 
-		end		
-		onGround = false                  
+		end
+		SetGrounded(false)            
 	end
 
 	if(status.canMove == true and status.knockedBack == false and status.isStatue == false and status.killedByChaseBox == false)
@@ -273,7 +278,7 @@ function Jump()
 	newVelocity.y = speed
 	this:GetRigidBody().velocity = newVelocity
 
-	onGround = false
+	SetGrounded(false)
 
 	local jumpParticle = GameObject.LoadPrefab(JUMP_PREFAB_NAME)
 	local pos = this:GetTransform().position
@@ -318,7 +323,7 @@ function Knockback(dir, force)
 	this:GetScript("GnomeStatus.lua").knockedBack = true
 	this:GetRigidBody().velocity = vec3(dir.x * force, dir.y * force, 0)
 	this:GetTransform().position = vec2(this:GetTransform().position.x, this:GetTransform().position.y + 0.1)
-	onGround = false
+	SetGrounded(false)
 
 end
 

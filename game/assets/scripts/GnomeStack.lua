@@ -275,22 +275,16 @@ function AttachGnomes(top, bot)
 	local topStatus = top:GetScript("GnomeStatus.lua")
 	local botStatus = bot:GetScript("GnomeStatus.lua")
 
+	-- Do nothing if someone's already stacked.
+	if (topStatus.stackedBelow ~= nil or botStatus.stackedAbove ~= nil)
+	then
+		return
+	end
+
 	local stackParticle = GameObject.LoadPrefab("assets/prefabs/Particles_StackEffect.json")
 	local tempPos = bot:GetTransform().position
 	stackParticle:GetTransform().position = tempPos
-
-	-- Disconnect gnomes if need be.
-	if (topStatus.stackedBelow ~= nil)
-	then
-		return
-		--DetachGnomes(top, topStatus.stackedBelow)
-	end
-	if (botStatus.stackedAbove ~= nil)
-	then
-		return
-		--DetachGnomes(botStatus.stackedAbove, bot)
-	end
-
+	
 	topStatus.stackedBelow = bot
 	botStatus.stackedAbove = top
 	
