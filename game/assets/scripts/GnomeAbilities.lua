@@ -56,7 +56,7 @@ function SetJumpSprite(jumping)
 		return
 	end
 	
-	if (jumping and not this:GetScript("GnomeStatus.lua").stacked)
+	if (jumping and this:GetScript("GnomeStatus.lua").stackedBelow == nil)
 	then
 		this:GetSprite().id = Resource.FilenameToID(jumpSprite)
 	else
