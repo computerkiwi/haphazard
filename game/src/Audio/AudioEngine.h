@@ -67,6 +67,7 @@ namespace Audio
 
 	void ToggleSFX();
 	void ToggleMusic();
+	void SetQuietMusic(bool quiet);
 	SoundHandle GetMusic();
 
 	FMOD::System *GetSystem();

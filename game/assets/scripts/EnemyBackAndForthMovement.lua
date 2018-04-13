@@ -14,25 +14,23 @@ GROUND_LAYER = 1 << 3
 direction = 1 -- direction of movement - -1 for left, 1 for right
 speed = 2      -- speed at which boi moves
 
+local TurnAroundTimer = .2
+local currTime = 0
+
 -- Updates each frame
 function Update(dt)
 	
 	local velocity = this:GetRigidBody().velocity
 
-	--[[local moveSpeed = speed
+	cast = Raycast.Cast(this:GetSpaceIndex(), this:GetTransform().position, vec2(0, -1), this:GetCollider().dimensions.y * (3/4), GROUND_LAYER)
 
-	if(scared == true)
-	then
+	currTime = currTime + dt
 
-		moveSpeed = scaredSpeed
-
-	end]]
-
-	cast = Raycast.Cast(this:GetSpaceIndex(), this:GetTransform().position, vec2(0, -1), this:GetCollider().dimensions.y / 1.8, GROUND_LAYER)
-
-	if(velocity.x == 0 or not cast.gameObjectHit:IsValid())
+	if((velocity.x == 0 or not cast.gameObjectHit:IsValid()) and currTime >= TurnAroundTimer)
 	then
 		
+		currTime = 0
+
 		-- change direction
 		direction = -direction
 

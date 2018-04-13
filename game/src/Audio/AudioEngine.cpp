@@ -32,7 +32,9 @@ namespace Audio
 
 	static SoundHandle musicTrack;
 	static float musicTrackVol;
+	static const float QUIET_MUSIC_MULTIPLIER = 0.2f;
 	static bool musicMuted = false;
+	static bool quietMusic = false;
 
 	static std::list<std::pair<SoundHandle, float>> sfxList; // <soundHandle, volume>
 	static bool sfxMuted = false;
@@ -40,6 +42,25 @@ namespace Audio
 	static void ClearOldSFX()
 	{
 		std::remove_if(sfxList.begin(), sfxList.end(), [](const std::pair<SoundHandle, float>& soundPair) { return !soundPair.first.IsPlaying(); });
+	}
+
+	static void UpdateMusicVolume()
+	{
+		float musicVol;
+		if (musicMuted)
+		{
+			musicVol = 0;
+		}
+		else if (quietMusic)
+		{
+			musicVol = QUIET_MUSIC_MULTIPLIER * musicTrackVol;
+		}
+		else
+		{
+			musicVol = musicTrackVol;
+		}
+
+		musicTrack.SetVolume(musicVol);
 	}
 
 	// Returns the path into the audio folder plus the filename.
@@ -124,11 +145,10 @@ namespace Audio
 		}
 
 		musicTrackVol = volume;
-		if (musicMuted)
-		{
-			volume = 0;
-		}
 		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
+
+		UpdateMusicVolume();
+
 		return musicTrack;
 	}
 
@@ -151,13 +171,16 @@ namespace Audio
 	void ToggleMusic()
 	{
 		musicMuted = !musicMuted;
-		if (musicMuted)
+		UpdateMusicVolume();
+	}
+
+	void SetQuietMusic(bool quiet)
+	{
+		// Do nothing if it's already the same.
+		if (quiet != quietMusic)
 		{
-			musicTrack.SetVolume(0.0f);
-		}
-		else
-		{
-			musicTrack.SetVolume(musicTrackVol);
+			quietMusic = quiet;
+			UpdateMusicVolume();
 		}
 	}
 

@@ -1,0 +1,33 @@
+--CHECKED--
+fmod - Copyright below
+lua  - Copyright below
+opengl - Copyright below
+glew - Copyright below
+glfw - Not needed (http://www.glfw.org/license.html)
+glm - Copyright below
+SOIL - Public Domain
+imgui - Copyright below
+LuaBridge - Copyright below
+rapidjson - Copyright below
+
+--OUTPUTS--
+FMOD Copyright © 2012-2018 Firelight Technologies Pty Ltd
+Lua Copyright © 1994–2017 Lua.org, PUC-Rio.
+
+The OpenGL Extension Wrangler Library
+Copyright (C) 2008-2016, Nigel Stewart <nigels[]users sourceforge net>
+Copyright (C) 2002-2008, Milan Ikits <milan ikits[]ieee org>
+Copyright (C) 2002-2008, Marcelo E. Magallon <mmagallo[]debian org>
+Copyright (C) 2002, Lev Povalahev
+All rights reserved.
+
+GLM Copyright (c) 2005 - 2014 G-Truc Creation
+
+imgui Copyright (c) 2014-2018 Omar Cornut
+
+LuaBridge
+Copyright 2012, Vinnie Falco (<vinnie.falco@gmail.com>)
+Copyright 2008, Nigel Atkinson
+Copyright 2007, Nathan Reed 
+
+Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
