@@ -427,6 +427,7 @@ function CheckForToggle()
 		if handler:PausePressed()
 		then
 			SetPaused(not IsPaused())
+      SetQuietMusic(IsPaused())
 			ActivateMain()
       PlayMoveSound()
 			return true
