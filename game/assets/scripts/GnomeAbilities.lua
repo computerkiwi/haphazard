@@ -64,6 +64,9 @@ function SetJumpSprite(jumping)
 	end
 end
 
+-- How long after a jump can we use a foot ability?
+local JUMP_COOLDOWN = 0.1
+
 function Update()
 	this:GetScript("GnomeStatus.lua").specialMove = false
 	this:GetRigidBody().gravity = defaultGravity
@@ -71,32 +74,57 @@ function Update()
 
 	local status = this:GetScript("GnomeStatus.lua")
 
-	-- Attacks
-	if(this:GetScript("InputHandler.lua").attackPressed and this:GetScript("GnomeHealth.lua").health > 0)
+  -- Attacks
+  if(this:GetScript("InputHandler.lua").attackPressed and this:GetScript("GnomeHealth.lua").health > 0)
 	then
 		local type = status.GnomeType
-		if(status.stacked)
+		if(not status.stacked)
 		then
-			if(status.stackedBelow == nil)
-			then
-				FootAbility()
-			else
-				local belowType = status.stackedBelow:GetScript("GnomeStatus.lua").GnomeType
-				StackedAttack(type, belowType)
-			end
-		else
 			Attack(type)
-		end
+		elseif(status.stackedBelow ~= nil)
+    then
+      local belowType = status.stackedBelow:GetScript("GnomeStatus.lua").GnomeType
+      StackedAttack(type, belowType)
+    end
 	end
+	-- Attacks
 
+  -- Foot ability
+  if(this:GetScript("GnomeMovement.lua").timeSinceJump >= JUMP_COOLDOWN and 
+     status.stacked and status.stackedBelow == nil and 
+     this:GetScript("GnomeHealth.lua").health > 0)
+  then
+    if (this:GetScript("InputHandler.lua").onJumpPress)
+    then
+      FootAbilityPress()
+    end
+    if (this:GetScript("InputHandler.lua").jumpPressed)
+    then
+      FootAbilityHold()
+    end
+  end
 end
 
 function Jump()
 	usedFootAbilityThisJump = false
 end
 
-function FootAbility()
-	
+local yellowJumps = 2
+
+function FootAbilityHold()  
+  
+	local type = this:GetScript("GnomeStatus.lua").GnomeType
+  
+  if(type == 3 and usedFootAbilityThisJump) -- Blue
+	then
+		-- Lowers fall speed
+		this:GetRigidBody().gravity = vec3(defaultGravity.x * Blue_Foot_GravityScale, defaultGravity.y * Blue_Foot_GravityScale,0)
+		this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
+	end
+
+end
+function FootAbilityPress()  
+  
 	local type = this:GetScript("GnomeStatus.lua").GnomeType
 
 	-- Set sprite
@@ -106,7 +134,6 @@ function FootAbility()
 		then
 			this:GetScript("GnomeMovement.lua").Jump()
 			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Red_Foot.json")
-			usedFootAbilityThisJump = true
 			this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 		end
 	elseif(type == 2)	-- Green
@@ -117,20 +144,25 @@ function FootAbility()
 		
   		moveScript.Knockback(vec2(moveScript.facing, 0.4), Green_Foot_PushSpeed)
 		this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
-
-		usedFootAbilityThisJump = true
 		end
-	elseif(type == 3)	-- Blue
-	then
-		-- Lowers fall speed
-		this:GetRigidBody().gravity = vec3(defaultGravity.x * Blue_Foot_GravityScale, defaultGravity.y * Blue_Foot_GravityScale,0)
-		this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 	elseif(type == 4)	-- Yellow
 	then
-		this:GetScript("GnomeStatus.lua").specialMove = true
-		this:GetScript("GnomeStatus.lua").specialMoveScale = Yellow_Foot_SpeedBoost
-	end
+    if (not usedFootAbilityThisJump)
+    then
+      yellowJumps = 2
+    end
+  
+		if(yellowJumps > 0)
+		then
+      local moveScript = this:GetScript("GnomeMovement.lua")
+      moveScript.Jump(0.75)
+      -- TODO: Spawn ability particles here.
 
+      yellowJumps = yellowJumps - 1
+		end
+	end
+  
+	usedFootAbilityThisJump = true
 end
 
 function Attack(type)

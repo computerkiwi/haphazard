@@ -110,6 +110,7 @@ void RegisterLua(lua_State * L)
 		.addFunction("PlayMusic", Audio::PlayMusic)
 		.addFunction("ToggleMusic", Audio::ToggleMusic)
 		.addFunction("ToggleSFX", Audio::ToggleSFX)
+		.addFunction("SetQuietMusic", Audio::SetQuietMusic)
 		.addFunction("GetMusic", Audio::GetMusic)
 		.addFunction("SetPaused", &LuaSetPaused)
 		.addFunction("IsPaused", &LuaIsPaused);
