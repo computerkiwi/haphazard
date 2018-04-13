@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Brett Schiff
 Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
+_G.spaceScrollMultiplier = 8
+
 timeToLeave = 3
 currTime = 0
 
@@ -55,7 +57,16 @@ end
 
 function Update(dt)
 
-	currTime = currTime + dt
+	if(IsHeld(KEY.Space))
+	then
+
+		currTime = currTime + (dt * _G.spaceScrollMultiplier)
+
+	else
+
+		currTime = currTime + dt
+
+	end
 
 	if (transitionStarted)
 	then

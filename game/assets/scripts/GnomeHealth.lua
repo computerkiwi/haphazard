@@ -7,6 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 STATUE_HIT_POINTS = 7
 DEAD_GNOME_LAYER = 1 << 11 --2048
+ALLY_PROJECTILE_LAYER = 1 << 5 --32
 
 ENEMY_LAYER = 16;
 
@@ -25,6 +26,8 @@ KNOCKBACK_FORCE = 5
 INVULNERABLE_TIME = 2
 
 LEVEL = "Level1.json"
+
+local sqrt2 = math.sqrt(2)
 
 Sprite_Red_Statue = "Death_Red.json"
 Sprite_Green_Statue = "Death_Green.json"
@@ -210,6 +213,31 @@ function OnCollisionEnter(other)
 	then
 		Damage(1, other:GetTransform().position)
 	end
+  end
+
+  if(IsDead() and other:GetCollider().collisionLayer.layer == ALLY_PROJECTILE_LAYER)
+  then
+
+	other:GetScript("ProjectileInfo.lua").DidHit()
+
+	ChipStatue()
+
+	local direction = vec2(0, sqrt2)
+	DeadHitKnockbackForce = 1
+
+	if(other:GetTransform().position.x >= this:GetTransform().position.x)
+	then
+
+		direction.x = -sqrt2
+
+	else
+
+		direction.x = sqrt2
+
+	end
+
+	this:GetScript("GnomeMovement.lua").Knockback(direction, DeadHitKnockbackForce)
+
   end
 
 end

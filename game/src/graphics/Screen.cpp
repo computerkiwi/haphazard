@@ -72,10 +72,13 @@ void Screen::Draw()
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (FrameBuffer* fb : m_LayerList)
 	{ 
-		//glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->m_ID);
-		//glBlitFramebuffer(0, 0, fb->m_Width, fb->m_Height, 0, 0, m_View->m_Width, m_View->m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		fb->BindColorBuffer();
-		m_Fullscreen->DrawTris();
+		if (fb->m_UsedThisUpdate)
+		{
+			//glBindFramebuffer(GL_READ_FRAMEBUFFER, fb->m_ID);
+			//glBlitFramebuffer(0, 0, fb->m_Width, fb->m_Height, 0, 0, m_View->m_Width, m_View->m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			fb->BindColorBuffer();
+			m_Fullscreen->DrawTris();
+		}
 	}
 	glDisable(GL_BLEND);
 	
@@ -103,12 +106,12 @@ void Screen::Draw()
 		auto test = fb++;
 		if (!(*test)->m_UsedThisUpdate && FrameBuffer::m_FXManager->m_layerFX.find((*test)->m_Layer) != FrameBuffer::m_FXManager->m_layerFX.end() && FrameBuffer::m_FXManager->m_layerFX.at((*test)->m_Layer).size() == 0)
 		{
-			delete *test;
 			m_LayerList.erase(test); // Empty framebuffer, remove
+			delete *test;
 		}
 	}
-	if (!(*m_LayerList.begin())->m_UsedThisUpdate)
-		m_LayerList.erase(m_LayerList.begin());
+	//if (!(*m_LayerList.begin())->m_UsedThisUpdate)
+	//	m_LayerList.erase(m_LayerList.begin());
 }
 
 void Screen::RenderLoadingScreen()

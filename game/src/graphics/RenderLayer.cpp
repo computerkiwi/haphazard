@@ -89,6 +89,7 @@ FrameBuffer::FrameBuffer(int layer, int numColBuffers)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorBuffers[0], 0);
 
 	Screen::m_LayerList.insert(this);
+	Clear();
 }
 
 FrameBuffer::~FrameBuffer()

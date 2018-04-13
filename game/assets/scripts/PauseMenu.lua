@@ -330,7 +330,7 @@ function CreditsButton()
     StartTransition(NewLevelTransition("CreditsLevel.json"))
   end
 
-  ConfirmAction("Prompt_RestartLevel.png", Credits)
+  ConfirmAction("Prompt_Credits.png", Credits)
 end
 
 -- Opens up the quit confirmation dialog.

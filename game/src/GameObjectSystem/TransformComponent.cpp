@@ -19,7 +19,7 @@ TransformComponent::TransformComponent(const glm::vec3& position, const glm::vec
 //---------
 void TransformComponent::SetParent(GameObject parent)
 {
-	if (m_parent)
+	if (m_parent && m_parent.GetComponent<TransformComponent>().Get() != this)
 	{
 		Unparent();
 	}
