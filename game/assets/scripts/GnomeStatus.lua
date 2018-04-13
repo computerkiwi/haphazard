@@ -46,6 +46,7 @@ killedByChaseBox = false
 
 -- Collectibles
 hasGem = false
+GemID = "empty"
 
 -- Apply the current gnome type. (Change sprite, etc.)
 function SetInfo(playerNum, gnomeId)
