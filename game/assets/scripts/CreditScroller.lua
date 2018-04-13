@@ -17,7 +17,18 @@ function Start()
 end
 
 function Update(dt)
+	
+	if(IsHeld(KEY.Space))
+	then
 
-	transform.position = vec2(transform.position.x, transform.position.y + scrollSpeed * dt)
+		transform.position = vec2(transform.position.x, transform.position.y + scrollSpeed * dt * _G.spaceScrollMultiplier)
+
+	else
+
+		transform.position = vec2(transform.position.x, transform.position.y + scrollSpeed * dt)
+
+	end
+
+
 
 end
