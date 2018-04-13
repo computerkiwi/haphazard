@@ -427,6 +427,7 @@ function CheckForToggle()
 		if handler:PausePressed()
 		then
 			SetPaused(not IsPaused())
+      SetQuietMusic(IsPaused())
 			ActivateMain()
       PlayMoveSound()
 			return true
@@ -590,6 +591,7 @@ function Update(dt)
 	-- Don't do our stuff if we're switching to the other state.
 	if (CheckForToggle())
 	then
+    UpdatePositions()
 		return
 	end
   
@@ -603,6 +605,35 @@ function Update(dt)
 	pauseBackground:Deactivate()
 	
   EditorUpdate()
+end
+
+function UpdatePositions()
+  if (not UpdateConfirmDialog())
+  then
+    for i,v in ipairs(menuItems)
+    do
+      v:Activate()
+      if (i == itemSelected)
+      then
+        v:Select()
+      else
+        v:Deselect()
+      end
+      
+      local BUTTON_HEIGHT = .5
+      local BUTTON_SPACING = 0.02
+      local BUTTON_LEFT_X = -3.8
+      local BUTTON_BOT_Y = -2.5
+      
+      local BUTTON_TOP_Y = BUTTON_BOT_Y + #menuItems *(BUTTON_HEIGHT + BUTTON_SPACING)
+      
+      local uiScript = v:GetUI()
+      uiScript.scale_y = BUTTON_HEIGHT
+      uiScript.scale_x = 4 * uiScript.scale_y
+      uiScript.offset_x = BUTTON_LEFT_X
+      uiScript.offset_y = BUTTON_TOP_Y - i * (BUTTON_HEIGHT + BUTTON_SPACING)
+    end
+  end
 end
 
 function PausedUpdate()
@@ -633,32 +664,7 @@ function PausedUpdate()
   
 	-- TODO: Do this at an appropriate time rather than every frame.
 	pauseBackground:Activate()
-  if (not UpdateConfirmDialog())
-  then
-    for i,v in ipairs(menuItems)
-    do
-      v:Activate()
-      if (i == itemSelected)
-      then
-        v:Select()
-      else
-        v:Deselect()
-      end
-      
-      local BUTTON_HEIGHT = .5
-      local BUTTON_SPACING = 0.02
-      local BUTTON_LEFT_X = -3.8
-      local BUTTON_BOT_Y = -2.5
-      
-      local BUTTON_TOP_Y = BUTTON_BOT_Y + #menuItems *(BUTTON_HEIGHT + BUTTON_SPACING)
-      
-      local uiScript = v:GetUI()
-      uiScript.scale_y = BUTTON_HEIGHT
-      uiScript.scale_x = 4 * uiScript.scale_y
-      uiScript.offset_x = BUTTON_LEFT_X
-      uiScript.offset_y = BUTTON_TOP_Y - i * (BUTTON_HEIGHT + BUTTON_SPACING)
-    end
-  end
+  UpdatePositions()
 	
 	FinalizeInputHandlers()	
 	
