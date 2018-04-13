@@ -7,6 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 HAPHAZARD_ID = 2112077054
 DIGIPEN_ID   = 3440128679
+CONTROLLERS_ID = Resource.FilenameToID("ControllersRecommended.png")
 MENU_ID      = 3140605471
 
 LEVEL = "MainMenu.json" -- What level to switch to?
@@ -15,8 +16,12 @@ LEVEL = "MainMenu.json" -- What level to switch to?
 VISIBLE_DIGIPEN      = 0.5 + 0
 FADE_START_DIGIPEN   = 2.0 + VISIBLE_DIGIPEN
 END_DIGIPEN          = 1.0 + FADE_START_DIGIPEN
+-- Switch to controllers
+VISIBLE_CONTROLLERS = 0.5 + END_DIGIPEN
+FADE_START_CONTROLLERS = 1.5 + VISIBLE_CONTROLLERS
+END_CONTROLLERS = 1.0 + FADE_START_CONTROLLERS
 -- Switch to Haphazard
-VISIBLE_HAPHAZARD    = 1.0 + END_DIGIPEN
+VISIBLE_HAPHAZARD    = 1.0 + END_CONTROLLERS
 FADE_START_HAPHAZARD = 1.5 + VISIBLE_HAPHAZARD
 END_HAPHAZARD        = 1.0 + FADE_START_HAPHAZARD
 -- Switch to Menu
@@ -87,10 +92,20 @@ function Update(dt)
 	then
 		value = InverseLerp(END_DIGIPEN, FADE_START_DIGIPEN , timer)
 		
-	elseif(timer < VISIBLE_HAPHAZARD)
+	elseif(timer < VISIBLE_CONTROLLERS)
+	then
+		TrySwitchSprite(CONTROLLERS_ID)
+		value = InverseLerp(END_DIGIPEN, VISIBLE_CONTROLLERS, timer)
+	elseif(timer < FADE_START_CONTROLLERS)
+	then
+		value = 1
+	elseif(timer < END_CONTROLLERS)
+	then
+		value = InverseLerp(END_CONTROLLERS, FADE_START_CONTROLLERS, timer)
+  elseif(timer < VISIBLE_HAPHAZARD)
 	then
 		TrySwitchSprite(HAPHAZARD_ID)
-		value = InverseLerp(END_DIGIPEN, VISIBLE_HAPHAZARD, timer)
+		value = InverseLerp(END_CONTROLLERS, VISIBLE_HAPHAZARD, timer)
 		-- Skip to the fade out if we push the button.
 		if (ContinuePressed()) then timer = FADE_START_HAPHAZARD + value * (END_HAPHAZARD - FADE_START_HAPHAZARD) end
 	elseif(timer < FADE_START_HAPHAZARD)

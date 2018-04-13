@@ -31,13 +31,13 @@ int CollisionMasks[collisionLayers::numLayers] =
 	0b1111110011110,	// player     
 	0b1111111111110,	// ground     
 	0b0011110111110,	// enemy
-	0b0000000011010,	// allyProjectile
+	0b0100000011010,	// allyProjectile
 	0b0000000001010,	// decor
 	0b1011100011110,	// player1
 	0b1011010011110,	// player2
 	0b1010110011110,	// player3
 	0b1001110011110,	// player4
-	0b0000000001010,	// deadGnome
+	0b0000000101010,	// deadGnome
 	0b0011110000110,	// collectable
 };
 

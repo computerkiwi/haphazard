@@ -95,22 +95,14 @@ function Start()
 	--offset = this:GetTransform().position
 end
 
--- Range [0, 1]
-function SetBarAmount(amount)
-  local Y_SCALE_FACTOR = 0.4
-  local X_SCALE_FACTOR = 0.8
+function RotatedVec(x, y, rotation)
+	local cosTheta = math.cos(math.rad(rotation))
+	local sinTheta = math.sin(math.rad(rotation))
 
-  local thisScale = this:GetTransform().scale
-  
-  -- What the scale is at full health.
-  local fullScale = {x = X_SCALE_FACTOR * thisScale.x, y = Y_SCALE_FACTOR * thisScale.y}
-  
-  bar:GetTransform().scale = vec3(fullScale.x * amount, fullScale.y, 1)
-  bar:GetTransform().localPosition = vec2(((fullScale.x - fullScale.x * amount) / 2) * -1, 999999)
-  
+	return vec2(cosTheta * x - sinTheta * y, sinTheta * x + cosTheta * y)
 end
 
-function UpdateHeartsPos()
+function UpdateHeartsPos(camRot)
   local HEIGHT_PERCENT = (64 / 256)
   
   local THIS_SCALE_X = this:GetTransform().scale.x
@@ -122,15 +114,9 @@ function UpdateHeartsPos()
   local OFFSET_X = ((335 / 512) - 0.5) * THIS_SCALE_X
   local OFFSET_Y = (( 97 / 256) - 0.5) * THIS_SCALE_Y
   
+  hearts:GetTransform().rotation = camRot
   hearts:GetTransform().scale = vec3(SCALE_X, SCALE_Y, 0)
-  hearts:GetTransform().localPosition = vec2(OFFSET_X, OFFSET_Y)
-end
-
-function RotatedVec(x, y, rotation)
-	local cosTheta = math.cos(math.rad(rotation))
-	local sinTheta = math.sin(math.rad(rotation))
-
-	return vec2(cosTheta * x - sinTheta * y, sinTheta * x + cosTheta * y)
+  hearts:GetTransform().localPosition = RotatedVec(OFFSET_X, OFFSET_Y, camRot)
 end
 
 function LateUpdate(dt)
@@ -182,7 +168,5 @@ function LateUpdate(dt)
     spr.color = color
 	end
   
-  UpdateHeartsPos()
-	
-	hearts:GetTransform().rotation = camRot
+  UpdateHeartsPos(camRot)
 end

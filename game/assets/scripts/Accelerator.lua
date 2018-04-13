@@ -30,4 +30,9 @@ function OnCollisionEnter(other)
 
   other:GetRigidBody().velocity = tempVelocity
 
+  if(other:GetScript("GnomeStatus.lua") ~= nil)
+  then
+	other:GetScript("GnomeStatus.lua").knockedBack = false
+  end
+
 end
