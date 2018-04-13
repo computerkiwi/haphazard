@@ -40,6 +40,28 @@ UI_SHAKE_AMOUNT = 1
 local DAMAGE_SHAKE = 0.3
 local DEATH_SHAKE = 0.6
 
+local DEATH_NOTICE = nil
+
+DEATH_NOTICE_OFFSET_Y = 1
+
+DEATH_PARTICLES_OBJECT = "assets/prefabs/DeathEffect.json"
+CHIP_PARTICLES_OBJECT = "assets/prefabs/StatueChipEffect.json"
+RESPAWN_PARTICLES_OBJECT = "assets/prefabs/RespawnEffect.json"
+
+function SpawnAndAttachObject(prefabName, parentObj)
+	local obj = GameObject.LoadPrefab(prefabName)
+	if (obj:IsValid())
+	then
+		obj:GetTransform().parent = parentObj
+		
+		obj:GetTransform().localPosition = vec2(0,0)
+
+		return obj
+	else
+		return nil
+	end
+end
+
 function NewPlaysoundFunction(...)
   local sounds = {...}
   return function()
@@ -198,6 +220,11 @@ function Damage(damageAmount, damageSourceLocation)
 		statueHitPoints = STATUE_HIT_POINTS
 		this:GetCollider().collisionLayer = CollisionLayer(DEAD_GNOME_LAYER)
 
+		DEATH_NOTICE = SpawnAndAttachObject("assets/prefabs/Death_Wiggler.json", this)
+		DEATH_NOTICE:GetTransform().localPosition = vec2(0, DEATH_NOTICE_OFFSET_Y)
+
+		SpawnAndAttachObject(DEATH_PARTICLES_OBJECT, this)
+
     _G.Screenshake(DEATH_SHAKE)
     PlaySound("gnome_death_01.wav", 1, 1, false)
     
@@ -293,7 +320,7 @@ function ChipStatue()
   if (lastFrame ~= tex.currentFrame)
   then
     PlayCrackSound()
-    -- TODO: Chip particles here.
+    local chip = SpawnAndAttachObject(CHIP_PARTICLES_OBJECT, this)
   end
 
 	if(statueHitPoints <= 0)
@@ -307,5 +334,11 @@ function ChipStatue()
 		health = 6
 
 		this:GetScript("GnomeMovement.lua").Jump()
+
+		DEATH_NOTICE:Destroy()
+		DEATH_NOTICE = nil
+
+		SpawnAndAttachObject(RESPAWN_PARTICLES_OBJECT, this)
+
 	end
 end
