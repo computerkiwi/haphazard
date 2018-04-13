@@ -154,6 +154,8 @@ function Update(dt)
 
 	local transform = this:GetTransform()
 
+  timeSinceJump = timeSinceJump + dt
+  
 	-- Knockback is checked before ground update so it doesnt cancel on first update
 	if(status.knockedBack == true or status.tossed == true)
 	then
@@ -264,7 +266,11 @@ function UpdateMovement(dt)
 	
 end -- fn end
 
-function Jump()
+timeSinceJump = 0
+
+function Jump(jumpMultiplier)
+  jumpMultiplier = jumpMultiplier or 1
+
 	-- Get rid of ledge forgiveness
 	ledgeForgivenessTimer = 0
 	
@@ -275,10 +281,11 @@ function Jump()
 	end
 
 	local newVelocity = this:GetRigidBody().velocity
-	newVelocity.y = speed
+	newVelocity.y = speed * jumpMultiplier
 	this:GetRigidBody().velocity = newVelocity
 
 	SetGrounded(false)
+  timeSinceJump = 0
 
 	local jumpParticle = GameObject.LoadPrefab(JUMP_PREFAB_NAME)
 	local pos = this:GetTransform().position
