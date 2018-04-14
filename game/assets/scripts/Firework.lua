@@ -22,6 +22,24 @@ boomObj2 = nil
 
 currTime = 0
 
+function RandomFloat(a, b)
+	return math.random() * (b - a) + a
+end
+
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function(volume)
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, volume, 1 + RandomFloat(-0.1, 0.1), false)
+  end
+end
+
+PlayBoomSound = NewPlaysoundFunction(
+  "explosion_01.wav",
+  "explosion_02.wav")
+
+
 function SpawnAndAttachObject(prefabName, parentObj)
 
 	local obj = GameObject.LoadPrefab(prefabName)
@@ -61,6 +79,13 @@ function Update(dt)
 		boomObj:GetTransform().position = this:GetTransform().position
 		boomObj2 = SpawnAndAttachObject(boomPrefab, this)
 		boomObj2:GetTransform().position = this:GetTransform().position
+		
+		if (math.random() < 0.5)
+		then
+			PlayBoomSound(1)
+		else
+			PlayBoomSound(0.4)
+		end
 
 	end
 
