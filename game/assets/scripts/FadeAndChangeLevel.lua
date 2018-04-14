@@ -13,23 +13,23 @@ MENU_ID      = 3140605471
 LEVEL = "MainMenu.json" -- What level to switch to?
 
 -- Starts faded to black.
-VISIBLE_DIGIPEN      = 0.5 + 0
-FADE_START_DIGIPEN   = 2.0 + VISIBLE_DIGIPEN
-END_DIGIPEN          = 1.0 + FADE_START_DIGIPEN
+VISIBLE_DIGIPEN      = 0.75 + 0
+FADE_START_DIGIPEN   = 2.0  + VISIBLE_DIGIPEN
+END_DIGIPEN          = 0.5  + FADE_START_DIGIPEN
 -- Switch to controllers
-VISIBLE_CONTROLLERS = 0.5 + END_DIGIPEN
-FADE_START_CONTROLLERS = 1.5 + VISIBLE_CONTROLLERS
-END_CONTROLLERS = 1.0 + FADE_START_CONTROLLERS
+VISIBLE_CONTROLLERS    = 0.75 + END_DIGIPEN
+FADE_START_CONTROLLERS = 1.5  + VISIBLE_CONTROLLERS
+END_CONTROLLERS        = 0.5  + FADE_START_CONTROLLERS
 -- Switch to Haphazard
-VISIBLE_HAPHAZARD    = 1.0 + END_CONTROLLERS
-FADE_START_HAPHAZARD = 1.5 + VISIBLE_HAPHAZARD
-END_HAPHAZARD        = 1.0 + FADE_START_HAPHAZARD
+VISIBLE_HAPHAZARD    = 0.75 + END_CONTROLLERS
+FADE_START_HAPHAZARD = 1.5  + VISIBLE_HAPHAZARD
+END_HAPHAZARD        = 0.5  + FADE_START_HAPHAZARD
 -- Switch to Menu
-VISIBLE_MENU         = 1.0 + END_HAPHAZARD
+VISIBLE_MENU         = 0.75 + END_HAPHAZARD
+FADE_START_MENU      = 9999 + VISIBLE_MENU
+END_MENU             = 0.5  + FADE_START_MENU
 
 timer = 0
-
-CONTINUE_BUTTONS = {KEY.Space, KEY.Escape}
 
 currentID = DIGIPEN_ID
 
@@ -83,7 +83,7 @@ function Update(dt)
 	-- Calculate the sprite's color based on where we are.
 	if (timer < VISIBLE_DIGIPEN)
 	then
-		value = 1
+		value = InverseLerp(0, VISIBLE_DIGIPEN, timer)
 	elseif(timer < FADE_START_DIGIPEN)
 	then
 		value = 1
@@ -119,15 +119,24 @@ function Update(dt)
 	then
 		TrySwitchSprite(MENU_ID)
 		value = InverseLerp(END_HAPHAZARD, VISIBLE_MENU, timer)
-	else  -- Menu is showing
+	elseif(timer < FADE_START_MENU)  -- Menu is showing
+	then
 		value = 1
+		
+		-- Hold here until we manually continue.
+		timer = FADE_START_MENU - 50
 		
 		if (ContinuePressed())
 		then
+			-- Start fading out.
+			timer = FADE_START_MENU
 			PlaySound("button_confirm.mp3", 1, 1, false)
-			Engine.LoadLevel(LEVEL)
 		end
-		
+	elseif(timer < END_MENU)
+	then
+		value = InverseLerp(END_MENU, FADE_START_MENU, timer)
+	else -- We got through everything. Move on.
+		Engine.LoadLevel(LEVEL)
 	end
 	
 	-- Get the sprite.
