@@ -210,7 +210,7 @@ function Update(dt)
 		StatueUpdate(dt)
 	end
 	
-	if (status.stacked)
+	if (status.stackedBelow)
 	then
 		SetDustEnabled(false)
 	end
