@@ -7,6 +7,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 CoinLayer = 1 << 12
 
+local PARTICLE_PREFAB_OBJECT = "assets/prefabs/CoinEffect.json"
+
 function Start()
   this:Activate()
 
@@ -23,6 +25,9 @@ function OnCollisionEnter(other)
   if (other:HasTag("Player"))
   then
     PlaySound("Coin6.wav", 1, 1, false)
+
+	local particles = GameObject.LoadPrefab(PARTICLE_PREFAB_OBJECT)
+	particles:GetTransform().position = this:GetTransform().position
 
     -- Deactivate the object
     this:Deactivate()
