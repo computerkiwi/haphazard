@@ -136,7 +136,7 @@ void TextComponent::Draw(glm::mat4& matrix)
 	Shaders::textShader->SetVariable("font", m_Font->GetTextureLayer());
 
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * m_CharData.size(), m_CharData.data(), GL_STATIC_DRAW);
-	m_CharBuffer.SetData(sizeof(float), m_CharData.size(), m_CharData.data());
+	m_CharBuffer.SetData(sizeof(float), static_cast<int>(m_CharData.size()), m_CharData.data());
 
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, (GLsizei)(m_CharData.size()/10) ); // 10 = num of attrib floats
 }

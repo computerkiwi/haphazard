@@ -1923,7 +1923,7 @@ void ImGui_Script(ScriptComponent *script_c, GameObject object, Editor * editor)
 {
 	// The script component is a hidden container for individual scripts. Don't show it.
 
-	int scriptCount = script_c->scripts.size();
+	int scriptCount = static_cast<int>(script_c->scripts.size());
 	for (int i = 0; i < scriptCount; i++)
 	{
 		bool scriptDeleted = !ImGui_IndividualScript(script_c->scripts[i], script_c, object, editor);
@@ -2149,8 +2149,8 @@ void ImGui_Particles(ParticleSystem *particles, GameObject object, Editor *edito
 			Checkbox("Emit At Start", &settings.emitBurstAtStart);
 			Drag_Vec_MinMax("Repeat Time##particle", particleSave.burstEmission, settings.burstEmission.z, settings.burstEmission, 0, FLT_MAX);
 
-			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
-			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES);
+			Drag_Vec_MinMax("Min Count##particle", particleSave.burstEmission, settings.burstEmission.x, settings.burstEmission, 0, static_cast<float>(settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES));
+			Drag_Vec_MinMax("Max Count##particle", particleSave.burstEmission, settings.burstEmission.y, settings.burstEmission, 0, static_cast<float>(settings.increasedMaxParticles ? LARGE_MAX_PARTICLES : MAX_PARTICLES));
 
 			DragRelease_Func(ParticleSettings, particleSave.burstEmission, settings.burstEmission, "BurstEmission", Action_General_Particle<decltype(settings.burstEmission)>);
 			Separator();

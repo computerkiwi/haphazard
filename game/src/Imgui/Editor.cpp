@@ -750,7 +750,7 @@ void Editor::KeyBindings(float dt)
 	if (!ImGui::IsAnyWindowHovered())
 	{
 		m_editorSettings.cameraZoom -= 0.4f * ImGui::GetIO().MouseWheel;
-		m_editorSettings.cameraZoom = max(m_editorSettings.cameraZoom, 0.2);
+		m_editorSettings.cameraZoom = static_cast<float>(max(m_editorSettings.cameraZoom, 0.2));
 	}
 }
 
@@ -1408,7 +1408,7 @@ void Editor::Tools()
 				rotationDiff *= (180.0f / PI);
 
 				// Figure out the target rotation and convert to degrees.
-				float finalRotation = fmod(initialObjRotation + rotationDiff + 360, 360);
+				float finalRotation = static_cast<float>(fmod(initialObjRotation + rotationDiff + 360, 360));
 
 				if (snap)
 				{

@@ -30,5 +30,9 @@ auto& GetMemberBackwardsCompatible(JsonType& obj, const std::vector<const char *
 			return obj[key];
 		}
 	}
+
+	// Shouldn't get here.
+	Assert(false);
+	return obj[""];
 }
 

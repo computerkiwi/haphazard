@@ -194,7 +194,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 
 	float data[UPDATE_UBO_SIZE] =
 	{
-		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, m_settings.emitBurstAtStart, // EmitBurstAtStart
+		m_settings.burstEmission.x, m_settings.burstEmission.y, m_settings.burstEmission.z, static_cast<float>(m_settings.emitBurstAtStart), // EmitBurstAtStart
 		m_settings.scaleOverTime.x, m_settings.scaleOverTime.y, m_settings.scaleOverTime.z, m_settings.scaleOverTime.w,
 		m_settings.startingVelocityVariance.x, m_settings.startingVelocityVariance.y,m_settings.startingVelocityVariance.z, m_settings.startingVelocityVariance.w,
 
@@ -216,7 +216,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		static_cast<float>(m_settings.particlesPerEmission),
 		static_cast<float>(m_settings.emissionShape),
 		m_settings.emissionShapeScale.z, //EmissionShapeThickness
-		m_settings.emitAwayFromCenter,
+		static_cast<float>(m_settings.emitAwayFromCenter),
 
 		m_settings.emitterLifetime,
 		m_settings.particleLifetime,
@@ -232,7 +232,7 @@ void ParticleSystem::UpdateParticles(float dt, glm::vec2 pos, int id)
 		static_cast<float>(m_settings.particleSpace),
 
 		m_settings.emitOverDistanceAmount,
-		pos == lastPos ? 0 : glm::length(pos - lastPos),
+		static_cast<float>(pos == lastPos ? 0 : glm::length(pos - lastPos)),
 
 		m_settings.velocityLimitAmount,
 	};
@@ -279,7 +279,7 @@ void ParticleSystem::RenderParticles(glm::vec2 pos, int id)
 		static_cast<float>(m_settings.particleSpace),
 		-1,		// Particle: Default texture (solid color square)
 		-1,		// Trail: Default texture (solid color square)
-		m_settings.randomBetweenColors,
+		static_cast<float>(m_settings.randomBetweenColors),
 		m_settings.trailLifetime,
 		1, // FadeTrailToEndColor
 	};
