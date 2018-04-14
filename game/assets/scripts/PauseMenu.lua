@@ -378,6 +378,7 @@ function Start()
 	inputHandlers = 
 	{
 		NewKeyboardInput(KEY.W, KEY.S, KEY.A, KEY.D, KEY.Space, KEY.Q, KEY.Escape), 
+		NewKeyboardInput(KEY.Up, KEY.Down, KEY.Left, KEY.Right, KEY.Enter, KEY.Q, KEY.Escape), 
 		NewControllerInput(0),
 		NewControllerInput(1),
 		NewControllerInput(2),

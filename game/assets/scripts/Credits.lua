@@ -17,6 +17,27 @@ currTime = 0
 
 local TRANSITION_ACTION
 
+function ContinuePressed()
+	-- Spacebar
+	if (IsHeld(KEY.Space))
+	then
+		return true
+	end
+	
+	-- A Button on the gamepads
+	for player = 0,3
+	do
+		local A_BUTTON = 0
+		if (GamepadIsHeld(player, A_BUTTON))
+		then
+			return true
+		end
+	end
+	
+	-- Failed to find a continue.
+	return false
+end
+
 function NewLevelTransition(level)
   return function()
     Engine.LoadLevel(level)
@@ -57,7 +78,7 @@ end
 
 function Update(dt)
 
-	if(IsHeld(KEY.Space))
+	if(ContinuePressed())
 	then
 
 		currTime = currTime + (dt * _G.spaceScrollMultiplier)
