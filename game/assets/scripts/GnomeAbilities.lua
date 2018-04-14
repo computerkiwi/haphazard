@@ -33,15 +33,22 @@ Yellow_Bonus_Jump_Strength = .6
 
 local usedFootAbilityThisJump = false
 
---[[
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
 
-TODO::
-Projectile Info
-Gnome Abilities (this script)
-Projectile Spawner features
-GnomeSpawner finishing?
-
-]]
+PlayMeleeSwoosh = NewPlaysoundFunction(
+	"swoosh_01.wav",
+	"swoosh_02.wav",
+	"swoosh_03.wav",
+	"swoosh_04.wav",
+	"swoosh_05.wav",
+	"swoosh_06.wav")
 
 function Start()
 	SetType(this:GetScript("GnomeStatus.lua").GnomeType)
@@ -157,7 +164,7 @@ function FootAbilityPress()
 		then
       local moveScript = this:GetScript("GnomeMovement.lua")
       moveScript.Jump(Yellow_Bonus_Jump_Strength)
-      -- TODO: Spawn ability particles here.
+			this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 
       yellowJumps = yellowJumps - 1
 		end
@@ -168,8 +175,10 @@ end
 
 function Attack(type)
 	PrefabName = "Projectile_" .. TypeName(type) .."_Standard.json"
-	this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	--this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+	if (this:GetScript("ProjectileSpawner.lua").Fire(PrefabName))
+	then
+		PlayMeleeSwoosh()
+	end
 
 end
 
@@ -206,6 +215,8 @@ function SetType(type)
 	then
 		walkSprite = Sprite_YellowGnome
 		jumpSprite = Sprite_YellowGnome_Jump
+		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Yellow_Jump.json"
+		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	end
 	
 	SetJumpSprite(false)
