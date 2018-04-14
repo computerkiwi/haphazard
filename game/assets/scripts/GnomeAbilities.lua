@@ -33,15 +33,22 @@ Yellow_Bonus_Jump_Strength = .6
 
 local usedFootAbilityThisJump = false
 
---[[
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
 
-TODO::
-Projectile Info
-Gnome Abilities (this script)
-Projectile Spawner features
-GnomeSpawner finishing?
-
-]]
+PlayMeleeSwoosh = NewPlaysoundFunction(
+	"swoosh_01.wav",
+	"swoosh_02.wav",
+	"swoosh_03.wav",
+	"swoosh_04.wav",
+	"swoosh_05.wav",
+	"swoosh_06.wav")
 
 function Start()
 	SetType(this:GetScript("GnomeStatus.lua").GnomeType)
@@ -168,8 +175,10 @@ end
 
 function Attack(type)
 	PrefabName = "Projectile_" .. TypeName(type) .."_Standard.json"
-	this:GetScript("ProjectileSpawner.lua").Fire(PrefabName)
-	--this:GetScript("ProjectileSpawner.lua").Fire("waterProjectile.json")
+	if (this:GetScript("ProjectileSpawner.lua").Fire(PrefabName))
+	then
+		PlayMeleeSwoosh()
+	end
 
 end
 

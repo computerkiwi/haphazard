@@ -49,8 +49,9 @@ function Normalize(vec)
 
 end
 
+-- returns true if we actually fire.
 function Fire(PrefabName)
-	if (canFire == false) then return end
+	if (canFire == false) then return false end
 
 	local proj = GameObject.LoadPrefab("assets/prefabs/" .. PrefabName)
 	
@@ -92,4 +93,6 @@ function Fire(PrefabName)
 	then
 		proj:GetTransform().parent = this
 	end
+	
+	return true
 end
