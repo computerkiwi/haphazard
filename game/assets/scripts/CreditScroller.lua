@@ -9,6 +9,26 @@ local scrollSpeed = 1.5
 
 local transform = nil
 
+function ContinuePressed()
+	-- Spacebar
+	if (IsHeld(KEY.Space))
+	then
+		return true
+	end
+	
+	-- A Button on the gamepads
+	for player = 0,3
+	do
+		local A_BUTTON = 0
+		if (GamepadIsHeld(player, A_BUTTON))
+		then
+			return true
+		end
+	end
+	
+	-- Failed to find a continue.
+	return false
+end
 
 function Start()
 
@@ -18,7 +38,7 @@ end
 
 function Update(dt)
 	
-	if(IsHeld(KEY.Space))
+	if(ContinuePressed())
 	then
 
 		transform.position = vec2(transform.position.x, transform.position.y + scrollSpeed * dt * _G.spaceScrollMultiplier)
