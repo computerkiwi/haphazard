@@ -16,6 +16,8 @@ LAYER_PLAYER = 1 << 2
 
 local startY
 
+local PARTICLE_PREFAB_OBJECT = "assets/prefabs/CoinEffect.json"
+
 function Start()
 end -- fn end
 
@@ -79,6 +81,8 @@ function OnCollisionEnter(object)
   if ((Collectible == true) and (object:HasTag("Player")))
   then
     PlaySound("Coin6.wav", 0.2, 1, false)
+	local particles = GameObject.LoadPrefab(PARTICLE_PREFAB_OBJECT)
+	particles:GetTransform().position = this:GetTransform().position
     this:Destroy();
   end
 end -- fn end
