@@ -32,6 +32,9 @@ PlayHurtsound = NewPlaysoundFunction(
 
 -- Using this to mass init some camera focus values on enemies.
 function Start()
+	-- All enemies should have 10 health.
+	health = 10
+
 	local focusScript = this:GetScript("CameraFocus.lua")
 	if (focusScript)
 	then
