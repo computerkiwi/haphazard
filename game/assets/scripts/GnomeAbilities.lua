@@ -164,7 +164,7 @@ function FootAbilityPress()
 		then
       local moveScript = this:GetScript("GnomeMovement.lua")
       moveScript.Jump(Yellow_Bonus_Jump_Strength)
-      -- TODO: Spawn ability particles here.
+			this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 
       yellowJumps = yellowJumps - 1
 		end
@@ -215,6 +215,8 @@ function SetType(type)
 	then
 		walkSprite = Sprite_YellowGnome
 		jumpSprite = Sprite_YellowGnome_Jump
+		this:GetScript("FollowingParticleSystem.lua").ParticlePrefab = "assets/prefabs/Particles_Yellow_Jump.json"
+		this:GetScript("FollowingParticleSystem.lua").InitParticles()
 	end
 	
 	SetJumpSprite(false)
