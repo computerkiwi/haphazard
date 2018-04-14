@@ -33,7 +33,7 @@ static void HandleStringVar(LuaScript &script, const char *name, const std::stri
 
 static void HandleNumberVar(LuaScript &script, const char *name, lua_Number value)
 {
-	float valueBuffer = value;
+	float valueBuffer = static_cast<float>(value);
 
 	if (InputFloat(name, &valueBuffer))
 	{

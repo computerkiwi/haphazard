@@ -161,8 +161,8 @@ void RenderSystem::RenderSprites(float dt)
 			return;
 
 		// Bind buffers and set instance data of all sprites
-		SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), tex.size(), tex.data());
-		SpriteComponent::SpriteMesh()->InstanceBuffer().SetData(sizeof(float), data.size(), data.data());
+		SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), static_cast<int>(tex.size()), tex.data());
+		SpriteComponent::SpriteMesh()->InstanceBuffer().SetData(sizeof(float), static_cast<int>(data.size()), data.data());
 
 		// Bind sprite attribute bindings (all sprites have the same bindings)
 		SpriteComponent::SpriteMesh()->UseAttributeBindings();
