@@ -26,9 +26,10 @@ Sprite_YellowGnome_Jump = "Gnome_Yellow_Jump.png"
 local walkSprite
 local jumpSprite
 
-Blue_Foot_GravityScale = 0.5
+Blue_Foot_GravityScale = 0.25
 Yellow_Foot_SpeedBoost = 2
 Green_Foot_PushSpeed = 30
+Yellow_Bonus_Jump_Strength = .6
 
 local usedFootAbilityThisJump = false
 
@@ -142,7 +143,7 @@ function FootAbilityPress()
 		then
 		local moveScript = this:GetScript("GnomeMovement.lua")
 		
-  		moveScript.Knockback(vec2(moveScript.facing, 0.4), Green_Foot_PushSpeed)
+  		moveScript.Knockback(vec2(moveScript.facing, .8), Green_Foot_PushSpeed)
 		this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Green_Foot.json")
 		end
 	elseif(type == 4)	-- Yellow
@@ -155,7 +156,7 @@ function FootAbilityPress()
 		if(yellowJumps > 0)
 		then
       local moveScript = this:GetScript("GnomeMovement.lua")
-      moveScript.Jump(0.75)
+      moveScript.Jump(Yellow_Bonus_Jump_Strength)
       -- TODO: Spawn ability particles here.
 
       yellowJumps = yellowJumps - 1
