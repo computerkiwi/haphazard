@@ -6,6 +6,14 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 KeyID = "DefaultGem"
+particlePrefabName = "assets/prefabs/Particles_Gem.json"
+
+local particles = nil
+
+function Start()
+	particles = GameObject.LoadPrefab(particlePrefabName)
+	particles:GetTransform().position = this:GetTransform().position
+end
 
 local thisCollected = false
 function OnCollisionEnter(other)
@@ -13,6 +21,7 @@ function OnCollisionEnter(other)
   if (not thisCollected and other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == false)
   then
 		PlaySound("Gem.wav", 1, 1, false)
+
 		thisCollected = true
 	
     -- Set gnome to have gem
@@ -21,5 +30,6 @@ function OnCollisionEnter(other)
 
     -- Deactivate the object
     this:Deactivate()
+	particles:Destroy()
   end
 end
