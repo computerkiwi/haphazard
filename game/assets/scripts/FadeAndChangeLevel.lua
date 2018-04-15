@@ -87,7 +87,6 @@ function Update(dt)
 	elseif(timer < FADE_START_DIGIPEN)
 	then
 		value = 1
-		if (ContinuePressed()) then timer = FADE_START_DIGIPEN end
 	elseif(timer < END_DIGIPEN)
 	then
 		value = InverseLerp(END_DIGIPEN, FADE_START_DIGIPEN , timer)
@@ -96,9 +95,12 @@ function Update(dt)
 	then
 		TrySwitchSprite(CONTROLLERS_ID)
 		value = InverseLerp(END_DIGIPEN, VISIBLE_CONTROLLERS, timer)
+		-- Skip to the fade out if we push the button.
+		if (ContinuePressed()) then timer = FADE_START_CONTROLLERS + value * (END_DIGIPEN - FADE_START_CONTROLLERS) end
 	elseif(timer < FADE_START_CONTROLLERS)
 	then
 		value = 1
+		if (ContinuePressed()) then timer = FADE_START_CONTROLLERS end
 	elseif(timer < END_CONTROLLERS)
 	then
 		value = InverseLerp(END_CONTROLLERS, FADE_START_CONTROLLERS, timer)
