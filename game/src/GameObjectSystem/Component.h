@@ -42,6 +42,7 @@ public:
 
 private:
 	GameObject_ID m_objID;
+	T *m_cachedPointer;
 	bool m_isValid;
 };
 
