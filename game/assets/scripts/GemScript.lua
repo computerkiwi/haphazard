@@ -7,6 +7,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 
 KeyID = "DefaultGem"
 particlePrefabName = "assets/prefabs/Particles_Gem.json"
+pairedGnome = ""
 
 local particles = nil
 
@@ -15,10 +16,16 @@ function Start()
 	particles:GetTransform().position = this:GetTransform().position
 end
 
+function CorrectGnome(name)
+
+	return (pairedGnome == "") or (pairedGnome == name)
+
+end
+
 local thisCollected = false
 function OnCollisionEnter(other)
   -- Player takes gem
-  if (not thisCollected and other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == false)
+  if (not thisCollected and other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == false and CorrectGnome(other:GetName()))
   then
 		PlaySound("Gem.wav", 1, 1, false)
 
