@@ -14,6 +14,8 @@ offsetY = 0
 parented = false
 isMelee = false
 
+hitParticle = ""
+
 isRight = true
 
 local lifeTimer = 0
