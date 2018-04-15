@@ -19,5 +19,5 @@ function Start()
 	emote:SetName(nameString)
 	emote:GetTransform().parent = this
 	emote:GetScript("Emotes.lua").Player = this
-	emote:GetTransform().localPosition = vec2(0.5, 0.5)
+	emote:GetTransform().localPosition = vec2(0.7, 0.9)
 end
