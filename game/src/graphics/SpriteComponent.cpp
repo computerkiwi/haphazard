@@ -6,6 +6,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "SpriteComponent.h"
 #include "TextureResource.h" // For INVALID_TEXTURE_ID
+#include "Engine\Engine.h"
 
 ///
 // Sprite Component

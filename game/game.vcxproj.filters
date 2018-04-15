@@ -198,6 +198,7 @@
     <None Include="shaders\screenDropshadow.frag" />
     <None Include="assets\scripts\EnemySpawner.lua" />
     <None Include="assets\scripts\ChaseKillBox.lua" />
+    <None Include="src\GameObjectSystem\SpriteComponentMap.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
