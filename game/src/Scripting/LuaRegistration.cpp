@@ -8,6 +8,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "LuaRegistration.h"
 
+#include "Engine/Engine.h"
+
 #include "lua.hpp"
 #include "LuaBridge.h"
 
@@ -16,6 +18,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine/Physics/CollisionLayer.h"
 
 #include "Audio/AudioEngine.h"
+
+void ToggleFullscreen();
 
 //-------
 // Input
@@ -59,6 +63,29 @@ int LuaGamepadsConnected()
   return Input::GamepadsConnected();
 }
 
+void LuaSetPaused(bool paused)
+{
+	engine->SetPaused(paused);
+}
+bool LuaIsPaused()
+{
+	return engine->IsPaused();
+}
+
+const char *LuaCurrentLevel()
+{
+	return engine->GetCurrentLevel().c_str();
+}
+
+bool LuaEditorIsOpen()
+{
+	return engine->GetEditor()->GetEditorState().show;
+}
+
+void LuaQuitGame()
+{
+	engine->Exit();
+}
 
 void RegisterLua(lua_State * L)
 {
@@ -66,7 +93,7 @@ void RegisterLua(lua_State * L)
 		.addFunction("IsHeld", &LuaIsPressed)
 		.addFunction("OnPress", &LuaIsTriggered)
     .addFunction("GamepadIsHeld", &LuaGamepadIsPressed)
-	.addFunction("GamepadOnPress", &LuaGamepadIsTriggered)
+	  .addFunction("GamepadOnPress", &LuaGamepadIsTriggered)
     .addFunction("GamepadGetAxis", &LuaGamepadGetAxis)
     .addFunction("SetLayersColliding", CollisionLayer_SetLayersColliding)
     .addFunction("SetLayersNotColliding", CollisionLayer_SetLayersNotColliding)
@@ -74,7 +101,18 @@ void RegisterLua(lua_State * L)
     .addFunction("ScreenToWorld", &Input::ScreenPercentToWorld)
     .addFunction("GamepadsConnected", &LuaGamepadsConnected)
 		.addFunction("GetMousePos", &LuaMousePos)
+		.addFunction("CurrentLevel", &LuaCurrentLevel)
+		.addFunction("EditorIsOpen", &LuaEditorIsOpen)
+		.addFunction("QuitGame", &LuaQuitGame)
+		.addFunction("ToggleFullscreen", &ToggleFullscreen)
 
-		.addFunction("PlaySound", Audio::PlaySound);
+		.addFunction("PlaySound", Audio::PlaySound)
+		.addFunction("PlayMusic", Audio::PlayMusic)
+		.addFunction("ToggleMusic", Audio::ToggleMusic)
+		.addFunction("ToggleSFX", Audio::ToggleSFX)
+		.addFunction("SetQuietMusic", Audio::SetQuietMusic)
+		.addFunction("GetMusic", Audio::GetMusic)
+		.addFunction("SetPaused", &LuaSetPaused)
+		.addFunction("IsPaused", &LuaIsPaused);
 		
 }

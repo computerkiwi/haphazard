@@ -1,7 +1,7 @@
 {
   "textureName": "Ability Sprites/Ability_Red_Standard.png",
-  "frameWidth":  768,
-  "frameHeight": 384,
+  "frameWidth":  512,
+  "frameHeight": 512,
   "framesX":     2,
   "framesY":     1,
   "fps":         4,

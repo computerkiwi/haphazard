@@ -77,10 +77,6 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	meta::Init();
 	Input::Init(m_window);
 
-	// For debug purposes.
-	// TODO: Come up with a smarter resource loading strategy.
-	m_resManager.LoadAll();
-
 	Logging::Log(Logging::CORE, Logging::LOW_PRIORITY, "Engine constructor called. ");
 
 
@@ -88,18 +84,14 @@ Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window
 	// Initialize the system.
 	m_spaces[0]->Init();
 
-	GameObject MainCamera = m_spaces[0]->NewGameObject("Main Camera");
-	MainCamera.AddComponent<TransformComponent>(glm::vec3(0, 0, 0), glm::vec3(0.15f));
-	MainCamera.AddComponent<Camera>();
-	MainCamera.GetComponent<Camera>()->SetView(glm::vec3(0, 0, 2.0f), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	MainCamera.GetComponent<Camera>()->SetProjection(1.0f, ((float)Settings::ScreenWidth()) / Settings::ScreenHeight(), 1, 10);
-	MainCamera.GetComponent<Camera>()->SetPosition(glm::vec2(0, 0));
-	MainCamera.GetComponent<Camera>()->SetZoom(3);
-	MainCamera.GetComponent<Camera>()->Use();
-	MainCamera.AddComponent<ScriptComponent>(LuaScript(m_resManager.Get("CameraFollow.lua"), MainCamera));
+	///
+	// Loading Screen
+	///
+	Screen::RenderLoadingScreen();
 
-	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLOOM);
-	//Screen::GetLayerFrameBuffer(1)->AddEffect(FX::BLUR);
+	// For debug purposes.
+	// TODO: Come up with a smarter resource loading strategy.
+	m_resManager.LoadAll();
 
 	LoadLevel("defaultLevel.json");
 }
@@ -121,6 +113,12 @@ int frameCounter = 0;
 
 void Engine::Update()
 {
+	if (!glfwGetWindowAttrib(m_window, GLFW_FOCUSED))
+	{
+		glfwPollEvents();
+		return;
+	}
+
 	Timer frameCap;
 
 	if (m_fileLoadFlag)
@@ -134,7 +132,7 @@ void Engine::Update()
 
 	m_dt = CalculateDt();
 
-	if (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze)
+	if ( m_paused || (m_editor.GetEditorState().show && m_editor.GetEditorState().freeze))
 	{
 		m_spaces[0]->Update(0);
 	}
@@ -292,11 +290,15 @@ bool Engine::IsWindowTitleDirty() const
 void Engine::FileLoadInternal(const char * fileName)
 {
 	logger << "Loading Game -> File: " << fileName;
+	Screen::RenderLoadingScreen();
+
 	ClearSerializedIdRelationships();
 	rapidjson::Document doc = LoadJsonFile(fileName);
 
 	meta::DeserializeAssign(*this, doc);
 	ApplySerializedIdUpdates();
+
+	m_currentLevel = fileName;
 }
 
 
@@ -353,6 +355,7 @@ GLFWwindow *WindowInit()
 	GLFWmonitor* primary = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primary);
 	glfwSetWindowMonitor(window, primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 #endif
 	
 

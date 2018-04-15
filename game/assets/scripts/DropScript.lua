@@ -6,13 +6,17 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 ]]
 
 Lifetime = 15
-Invulnerable = 1
+Invulnerable = 0.5
 Collectible = false
 Timer = false
 
 -- Layers
 LAYER_DECOR = 1 << 6
 LAYER_PLAYER = 1 << 2
+
+local startY
+
+local PARTICLE_PREFAB_OBJECT = "assets/prefabs/CoinEffect.json"
 
 function Start()
 end -- fn end
@@ -28,8 +32,29 @@ function Update(dt)
   end
 
   CheckTimer(dt)
-
+  SimulateGround()
+  
 end -- fn end
+
+function Start()
+  startY = this:GetTransform().position.y
+end 
+
+-- Passthrough collision means it feels good to collect but doesn't touch the ground.
+-- Solution: Simulate our own ground. (Assumption: flowers always placed on the ground.)
+function SimulateGround()
+  local transform = this:GetTransform()
+  local pos = transform.position
+  
+  if (pos.y < startY)
+  then
+    pos.y = startY
+    transform.position = pos
+    
+    this:GetRigidBody().velocity = vec3(0, 0, 0)
+    this:GetRigidBody().gravity = vec3(0, 0, 0)
+  end
+end
 
 function StartTimer()
   Timer = true  
@@ -55,7 +80,9 @@ end -- fn end
 function OnCollisionEnter(object)
   if ((Collectible == true) and (object:HasTag("Player")))
   then
-	PlaySound("regular_pickup.mp3", 0.2, 1, false)
-	this:Destroy();
+    PlaySound("Coin6.wav", 0.2, 1, false)
+	local particles = GameObject.LoadPrefab(PARTICLE_PREFAB_OBJECT)
+	particles:GetTransform().position = this:GetTransform().position
+    this:Destroy();
   end
 end -- fn end

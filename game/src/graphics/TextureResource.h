@@ -25,4 +25,5 @@ public:
 
 private:
 	Texture *m_tex;
+	bool m_isTiled;
 };

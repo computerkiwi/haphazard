@@ -15,7 +15,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Texture
 ///
 
-#define MAX_LAYERS 32
+#define MAX_LAYERS 48
 
 GLuint Texture::m_TextureArray = 0;
 GLuint Texture::m_layers = 0;
@@ -36,8 +36,8 @@ void LoadTexture(void* image, int x, int y, int width, int height, int layer, GL
 {
 	glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, x, y, layer, width, height, 1, GL_RGBA, format, image);
 
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -107,14 +107,16 @@ glm::ivec3 FindLocationForSprite(int width, int height)
 	return glm::ivec3(-1,-1,-1);
 }
 
-Texture::Texture(const char* file)
+Texture::Texture(const char* file, bool isTiled)
 {
 	unsigned char* image = SOIL_load_image(file, &m_pixelWidth, &m_pixelHeight, 0, SOIL_LOAD_RGBA);
 
 	if (!m_TextureArray)
 		GenerateTextureArray();
 
-	glm::ivec3 offset = FindLocationForSprite(m_pixelWidth, m_pixelHeight);
+	glm::ivec3 offset = FindLocationForSprite(
+		m_pixelWidth == Texture::MAX_WIDTH ? m_pixelWidth : m_pixelWidth + 1,      // Add padding if padding can fit on the page
+		m_pixelHeight == Texture::MAX_HEIGHT ? m_pixelHeight : m_pixelHeight + 1);
 
 	m_layer = offset.z;
 

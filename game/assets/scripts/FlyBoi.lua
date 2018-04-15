@@ -44,6 +44,11 @@ currMod = 1
 isDiving = false
 isOnPatrol = true
 
+-- Health stuuuuuuuuuuuuuuff
+DAMAGE_FLASH_TIME = 0.1
+damageFlashTimer = 0
+health = 10
+
 function DegreesToRadians(degrees)
 
 	local radiansPerDegree = 0.0174533
@@ -163,6 +168,15 @@ function MoveBoi(dt)
 
 	end
 
+	-- Flip sprite
+	if(targetDirection.x <= 0)
+	then
+		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	elseif(targetDirection.x > 0)
+	then
+		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
+	end
+
 end
 
 function EditingEffects()
@@ -177,6 +191,18 @@ function EditingEffects()
 
 end
 
+local function VecSub(a, b)
+  return vec2(a.x - b.x, a.y - b.y)
+end
+
+local function VecMagnitude(vec)
+  return math.sqrt(vec.x * vec.x + vec.y * vec.y)
+end
+
+local function VecDistance(a, b)
+  return VecMagnitude(VecSub(a,b))
+end
+
 function LookForGnomes()
 
 	if(isOnPatrol == false)
@@ -186,26 +212,29 @@ function LookForGnomes()
 
 	end
 
-	local radiansBetweenRays = detectionConeWidthDegrees / numberOfDetectionRays
 	-- start downward and adjust according to the cone width
 	local initialDirection = 270 - (detectionConeWidthDegrees / 2)
 	local directionIncrease = detectionConeWidthDegrees / (numberOfDetectionRays - 1)
 	local endDirection = 270 + (detectionConeWidthDegrees / 2)
+  
+  --Visualisation raycast
+  --Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, initialDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
+  --Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, endDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
 
-	-- for each detection ray
-	for currDirection = initialDirection, endDirection, directionIncrease
-	do
-		 -- raycast from the bird
-		 local cast = Raycast.RaycastAngle(this:GetSpaceIndex(), this:GetTransform().position, currDirection, detectionConeLength, PLAYER1LAYER | PLAYER2LAYER | PLAYER3LAYER | PLAYER4LAYER | GROUND_LAYER)
-
-		 if(cast.gameObjectHit:IsValid() and cast.gameObjectHit:GetCollider().collisionLayer.layer ~= GROUND_LAYER)
-		 then
-
-			SetDive(cast.gameObjectHit:GetTransform().position)
-
-		 end
-
-	end
+  local PM = _G.PLAYER_MANAGER
+  for _, player in pairs(PM.PLAYERS)
+  do
+    local playerPos = player.gameObject:GetTransform().position
+    local thisPos = this:GetTransform().position
+    local offset = VecSub(playerPos, thisPos)
+    local offsetAngle = (math.deg(math.atan(offset.y, offset.x)) + 360) % 360
+    
+    if (VecMagnitude(offset) <= detectionConeLength and offsetAngle <= endDirection and offsetAngle >= initialDirection)
+    then
+			SetDive(playerPos)
+      break
+    end
+  end
 
 end
 
@@ -222,6 +251,9 @@ end
 
 -- Updates each frame
 function Update(dt)
+
+  -- Damageeee
+	UpdateDamageFlash(dt)
 	
 	-- Effects to adjust for the object being edited
 	EditingEffects()
@@ -247,4 +279,28 @@ function OnCollisionEnter(other)
 
 	ChooseTarget()
 
+end
+
+
+-- Kieran's stuff
+function UpdateDamageFlash(dt)
+	damageFlashTimer = damageFlashTimer - dt
+
+	local sprite = this:GetSprite()
+	local color = sprite.color
+
+	if (damageFlashTimer <= 0)
+	then
+		color.x = 1
+		color.y = 1
+		color.z = 1
+		color.w = 1
+	else
+		color.x = 0.8
+		color.y = 0
+		color.z = 0
+		color.w = 1
+	end
+
+	sprite.color = color
 end

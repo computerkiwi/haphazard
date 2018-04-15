@@ -49,7 +49,7 @@ MOVE_RIGHT =	1 -- Player moving right
 --[[ VARIABLES ]]--
 
 -- Movement
-moveSpeed	 = 2
+moveSpeed	 = 2.5
 moveDir		 = 0
 facing       = 1
 statueXSpeed = 0.4
@@ -75,6 +75,27 @@ dustParticlesEnabled = nil -- Initialized in start.
 WALK_PREFAB_NAME = "assets/prefabs/DustParticles.json"
 JUMP_PREFAB_NAME = "assets/prefabs/DustJump.json"
 
+function NewPlaysoundFunction(...)
+  local sounds = {...}
+  return function()
+    local soundName = sounds[math.random(1, #sounds)]
+	
+    PlaySound(soundName, 1, 1, false)
+  end
+end
+
+PlayTossSound = NewPlaysoundFunction(
+  "gnome_toss_01.wav",
+  "gnome_toss_02.wav",
+  "gnome_toss_03.wav",
+  "gnome_toss_04.wav")
+
+local function SetGrounded(grounded)
+	onGround = grounded
+	this:GetScript("GnomeAbilities.lua").SetJumpSprite( not grounded)
+end
+  
+local dustParticleCount = 0
 function SetDustEnabled(shouldBeEnabled)
 	-- Don't bother changing if our status is already in the state we want it in.
 	if (dustParticlesEnabled == shouldBeEnabled)
@@ -87,7 +108,7 @@ function SetDustEnabled(shouldBeEnabled)
 	
 	local pSystem = dustParticleObject:GetParticleSystem()
 	local settings = pSystem.settings
-	settings.isLooping = shouldBeEnabled
+	settings.ParticlesPerEmission = shouldBeEnabled and dustParticleCount or 0
 	pSystem.settings = settings
 	
 end
@@ -116,7 +137,9 @@ function InitDustParticles()
 	dustParticlesEnabled = false
 	local pSystem = dustParticleObject:GetParticleSystem()
 	local settings = pSystem.settings
-	settings.isLooping = false
+	-- Save the standard amount of particles per emission and stop emitting particles.
+	dustParticleCount = settings.ParticlesPerEmission
+	settings.ParticlesPerEmission = 0
 	pSystem.settings = settings
 end
 
@@ -131,6 +154,8 @@ function Update(dt)
 
 	local transform = this:GetTransform()
 
+  timeSinceJump = timeSinceJump + dt
+  
 	-- Knockback is checked before ground update so it doesnt cancel on first update
 	if(status.knockedBack == true or status.tossed == true)
 	then
@@ -145,16 +170,16 @@ function Update(dt)
 	ledgeForgivenessTimer = ledgeForgivenessTimer - dt
 	if (CheckGround(2))
 	then
-		onGround = true
+		SetGrounded(true)
 	else
 		if (onGround == true)
 		then
 			ledgeForgivenessTimer = LEDGE_FORGIVENESS_TIME 
-		end		
-		onGround = false                  
+		end
+		SetGrounded(false)            
 	end
 
-	if(status.canMove == true and status.knockedBack == false and status.isStatue == false)
+	if(status.canMove == true and status.knockedBack == false and status.isStatue == false and status.killedByChaseBox == false)
 	then
 		-- Get Direction
 		UpdateDir()
@@ -166,7 +191,7 @@ function Update(dt)
 		end
 
 		-- Jump
-		if ((onGround == true or ledgeForgivenessTimer > 0) and this:GetScript("InputHandler.lua").jumpPressed)
+		if ((onGround == true or ledgeForgivenessTimer > 0 or _G.GOD_MODE) and this:GetScript("InputHandler.lua").jumpPressed)
 		then
 			Jump()
 		end
@@ -180,9 +205,14 @@ function Update(dt)
 			Jump()
 		end
 
-	elseif(status.isStatue == true)
+	elseif(status.isStatue == true and status.killedByChaseBox == false)
 	then
 		StatueUpdate(dt)
+	end
+	
+	if (status.stackedBelow)
+	then
+		SetDustEnabled(false)
 	end
 	
 	-- Make sure we don't have any lingering effects from toss rotation.
@@ -236,8 +266,10 @@ function UpdateMovement(dt)
 	
 end -- fn end
 
-function Jump()
-	PlaySound("jump.mp3", 0.1, 0.8, false)
+timeSinceJump = 0
+
+function Jump(jumpMultiplier)
+  jumpMultiplier = jumpMultiplier or 1
 
 	-- Get rid of ledge forgiveness
 	ledgeForgivenessTimer = 0
@@ -249,10 +281,11 @@ function Jump()
 	end
 
 	local newVelocity = this:GetRigidBody().velocity
-	newVelocity.y = speed
+	newVelocity.y = speed * jumpMultiplier
 	this:GetRigidBody().velocity = newVelocity
 
-	onGround = false
+	SetGrounded(false)
+  timeSinceJump = 0
 
 	local jumpParticle = GameObject.LoadPrefab(JUMP_PREFAB_NAME)
 	local pos = this:GetTransform().position
@@ -268,11 +301,13 @@ function CheckToss()
 	if(input.tossPressed and status.stackedAbove ~= nil)
 	then
 		-- Toss
+    PlayTossSound()
+
 		local above = status.stackedAbove
 		above:GetScript("GnomeStack.lua").Unstack()
 		above:GetScript("GnomeStatus.lua").tossed = true
 		above:GetScript("GnomeMovement.lua").Jump()
-
+    
 		local newVelocity = above:GetRigidBody().velocity
 		
 		dir = moveDir
@@ -295,7 +330,7 @@ function Knockback(dir, force)
 	this:GetScript("GnomeStatus.lua").knockedBack = true
 	this:GetRigidBody().velocity = vec3(dir.x * force, dir.y * force, 0)
 	this:GetTransform().position = vec2(this:GetTransform().position.x, this:GetTransform().position.y + 0.1)
-	onGround = false
+	SetGrounded(false)
 
 end
 

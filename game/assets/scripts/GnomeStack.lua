@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2018 DigiPen (USA) Corporation.
 ]]
 
+DEAD_GNOME_LAYER = 1 << 11 --2048
+
 gnomeStackDistance = 0.6
 
 currCollisionLayer = 0
@@ -18,6 +20,31 @@ minStackedDistanceY = 0.3
 
 local ATinyNumber = 0.1
 
+local popSounds = 
+{
+	"pop_01.wav",
+	"pop_02.wav",
+	"pop_03.wav",
+	"pop_04.wav",
+	"pop_05.wav",
+	"pop_06.wav",
+	"pop_07.wav",
+	"pop_08.wav",
+	"pop_09.wav",
+	"pop_10.wav",
+	"pop_11.wav",
+	"pop_12.wav",
+	"pop_13.wav",
+	"pop_14.wav",
+	"pop_15.wav",
+	"pop_16.wav",
+}
+function PlayStackPop()
+	local soundName = popSounds[math.random(1, #popSounds)]
+	
+	PlaySound(soundName, 1, 1, false)
+end
+
 function Start()
 	
 	currCollisionLayer = CollisionLayer(this:GetScript("GnomeStatus.lua").PLAYER_PHYS_LAYER)
@@ -25,6 +52,42 @@ function Start()
 end
 
 function Update(dt)
+	
+	-- if the gnome is dead
+	if(this:GetScript("GnomeHealth.lua").IsDead())
+	then
+
+		local status = this:GetScript("GnomeStatus.lua")
+
+		this:GetCollider().collisionLayer = CollisionLayer(DEAD_GNOME_LAYER)
+
+		if(this:GetCollider().collisionLayer == DEAD_GNOME_LAYER)
+		then
+
+			print("DEAD GNOME IS DEAD")
+
+		end
+
+		-- if a gnome is on top, boot em
+		if(status.stackedAbove ~= nil)
+		then
+
+			DetachGnomes(status.stackedAbove, this)
+
+		end
+
+		-- if a gnome is below, boot em
+		if(status.stackedBelow ~= nil)
+		then
+
+			DetachGnomes(this, status.stackedBelow)
+
+		end
+
+		-- don't do the rest
+		return
+
+	end
 
 	if(this:GetScript("GnomeStatus.lua").stackedBelow ~= nil)
 	then
@@ -179,13 +242,13 @@ function DetachGnomes(top, bot)
 	]]
 
 	topStack.delayCollisionLayer = topStatus.PLAYER_PHYS_LAYER --botStatus.PLAYER_PHYS_LAYER
-	topStack.delayCollisionCounter = 1
+	topStack.delayCollisionCounter = 0.3
 
 	--topStack.ResizeColliders()
 
 	topStatus.stackedBelow = nil
 	botStatus.stackedAbove = nil
-	PlaySound("stack_off.mp3", 0.5, 1, false)
+	PlayStackPop()
 	
 	-- Update the stacked variables.
 	if (topStatus.stackedAbove ~= nil)
@@ -211,27 +274,24 @@ function AttachGnomes(top, bot)
 	local topStack = top:GetScript("GnomeStack.lua")
 	local topStatus = top:GetScript("GnomeStatus.lua")
 	local botStatus = bot:GetScript("GnomeStatus.lua")
+
+	-- Do nothing if someone's already stacked.
+	if (topStatus.stackedBelow ~= nil or botStatus.stackedAbove ~= nil)
+	then
+		return
+	end
+
+	local stackParticle = GameObject.LoadPrefab("assets/prefabs/Particles_StackEffect.json")
+	local tempPos = bot:GetTransform().position
+	stackParticle:GetTransform().position = tempPos
 	
-
-	-- Disconnect gnomes if need be.
-	if (topStatus.stackedBelow ~= nil)
-	then
-		return
-		--DetachGnomes(top, topStatus.stackedBelow)
-	end
-	if (botStatus.stackedAbove ~= nil)
-	then
-		return
-		--DetachGnomes(botStatus.stackedAbove, bot)
-	end
-
 	topStatus.stackedBelow = bot
 	botStatus.stackedAbove = top
 	
 	--SetLayersNotColliding(topStatus.PLAYER_PHYS_LAYER, botStatus.PLAYER_PHYS_LAYER)
 	topStatus.stacked = true
 	botStatus.stacked = true
-	PlaySound("stack_on.mp3", 0.5, 1, false)
+	PlayStackPop()
 
 	top:GetTransform().zLayer = bot:GetTransform().zLayer - 1
 

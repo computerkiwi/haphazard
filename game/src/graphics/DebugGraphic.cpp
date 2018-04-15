@@ -53,7 +53,7 @@ void DebugGraphic::DrawAll()
 
 	Shaders::debugShader->Use();
 	attribBindings->Use();
-	dataBuffer->SetData(sizeof(float), shapeData.size(), shapeData.data());
+	dataBuffer->SetData(sizeof(float), static_cast<int>(shapeData.size()), shapeData.data());
 
 	glDrawArraysInstanced(GL_POINTS, 0, 10, (GLsizei)shapeData.size() / 10);
 

@@ -98,7 +98,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>Shortstack</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -311,6 +328,7 @@
     <ClCompile Include="src\Util\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\Audio\AudioEngine.h" />
     <ClInclude Include="src\Audio\AudioResource.h" />
     <ClInclude Include="src\Engine\Allocators\Stack\Stack.h" />
@@ -347,6 +365,7 @@
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\graphics\VertexObjects.h" />
     <ClInclude Include="src\Imgui\EditorScript.h" />
+    <ClInclude Include="src\Imgui\MultiselectUndo.h" />
     <ClInclude Include="src\Imgui\Type_Binds.h" />
     <ClInclude Include="src\Input\Event.h" />
     <ClInclude Include="src\Input\Gamepad.h" />
@@ -377,11 +396,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\scripts\ChallengeScript.lua" />
+    <None Include="assets\scripts\ChaseKillBox.lua" />
     <None Include="assets\scripts\CoinScript.lua" />
     <None Include="assets\scripts\DangerShroom.lua" />
     <None Include="assets\scripts\DangerShroom_Spore.lua" />
     <None Include="assets\scripts\DestructibleShroom.lua" />
     <None Include="assets\scripts\DropScript.lua" />
+    <None Include="assets\scripts\EnemySpawner.lua" />
     <None Include="assets\scripts\GemInteractive.lua" />
     <None Include="assets\scripts\GemScript.lua" />
     <None Include="assets\scripts\GnomeAutoMovement.lua" />
@@ -393,8 +414,10 @@
     <None Include="assets\scripts\PlatformOneWay.lua" />
     <None Include="assets\scripts\PlayerStats.lua" />
     <None Include="assets\scripts\PortalEmitter.lua" />
+    <None Include="assets\scripts\ReceiveMessage.lua" />
     <None Include="assets\scripts\RedGnomeAttack.lua" />
     <None Include="assets\scripts\RedGnomeWeapon.lua" />
+    <None Include="assets\scripts\SendMessageOnCollide.lua" />
     <None Include="assets\scripts\TossScript.lua" />
     <None Include="PlayerController.lua" />
     <None Include="shaders\background.frag" />
@@ -404,6 +427,8 @@
     <None Include="shaders\debug.vertshader" />
     <None Include="shaders\editorsprite.frag" />
     <None Include="shaders\editorsprite.vert" />
+    <None Include="shaders\screenDropshadow.frag" />
+    <None Include="src\GameObjectSystem\SpriteComponentMap.inl" />
     <None Include="src\meta\Any.inl" />
     <None Include="src\meta\MemberGetSet.inl" />
     <None Include="src\meta\meta.inl" />
@@ -416,6 +441,14 @@
     <None Include="shaders\text.fragshader" />
     <None Include="shaders\text.vertshader" />
     <None Include="src\meta\.gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc" />
+    <ResourceCompile Include="game1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="SetupIcon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

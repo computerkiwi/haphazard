@@ -7,7 +7,7 @@ Copyright © 2017 DigiPen (USA) Corporation.
 #pragma once
 
 template <typename T>
-ComponentHandle<T>::ComponentHandle(GameObject_ID id, bool isValid = true) : m_objID(id), m_isValid(isValid)
+ComponentHandle<T>::ComponentHandle(GameObject_ID id, bool isValid = true) : m_objID(id), m_cachedPointer(nullptr), m_isValid(isValid)
 {
 }
 
@@ -31,19 +31,24 @@ bool ComponentHandle<T>::operator!=(const ComponentHandle& other)
 template <typename T>
 T *ComponentHandle<T>::operator->()
 {
-	return GameObject(m_objID).GetSpace()->GetInternalComponent<T>(m_objID);
+	return Get();
 }
 
 template <typename T>
 T *ComponentHandle<T>::Get()
 {
-	return operator->();
+	if (m_cachedPointer == nullptr)
+	{
+		m_cachedPointer = GameObject(m_objID).GetSpace()->GetInternalComponent<T>(m_objID);
+	}
+
+	return m_cachedPointer;
 }
 
 template <typename T>
 T& ComponentHandle<T>::operator*()
 {
-	return *GameObject(m_objID).GetSpace()->GetInternalComponent<T>(m_objID);
+	return *Get();
 }
 
 template <typename T>

@@ -4,7 +4,7 @@ PRIMARY AUTHOR: Sweet
 
 Engine class data, no work really in here yet.
 
-Copyright � 2017 DigiPen (USA) Corporation.
+Copyright ? 2017 DigiPen (USA) Corporation.
 */
 #pragma once
 
@@ -13,6 +13,7 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <LuaBridge.h>
 #include "GameObjectSystem/GameSpace.h"
 #include "../Imgui/Editor.h"
+#include "../graphics/RenderLayer.h"
 
 #include "ResourceManager.h"
 
@@ -45,6 +46,8 @@ public:
 
 	Editor *GetEditor() { return &m_editor; }
 
+	FXManager *GetFXManager() { return &m_fxManager; }
+
 	GLFWwindow *GetWindow() const { return m_window; }
 
 	void Exit() { m_running = false; }
@@ -74,6 +77,21 @@ public:
 		engine->FileLoad(fileName);
 	}
 
+	void SetPaused(bool paused)
+	{
+		m_paused = paused;
+	}
+
+	bool IsPaused()
+	{
+		return m_paused;
+	}
+
+	const std::string& GetCurrentLevel()
+	{
+		return m_currentLevel;
+	}
+
 private:
 
 	void FileLoadInternal(const char *fileName);
@@ -82,6 +100,7 @@ private:
 
 	float m_dt = (1 / 60.0f);
 	bool m_running = true;
+	bool m_paused = false;
 
 	bool m_fileLoadFlag = false;
 	std::string m_fileToLoad;
@@ -93,6 +112,9 @@ private:
 	Editor   m_editor;
 	GameSpaceManagerID m_spaces;
 	ResourceManager m_resManager;
+	FXManager m_fxManager;
+
+	std::string m_currentLevel;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
 	{
@@ -100,6 +122,10 @@ private:
 		Engine& engine = *reinterpret_cast<Engine *>(const_cast<void *>(enginePtr));
 
 		// Setup the object to store the engine info in.
+		rapidjson::Value jsonObj;
+		jsonObj.SetObject();
+		jsonObj.AddMember("fxManager", meta::Serialize(engine.m_fxManager, allocator), allocator);
+
 		rapidjson::Value spaceArray;
 		spaceArray.SetArray();
 
@@ -108,7 +134,9 @@ private:
 			spaceArray.PushBack(meta::Serialize(space, allocator), allocator);
 		}
 
-		return spaceArray;
+		jsonObj.AddMember("spaces", spaceArray, allocator);
+
+		return jsonObj;
 	}
 
 	static void EngineDeserializeAssign(void *enginePtr, rapidjson::Value& jsonEngine)
@@ -119,14 +147,28 @@ private:
 		// Get rid of all the gamespaces we have.
 		engine.m_spaces.ClearSpaces();
 
-		// We should be passed the array of spaces.
-		Assert(jsonEngine.IsArray());
-		for (rapidjson::Value& jsonSpace : jsonEngine.GetArray())
+		// Figure out whether we have an actual array or are dealing with backwards-compatibilty where engine was just an array.
+		rapidjson::Value *spaceArrayptr = nullptr;
+		if (jsonEngine.IsArray())
+		{
+			spaceArrayptr = &jsonEngine;
+		}
+		else
+		{
+			meta::DeserializeAssign(engine.m_fxManager, jsonEngine["fxManager"]);
+
+			rapidjson::Value& tempArray = jsonEngine["spaces"];
+			spaceArrayptr = &tempArray;
+		}
+		rapidjson::Value& spaceArray = *spaceArrayptr;
+
+		for (rapidjson::Value& jsonSpace : spaceArray.GetArray())
 		{
 			GameSpaceIndex index = engine.m_spaces.AddSpace();
 			meta::DeserializeAssign(*engine.GetSpace(index), jsonSpace);
 			engine.m_spaces.Get(index).SetIndex(index);
 		}
+
 	}
 
 	META_REGISTER(Engine)

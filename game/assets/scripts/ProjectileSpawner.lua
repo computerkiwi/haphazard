@@ -49,8 +49,9 @@ function Normalize(vec)
 
 end
 
+-- returns true if we actually fire.
 function Fire(PrefabName)
-	if (canFire == false) then return end
+	if (canFire == false) then return false end
 
 	local proj = GameObject.LoadPrefab("assets/prefabs/" .. PrefabName)
 	
@@ -68,9 +69,14 @@ function Fire(PrefabName)
 
 	if(direction.x < 0)
 	then
-	print(direction.x)
 		proj:GetTransform().scale = vec3(-proj:GetTransform().scale.x, proj:GetTransform().scale.y, proj:GetTransform().scale.z)
+		if (proj:HasStaticCollider() or proj:HasDynamicCollider())
+		then
+			proj:GetCollider().offset = vec3(-proj:GetCollider().offset.x, proj:GetCollider().offset.y, proj:GetCollider().offset.z)
+		end
 	end
+
+	proj:GetScript("ProjectileInfo.lua").isRight = direction.x > 0
 
 	-- Set Speed
 	local dir = aimDirection
@@ -87,4 +93,6 @@ function Fire(PrefabName)
 	then
 		proj:GetTransform().parent = this
 	end
+	
+	return true
 end

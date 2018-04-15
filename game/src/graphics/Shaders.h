@@ -47,6 +47,7 @@ namespace Shaders
 		extern ShaderProgram* BlurCorners;
 		extern ShaderProgram* ExtractBrights;
 		extern ShaderProgram* Bloom;
+		extern ShaderProgram* Dropshadow;
 
 		extern ShaderProgram* Raindrop;
 	}
@@ -104,7 +105,12 @@ public:
 	void Use(); // Binds shader program
 
 	// Sets attributes to new list. Only use if you know what youre doing, and you would know you shouldn't be doing this.
-	void SetAttributes(std::vector<Attribute> attributes) { m_Attributes = attributes; }
+	void SetAttributes(std::vector<Attribute> attributes) 
+	{ 
+		m_Attributes = attributes; 
+		for (auto& a : m_Attributes)
+			a.SetShader(this);
+	}
 
 	// Applies all vertex attributes for shader. Only use if you know what youre doing.
 	void ApplyAttributes();
@@ -178,7 +184,8 @@ public:
 	public:
 		Attribute(const char* name, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
 		Attribute(GLuint location, int numArgs, GLenum argType, size_t sizeofType, bool isNormalized, int argStride, int argStart, bool isInstanced = false);
-		void Apply(ShaderProgram* program);
+		void Apply();
+		void SetShader(ShaderProgram* program);
 
 	private:
 		const char* name;

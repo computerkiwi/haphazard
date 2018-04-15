@@ -81,11 +81,14 @@ ShaderProgram::Attribute::Attribute(GLuint loc, int numArgs, GLenum argType, siz
 {
 }
 
-void ShaderProgram::Attribute::Apply(ShaderProgram* program)
+void ShaderProgram::Attribute::SetShader(ShaderProgram* program)
 {
 	if(name)
 		index = glGetAttribLocation(program->m_ID, name);
+}
 
+void ShaderProgram::Attribute::Apply()
+{
 	glEnableVertexAttribArray(index);
 
 	if (type == GL_INT)
@@ -132,6 +135,9 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, std::
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
+
+	for (auto& a : m_Attributes)
+		a.SetShader(this);
 }
 
 ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fragmentShader, std::vector<Attribute> attribs)
@@ -161,6 +167,9 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geoShader, Shader& fr
 	}
 
 	m_SuccessfulCompile = vertexShader.wasCompiled() && geoShader.wasCompiled() && fragmentShader.wasCompiled() && (isLinked == GL_TRUE);
+
+	for (auto& a : m_Attributes)
+		a.SetShader(this);
 }
 
 ShaderProgram::~ShaderProgram()
@@ -187,7 +196,7 @@ void ShaderProgram::ApplyAttributes()
 {
 	for (Attribute& attrib : m_Attributes)
 	{
-		attrib.Apply(this);
+		attrib.Apply();
 	}
 }
 
@@ -197,7 +206,7 @@ void ShaderProgram::ApplyAttributes(int start, int end)
 	for (int i = start; i < end; i++)
 	{
 		attrib = &m_Attributes[i];
-		attrib->Apply(this);
+		attrib->Apply();
 	}
 }
 
@@ -290,6 +299,7 @@ namespace Shaders
 	ShaderProgram* ScreenShader::Sharpen;
 	ShaderProgram* ScreenShader::ExtractBrights;
 	ShaderProgram* ScreenShader::Bloom;
+	ShaderProgram* ScreenShader::Dropshadow;
 
 	void LoadSpriteShader()
 	{
@@ -371,7 +381,9 @@ namespace Shaders
 			"Scale",
 			"Rotation",
 			"Life",
-			"MaxLife"
+			"MaxLife",
+			"Frame",
+			"Seed"
 		};
 
 		glTransformFeedbackVaryings(updateProgram, _countof(TFVaryings), TFVaryings, GL_INTERLEAVED_ATTRIBS);
@@ -399,18 +411,20 @@ namespace Shaders
 		particleUpdateShader = new ShaderProgram(updateProgram);
 
 		std::vector<ShaderProgram::Attribute> attribs;
-		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 10, 0));
-		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 10, 1));
-		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 10, 3));
-		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 10, 5));
-		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 10, 7));
-		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 10, 8));
-		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 10, 9));
+		attribs.push_back(ShaderProgram::Attribute("type", 1, GL_FLOAT, sizeof(float), false, 12, 0));
+		attribs.push_back(ShaderProgram::Attribute("pos", 2, GL_FLOAT, sizeof(float), false, 12, 1));
+		attribs.push_back(ShaderProgram::Attribute("vel", 2, GL_FLOAT, sizeof(float), false, 12, 3));
+		attribs.push_back(ShaderProgram::Attribute("scale", 2, GL_FLOAT, sizeof(float), false, 12, 5));
+		attribs.push_back(ShaderProgram::Attribute("rotation", 1, GL_FLOAT, sizeof(float), false, 12, 7));
+		attribs.push_back(ShaderProgram::Attribute("life", 1, GL_FLOAT, sizeof(float), false, 12, 8));
+		attribs.push_back(ShaderProgram::Attribute("maxLife", 1, GL_FLOAT, sizeof(float), false, 12, 9));
+		attribs.push_back(ShaderProgram::Attribute("frame", 1, GL_FLOAT, sizeof(float), false, 12, 10));
+		attribs.push_back(ShaderProgram::Attribute("seed", 1, GL_FLOAT, sizeof(float), false, 12, 11));
 		particleUpdateShader->SetAttributes(attribs);
 
 		// Particle Render Shader Program
 		// Keep attribs from other shader, all that data is wanted for this shader
-		
+
 		particleRenderShader = LoadShaders(path + "particleRender.vert", path + "particleRender.geo", path + "particleRender.frag", attribs);
 		if (!particleRenderShader->wasCompiled())
 			FailedCompile();
@@ -483,6 +497,10 @@ namespace Shaders
 
 		ScreenShader::Raindrop = LoadShaders(path + "raindrop.vert", path + "raindrop.frag", attribs);
 		if (!ScreenShader::Raindrop->wasCompiled())
+			FailedCompile();
+
+		ScreenShader::Dropshadow = LoadShaders(path + "screenDefault.vert", path + "screenDropshadow.frag", attribs);
+		if (!ScreenShader::Dropshadow->wasCompiled())
 			FailedCompile();
 	}
 

@@ -14,13 +14,16 @@ Copyright � 2017 DigiPen (USA) Corporation.
 #include <codecvt>
 #include <cstdarg>
 
+#include "Engine\Engine.h"
+
+// This needs to happen for some reason to avoid a warning.
+#undef APIENTRY
+
 // Windows filesystem stuff.
 #include <Windows.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
-
-#include "Engine\Engine.h"
 
 // Anonymous namespace for helper functions.
 namespace

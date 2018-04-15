@@ -195,6 +195,12 @@
     <None Include="assets\scripts\ChallengeScript.lua" />
     <None Include="assets\scripts\DestructibleShroom.lua" />
     <None Include="assets\scripts\DropScript.lua" />
+    <None Include="assets\scripts\SendMessageOnCollide.lua" />
+    <None Include="assets\scripts\ReceiveMessage.lua" />
+    <None Include="shaders\screenDropshadow.frag" />
+    <None Include="assets\scripts\EnemySpawner.lua" />
+    <None Include="assets\scripts\ChaseKillBox.lua" />
+    <None Include="src\GameObjectSystem\SpriteComponentMap.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\graphics\Text.h" />
@@ -212,6 +218,7 @@
     <ClInclude Include="src\Imgui\EditorScript.h" />
     <ClInclude Include="src\meta\SerializationKeys.h" />
     <ClInclude Include="src\Util\DataStructures\UnorderedIterable.h" />
+    <ClInclude Include="src\Imgui\MultiselectUndo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Scripting\LuaScript.h" />
@@ -230,5 +237,13 @@
     <ClInclude Include="src\graphics\TextureResource.h" />
     <ClInclude Include="src\Engine\Physics\PhysicsUtils.h" />
     <ClInclude Include="src\Engine\Physics\PhysicsInternalTools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="game.rc" />
+    <ResourceCompile Include="game1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="SetupIcon.ico" />
   </ItemGroup>
 </Project>

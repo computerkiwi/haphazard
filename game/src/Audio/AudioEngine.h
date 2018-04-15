@@ -37,7 +37,9 @@ namespace Audio
 
 		float GetPitch();
 
-		SoundHandle() {}; // For meta.
+		void SetVolume(float volume);
+
+		SoundHandle() : m_fmodChannel(nullptr) {}; // For meta.
 
 		const char *GetFileName()
 		{
@@ -59,8 +61,14 @@ namespace Audio
 		}
 	};
 
-	// Plays a given sound once.
+	// Plays a given sound effect.
 	SoundHandle PlaySound(const char *fileName, float volume = 1.0f, float pitch = 1.0f, bool looping = false);
+	SoundHandle PlayMusic(const char *fileName, float volume = 1.0f, float pitch = 1.0f, float transitionTime = 0.0f);
+
+	void ToggleSFX();
+	void ToggleMusic();
+	void SetQuietMusic(bool quiet);
+	SoundHandle GetMusic();
 
 	FMOD::System *GetSystem();
 }

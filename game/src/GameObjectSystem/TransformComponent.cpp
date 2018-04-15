@@ -19,7 +19,7 @@ TransformComponent::TransformComponent(const glm::vec3& position, const glm::vec
 //---------
 void TransformComponent::SetParent(GameObject parent)
 {
-	if (m_parent)
+	if (m_parent && m_parent.GetComponent<TransformComponent>().Get() != this)
 	{
 		Unparent();
 	}
@@ -129,7 +129,7 @@ glm::vec2 TransformComponent::Scale2D() const
 
 glm::mat4 TransformComponent::GetMatrix4() const
 {
-	return glm::translate(glm::mat4(), glm::vec3(GetPosition(), 1)) * glm::rotate(glm::mat4(), DegToRad(m_rotation), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
+	return glm::translate(glm::mat4(), glm::vec3(GetPosition(), 1)) * glm::rotate(glm::mat4(), DegToRad(GetRotation()), glm::vec3(0, 0, 1)) * glm::scale(glm::mat4(), m_scale);
 }
 
 void TransformComponent::Unparent()
@@ -148,7 +148,16 @@ glm::vec2 TransformComponent::GetParentPosition() const
 {
 	if (m_parent.IsValid())
 	{
-		return m_parent.GetComponent<TransformComponent>()->GetPosition();
+		ComponentHandle<TransformComponent> transform = m_parent.GetComponent<TransformComponent>();
+		if (transform->GetParent() == m_parent) // Hacky fix.
+		{
+			transform->SetParent(INVALID_GAMEOBJECT_ID);
+			return glm::vec2();
+		}
+		else
+		{
+			return transform->GetPosition();
+		}
 	}
 	else
 	{

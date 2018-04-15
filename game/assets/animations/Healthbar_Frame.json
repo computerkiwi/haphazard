@@ -1,0 +1,9 @@
+{
+  "textureName": "UI/Healthbar_Frame.png",
+  "frameWidth":  480,
+  "frameHeight": 160,
+  "framesX":     1,
+  "framesY":     5,
+  "fps":         0,
+  "frameCount":  5
+}

@@ -39,8 +39,9 @@ public:
 
 	enum collisionType : int
 	{
-		solid,
+		solid = 0,
 		passthrough,
+		oneWay,
 
 		collision_types
 	};

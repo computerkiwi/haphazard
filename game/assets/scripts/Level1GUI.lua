@@ -13,15 +13,60 @@ Player = nil
 cam = nil
 
 offset = vec2(0,0)
-startScaleX = 1
-startScaleY = 1
+local startScaleX = 1.8
+local startScaleY = (256 / 512) * startScaleX
 
-XOffset = 0
-YOffset = 0
+local SPACING = 0
+
+local LEFT_X = -5.8 + startScaleX / 2
+local Y_OFFSET = 2.8 - startScaleY / 2
+local X_OFFSET = LEFT_X
+
+local hearts = nil
+
+--local XOffset
+--local YOffset
 
 shakeAmount = 0
 SHAKE_SCALE = 0.2
 SHAKE_FALLOFF = 0.3
+
+function SpawnAndAttachObject(prefabName, resetPosition)
+	resetPosition = resetPosition or false
+
+	local obj = GameObject.LoadPrefab(prefabName)
+	if (obj:IsValid())
+	then
+		obj:GetTransform().parent = this
+		if (resetPosition)
+		then
+			obj:GetTransform().localPosition = vec2(0,0)
+		end
+	
+		return obj
+	else
+		return nil
+	end
+end
+
+
+function ColorIndex()
+  return tonumber(string.match(PlayerName, "Player(.)")) - 1
+end
+
+-- Returns the frame index of the correctly colored healthbar.
+function ColorFrame(isDead)
+  isDead = isDead or false
+  
+  local playerNum = ColorIndex() * 2
+  
+  if(not isDead)
+  then
+    playerNum = playerNum + 1
+  end
+  
+  return playerNum
+end
 
 function Shake(amount)
 	shakeAmount = shakeAmount + amount
@@ -33,17 +78,53 @@ function Start()
        I zoom out, edit a level, save, and load. -- Lya ]]
   if(this:GetName() == "GemCounter")
   then
-    startScaleX = 1.5
-    startScaleY = 0.5
+    this:Destroy()
   end
 
+  X_OFFSET = LEFT_X + (startScaleX + SPACING) * ColorIndex() + startScaleX * 0.5
+  
+  -- Change to the new sprite.
+  local spr = this:GetSprite()
+  spr.id = Resource.FilenameToID("HUD_Healthbars.json")
+  local th = spr.textureHandler
+  th.currentFrame = ColorFrame()
+  spr.textureHandler = th
+  
+  hearts = SpawnAndAttachObject("assets/prefabs/HealthbarHearts.json", true)
+  
 	--offset = this:GetTransform().position
+end
+
+function RotatedVec(x, y, rotation)
+	local cosTheta = math.cos(math.rad(rotation))
+	local sinTheta = math.sin(math.rad(rotation))
+
+	return vec2(cosTheta * x - sinTheta * y, sinTheta * x + cosTheta * y)
+end
+
+function UpdateHeartsPos(camRot)
+  local HEIGHT_PERCENT = (64 / 256)
+  
+  local THIS_SCALE_X = this:GetTransform().scale.x
+  local THIS_SCALE_Y = this:GetTransform().scale.y
+  
+  local SCALE_Y = THIS_SCALE_Y * HEIGHT_PERCENT
+  local SCALE_X = SCALE_Y * (224 / 64)
+
+  local OFFSET_X = ((335 / 512) - 0.5) * THIS_SCALE_X
+  local OFFSET_Y = (( 97 / 256) - 0.5) * THIS_SCALE_Y
+  
+  hearts:GetTransform().rotation = camRot
+  hearts:GetTransform().scale = vec3(SCALE_X, SCALE_Y, 0)
+  hearts:GetTransform().localPosition = RotatedVec(OFFSET_X, OFFSET_Y, camRot)
 end
 
 function LateUpdate(dt)
 
 	Player = GameObject.FindByName(PlayerName)
 
+	local camRot = cam:GetTransform().rotation
+	
 	-- Change shake amount
 	shakeAmount = math.max(math.lerp(shakeAmount, 0 , SHAKE_FALLOFF), 0)
 	
@@ -53,15 +134,39 @@ function LateUpdate(dt)
 	local shakeY = math.sin(shakeAngle) * shakeAmount * SHAKE_SCALE
 	
 	local zoomScale = cam:GetCamera().zoom / 5
-	this:GetTransform().position = vec2(cam:GetTransform().position.x + (XOffset + shakeX) * zoomScale, cam:GetTransform().position.y + (YOffset + shakeY) * zoomScale)
-	this:GetTransform().scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
+	local thisTransform = this:GetTransform()
+	local pos = RotatedVec((X_OFFSET + shakeX) * zoomScale, (Y_OFFSET + shakeY) * zoomScale, camRot)
+	pos.x = pos.x + cam:GetTransform().position.x
+	pos.y = pos.y + cam:GetTransform().position.y
+	thisTransform.position = pos
+	thisTransform.scale = vec3(startScaleX * zoomScale, startScaleY * zoomScale, 1)
+	thisTransform.rotation = camRot
 
 	if (Player:IsValid())
 	then
-		local sprite = this:GetSprite()
-		local th = sprite.textureHandler
-		th.currentFrame = Player:GetScript("GnomeHealth.lua").health + 2
-		sprite.textureHandler = th
+    -- Modify the bar
+    local MAX_HEALTH = 6
+		local health = Player:GetScript("GnomeHealth.lua").health
+    
+    -- Set the bar - color and death.
+    local spr = this:GetSprite()
+    local th = spr.textureHandler
+    th.currentFrame = ColorFrame(Player:GetScript("GnomeStatus.lua").isStatue)
+    spr.textureHandler = th
+    
+    -- Set the heart frame.
+    local heartSpr = hearts:GetSprite()
+    local hth = heartSpr.textureHandler
+    hth.currentFrame = health
+    heartSpr.textureHandler = hth
+    
+    local color = spr.color
+    color.x = 1
+    color.y = 1
+    color.z = 1
+    color.w = 1
+    spr.color = color
 	end
-
+  
+  UpdateHeartsPos(camRot)
 end

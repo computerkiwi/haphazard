@@ -332,9 +332,40 @@ GameObject GameObject::LoadPrefab(const char * fileName)
 	return obj;
 }
 
-bool GameObject::HasTag(const char * tagName)
+bool GameObject::HasTag(const char *tagName)
 {
 	return GetComponent<ObjectInfo>()->HasTag(tagName);
+}
+
+int GameObject::SendLuaMessage(lua_State *L)
+{
+	ComponentHandle<ScriptComponent> scriptComp = GetComponent<ScriptComponent>();
+	if (scriptComp.IsValid())
+	{
+		// First object is the this userdata
+		// Second argument should be the function name.
+		std::string functionName = luaL_checkstring(L, 2);
+
+		int argCount = lua_gettop(L) - 2;
+
+		for (LuaScript& script : scriptComp->scripts)
+		{
+			if (script.HasFunction(functionName.c_str()))
+			{
+				// Copy the values.
+				for (int i = 1; i <= argCount; ++i)
+				{
+					lua_pushnil(L);
+					lua_copy(L, i + 2, -1);
+				}
+				script.RunFunction(functionName.c_str(), argCount, 0);
+				lua_settop(L, argCount + 2);
+			}
+		}
+	}
+
+	lua_settop(L, 0);
+	return 0;
 }
 
 

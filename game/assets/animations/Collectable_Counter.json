@@ -1,0 +1,9 @@
+{
+  "textureName": "HUD_Progress.png",
+  "frameWidth":  416,
+  "frameHeight": 128,
+  "framesX":     1,
+  "framesY":     4,
+  "fps":         0,
+  "frameCount":  4
+}
