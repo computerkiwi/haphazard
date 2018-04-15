@@ -141,7 +141,6 @@ function FootAbilityPress()
 		if(usedFootAbilityThisJump == false)
 		then
 			this:GetScript("GnomeMovement.lua").Jump()
-			this:GetScript("ProjectileSpawner.lua").Fire("Projectile_Red_Foot.json")
 			this:GetScript("FollowingParticleSystem.lua").SetEnabled(true)
 		end
 	elseif(type == 2)	-- Green
