@@ -33,6 +33,8 @@ target = GameObject(0)
 projectilePrefabName =  "RangedBoiProjectile.json"
 projectileLaunchAngleDegrees = 45
 
+local activationDistance = 10
+
 function LookForGnomes()
 
 	-- start downward and adjust according to the cone width
@@ -60,16 +62,6 @@ function LookForGnomes()
 
 	end
 
-	-- Flip sprite
-	local absoluteLookDirection = math.fmod(lookDirectionDegrees , 360)
-
-	if(absoluteLookDirection >= 90 and absoluteLookDirection < 270 )
-	then
-		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
-	else
-		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
-	end
-
 	-- no gnome was found
 	return GameObject(0)
 
@@ -89,15 +81,6 @@ function ShootAtTarget(target)
 	local yPosition = thisPosition.y
 	local xPosition = thisPosition.x
 	local actualLaunchAngle = projectileLaunchAngleDegrees
-	
-	-- Flip sprite
-	if(vecToTarget.x <= 0)
-	then
-		this:GetTransform().scale = vec3( -math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
-	elseif(vecToTarget.x > 0)
-	then
-		this:GetTransform().scale = vec3( math.abs(this:GetTransform().scale.x), this:GetTransform().scale.y, 1 )
-	end
 
 	if(vecToTarget.x <= 0)
 	then
@@ -215,6 +198,29 @@ end
 -- Updates each frame
 function Update(dt)
 	
+	local PM = _G.PLAYER_MANAGER
+	local shortestDistance = 2 * activationDistance
+
+	for _, player in pairs(PM.PLAYERS)
+	do
+		local distance = math.abs(this:GetTransform().position.x - player.gameObject:GetTransform().position.x)
+
+		if(distance < shortestDistance)
+		then
+
+			shortestDistance = distance
+
+		end
+	end
+
+	-- if gnomes are far away, don't update
+	if(shortestDistance > activationDistance)
+	then
+
+		return
+
+	end
+
 	-- if there is no valid target
 	if(not target:IsValid())
 	then
