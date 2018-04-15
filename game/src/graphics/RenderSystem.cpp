@@ -109,58 +109,61 @@ void RenderSystem::RenderSprites(float dt)
 	// All sprites will be the same mesh, so numVerts only has to be set once
 	static const int numVerts = SpriteComponent::SpriteMesh()->GetNumVerts();
 
-	std::set<int> layers;
+	int last = -1234;
 	for (auto& spriteHandle : *sprites)
 	{
-		ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
-		if (!transform.IsActive())
+		// Only bother with valid transforms.
+		ComponentHandle<TransformComponent> transformHandle = spriteHandle.GetSiblingComponent<TransformComponent>();
+		if (!transformHandle.IsActive())
 		{
 			continue;
 		}
-		
-		layers.insert(static_cast<int>(transform->GetZLayer()));
-	}
 
-	int last = -1234;
-	for (int layer : layers)
-	{
-		// Use this layer (garunteed to not be a duplicate layer because layers is a set)
-		Screen::GetLayerFrameBuffer(layer)->Use();
+		int layer = transformHandle->GetZLayer();
 
-		numMeshes = 0;
-		data.clear();
-		tex.clear();
-
-		for (auto& spriteHandle : *sprites)
+		// Switch layer if necessary.
+		if (layer != last)
 		{
-			// Check for valid transform
-			ComponentHandle<TransformComponent> transform = spriteHandle.GetSiblingComponent<TransformComponent>();
-
-			if (static_cast<int>(transform->GetZLayer()) != layer)
-				continue;
-
-			if (!transform.IsActive())
+			// Render the current layer.
+			if (numMeshes != 0)
 			{
-				continue;
+				// Bind buffers and set instance data of all sprites
+				SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), static_cast<int>(tex.size()), tex.data());
+				SpriteComponent::SpriteMesh()->InstanceBuffer().SetData(sizeof(float), static_cast<int>(data.size()), data.data());
+
+				// Bind sprite attribute bindings (all sprites have the same bindings)
+				SpriteComponent::SpriteMesh()->UseAttributeBindings();
+
+				// Draw all sprites in this layer
+				glDrawArraysInstanced(GL_TRIANGLES, 0, numVerts, numMeshes);
 			}
 
+			// Switch to the next layer.
+			Screen::GetLayerFrameBuffer(layer)->Use();
 
-			// Update animated sprites
-			spriteHandle->UpdateTextureHandler(dt);
-
-			// Places vertex data into data vector to be used in Vertex VBO
-			spriteHandle->SetRenderData(transform.Get(), &data);
-
-			// Places texture in tex vector to be used in Texture VBO
-			tex.push_back(spriteHandle->GetTextureRenderID());
-
-			// Keep count of all meshes used in instancing call
-			numMeshes++;
+			numMeshes = 0;
+			data.clear();
+			tex.clear();
 		}
 
-		if (numMeshes == 0)
-			return;
+		// Update animated sprites
+		spriteHandle->UpdateTextureHandler(dt);
 
+		// Places vertex data into data vector to be used in Vertex VBO
+		spriteHandle->SetRenderData(transformHandle.Get(), &data);
+
+		// Places texture in tex vector to be used in Texture VBO
+		tex.push_back(spriteHandle->GetTextureRenderID());
+
+		// Keep count of all meshes used in instancing call
+		numMeshes++;
+
+		last = layer;
+	}
+
+
+	if (numMeshes != 0)
+	{
 		// Bind buffers and set instance data of all sprites
 		SpriteComponent::SpriteMesh()->TextureBuffer().SetData(sizeof(int), static_cast<int>(tex.size()), tex.data());
 		SpriteComponent::SpriteMesh()->InstanceBuffer().SetData(sizeof(float), static_cast<int>(data.size()), data.data());
@@ -171,6 +174,12 @@ void RenderSystem::RenderSprites(float dt)
 		// Draw all sprites in this layer
 		glDrawArraysInstanced(GL_TRIANGLES, 0, numVerts, numMeshes);
 	}
+
+	Screen::GetLayerFrameBuffer(last)->Use();
+
+	numMeshes = 0;
+	data.clear();
+	tex.clear();
 }
 
 void RenderSystem::RenderText(float dt)
