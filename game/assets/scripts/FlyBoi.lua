@@ -49,6 +49,8 @@ DAMAGE_FLASH_TIME = 0.1
 damageFlashTimer = 0
 health = 10
 
+local activationDistance = 10
+
 function DegreesToRadians(degrees)
 
 	local radiansPerDegree = 0.0174533
@@ -251,16 +253,39 @@ end
 
 -- Updates each frame
 function Update(dt)
+	
+	local PM = _G.PLAYER_MANAGER
+	local shortestDistance = 2 * activationDistance
 
-  -- Damageeee
+	for _, player in pairs(PM.PLAYERS)
+	do
+		local distance = math.abs(this:GetTransform().position.x - player.gameObject:GetTransform().position.x)
+
+		if(distance < shortestDistance)
+		then
+
+			shortestDistance = distance
+
+		end
+	end
+
+	-- if gnomes are far away, don't update
+	if(shortestDistance > activationDistance)
+	then
+
+		return
+
+	end
+
+	-- Damageeee
 	UpdateDamageFlash(dt)
 	
 	-- Effects to adjust for the object being edited
 	EditingEffects()
-
+	
 	-- Move the boi toward the target, handling arriving at the target
 	MoveBoi(dt)
-
+	
 	-- Look for gnomes in the cone below
 	LookForGnomes()
 
