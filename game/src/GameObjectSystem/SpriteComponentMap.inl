@@ -69,6 +69,7 @@ public:
 		sprRef.id = id;
 		sprRef.ptr = &m_components[id];
 		m_references.push_back(sprRef);
+		m_refsDirty = true;
 	}
 
 	void DeleteComponent(GameObject_ID id);
@@ -82,6 +83,7 @@ public:
 
 private:
 	std::vector<SpriteReference> m_references;
+	bool m_refsDirty;
 	std::unordered_map<GameObject_ID, SpriteComponent> m_components;
 	GameSpace *m_space;
 
@@ -119,7 +121,7 @@ inline ComponentMap<SpriteComponent>::~ComponentMap()
 {
 }
 
-inline ComponentMap<SpriteComponent>::ComponentMap(GameSpace *space) : m_space(space)
+inline ComponentMap<SpriteComponent>::ComponentMap(GameSpace *space) : m_space(space), m_refsDirty(true)
 {
 }
 
@@ -165,6 +167,8 @@ inline void ComponentMap<SpriteComponent>::Delete(GameObject_ID object)
 
 		std::swap(*std::find_if(m_references.begin(), m_references.end(), [object](const SpriteReference& ref) {return ref.id == object; }), m_references.back());
 		m_references.pop_back();
+
+		m_refsDirty = true;
 	}
 }
 
@@ -176,7 +180,11 @@ inline meta::Any ComponentMap<SpriteComponent>::GetComponentPointerMeta(GameObje
 
 inline typename ComponentMap<SpriteComponent>::iterator ComponentMap<SpriteComponent>::begin()
 {
-	ResortReferences();
+	if (m_refsDirty)
+	{
+		ResortReferences();
+		m_refsDirty = false;
+	}
 	return iterator(m_references.begin());
 }
 
@@ -187,7 +195,7 @@ inline typename ComponentMap<SpriteComponent>::iterator ComponentMap<SpriteCompo
 
 inline void ComponentMap<SpriteComponent>::DeleteComponent(GameObject_ID id)
 {
-	m_components.erase(id);
+	Delete(id);
 }
 
 //-----------------------------------------
