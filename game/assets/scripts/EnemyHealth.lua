@@ -84,6 +84,12 @@ function OnCollisionEnter(other)
 	then
 		local projInfo = other:GetScript("ProjectileInfo.lua")
     
+		if (projInfo.hitParticle ~= "")
+		then
+			local particle = GameObject.LoadPrefab(projInfo.hitParticle)
+			particle:GetTransform().position = other:GetTransform().position
+		end
+		
     PlayHurtsound()
     
 		health = health - projInfo.damage

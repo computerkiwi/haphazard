@@ -183,20 +183,19 @@ function Damage(damageAmount, damageSourceLocation)
 	then
 		return
 	end
-
-	local type = this:GetScript("GnomeStatus.lua").GnomeType
-	local particle = GameObject.LoadPrefab("assets/prefabs/Particles_" .. TypeName(type) .. "_Hit.json")
-	particle:GetTransform().position = this:GetTransform().position
 	
 	-- Apply player knockback.
-	local movementScript = this:GetScript("GnomeMovement.lua")
-	local pos = this:GetTransform().position
-	local knockbackDir = {x = math.cos(math.rad(KNOCKBACK_ANGLE)), y = math.sin(math.rad(KNOCKBACK_ANGLE))}
-	if (pos.x < damageSourceLocation.x)
+	if(damageSourceLocation ~= nil)
 	then
-		knockbackDir.x = -knockbackDir.x
+		local movementScript = this:GetScript("GnomeMovement.lua")
+		local pos = this:GetTransform().position
+		local knockbackDir = {x = math.cos(math.rad(KNOCKBACK_ANGLE)), y = math.sin(math.rad(KNOCKBACK_ANGLE))}
+		if (pos.x < damageSourceLocation.x)
+		then
+			knockbackDir.x = -knockbackDir.x
+		end
+		movementScript.Knockback(knockbackDir, KNOCKBACK_FORCE)
 	end
-	movementScript.Knockback(knockbackDir, KNOCKBACK_FORCE)
 	
 	-- Screenshake
 	_G.Screenshake(DAMAGE_SHAKE)
