@@ -12,6 +12,8 @@ numGnomesToBreak = 2
 timeToReformSeconds = 2
 normalCollisionLayer = COLLISION_LAYER_GROUND
 
+particleObject = "assets/prefabs/Particles_BreakEffect.json"
+
 gnomeCounterObj = nil
 gnomeCounter = nil
 
@@ -97,6 +99,9 @@ function Update(dt)
 		
 			isBroken = true;
 			SetBrokenAnimation()
+
+			local particles = SpawnAndAttachObject(particleObject, this)
+			particles:GetTransform().position = this:GetTransform().position
 
 			this:GetCollider().collisionLayer = CollisionLayer(COLLISION_LAYER_NO_COLLSION)
 
