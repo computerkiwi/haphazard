@@ -146,7 +146,7 @@ inline void ComponentMap<SpriteComponent>::Duplicate(GameObject_ID originalObjec
 {
 	if (m_components.find(originalObject) != m_components.end())
 	{
-		m_components.emplace(newObject, SpriteComponent(m_components.find(originalObject)->second));
+		emplaceComponent(newObject, m_components.find(originalObject)->second);
 	}
 }
 
@@ -154,7 +154,7 @@ inline void ComponentMap<SpriteComponent>::Duplicate(GameObject sourceObject)
 {
 	if (sourceObject.GetComponent<SpriteComponent>().IsValid())
 	{
-		m_components.emplace(sourceObject, *sourceObject.GetComponent<SpriteComponent>());
+		emplaceComponent(sourceObject, m_components.find(sourceObject)->second);
 	}
 }
 
