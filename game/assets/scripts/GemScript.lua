@@ -12,7 +12,7 @@ function OnCollisionEnter(other)
   -- Player takes gem
   if (not thisCollected and other:HasTag("Player") and other:GetScript("GnomeStatus.lua").hasGem == false)
   then
-		PlaySound("Coin6.wav", 1, 1, false)
+		PlaySound("Gem.wav", 1, 1, false)
 		thisCollected = true
 	
     -- Set gnome to have gem
