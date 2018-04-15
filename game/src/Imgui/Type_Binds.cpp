@@ -8,6 +8,7 @@ Copyright (C) 2017 DigiPen (USA) Corporation.
 // Main Includes
 #include "Editor.h"
 #include "Type_Binds.h"
+#include "Engine\Engine.h"
 
 // Components
 #include "GameObjectSystem/ObjectInfo.h"

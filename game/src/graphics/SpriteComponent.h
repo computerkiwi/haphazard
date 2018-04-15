@@ -9,7 +9,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Mesh.h"
 #include "meta/meta.h"
 #include "Engine/ResourceManager.h"
-#include "Engine/Engine.h"
+
+class TransformComponent;
 
 class GameObject;
 class SpriteComponent

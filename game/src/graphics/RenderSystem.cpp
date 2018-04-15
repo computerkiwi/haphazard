@@ -5,6 +5,7 @@ PRIMARY AUTHOR: Max Rauffer
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
 #include "graphics\RenderSystem.h"
+#include "Engine\Engine.h"
 #include "GameObjectSystem\GameSpace.h"
 #include "graphics\SpriteComponent.h"
 #include "GameObjectSystem\TransformComponent.h"

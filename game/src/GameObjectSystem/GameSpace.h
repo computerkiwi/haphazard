@@ -182,6 +182,9 @@ private:
 	}
 };
 
+// SpriteComponent ComponentMap template
+#include "SpriteComponentMap.inl"
+
 // UpdateSpaceIndex Functions
 // TODO: Make this use SFINAE to check if the component has an UpdateSpaceIndex function.
 template <typename T>
