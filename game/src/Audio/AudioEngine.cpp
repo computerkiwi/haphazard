@@ -20,6 +20,8 @@ Copyright © 2017 DigiPen (USA) Corporation.
 namespace Audio
 {
 	static FMOD::System *fmodSystem = nullptr;
+	static FMOD::ChannelGroup *channelMusic;
+	static FMOD::ChannelGroup *channelEffects;
 
 	static void CheckErrorFMODInternal(FMOD_RESULT value, const char *function_name = "")
 	{
@@ -77,6 +79,9 @@ namespace Audio
 
 		const int MAX_CHANNELS = 32;
 		CheckErrorFMOD(fmodSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, nullptr));
+
+		CheckErrorFMOD(fmodSystem->createChannelGroup("Music", &channelMusic));
+		CheckErrorFMOD(fmodSystem->createChannelGroup("Effects", &channelEffects));
 	}
 
 	void Update()
@@ -89,7 +94,7 @@ namespace Audio
 	}
 
 	// Plays a sound without categorizing it as SFX or music.
-	static SoundHandle PlaySoundGeneric(const char *fileName, float volume, float pitch, bool looping)
+	static SoundHandle PlaySoundGeneric(const char *fileName, float volume, float pitch, bool looping, bool isMusic = false)
 	{
 		Assert(fmodSystem != nullptr && "FMOD System is nullptr. Did you properly call Audio::Init() ?");
 
@@ -115,6 +120,16 @@ namespace Audio
 		{
 			channel->setMode(FMOD_LOOP_OFF);
 		}
+
+		if (isMusic)
+		{
+			channel->setChannelGroup(channelMusic);
+		}
+		else
+		{
+			channel->setChannelGroup(channelEffects);
+		}
+
 		channel->setVolume(volume); // TODO: Fix volume not taking effect on music until another sound plays.
 		channel->setPitch(pitch);
 
