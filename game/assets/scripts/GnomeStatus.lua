@@ -48,6 +48,13 @@ killedByChaseBox = false
 hasGem = false
 GemID = "empty"
 
+-- Door flag (for emotes)
+overDoor = false
+
+function LateUpdate()
+	overDoor = false -- Reset
+end
+
 -- Apply the current gnome type. (Change sprite, etc.)
 function SetInfo(playerNum, gnomeId)
 	
