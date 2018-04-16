@@ -33,6 +33,7 @@ local backButton
 local howToPlayObj
 local showingHowToPlay = false
 
+local confirmLastPos = 1
 local confirmPromptObj
 local confirmYesButton
 local confirmNoButton
@@ -42,6 +43,8 @@ local inSettings = false
 
 local confirming = false
 local confirmingAction = nil
+
+local backPressed = false
 
 hideMenuInEditor = true
 -----------------------------------------------------------------------
@@ -104,6 +107,8 @@ function ActivateButtons(buttonTable)
 end
 
 function ConfirmAction(promptTexture, action)
+	confirmLastPos = itemSelected
+
   confirming = true
   confirmingAction = action
 
@@ -357,12 +362,19 @@ end
 function ConfirmNo()
   confirming = false
   ActivateMain()
+	itemSelected = confirmLastPos
 end
 
 -----------------------------------------------------------------------
 -- MAIN FUNCTIONS
 
 function UpdateHowToPlay()
+	print(backPressed)
+	if (backPressed)
+	then
+		showingHowToPlay = false
+	end
+
   if (showingHowToPlay)
   then
     howToPlayObj:Activate()
@@ -446,6 +458,11 @@ function UpdateConfirmDialog(confirmActive)
     confirmActive = confirming
   end
 
+	if (confirmActive and backPressed)
+	then
+		ConfirmNo()
+	end
+	
   if (confirmActive)
   then
     -- Make sure all the buttons are active.
@@ -546,6 +563,18 @@ function CheckForConfirm()
 	
 	-- No confim button pressed.
 	return false
+end
+
+function CheckForBack()
+	backPressed = false
+
+	for _, handler in pairs(inputHandlers)
+	do
+		if (handler:BackPressed())
+		then
+      backPressed = true
+		end
+	end
 end
 
 function FinalizeInputHandlers()
@@ -656,6 +685,7 @@ function PausedUpdate()
 		end
 	end
 	
+	CheckForBack()
 	if (not CheckForConfirm())
 	then
 		UpdateSelectedMenuItem()
