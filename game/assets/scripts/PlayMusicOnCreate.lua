@@ -15,7 +15,7 @@ function Start()
 	
 	if (GetMusic():GetFileName() ~= SONG_NAME)
 	then
-		PlayMusic(SONG_NAME, VOLUME, 1, 0)
+		PlayMusic(SONG_NAME, VOLUME, 1, 0, true)
 	end
 	
 end

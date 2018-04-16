@@ -30,6 +30,8 @@ end
 
 function StartTransition()
 
+	PlayMusic("victory_01.wav", 1, 1, 0, true)
+	
 	transitionStarted = true
 
 	transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransition.json")

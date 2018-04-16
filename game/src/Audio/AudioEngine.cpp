@@ -137,7 +137,7 @@ namespace Audio
 	}
 
 	// TODO: Actually use the transition time parameter.
-	SoundHandle PlayMusic(const char * fileName, float volume, float pitch, float transitionTime)
+	SoundHandle PlayMusic(const char * fileName, float volume, float pitch, bool loop)
 	{
 		if (musicTrack.IsPlaying())
 		{
@@ -145,7 +145,7 @@ namespace Audio
 		}
 
 		musicTrackVol = volume;
-		musicTrack = PlaySoundGeneric(fileName, volume, pitch, true);
+		musicTrack = PlaySoundGeneric(fileName, volume, pitch, loop);
 
 		UpdateMusicVolume();
 
