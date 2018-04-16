@@ -15,7 +15,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 // Texture
 ///
 
-#define MAX_LAYERS 48
+#define MAX_LAYERS 64
 
 GLuint Texture::m_TextureArray = 0;
 GLuint Texture::m_layers = 0;
