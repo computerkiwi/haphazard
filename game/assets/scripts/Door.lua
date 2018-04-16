@@ -22,6 +22,8 @@ end
 function OnCollisionEnter(other)
 	if(other:HasTag("Player") and transitionStarted == false)
 	then
+		other:GetScript("GnomeStatus.lua").overDoor = true
+
 		if(other:GetScript("InputHandler.lua").jumpPressed)
 		then
 			transitionStarted = true

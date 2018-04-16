@@ -8,7 +8,7 @@ Copyright (c) 2018 DigiPen (USA) Corporation.
 --Variables
 Player = nil
 
-function LateUpdate(dt)
+function Update(dt)
 	if (Player:IsValid())
 	then
 		local PlayerStatus = Player:GetScript("GnomeStatus.lua")
@@ -18,9 +18,13 @@ function LateUpdate(dt)
 		if (PlayerStatus.hasGem == true)
 		then
 			th.currentFrame = 1
+		elseif (PlayerStatus.overDoor == true)
+		then
+			th.currentFrame = 2
 		else
 			th.currentFrame = 0
 		end
+
 
 		sprite.textureHandler = th
 	end
