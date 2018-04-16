@@ -126,7 +126,7 @@ function Update(dt)
 		end
 		sprite.color = tempColor
 		
-  elseif(invulTime < 0)
+  elseif(invulTime <= 0)
 	then
 	
 		-- Reset the alpha.

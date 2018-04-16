@@ -106,6 +106,7 @@ float TransformComponent::GetZLayer() const
 void TransformComponent::SetZLayer(float layer)
 {
 	m_localPosition.z = layer;
+	ComponentMap<SpriteComponent>::ResortAll();
 }
 
 

@@ -25,6 +25,8 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Engine\Physics\PhysicsSystem.h"
 #include "Scripting\ScriptSystem.h"
 
+std::vector<ComponentMap<SpriteComponent> *> ComponentMap<SpriteComponent>::spriteMaps;
+
 static ComponentType lastID = 0;
 
 ComponentType GenerateComponentTypeID()
