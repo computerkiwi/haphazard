@@ -1,0 +1,9 @@
+{
+  "textureName": "Animations/HatsEnd.png",
+  "frameWidth":  1024,
+  "frameHeight": 128,
+  "framesX":     1,
+  "framesY":     7,
+  "fps":         0,
+  "frameCount":  7
+}
