@@ -1,3 +1,10 @@
+--[[
+FILE: DestroyAfterTime.lua
+PRIMARY AUTHOR: Kieran Williams
+
+Copyright (c) 2017 DigiPen (USA) Corporation.
+]]--
+
 TIME_TO_DELETE = 2
 
 timer = 0
