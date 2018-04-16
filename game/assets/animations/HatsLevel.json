@@ -1,0 +1,9 @@
+{
+  "textureName": "Animations/HatsLevel.png",
+  "frameWidth":  384,
+  "frameHeight": 128,
+  "framesX":     1,
+  "framesY":     4,
+  "fps":         0,
+  "frameCount":  4
+}

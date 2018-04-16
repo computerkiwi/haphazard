@@ -5,6 +5,8 @@ PRIMARY AUTHOR: Kieran Williams
 Copyright (c) 2018 DigiPen (USA) Corporation.
 ]]
 
+globalCount = false
+
 -- Make sure the global collectable table is initialized
 do
 	local function DefaultCollectFunc()
@@ -36,6 +38,11 @@ end
 function Update(dt)
 	local spr = this:GetSprite()
 	local th = spr.textureHandler
-	th.currentFrame = collected
+	if (globalCount)
+	then
+		th.currentFrame = _G.collectablesInfo.collected
+	else
+		th.currentFrame = collected
+	end
 	spr.textureHandler = th
 end
