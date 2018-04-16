@@ -63,7 +63,7 @@ namespace Audio
 
 	// Plays a given sound effect.
 	SoundHandle PlaySound(const char *fileName, float volume = 1.0f, float pitch = 1.0f, bool looping = false);
-	SoundHandle PlayMusic(const char *fileName, float volume = 1.0f, float pitch = 1.0f, float transitionTime = 0.0f);
+	SoundHandle PlayMusic(const char *fileName, float volume = 1.0f, float pitch = 1.0f, bool loop = true);
 
 	void ToggleSFX();
 	void ToggleMusic();
