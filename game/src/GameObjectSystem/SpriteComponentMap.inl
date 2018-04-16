@@ -81,6 +81,14 @@ public:
 		StaticUpdateSpaceIndex<SpriteComponent>(*this, index);
 	}
 
+	static void ResortAll()
+	{
+		for (auto map : spriteMaps)
+		{
+			map->m_refsDirty = true;
+		}
+	}
+
 private:
 	std::vector<SpriteReference> m_references;
 	bool m_refsDirty;
@@ -91,6 +99,8 @@ private:
 	{
 		return new ComponentMap<SpriteComponent>(*this);
 	}
+
+	static std::vector<ComponentMap<SpriteComponent> *> spriteMaps;
 
 	void ResortReferences()
 	{
@@ -119,10 +129,12 @@ private:
 //--------------------------------
 inline ComponentMap<SpriteComponent>::~ComponentMap()
 {
+	spriteMaps.erase(std::find(spriteMaps.begin(), spriteMaps.end(), this));
 }
 
 inline ComponentMap<SpriteComponent>::ComponentMap(GameSpace *space) : m_space(space), m_refsDirty(true)
 {
+	spriteMaps.push_back(this);
 }
 
 // Returns nullptr if it's not found.
