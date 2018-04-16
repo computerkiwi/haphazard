@@ -11,6 +11,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 #include "Engine.h"
 
+#include "SOIL\SOIL.h"
 #include "Audio/AudioEngine.h"
 #include "meta/meta.h"
 #include "../Util/FrameCap.h"
@@ -326,6 +327,11 @@ GLFWwindow *WindowInit()
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "Shortstack", NULL, NULL);
+	
+	GLFWimage icon;
+	icon.pixels = SOIL_load_image("SetupIcon.png", &icon.width, &icon.height, nullptr, SOIL_LOAD_AUTO);
+	glfwSetWindowIcon(window, 1, &icon);
+	SOIL_free_image_data(icon.pixels);
 
 	Logging::Log_StartUp("Window created", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 
