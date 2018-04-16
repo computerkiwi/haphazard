@@ -24,7 +24,7 @@ function OnCollisionEnter(other)
 	then
 		other:GetScript("GnomeStatus.lua").overDoor = true
 
-		if(other:GetScript("InputHandler.lua").jumpPressed)
+		if(other:GetScript("InputHandler.lua").tossPressed)
 		then
 			transitionStarted = true
 			StartTransition(NewLevelTransition(DESTINATION_LEVEL))
