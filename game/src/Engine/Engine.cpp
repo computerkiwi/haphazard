@@ -11,6 +11,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include "Universal.h"
 #include "Engine.h"
 
+#include "SOIL\SOIL.h"
 #include "Audio/AudioEngine.h"
 #include "meta/meta.h"
 #include "../Util/FrameCap.h"
@@ -159,21 +160,25 @@ void Engine::Update()
 
 	if (timeCounter >= 1'000'000.0f)
 	{	
-		if (m_editor.GetSettings().infoOnTitleBar)
-		{
-			m_WindowTitle += "Shortstack | FrameRate: ";
-			m_WindowTitle += std::to_string(frameCounter);
-			m_WindowTitle += "    Dt: ";
-			m_WindowTitle += std::to_string(Dt());
+		#ifdef SHORTSTACK_DEV
+			if (m_editor.GetSettings().infoOnTitleBar)
+			{
+				m_WindowTitle += "Shortstack | FrameRate: ";
+				m_WindowTitle += std::to_string(frameCounter);
+				m_WindowTitle += "    Dt: ";
+				m_WindowTitle += std::to_string(Dt());
 
-			m_WindowTitle += ' ';
-			m_WindowTitle += m_WindowAppend;
-			m_WindowTitle += m_editor.GetSaveTitle();
-		}
-		else
-		{
+				m_WindowTitle += ' ';
+				m_WindowTitle += m_WindowAppend;
+				m_WindowTitle += m_editor.GetSaveTitle();
+			}
+			else
+			{
+				m_WindowTitle += "Shortstack";
+			}
+		#else // !SHORTSTACK_DEV
 			m_WindowTitle += "Shortstack";
-		}
+		#endif
 		glfwSetWindowTitle(m_window, m_WindowTitle.c_str());
 
 		m_WindowTitle.clear();
@@ -326,6 +331,13 @@ GLFWwindow *WindowInit()
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	GLFWwindow *window = glfwCreateWindow(Settings::ScreenWidth(), Settings::ScreenHeight(), "Shortstack", NULL, NULL);
+	
+	GLFWimage icons[2];
+	icons[0].pixels = SOIL_load_image("assets\\SetupIcon.png", &icons[0].width, &icons[0].height, nullptr, SOIL_LOAD_AUTO);
+	icons[1].pixels = SOIL_load_image("assets\\SetupIconSmall.png", &icons[1].width, &icons[1].height, nullptr, SOIL_LOAD_AUTO);
+	glfwSetWindowIcon(window, 2, icons);
+	SOIL_free_image_data(icons[0].pixels);
+	SOIL_free_image_data(icons[1].pixels);
 
 	Logging::Log_StartUp("Window created", Logging::GRAPHICS, Logging::MEDIUM_PRIORITY);
 

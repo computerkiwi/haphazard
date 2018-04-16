@@ -9,6 +9,8 @@ Activated = false
 GEM_SPRITE = "Interactive(Green)_On.png"
 KeyID = "DefaultGem"
 
+ultimateBoy = false
+
 function OnCollisionEnter(other)
 	if (other:HasTag("Player") 
 	and other:GetScript("GnomeStatus.lua").hasGem == true
@@ -22,6 +24,24 @@ function OnCollisionEnter(other)
 		other:GetScript("GnomeStatus.lua").hasGem = false
 		other:GetScript("GnomeStatus.lua").GemID = "owo"
 		
+		if(ultimateBoy)
+		then
+			local a = GameObject.LoadPrefab("assets/prefabs/ParticleGem_Red.json")
+			a:GetTransform().position = this:GetTransform().position
+
+			a = GameObject.LoadPrefab("assets/prefabs/ParticleGem_Green.json")
+			a:GetTransform().position = this:GetTransform().position
+
+			a = GameObject.LoadPrefab("assets/prefabs/ParticleGem_Blue.json")
+			a:GetTransform().position = this:GetTransform().position
+
+			a = GameObject.LoadPrefab("assets/prefabs/ParticleGem_Yellow.json")
+			a:GetTransform().position = this:GetTransform().position
+
+			a = GameObject.LoadPrefab("assets/prefabs/ParticleGem_Purple.json")
+			a:GetTransform().position = this:GetTransform().position
+		end
+
 		-- We're no longer important to focus the camera onto once activated.
 		local focusScript = this:GetScript("CameraFocus.lua")
 		if (focusScript)

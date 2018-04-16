@@ -369,7 +369,6 @@ end
 -- MAIN FUNCTIONS
 
 function UpdateHowToPlay()
-	print(backPressed)
 	if (backPressed)
 	then
 		showingHowToPlay = false
