@@ -350,9 +350,10 @@ function UpdateDir()
 		facing = moveDir
 	end
 
-
-	if(moveDir == 0)
+	if (input.horizontalAxis > DEADZONE or input.horizontalAxis < -DEADZONE or input.verticalAxis > DEADZONE or input.verticalAxis < -DEADZONE)
 	then
+		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
+	else
 		if (facing == MOVE_RIGHT)
 		then
 			this:GetScript("ProjectileSpawner.lua").SetAim({x = 1, y = 0})
@@ -371,14 +372,6 @@ function UpdateDir()
 	end
 
 	this:GetScript("ProjectileSpawner.lua").SetDir(dir)
-
-	-- If we're stacked and aiming set the aim.
-	if(this:GetScript("GnomeStatus.lua").stacked)
-	then
-		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
-	else
-		this:GetScript("ProjectileSpawner.lua").SetAim(dir)
-	end
 
 	SetWalkAnimFPS()
 
