@@ -1,4 +1,3 @@
-#pragma optimize("", off)
 /*
 FILE: Particles.cpp
 PRIMARY AUTHOR: Max Rauffer
@@ -347,5 +346,3 @@ void ParticleSystem::GenRandomTexture()
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
 
-
-#pragma optimize("", on)
