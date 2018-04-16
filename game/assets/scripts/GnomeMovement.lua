@@ -338,18 +338,6 @@ function UpdateDir()
 	
 	local input = this:GetScript("InputHandler.lua")
 
-	-- Call input to get horizontal axis
-	moveDir = input.horizontalAxis
-	if (moveDir > 0)
-	then
-		moveDir = MOVE_RIGHT
-		facing = moveDir
-	elseif(moveDir < 0)
-	then
-		moveDir = MOVE_LEFT
-		facing = moveDir
-	end
-
 	if (input.horizontalAxis > DEADZONE or input.horizontalAxis < -DEADZONE or input.verticalAxis > DEADZONE or input.verticalAxis < -DEADZONE)
 	then
 		this:GetScript("ProjectileSpawner.lua").SetAim(vec2(input.horizontalAxis, input.verticalAxis))
@@ -362,6 +350,19 @@ function UpdateDir()
 		end
 
 		SetIdleAnimFPS()
+	end
+
+	-- Call input to get horizontal axis
+	moveDir = input.horizontalAxis
+	if (moveDir > 0)
+	then
+		moveDir = MOVE_RIGHT
+		facing = moveDir
+	elseif(moveDir < 0)
+	then
+		moveDir = MOVE_LEFT
+		facing = moveDir
+	else
 		return
 	end
 
