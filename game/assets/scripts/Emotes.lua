@@ -18,16 +18,13 @@ function Update(dt)
 		if (PlayerStatus.hasGem == true)
 		then
 			th.currentFrame = 1
-		else
-			th.currentFrame = 0
-		end
-
-		if (PlayerStatus.overDoor == true)
+		elseif (PlayerStatus.overDoor == true)
 		then
 			th.currentFrame = 2
 		else
 			th.currentFrame = 0
 		end
+
 
 		sprite.textureHandler = th
 	end
