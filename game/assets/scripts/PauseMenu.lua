@@ -276,6 +276,9 @@ function StartTransition(transitionAction)
   TRANSITION_ACTION = transitionAction
   transitionStarted = true
 
+  -- Transition means we're closing the menu. Turn the music back on.
+  SetQuietMusic(false)
+  
   transitionScreen = GameObject.LoadPrefab("assets/prefabs/level_transition/LevelTransitionFast.json")
 
   transitionScreen:GetTransform().position = ScreenToWorld(vec2(0,0))
