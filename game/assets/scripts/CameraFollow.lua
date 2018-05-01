@@ -279,12 +279,6 @@ function Update(dt)
 	local top = top + Y_BUFFER / 2
     local bot = bot - Y_BUFFER / 2
 	
-	-- Screenshake debugging.
-	if (OnPress(KEY.P))
-	then
-		AddTrauma(0.3333)
-	end
-	--]]
 	SetCameraBounds(left, right, top, bot)
 	UpdateRealPosition(dt)
 	

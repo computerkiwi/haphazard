@@ -112,6 +112,14 @@ void Engine::MainLoop()
 float timeCounter = 0;
 int frameCounter = 0;
 
+#ifdef SHORTSTACK_DEV
+static bool editorEnablable = true;
+#else
+static bool editorEnablable = false;
+static float editorEnableTimer = 0.0f;
+const static float EDITOR_ENABLE_TIMER = 3.0f;
+#endif
+
 void Engine::Update()
 {
 	if (!glfwGetWindowAttrib(m_window, GLFW_FOCUSED))
@@ -144,8 +152,27 @@ void Engine::Update()
 
 	Audio::Update();
 
-	if (Input::IsPressed(Key::GraveAccent))
+	#ifndef SHORSTACK_DEV
+	if ((Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl)) && Input::IsHeldDown(Key::GraveAccent))
+	{
+		editorEnableTimer += m_dt;
+		if (!editorEnablable && editorEnableTimer >= EDITOR_ENABLE_TIMER)
+		{
+			Audio::PlaySound("default.wav");
+			editorEnablable = true;
+		}
+	}
+	else
+	{
+		editorEnableTimer = 0.0f;
+	}
+	#endif // !SHORSTACK_DEV
+
+
+	if (editorEnablable && Input::IsPressed(Key::GraveAccent))
+	{
 		m_editor.ToggleEditor();
+	}
 	m_editor.Update(m_dt);
 	
 	glfwSwapBuffers(m_window);
