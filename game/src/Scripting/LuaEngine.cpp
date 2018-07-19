@@ -47,3 +47,15 @@ lua_State *GetGlobalLuaState()
 
 	return L;
 }
+
+void RunLuaCommand(const char *commandString)
+{
+	luaL_dostring(GetGlobalLuaState(), commandString);
+}
+
+void RunLuaCommand(const std::string& commandString)
+{
+	RunLuaCommand(commandString.c_str());
+}
+
+
