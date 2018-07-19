@@ -94,6 +94,9 @@ public:
 
 private:
 
+	// Update if the window is focused and make necessary changes.
+	void UpdateWindowFocus();
+
 	void FileLoadInternal(const char *fileName);
 
 	Init_EnginePointer m_init;
@@ -115,6 +118,8 @@ private:
 	FXManager m_fxManager;
 
 	std::string m_currentLevel;
+
+	bool m_windowFocused;
 
 	static rapidjson::Value EngineSerializeFunction(const void *enginePtr, rapidjson::Document::AllocatorType& allocator)
 	{

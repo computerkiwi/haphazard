@@ -65,7 +65,7 @@ Init_EnginePointer::Init_EnginePointer(Engine *e)
 }
 
 				   // Init OpenGL and start window
-Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window), m_spaces()
+Engine::Engine() : m_init(this), m_window(WindowInit()), m_editor(this, m_window), m_spaces(), m_windowFocused(true)
 {
 	m_WindowTitle.reserve(256);
 
@@ -120,9 +120,15 @@ static float editorEnableTimer = 0.0f;
 const static float EDITOR_ENABLE_TIMER = 3.0f;
 #endif
 
+// Keep track of if the game is focused.
+static bool m_focused = true;
+
+
 void Engine::Update()
 {
-	if (!glfwGetWindowAttrib(m_window, GLFW_FOCUSED))
+	UpdateWindowFocus();
+
+	if (!m_windowFocused)
 	{
 		glfwPollEvents();
 		return;
@@ -317,6 +323,25 @@ void Engine::AppendToWindowTitle(const char *str)
 bool Engine::IsWindowTitleDirty() const 
 { 
 	return timeCounter >= 999990.9f;
+}
+
+void Engine::UpdateWindowFocus()
+{
+	bool windowActuallyFocused = glfwGetWindowAttrib(m_window, GLFW_FOCUSED);
+
+	// If the window just became focused.
+	if (windowActuallyFocused && !m_windowFocused)
+	{
+		Audio::SetMuted(false);
+	}
+
+	// If the window just became unfocused.
+	if (!windowActuallyFocused && m_windowFocused)
+	{
+		Audio::SetMuted(true);
+	}
+
+	m_windowFocused = windowActuallyFocused;
 }
 
 void Engine::FileLoadInternal(const char * fileName)

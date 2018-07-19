@@ -41,6 +41,8 @@ namespace Audio
 	static std::list<std::pair<SoundHandle, float>> sfxList; // <soundHandle, volume>
 	static bool sfxMuted = false;
 
+	static bool globalMute = false;
+
 	static void ClearOldSFX()
 	{
 		std::remove_if(sfxList.begin(), sfxList.end(), [](const std::pair<SoundHandle, float>& soundPair) { return !soundPair.first.IsPlaying(); });
@@ -49,7 +51,7 @@ namespace Audio
 	static void UpdateMusicVolume()
 	{
 		float musicVol;
-		if (musicMuted)
+		if (musicMuted || globalMute)
 		{
 			musicVol = 0;
 		}
@@ -63,6 +65,27 @@ namespace Audio
 		}
 
 		musicTrack.SetVolume(musicVol);
+	}
+
+	static void UpdateSFXVolume()
+	{
+		for (std::pair<SoundHandle, float>& soundPair : sfxList)
+		{
+			// Don't mess with outdated sfx handles - they'll get removed later.
+			if (!soundPair.first.IsPlaying())
+			{
+				continue;
+			}
+
+			if (sfxMuted || globalMute)
+			{
+				soundPair.first.SetVolume(0);
+			}
+			else
+			{
+				soundPair.first.SetVolume(soundPair.second);
+			}
+		}
 	}
 
 	// Returns the path into the audio folder plus the filename.
@@ -170,17 +193,7 @@ namespace Audio
 	void ToggleSFX()
 	{
 		sfxMuted = !sfxMuted;
-		for (std::pair<SoundHandle, float>& soundPair : sfxList)
-		{
-			if (sfxMuted)
-			{
-				soundPair.first.SetVolume(0);
-			}
-			else
-			{
-				soundPair.first.SetVolume(soundPair.second);
-			}
-		}
+		UpdateSFXVolume();
 	}
 
 	void ToggleMusic()
@@ -197,6 +210,13 @@ namespace Audio
 			quietMusic = quiet;
 			UpdateMusicVolume();
 		}
+	}
+
+	void SetMuted(bool muted)
+	{
+		globalMute = muted;
+		UpdateMusicVolume();
+		UpdateSFXVolume();
 	}
 
 	SoundHandle GetMusic()
