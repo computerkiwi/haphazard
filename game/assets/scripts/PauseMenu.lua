@@ -289,6 +289,7 @@ end
 
 function Resume()
 	SetPaused(false)
+	SetQuietMusic(false)
 end
 
 -- Switches to the "main" pause page.
@@ -312,6 +313,7 @@ end
 function MainMenu()
   local function ActualMainMenu()
     SetPaused(false)
+	SetQuietMusic(false)
     StartTransition(NewLevelTransition("MainMenu.json"))
   end
 
@@ -322,6 +324,7 @@ end
 function Restart()
   local function ActualRestart()
     SetPaused(false)
+	SetQuietMusic(false)
     StartTransition(NewLevelTransition(CurrentLevel()))
   end
 
@@ -335,6 +338,7 @@ end
 function CreditsButton()
   local function Credits()
     SetPaused(false)
+	SetQuietMusic(false)
     StartTransition(NewLevelTransition("CreditsLevel.json"))
   end
 
@@ -345,6 +349,7 @@ end
 function QuitButton()
   local function ActualQuit()
     SetPaused(false)
+	SetQuietMusic(false)
     StartTransition(QuitGame)
   end
 
@@ -357,6 +362,7 @@ end
 
 function ConfirmYes()
 	SetPaused(false)
+	SetQuietMusic(false)
   confirming = false
   UpdateConfirmDialog(false)
   confirmingAction()
