@@ -152,7 +152,7 @@ void Engine::Update()
 
 	Audio::Update();
 
-	#ifndef SHORSTACK_DEV
+	#ifndef SHORTSTACK_DEV
 	if ((Input::IsHeldDown(Key::LeftControl) || Input::IsHeldDown(Key::RightControl)) && Input::IsHeldDown(Key::GraveAccent))
 	{
 		editorEnableTimer += m_dt;
