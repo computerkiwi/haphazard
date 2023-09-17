@@ -1,6 +1,6 @@
 ﻿/*
 FILE: GameObject.cpp
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright � 2017 DigiPen (USA) Corporation.
 */

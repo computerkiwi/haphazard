@@ -1,6 +1,6 @@
 /*
 FILE: SerializationKeys.h
-PRIMARY AUTHOR: Kieran Williams
+PRIMARY AUTHOR: Kiera Williams
 
 Copyright (c) 2018 DigiPen (USA) Corporation.
 */

@@ -1,6 +1,6 @@
 /*
 FILE: MultiselectUndo.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Class that can be used to handle undo on multiselect objects.
 

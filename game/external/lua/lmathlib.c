@@ -163,7 +163,7 @@ static int math_modf (lua_State *L) {
 }
 
 // HAPHAZARD ADDITION:
-// Kieran Williams
+// Kiera Williams
 static int math_lerp(lua_State *L)
 {
 	lua_Number a = luaL_checknumber(L, 1);

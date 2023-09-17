@@ -116,7 +116,7 @@ void Screen::Draw()
 
 void Screen::RenderLoadingScreen()
 {
-	// This is gross. I'm sorry. I didn't want to do it, but kieran made me
+	// This is gross. I'm sorry. I didn't want to do it, but kiera made me
 
  	Screen::Use();
 

@@ -1,6 +1,6 @@
 /*
 FILE: Logging.h
-PRIMARY AUTHOR: Kieran Williams, Sweet
+PRIMARY AUTHOR: Kiera Williams, Sweet
 
 Copyright � 2017 DigiPen (USA) Corporation.
 */
@@ -31,7 +31,7 @@ namespace
 	// Creates a directory if it doesn't already exist.
 	void TryCreateDirectory(const std::string& path)
 	{
-		// TODO[Kieran] - Error checking on Windows calls.
+		// TODO[Kiera] - Error checking on Windows calls.
 
 		if (PathFileExists(path.c_str()))
 		{
@@ -44,7 +44,7 @@ namespace
 	// Gets the path to the DigiPen/Haphazard folder in documents.
 	std::string GetHaphazardFolderPath()
 	{
-		// TODO[Kieran] - Error checking on Windows calls.
+		// TODO[Kiera] - Error checking on Windows calls.
 
 		// Get the documents folder as a wide string.
 		PWSTR pathPointer;

@@ -1,6 +1,6 @@
 /*
 FILE: LuaRegistration.cpp
-PRIMARY AUTHOR: Kieran Williams
+PRIMARY AUTHOR: Kiera Williams
 
 Temporary file to manually register some stuff.
 

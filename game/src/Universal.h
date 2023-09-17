@@ -1,6 +1,6 @@
 /*
 FILE: Universal.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 General universal header containing things that will commonly be used everywhere.
 

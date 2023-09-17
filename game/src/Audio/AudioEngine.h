@@ -1,6 +1,6 @@
 /*
 FILE: AudioEngine.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright © 2017 DigiPen (USA) Corporation.
 */

@@ -1,6 +1,6 @@
 /*
 FILE: Serialization.inl
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright (c) 2018 DigiPen (USA) Corporation.
 */

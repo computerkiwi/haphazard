@@ -1,6 +1,6 @@
 /*
 FILE: LuaScript.cpp
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
@@ -40,8 +40,8 @@ LuaScript::LuaScript(const LuaScript& other) : m_thisObj(other.m_thisObj), m_L(o
 
 
 	// Copy all the serializable variables in the script environment.
-	// TODO[Kieran]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
-	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kieran
+	// TODO[Kiera]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
+	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kiera
 	for (auto& var : vars)
 	{
 		this->SetVar(var.first.c_str(), var.second);
@@ -59,8 +59,8 @@ LuaScript & LuaScript::operator=(const LuaScript & other)
 
 
 	// Copy all the serializable variables in the script environment.
-	// TODO[Kieran]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
-	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kieran
+	// TODO[Kiera]: Copy things on Lua side instead of through C++ and meta system. There's probably a faster way.
+	auto vars = const_cast<LuaScript&>(other).GetAllVars(); // Const correctness is an enormous pain and I assure you this won't cause any problems probably. - Kiera
 	for (auto& var : vars)
 	{
 		this->SetVar(var.first.c_str(), var.second);

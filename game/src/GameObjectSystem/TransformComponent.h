@@ -1,6 +1,6 @@
 /*
 FILE: TransformComponent.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
@@ -12,7 +12,7 @@ Copyright (c) 2017 DigiPen (USA) Corporation.
 #include <cmath>
 #include "GameObject.h"
 
-// TODO[Kieran] - Move this somewhere more general.
+// TODO[Kiera] - Move this somewhere more general.
 constexpr float DegToRad(float degrees)
 {
 	const float PI = 3.14159265358979323846264338327950f;

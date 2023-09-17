@@ -1,6 +1,6 @@
 /*
 FILE: Assert.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Deals with our own assert.
 

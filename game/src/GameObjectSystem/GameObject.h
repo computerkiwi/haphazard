@@ -1,6 +1,6 @@
 /*
 FILE: GameObject.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright � 2017 DigiPen (USA) Corporation.
 */
@@ -54,7 +54,7 @@ public:
 		if (GetSpace()->GetInternalComponent<T>(m_objID) != nullptr)
 		{
 			// Why the hell does constructing a ComponentHandle work?
-			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kieran
+			// We never forward declare the constructor and we shouldn't know what sizeof(ComponentHandle<T>) is, right? -Kiera
 
 			// TEMPLATES -Sweet
 			return ComponentHandle<T>(m_objID);

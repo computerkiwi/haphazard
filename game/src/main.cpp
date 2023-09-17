@@ -1,6 +1,6 @@
 /*
 FILE: main.cpp
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Entry point into the program.
 Currently just a place to play around in.

@@ -1,6 +1,6 @@
 /*
 FILE: GameSpace.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */
@@ -186,7 +186,7 @@ void GameSpace::DeleteComponent(GameObject_ID id)
 template <typename T>
 T *GameSpace::GetInternalComponent(GameObject_ID id)
 {
-	// TODO[Kieran]: Cast individual components instead of the maps.
+	// TODO[Kiera]: Cast individual components instead of the maps.
 
 	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 	ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);
@@ -197,7 +197,7 @@ T *GameSpace::GetInternalComponent(GameObject_ID id)
 template <typename T, typename... Args>
 void GameSpace::EmplaceComponent(GameObject_ID id, Args&&... args)
 {
-	// TODO[Kieran]: Cast individual components instead of the maps.
+	// TODO[Kiera]: Cast individual components instead of the maps.
 
 	ComponentMapBase *baseMap = m_componentMaps.at(GetComponentType<T>::func());
 	ComponentMap<T> *compMap = static_cast<ComponentMap<T> *>(baseMap);

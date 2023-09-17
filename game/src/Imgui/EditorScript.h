@@ -1,6 +1,6 @@
 /*
 FILE: EditorScript.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Displaying individual Lua scripts in the editor.
 

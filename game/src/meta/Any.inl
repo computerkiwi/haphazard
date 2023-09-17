@@ -1,6 +1,6 @@
 /*
 FILE: Any.inl
-PRIMARY AUTHOR: Kieran Williams
+PRIMARY AUTHOR: Kiera Williams
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */

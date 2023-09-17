@@ -1,6 +1,6 @@
 /*
 FILE: LuaScript.h
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Copyright (c) 2017 DigiPen (USA) Corporation.
 */

@@ -1,6 +1,6 @@
 /*
 FILE: EditorScript.cpp
-PRIMARY AUTHOR: Kieran
+PRIMARY AUTHOR: Kiera
 
 Displaying individual Lua scripts in the editor.
 
